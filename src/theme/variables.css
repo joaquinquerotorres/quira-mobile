@@ -1,0 +1,337 @@
+/* src/theme/variables.css */
+
+/* Importamos Inter (Legibilidad técnica) y Outfit (Opcional, para ese toque Quira curvo) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;900&display=swap');
+
+:root {
+  /* TIPOGRAFÍA: Inter para textos, Outfit para títulos si quieres */
+  --ion-font-family: 'Inter', sans-serif;
+
+  /* --- PALETA CORPORATIVA QUIRA (ESTILO 2) --- */
+
+  /** * PRIMARY: "Quira Indigo"
+   * Un tono más vibrante y tecnológico.
+   **/
+  --ion-color-primary: #4f46e5;
+  --ion-color-primary-rgb: 79, 70, 229;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3730a3; /* Indigo 800 para contraste */
+  --ion-color-primary-tint: #818cf8; /* Indigo 400 */
+
+  /** * SECONDARY: "Quira Smart Orange"
+   * El color del "punto" de la IA y acciones de conversión.
+   **/
+  --ion-color-secondary: #f97316; /* Naranja más vivo para el .ai */
+  --ion-color-secondary-rgb: 249, 115, 22;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #ea580c;
+  --ion-color-secondary-tint: #fb923c;
+
+  /** * TERTIARY: "Quira Success"
+   **/
+  --ion-color-tertiary: #10b981;
+  --ion-color-tertiary-rgb: 16, 185, 129;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #059669;
+  --ion-color-tertiary-tint: #34d399;
+
+  /* --- SISTEMA DE GRISES Y FONDOS (SLATE) --- */
+  --ion-background-color: #f8fafc; 
+  --ion-background-color-rgb: 248, 250, 252;
+
+  --ion-text-color: #0f172a; /* Slate 900 para máxima legibilidad */
+  --ion-text-color-rgb: 15, 23, 42;
+
+  --ion-item-background: #ffffff;
+  --ion-card-background: #ffffff;
+  --ion-border-color: #e2e8f0;
+
+  /* Colores de soporte estándar */
+  --ion-color-success: #10b981;
+  --ion-color-warning: #f59e0b;
+  --ion-color-danger: #ef4444;
+  --ion-color-medium: #64748b;
+  --ion-color-light: #f1f5f9;
+}
+
+/* --- REGLAS DE DISEÑO QUIRA --- */
+
+ion-button {
+    --border-radius: 16px; 
+    font-weight: 800;      
+    letter-spacing: -0.3px;
+    text-transform: none;  
+    height: 56px; /* Un pelín más altos para un look moderno */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Botones Índigo con degradado suave */
+ion-button[color="primary"] {
+    --background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
+}
+
+/* Botones Naranja (Acción IA / Publicar) */
+ion-button[color="secondary"] {
+    --background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    --box-shadow: 0 8px 20px -6px rgba(249, 115, 22, 0.4);
+}
+
+/* Estilo para los Inputs */
+ion-item {
+    --border-radius: 16px;
+    --padding-start: 16px;
+    --background: #ffffff;
+    --border-color: #e2e8f0;
+    --border-style: solid;
+    --border-width: 1px;
+    margin-bottom: 16px;
+    --inner-padding-end: 16px;
+}
+
+/* Clase para inputs sin el borde de item por defecto */
+.quira-input-item {
+    --highlight-height: 0;
+    --inner-border-width: 0;
+}
+
+.quira-input-item:focus-within {
+    --border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.input-wrapper {
+    font-weight: 600;
+    font-size: 1rem;
+    --color: #1e293b;
+    border: none;
+    margin-bottom: 0px !important;
+}
+
+.input-wrapper:focus-within {
+    border-color: inherit !important;
+    box-shadow: inherit !important;
+}
+.input-wrapper:focus-within {
+    border-color: inherit !important;
+    box-shadow: inherit !important;
+}
+.input-wrapper:focus-within {
+    border-color: inherit !important;
+    box-shadow: inherit !important;
+}
+
+/* Buscador y Contenedores */
+.quira-search-row-container { display: flex; align-items: center; margin-bottom: 20px; }
+.search-card-style { background: white; border: 1px solid #e2e8f0; border-radius: 16px; height: 52px; padding: 0 18px; display: flex; align-items: center; flex: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+.real-search-input { border: none; outline: none; width: 100%; font-weight: 600; font-size: 0.95rem; }
+
+/* La Card Maestra */
+.card-body { padding: 15px; display: flex; gap: 15px; }
+.card-content { flex: 1; min-width: 0; }
+.card-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
+.card-footer { padding: 10px 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: white; }
+
+/* Colores de Borde */
+.card-status-pending { border-left: 5px solid #ea580c; }
+.card-status-accepted { border-left: 5px solid #10b981; }
+.card-status-completed { border-left: 5px solid #64748b; }
+.card-status-cancelled { border-left: 5px solid #94a3b8; }
+
+.active-chip {
+    --background: var(--ion-color-primary) !important;
+    --color: white !important;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    height: 36px;
+    font-size: 0.85rem;
+    margin: 0;
+    box-shadow: 0 4px 12px -3px rgba(var(--ion-color-primary-rgb), 0.4); 
+    overflow: visible;
+}
+
+.inactive-chip {
+    --background: white !important;
+    --color: #64748b !important; 
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-weight: 600;
+    height: 36px;
+    font-size: 0.85rem;
+    margin: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    overflow: visible;
+}
+
+.request-status-pending {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.request-status-accepted {
+    background: #dcfce7;
+    color: #10b981;
+}
+
+.request-status-completed {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.request-status-pending-approval {
+    background: #e48d9d;
+    color: #d13754;
+}
+
+.request-status-cancelled {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.card-status-pending {
+    border-left: 5px solid #ea580c;
+}
+
+.card-status-accepted {
+    border-left: 5px solid #10b981;
+}
+
+.card-status-completed {
+    border-left: 5px solid #64748b;
+}
+
+.card-status-cancelled {
+    border-left: 5px solid #94a3b8;
+}
+
+/* Flecha unificada para cards de listados (RequestList, Market, MyWork, Directory) */
+.arrow-box {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f46e5;
+    font-size: 18px;
+}
+
+.arrow-box.muted {
+    color: #94a3b8;
+}
+
+.pro-icon-bg {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.pro-icon-bg.blue {
+    background: #4f46e5;
+}
+
+.pro-icon-bg.gray {
+    background: #94a3b8;
+}
+
+.rating-badge {
+    display: flex;
+    align-items: center;
+    background: #fffbeb;
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1px solid #fde68a;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #b45309;
+}
+
+.rating-badge ion-icon {
+    font-size: 11px;
+    color: #fbbf24;
+    margin-right: 4px;
+}
+
+.empty-icon-circle {
+    background: #f1f5f9;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: #94a3b8;
+    font-size: 36px;
+}
+
+/* --- ION-DATETIME / ION-PICKER (Quira branding) --- */
+ion-datetime {
+    --background: #ffffff;
+    --title-color: #1e293b;
+    --wheel-fade-background-rgb: 248, 250, 252;
+    --wheel-highlight-background: #eef2ff;
+    --wheel-highlight-border-radius: 14px;
+}
+
+ion-picker {
+    --background: #ffffff;
+    --fade-background-rgb: 248, 250, 252;
+    --highlight-background: #eef2ff;
+    --highlight-border-radius: 14px;
+}
+
+/* Calendar days (grid style) */
+ion-datetime::part(calendar-day) {
+    color: #1e293b;
+    font-weight: 600;
+    border-radius: 12px;
+}
+ion-datetime::part(calendar-day active) {
+    background: var(--ion-color-primary) !important;
+    color: white !important;
+    font-weight: 800;
+}
+ion-datetime::part(calendar-day today) {
+    border: 2px solid var(--ion-color-primary);
+    color: var(--ion-color-primary);
+    font-weight: 700;
+}
+ion-datetime::part(calendar-day disabled) {
+    color: #cbd5e1;
+}
+
+/* Wheel items (month/year/time pickers) */
+ion-datetime::part(wheel-item) {
+    color: #64748b;
+    font-weight: 600;
+}
+ion-datetime::part(wheel-item active) {
+    color: #1e293b !important;
+    font-weight: 800 !important;
+}
+
+/* Month/year and time buttons */
+ion-datetime::part(month-year-button),
+ion-datetime::part(time-button) {
+    font-weight: 700;
+    color: #1e293b;
+}
+ion-datetime::part(time-button active) {
+    background: var(--ion-color-primary) !important;
+    color: white !important;
+    border-radius: 12px;
+}

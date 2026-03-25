@@ -1,0 +1,780 @@
+/* src/pages/Profile.css */
+
+/* --- HEADER Y LOGO --- */
+.profile-header-toolbar IonToolbar {
+    --background: var(--ion-color-primary) !important;
+}
+
+.quira-logo-toolbar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+}
+
+.quira-text-toolbar {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.quira-x-icon-toolbar {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    margin: 3px 1px 0 1px;
+}
+
+.quira-x-leg-toolbar {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    border-radius: 4px;
+    left: 50%;
+}
+
+.quira-x-leg-toolbar.white {
+    background: white;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.quira-x-leg-toolbar.coral {
+    background: #ea580c;
+    transform: translateX(-50%) rotate(-45deg);
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* --- PERFIL HERO --- */
+.profile-hero {
+    background: var(--ion-color-primary);
+    padding: 20px 24px 45px 24px;
+    text-align: center;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+    margin-top: -1px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 30px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--ion-color-primary);
+}
+
+.profile-name {
+    color: white;
+    margin: 0;
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.profile-email {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.role-badge {
+    padding: 5px 14px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+}
+
+.role-badge.pro {
+    background: #ea580c;
+    color: white;
+}
+
+.role-badge.client {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* --- MENÚS --- */
+.profile-section-title {
+    padding: 0 24px;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+}
+
+/* --- BANNER TRIAL EXPIRADO --- */
+.profile-trial-expired-banner {
+    margin: 0 16px 20px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.1);
+}
+.profile-trial-expired-banner:active {
+    opacity: 0.9;
+}
+.profile-trial-expired-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.profile-trial-expired-content > ion-icon:first-child {
+    font-size: 28px;
+    color: #ea580c;
+    flex-shrink: 0;
+}
+.profile-trial-expired-content > div {
+    flex: 1;
+    min-width: 0;
+}
+.profile-trial-expired-content strong {
+    display: block;
+    color: #9a3412;
+    font-size: 0.95rem;
+}
+.profile-trial-expired-content p {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: #c2410c;
+}
+.profile-trial-expired-content > ion-icon:last-child {
+    font-size: 20px;
+    color: #ea580c;
+    flex-shrink: 0;
+}
+
+.profile-subscription-section {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+.profile-subscription-section .profile-section-title {
+    margin-top: 8px;
+}
+.profile-subscription-section .profile-menu-card {
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+/* Aire arriba y abajo del bloque Plan actual (Suscripción) */
+.profile-menu-card--subscription .menu-item {
+    --padding-start: 16px;
+    --padding-top: 7px;
+    --padding-bottom: 7px;
+    --inner-padding-top: 7px;
+    --inner-padding-bottom: 7px;
+}
+.profile-menu-card--subscription .profile-verification-title-row {
+    margin-top: 0;
+}
+
+.profile-menu-card {
+    background: #f8fafc;
+    margin: 0 16px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    padding: 0;
+}
+
+.menu-item {
+    --min-height: 56px;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    --background: white;
+    font-size: 0.9rem;
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: #f1f5f9;
+    margin: 6px 16px;
+}
+
+.item-label {
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.icon-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.icon-blue { background: #eef2ff; color: #4f46e5; }
+.icon-gray { background: #f8fafc; color: #64748b; }
+.icon-orange { background: #fff7ed; color: #ea580c; }
+
+/* --- BOTONES --- */
+.logout-button {
+    margin: 20px 16px 40px;
+    --color: #ef4444;
+    font-weight: 800;
+    height: 50px;
+    --border-radius: 16px;
+}
+
+.quira-main-btn {
+    --background: #ea580c;
+    --border-radius: 16px;
+    height: 56px;
+    font-weight: 800;
+    margin-top: 20px;
+    --box-shadow: 0 8px 25px -5px rgba(234, 88, 12, 0.3);
+}
+
+/* --- HISTORIAL --- */
+.history-card {
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-title {
+    margin: 0 0 4px 0;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.history-date {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    gap: 4px;
+}
+
+.history-price {
+    font-weight: 900;
+    color: #10b981;
+    font-size: 1.1rem;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 40px 20px;
+    color: #cbd5e1;
+}
+.empty-history ion-icon { font-size: 48px; margin-bottom: 10px; }
+
+/* --- INPUTS LIMPIOS --- */
+.section-label {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #1e293b;
+    margin-left: 4px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-label:first-of-type {
+    margin-top: 10px;
+}
+
+.input-label-sm {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 12px;
+    margin-left: 4px;
+    display: block;
+    margin-top: 12px;
+}
+
+.input-wrapper {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: 56px;
+    margin-bottom: 35px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    transition: 0.3s;
+}
+
+.input-wrapper.textarea-wrapper {
+    height: auto;
+    padding: 10px 15px;
+    align-items: flex-start;
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--ion-color-primary);
+}
+
+.input-wrapper ion-input,
+.input-wrapper ion-textarea,
+.input-wrapper ion-select {
+    --background: transparent !important;
+    --padding-start: 0 !important;
+    width: 100%;
+    font-weight: 600;
+    color: #1e293b;
+    --placeholder-color: #94a3b8;
+}
+
+/* --- EDIT AVATAR --- */
+.edit-avatar-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+}
+
+.edit-avatar-circle {
+    width: 100%;
+    height: 100%;
+    background: #e0e7ff;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--ion-color-primary);
+}
+
+.edit-avatar-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #ea580c;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 3px solid white;
+    font-size: 18px;
+}
+
+/* --- SKILLS CHIPS --- */
+.skills-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.skill-chip {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    height: 40px;
+    padding-inline: 16px;
+    --border-radius: 12px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent; 
+}
+
+.skill-chip.active {
+    --background: var(--ion-color-primary);
+    --color: white;
+    border-color: var(--ion-color-primary); 
+}
+
+.skill-chip.inactive {
+    --background: white;
+    --color: #64748b;
+    border-color: #e2e8f0; 
+}
+
+/* --- TIERS --- */
+.tier-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tier-pill.pro { background: #ecfdf5; color: #059669; border: 1px solid #10b981; }
+.tier-pill.solver { background: #eef2ff; color: #4f46e5; border: 1px solid #6366f1; }
+.tier-pill.free { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+.tier-pill.client { background: white; color: #64748b; border: 1px solid #e2e8f0; }
+
+.profile-menu-card.highlight-border {
+    border: 2px solid #fdba74;
+    background: #fff7ed;
+}
+
+/* --- SERVICE ZONE CARD --- */
+.service-zone-card {
+    background: white;
+    border: 2px solid #eef2ff;
+    border-radius: 24px;
+    padding: 16px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.map-wrapper-google {
+    background: #f1f5f9;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 15px;
+}
+
+.gps-btn-profile {
+    --background: #f1f5f9;
+    --color: #4f46e5;
+    --border-radius: 16px;
+    height: 56px;
+    width: 56px;
+    margin: 0;
+}
+
+.privacy-note {
+    display: flex;
+    gap: 10px;
+    background: #fffbeb;
+    padding: 12px;
+    border-radius: 16px;
+    margin-top: 15px;
+    border: 1px solid #fde68a;
+}
+
+.privacy-note p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #92400e;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.custom-range {
+    --bar-height: 6px;
+    --knob-size: 20px;
+    --bar-background-active: var(--ion-color-primary);
+}
+
+/* Z-INDEX FIX GOOGLE MAPS AUTOCOMPLETE */
+.pac-container {
+    z-index: 20005 !important;
+}
+
+/* --- EDIT PROFILE MODAL (diseño Quira) --- */
+.profile-edit-hero {
+    background: var(--ion-color-primary);
+    padding: 12px 24px 35px;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    margin-bottom: 0;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+}
+.profile-edit-hero h2 {
+    font-weight: 900;
+    color: white;
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: -1px;
+}
+.profile-edit-hero p {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.profile-verify-hint {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+}
+
+.profile-edit-content {
+    padding: 0 16px 80px;
+    margin-top: 30px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
+}
+
+.profile-edit-content-main {
+    min-height: auto;
+    padding-bottom: 40px;
+}
+
+.profile-edit-avatar-wrap {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 8px;
+    cursor: pointer;
+}
+.profile-edit-avatar {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--ion-color-primary);
+}
+.profile-edit-avatar-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #ea580c;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 3px solid white;
+    font-size: 16px;
+}
+.profile-edit-avatar-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    display: block;
+}
+
+.profile-edit-form {
+    background: white;
+    border-radius: 20px;
+    padding: 20px 16px 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+}
+
+.profile-edit-section {
+    margin-bottom: 20px;
+}
+.profile-edit-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    margin-left: 4px;
+}
+.profile-edit-input {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    height: 52px;
+    transition: border-color 0.2s;
+}
+.profile-edit-input:focus-within {
+    border-color: var(--ion-color-primary);
+    border-width: 2px;
+}
+.profile-edit-input.profile-edit-textarea {
+    height: auto;
+    padding: 12px 14px;
+}
+.profile-edit-input ion-icon {
+    color: #94a3b8;
+    margin-right: 10px;
+    font-size: 20px;
+}
+.profile-edit-input ion-input,
+.profile-edit-input ion-textarea {
+    --background: transparent;
+    --padding-start: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+.profile-edit-input.profile-edit-autocomplete {
+    background: transparent;
+}
+
+.profile-edit-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 24px 0 16px;
+}
+.profile-edit-section-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.profile-edit-map-card {
+    margin-bottom: 20px;
+}
+.profile-edit-address-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+.profile-edit-address-row .profile-edit-input {
+    flex: 1;
+}
+
+.profile-edit-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.profile-edit-skill {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    height: 38px;
+    --border-radius: 12px;
+}
+.profile-edit-skill.active {
+    --background: var(--ion-color-primary);
+    --color: white;
+}
+.profile-edit-skill:not(.active) {
+    --background: #f8fafc;
+    --color: #64748b;
+}
+
+.profile-edit-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    padding-top: 24px;
+}
+
+/* Modal de contraseña: botón más arriba, sin empujar al final */
+.profile-password-content {
+    min-height: auto;
+    margin-top: 20px;
+}
+.profile-password-content .profile-edit-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+}
+.profile-edit-save {
+    margin-top: 0 !important;
+}
+
+.profile-verification-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.verification-small-btn {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.profile-verification-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.profile-verification-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+}
+
+.profile-verification-pill--ok {
+    background: #ecfdf5;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.profile-verification-pill--warn {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+}
+
+.profile-verification-link-btn {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: none;
+    border: none;
+    color: var(--ion-color-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 999px;
+    background: rgba(79, 70, 229, 0.06);
+}
+
+.profile-verification-link-btn:hover {
+    background: rgba(79, 70, 229, 0.12);
+}
+
+.profile-phone-verify-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.profile-verification-link-btn--inline {
+    margin-top: 0;
+    margin-bottom: 0;
+}

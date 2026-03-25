@@ -1,0 +1,49 @@
+/**
+ * Estilos compartidos para inputs (BecomePro, Profile, NewRequest, etc.)
+ */
+
+.quira-input-wrapper {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  height: 52px;
+  transition: border-color 0.2s;
+}
+
+.quira-input-wrapper:focus-within {
+  border-color: var(--ion-color-primary);
+  border-width: 2px;
+}
+
+.quira-input-wrapper.quira-input-textarea {
+  height: auto;
+  padding: 12px 14px;
+  align-items: flex-start;
+}
+
+.quira-input-wrapper ion-icon {
+  color: #94a3b8;
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.quira-input-wrapper ion-input,
+.quira-input-wrapper ion-textarea {
+  --background: transparent;
+  --padding-start: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.quira-input-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+  margin-left: 4px;
+}

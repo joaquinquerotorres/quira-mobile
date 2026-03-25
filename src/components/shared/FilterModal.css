@@ -1,0 +1,51 @@
+.filter-input-wrapper {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 0 15px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.market-sort-btn { 
+    flex: 1; height: 50px; 
+    --border-radius: 12px; 
+    font-weight: 700; 
+}
+
+.section-label { 
+    font-size: 0.8rem; 
+    font-weight: 700; 
+    color: #1e293b; 
+    margin-left: 4px; 
+    margin-bottom: 6px; 
+    display: block; 
+    text-transform: uppercase; 
+}
+
+.custom-select-input { 
+    width: 100%; 
+    font-weight: 600; 
+    color: #1e293b; 
+    --placeholder-color: #1e293b; 
+    --placeholder-opacity: 1; 
+}
+.custom-select-input::part(icon) { 
+    margin-left: auto; 
+    padding-left: 15px; 
+    color: var(--ion-color-primary); 
+    opacity: 1; 
+}
+.custom-select-input::part(text) { 
+    flex: 1; 
+    text-align: left; 
+}
+.custom-select-input::part(placeholder) { 
+    color: #1e293b; 
+    opacity: 1; 
+    font-weight: 600; 
+}
+
+

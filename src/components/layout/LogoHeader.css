@@ -1,0 +1,53 @@
+.brand-container { 
+    display: inline-flex; align-items: 
+    baseline; justify-content: 
+    center; gap: 2px; 
+}
+
+.brand-container {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+}
+
+.brand-text-main {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+    line-height: 1;
+}
+
+.brand-text-secondary {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f97316;
+    letter-spacing: -0.5px;
+    line-height: 1;
+}
+
+.brand-dot-container {
+    position: relative;
+    display: inline-flex;
+}
+
+.brand-smart-dot {
+    position: absolute;
+    top: 2px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    background-color: #f97316;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+}
+
+
+.quira-header ion-toolbar {
+    --background: #312e81; 
+    --padding-top: 12px;
+    --padding-bottom: 8px;
+}

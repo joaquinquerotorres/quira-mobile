@@ -1,0 +1,562 @@
+/* src/pages/ProRequestDetail.css */
+
+/* --- HEADER & LOGO --- */
+.pro-detail-header IonToolbar {
+    --background: var(--ion-color-primary) !important;
+}
+
+.quira-logo-toolbar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+}
+.quira-text-toolbar {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+.quira-x-icon-toolbar {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    margin: 3px 1px 0 1px;
+}
+.quira-x-leg-toolbar {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    border-radius: 4px;
+    left: 50%;
+}
+.quira-x-leg-toolbar.white { background: white; transform: translateX(-50%) rotate(45deg); }
+.quira-x-leg-toolbar.coral { background: #ea580c; transform: translateX(-50%) rotate(-45deg); z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+
+/* --- FONDO CURVO HERO --- */
+.pro-detail-bg-curve {
+    background: var(--ion-color-primary);
+    height: 140px;
+    width: 100%;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.pro-content-wrapper {
+    padding: 10px 16px;
+    position: relative;
+    z-index: 10;
+}
+
+/* --- CONTENEDOR MULTIMEDIA --- */
+.pro-image-container {
+    width: 100%;
+    height: 240px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    background-color: #e2e8f0;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    margin-bottom: 20px;
+}
+
+.pro-detail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pro-detail-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: black;
+}
+
+.pro-detail-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* AUDIO PLAYER */
+.pro-audio-player {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    cursor: pointer;
+}
+
+.audio-play-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--ion-color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s ease;
+}
+
+.audio-play-circle.playing {
+    background: #ef4444;
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+}
+
+.audio-text-hint {
+    margin-top: 15px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.pro-price-badge {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: white;
+    color: var(--ion-color-primary);
+    font-weight: 900;
+    font-size: 1.4rem;
+    padding: 8px 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    letter-spacing: -1px;
+    z-index: 20;
+}
+
+/* --- BADGES Y TÍTULO --- */
+.pro-status-pill {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.pro-status-pill.completed { --background: #e2e8f0; --color: #64748b; }
+.pro-status-pill.winner { --background: #ecfdf5; --color: #10b981; }
+.pro-status-pill.bid { --background: #eff6ff; --color: #3b82f6; }
+.pro-status-pill.pending { --background: #fff7ed; --color: #ea580c; }
+.pro-status-pill.cancelled { --background: #f1f5f9; --color: #64748b; }
+.pro-status-pill.rejected { --background: #fef2f2; --color: #991b1b; }
+
+.pro-detail-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #1e293b;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+}
+
+/* --- TARJETA DE MI PUJA (NUEVO) --- */
+.my-bid-card {
+    background: #ecfdf5; /* Fondo verde muy suave */
+    border: 1px solid #10b981; /* Borde verde */
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
+}
+
+.my-bid-card.my-bid-card-rejected {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.my-bid-card-rejected .bid-header { color: #64748b; }
+.my-bid-card-rejected .bid-row { color: #475569; }
+.my-bid-card-rejected .bid-row strong { color: #64748b; }
+.my-bid-card-rejected .bid-comment-box { color: #64748b; border-color: #e2e8f0; }
+.my-bid-card-rejected .bid-footer { color: #94a3b8; }
+
+.bid-header {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #059669;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.bid-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #064e3b;
+}
+
+.bid-row strong {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #059669;
+}
+
+.bid-comment-box {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 12px;
+    border-radius: 12px;
+    font-style: italic;
+    color: #065f46;
+    font-size: 0.95rem;
+    display: flex;
+    gap: 10px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.bid-footer {
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: #34d399;
+    text-align: right;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.cancel-bid-btn {
+    --border-radius: 999px;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --background: #ef4444;
+    --color: #ffffff;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.02em;
+}
+
+/* --- INFO CARDS --- */
+.pro-info-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    border: 1px solid #f1f5f9;
+}
+.pro-info-card.highlight-border { border-color: #d1fae5; background: #f0fdf4; }
+
+.pro-icon-box {
+    width: 42px;
+    height: 42px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 14px;
+}
+
+.pro-label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+.pro-value { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+
+/* MAPA */
+.map-container-wrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* --- CLIENTE Y DESCRIPCIÓN --- */
+.pro-section-header {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 30px 0 10px 0;
+    text-transform: uppercase;
+}
+
+.client-card {
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.client-avatar {
+    width: 50px;
+    height: 50px;
+    background: #4f46e5;
+    color: white;
+    font-weight: 800;
+    margin-right: 15px;
+}
+
+.client-name { font-weight: 800; color: #1e293b; font-size: 1rem; }
+.client-rating { display: flex; align-items: center; gap: 4px; color: #b45309; font-size: 0.8rem; font-weight: 700; }
+
+.phone-btn {
+    --background: #10b981;
+    --border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    --box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+.description-card {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    color: #334155;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* --- BOTONES --- */
+.pro-main-btn {
+    --border-radius: 16px;
+    height: 56px;
+    font-weight: 800;
+    margin-top: 10px;
+    box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1);
+}
+
+.completed-badge {
+    margin-top: 25px; 
+    padding: 15px; 
+    background: #f1f5f9; 
+    border-radius: 16px; 
+    text-align: center; 
+    color: #64748b; 
+    font-size: 0.9rem; 
+    font-weight: 700; 
+    border: 1px solid #e2e8f0;
+}
+
+/* --- MODALES --- */
+.bid-modal-content {
+    --border-radius: 35px 35px 0 0;
+}
+
+.input-wrapper {
+    background: white;
+    border: 2px solid #e2e8f0; 
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    min-height: 56px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+}
+.input-wrapper.textarea-wrapper { height: auto; padding: 10px 15px; }
+.input-wrapper ion-input,
+.input-wrapper ion-textarea { --background: transparent; --padding-start: 0; font-weight: 600; color: #1e293b; }
+
+.section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-left: 4px;
+    margin-bottom: 6px;
+    display: block;
+    text-transform: uppercase;
+}
+
+/* QA SECTION */
+.qa-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.qa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.qa-card {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.qa-question {
+    font-size: 0.95rem;
+    color: #1e293b;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.qa-answer {
+    background: #f0fdf4; /* Verde muy suave */
+    padding: 10px;
+    border-radius: 8px;
+    color: #166534;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    border-left: 3px solid #22c55e;
+}
+
+.qa-author-label {
+    font-weight: 800;
+    margin-right: 5px;
+    color: #94a3b8;
+}
+
+.empty-qa {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+}
+.empty-qa ion-icon { font-size: 24px; margin-bottom: 5px; }
+
+/* INPUTS */
+.qa-input, .qa-input-new {
+    --background: #fff;
+    --padding-start: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin-top: 5px;
+}
+
+.ask-box {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 16px;
+}
+
+.qa-warning {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.qa-entry-card {
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.qa-entry-card:active {
+    transform: scale(0.98);
+    background: #f8fafc;
+}
+
+.qa-icon-badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.qa-content-text {
+    flex: 1;
+}
+
+.qa-title {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.qa-subtitle {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* DENTRO DEL MODAL */
+.qa-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 20px;
+}
+
+.qa-bubble {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.qa-q-text {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.qa-a-text {
+    background: #f0fdf4;
+    color: #15803d;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border-left: 3px solid #22c55e;
+}
+
+.empty-state-modal {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+}
+
+.ask-form-sticky {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc; /* Diferenciarlo visualmente */
+    padding: 15px;
+    border-radius: 12px;
+}

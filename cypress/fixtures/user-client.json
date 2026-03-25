@@ -1,0 +1,13 @@
+{
+  "@id": "/api/users/1",
+  "id": 1,
+  "email": "cliente@e2e.quira",
+  "roles": ["ROLE_CLIENT"],
+  "verifiedEmail": true,
+  "paidThroughAt": null,
+  "clientProfile": {
+    "@id": "/api/client_profiles/5",
+    "id": 5,
+    "fullName": "Cliente E2E"
+  }
+}

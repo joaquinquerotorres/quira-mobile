@@ -1,0 +1,64 @@
+/* Quira brand logo - usado en Login, Register */
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.auth-logo-text-main {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-weight: 900;
+  letter-spacing: -3px;
+  line-height: 1;
+}
+
+.auth-logo-text-secondary {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-weight: 900;
+  color: #f97316;
+  letter-spacing: -3px;
+  line-height: 1;
+}
+
+.auth-logo--big .auth-logo-text-main {
+  font-size: 4rem;
+  color: #312e81;
+}
+
+.auth-logo--big .auth-logo-text-secondary {
+  font-size: 4rem;
+  color: #f97316;
+}
+
+.auth-logo--compact .auth-logo-text-main {
+  font-size: 2.5rem;
+  color: #312e81;
+}
+
+.auth-logo--compact .auth-logo-text-secondary {
+  font-size: 2.5rem;
+  color: #f97316;
+}
+
+.auth-logo-i-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.auth-logo-smart-dot {
+  position: absolute;
+  top: 7px;
+  right: 0;
+  width: 13px;
+  height: 13px;
+  background: #f97316;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 0 0 5px rgba(249, 115, 22, 0.8);
+}
+
+.auth-logo--compact .auth-logo-smart-dot {
+  top: 4px;
+  width: 10px;
+  height: 10px;
+}

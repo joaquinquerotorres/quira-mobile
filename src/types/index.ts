@@ -1,0 +1,163 @@
+// src/types/index.ts
+
+export interface LocationPoint {
+  type: 'Point';
+  coordinates: [number, number];
+}
+
+export interface HydraCollection<T> {
+  'hydra:member'?: T[];
+  'member'?: T[];
+  'hydra:totalItems'?: number;
+}
+
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED' | 'PENDING_APPROVAL';
+
+export type BidStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export type VisitStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export type Category = 
+  | 'DIY' 
+  | 'PLUMBING' 
+  | 'ELECTRICITY' 
+  | 'MASONRY' 
+  | 'HVAC' 
+  | 'CLEANING' 
+  | 'PAINTING';
+
+export interface ProfessionalProfile {
+  '@id': string;
+  id: number;
+  fullName: string;
+  phoneNumber?: string;
+  verifiedPhone?: boolean;
+  avatar?: string;
+  taxId?: string;
+  bio?: string;
+  skills: string[];
+  isVerified: boolean;
+  rating?: number; 
+  reviewCount?: number; 
+  user?: User;
+  notifyRequestActivity?: boolean;
+  notifyBidActivity?: boolean;
+  notifyReviews?: boolean;
+}
+
+export interface ClientProfile {
+  '@id': string;
+  id: number;
+  fullName: string;
+  phoneNumber?: string;
+  verifiedPhone?: boolean;
+  avatar?: string;
+  rating?: number;
+  reviewCount?: number;
+  user?: User;
+  notifyRequestActivity?: boolean;
+  notifyBidActivity?: boolean;
+  notifyReviews?: boolean;
+}
+
+export interface User {
+  '@id': string;
+  id: number;
+  email: string;
+  roles: string[];
+  verifiedEmail?: boolean;
+  verifiedPhone?: boolean;
+  paidThroughAt?: string | null;
+  /** Si la suscripción está programada para cancelarse al final del periodo (Stripe cancel_at_period_end). Fuente de verdad desde el backend. */
+  subscriptionCancelAtPeriodEnd?: boolean;
+  professionalProfile?: ProfessionalProfile;
+  clientProfile?: ClientProfile;
+}
+
+export interface Bid {
+  '@id': string;
+  id: number;
+  priceQuote: number;
+  comment?: string;
+  /** Texto libre del backend para cuándo se estima realizar el trabajo */
+  estimatedExecutionTime?: string | null;
+  status: BidStatus;
+  createdAt: string;
+  professional: User;
+  request: ServiceRequest; 
+}
+
+export interface RequestQuestion {
+    id: number;
+    questionText: string;
+    answerText?: string;
+    /** URLs de media (imágenes o vídeos) adjuntadas en la respuesta del cliente */
+    answerMediaUrls?: string[];
+    createdAt: string;
+    author: {
+        fullName: string;
+    };
+}
+
+export interface VisitRequest {
+  id: number;
+  status: VisitStatus;
+  professional?: ProfessionalProfile;
+  /** Teléfono del profesional, solo presente cuando la visita ha sido aceptada */
+  professionalPhone?: string;
+}
+
+export interface ServiceRequest {
+  '@id': string;
+  id: number;
+  title: string;
+  description: string;
+  priceAmount: number;
+  status: RequestStatus;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  category: Category;
+  address: string;  
+  preciseAddress?: string; 
+  photoUrl?: string;
+  audioUrl?: string;
+  videoUrl?: string;
+  /** Media adicional opcional subida en el step 2 */
+  extraPhotoUrls?: string[];
+  extraAudioUrls?: string[];
+  extraVideoUrls?: string[];
+  /** Disponibilidad preferida para realizar el trabajo (sin fecha exacta) */
+  desiredExecutionTime?: string | null;
+  locationPoint: LocationPoint;
+  createdAt: string;
+  aiDiagnosis?: Record<string, any>; 
+  client: ClientProfile;
+  /** Profesional asignado; el teléfono de contacto viene en assignedProfessional.phoneNumber */
+  assignedProfessional?: ProfessionalProfile;
+  /** Solicitudes de visita de valoración (solo para PRO) */
+  visitRequests?: VisitRequest[];
+  bids: Bid[];
+  questions?: RequestQuestion[];
+}
+
+export interface HydraMember {
+  '@id'?: string;
+  id?: number;
+}
+
+/** Error de API típico de API Platform / Symfony */
+export interface ApiError {
+  'hydra:description'?: string;
+  message?: string;
+  detail?: string;
+}
+
+// (Opcional) Si vas a listar reviews en el futuro, te vendrá bien esto:
+export interface Review {
+  '@id': string;
+  id: number;
+  score: number;
+  comment?: string;
+  createdAt: string;
+  author: User;
+  target: User;
+}

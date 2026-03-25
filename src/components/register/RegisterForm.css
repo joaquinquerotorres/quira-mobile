@@ -1,0 +1,87 @@
+/* Consistente con Login.css */
+.register-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.register-input-group {
+  margin-bottom: 20px;
+}
+
+.register-input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
+.register-input-wrapper {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 56px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.register-input-wrapper:focus-within {
+  border-color: var(--ion-color-primary);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+  background: white;
+}
+
+.register-input-icon {
+  font-size: 20px;
+  color: #94a3b8;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.register-input-wrapper ion-input {
+  --background: transparent !important;
+  --border-width: 0 !important;
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  --color: #1e293b;
+  --placeholder-color: #94a3b8;
+}
+
+.register-input-wrapper ion-input::part(native) {
+  border: none !important;
+  outline: none !important;
+  padding: 0;
+}
+
+.register-submit-btn {
+  margin-top: 30px;
+  --border-radius: 16px;
+  height: 56px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  --box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+}
+
+.register-footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 8px;
+}
+
+.register-login-link {
+  font-weight: 700;
+  --color: var(--ion-color-primary);
+  font-size: 0.95rem;
+}

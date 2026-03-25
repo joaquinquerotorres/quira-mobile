@@ -1,0 +1,26 @@
+.header-bg {
+    background: var(--ion-color-primary);
+    padding: 15px 24px 60px 24px; 
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    position: relative;
+    z-index: 0;
+    margin-bottom: 0;
+    text-align: center;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+}
+
+.header-bg h2 {
+    font-weight: 900 !important;
+    color: white !important;
+    margin: 0 0 8px 0 !important;
+    font-size: 1.8rem !important;
+    letter-spacing: -1px;
+}
+
+.header-bg p {
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+}

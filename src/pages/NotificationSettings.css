@@ -1,0 +1,34 @@
+.notification-section {
+  margin-bottom: 2rem;
+}
+
+.notification-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+  margin: 0 0 0.75rem 0;
+}
+
+.notification-list {
+  background: var(--ion-item-background);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.notification-list ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 52px;
+}
+
+.notification-save-btn {
+  margin-top: 1rem;
+}
+
+.notification-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}

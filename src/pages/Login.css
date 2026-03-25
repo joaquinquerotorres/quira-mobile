@@ -1,0 +1,233 @@
+/* src/pages/Login.css */
+
+.login-content {
+    --background: #ffffff;
+}
+
+.login-header {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.login-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.login-logo-text-indigo {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 4rem; 
+    font-weight: 900;
+    color: #312e81; 
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.login-logo-text-orange {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 4rem; 
+    font-weight: 900;
+    color: #f97316; 
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.login-logo-i-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.login-smart-dot-big {
+    position: absolute;
+    top: 7px;
+    right: 0px;
+    width: 13px;
+    height: 13px;
+    background: #f97316; 
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 
+                0 0 5px rgba(249, 115, 22, 0.8);
+}
+
+.login-slogan {
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+}
+
+.login-form-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.login-input-group {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px; 
+    height: 56px;    
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+    overflow: hidden; 
+}
+
+.login-input-group:focus-within {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    background: white;
+}
+
+.login-input-group ion-input {
+    --background: transparent !important;
+    --border-width: 0 !important;
+    --border-color: transparent !important;
+    --border-style: none !important;
+    --highlight-color-focused: transparent !important; 
+    
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    --padding-top: 0 !important;
+    --padding-bottom: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    --color: #1e293b;
+    --placeholder-color: #94a3b8;
+    --placeholder-opacity: 1;
+}
+
+.login-input-group ion-input::part(native) {
+    border: none !important;
+    outline: none !important;
+    padding: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.login-forgot-wrap {
+    text-align: right;
+    margin: -12px 0 16px 0;
+}
+.login-forgot-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    text-decoration: none;
+}
+.login-forgot-link:hover {
+    text-decoration: underline;
+}
+
+.login-password-group {
+    justify-content: space-between;
+}
+
+.login-password-toggle {
+    font-size: 1.5rem;
+    color: #94a3b8;
+    cursor: pointer;
+    margin-left: 10px; 
+    z-index: 10;
+}
+
+.login-btn {
+    margin-top: 30px;
+    --border-radius: 16px;
+    height: 56px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    --box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+}
+
+.login-divider {
+    text-align: center;
+    margin: 30px 0;
+    position: relative;
+}
+
+.login-divider span {
+    background: white;
+    padding: 0 10px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+}
+
+.login-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+    z-index: 0;
+}
+
+.login-register-btn {
+    --border-radius: 16px;
+    height: 56px;
+    font-weight: 700;
+}
+
+.login-error-message {
+    background: #fef2f2;
+    color: #ef4444;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    border: 1px solid #fee2e2;
+}
+
+.login-social-grid {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.login-social-btn {
+    flex: 1;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.login-social-btn:active {
+    transform: scale(0.98);
+}
+
+.login-social-btn ion-icon {
+    font-size: 1.4rem;
+}
+
+.login-social-btn.google {
+    background: white;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.login-social-btn.apple {
+    background: #000000;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}

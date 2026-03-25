@@ -1,0 +1,334 @@
+/* src/pages/DirectoryDetail.css */
+
+/* Hero y contenedor (compartidos con Directory) */
+.market-hero-bg {
+  background: var(--ion-color-primary);
+  padding: 24px 20px 50px 20px;
+  border-bottom-left-radius: 35px;
+  border-bottom-right-radius: 35px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+}
+.market-content-container {
+  padding: 0 16px 80px 16px;
+  position: relative;
+  z-index: 10;
+}
+
+/* =========================================
+   HERO SECTION (Perfil)
+   ========================================= */
+.detail-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px 30px 20px;
+    background: linear-gradient(180deg, rgba(79, 70, 229, 0.08) 0%, rgba(255,255,255,0) 100%);
+}
+
+.detail-avatar-container {
+    position: relative;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.detail-avatar {
+    width: 110px;
+    height: 110px;
+    border: 4px solid white;
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+    border-radius: 50%;      /* Forzamos círculo estándar */
+    overflow: hidden;        /* CLAVE: Recorta todo lo que sea cuadrado dentro */
+    display: flex;           /* Asegura centrado */
+    align-items: center;
+    justify-content: center;
+    background: white;       /* Fondo blanco por si la imagen carga mal */
+}
+
+.detail-avatar img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 50%;      /* Forzamos círculo en la imagen */
+}
+
+.detail-avatar span {
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: #e0e7ff; 
+    color: #4f46e5; 
+    font-size: 2.5rem; 
+    font-weight: 800;
+    border-radius: 50%;      /* CLAVE: El fondo de color ahora es redondo */
+}
+
+/* Aseguramos que el wrapper del avatar sea un bloque centrado */
+.detail-avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    margin-top: 20px;
+}
+
+/* Ajuste para que el badge no mueva el avatar */
+.detail-tier-badge {
+    position: absolute;
+    bottom: 0;
+    /* Ajusta este valor según el tamaño del avatar para que quede en la esquina inferior derecha */
+    transform: translate(35px, 0); 
+    z-index: 10;
+}
+
+/* Forzamos que el IonAvatar sea siempre un círculo perfecto */
+.detail-avatar {
+    margin: 0 auto; /* Centrado horizontal */
+    --border-radius: 50%;
+}
+
+/* Badge del Rol (PRO / SOLVER) */
+.detail-badge {
+    position: absolute;
+    bottom: 0px;
+    right: -10px;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    border: 2px solid white;
+    z-index: 2;
+}
+
+.detail-name {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e293b;
+    text-align: center;
+    letter-spacing: -0.5px;
+}
+
+.detail-category {
+    margin: 5px 0 25px 0;
+    color: #64748b;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* =========================================
+   STATS ROW (Estadísticas)
+   ========================================= */
+.detail-stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 15px 10px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    border: 1px solid #f1f5f9;
+    width: 100%;
+    max-width: 360px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.stat-val { 
+    font-weight: 800; 
+    color: #1e293b; 
+    font-size: 1.1rem; 
+    margin-top: 4px; 
+}
+
+.stat-label { 
+    font-size: 0.75rem; 
+    color: #94a3b8; 
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-separator { 
+    width: 1px; 
+    height: 30px; 
+    background: #e2e8f0; 
+    margin: 0 5px; 
+}
+
+/* =========================================
+   BODY CONTENT
+   ========================================= */
+.detail-body { padding: 0 20px; }
+
+.section-block { margin-bottom: 20px; }
+
+/* Caja/card para cada sección del detalle (Bio, Especialidades, Opiniones) */
+.directory-detail-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 16px;
+}
+.directory-detail-card:last-child { margin-bottom: 0; }
+
+.section-block h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Bio Text */
+.detail-bio {
+    color: #475569;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Skills Chips */
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-chip { 
+    font-weight: 600; 
+    font-size: 0.85rem;
+    --background: white; 
+    border: 1px solid #e2e8f0; 
+    color: #475569;
+    margin: 0;
+}
+
+/* =========================================
+   PORTFOLIO (Horizontal Scroll)
+   ========================================= */
+.portfolio-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 5px 5px 15px 5px; /* Padding abajo para la sombra */
+    
+    /* Hide scrollbar */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.portfolio-scroll::-webkit-scrollbar { display: none; }
+
+.portfolio-item {
+    min-width: 220px;
+    height: 150px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    position: relative;
+    background: #f1f5f9;
+}
+.portfolio-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+/* =========================================
+   REVIEWS
+   ========================================= */
+.review-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 15px;
+    border: 1px solid #f1f5f9;
+}
+
+.review-header { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 8px; 
+    align-items: center;
+}
+
+.review-author { 
+    font-weight: 700; 
+    color: #1e293b; 
+    font-size: 0.95rem; 
+}
+
+.review-date { 
+    font-size: 0.75rem; 
+    color: #94a3b8; 
+}
+
+.review-stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.review-text { 
+    font-size: 0.9rem; 
+    color: #475569; 
+    margin: 0; 
+    line-height: 1.5;
+    font-style: normal; 
+}
+
+/* =========================================
+   STICKY FOOTER (Acción)
+   ========================================= */
+.detail-sticky-footer {
+    background: white;
+    padding: 15px 20px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+    padding-bottom: max(15px, env(safe-area-inset-bottom)); /* Para iPhones sin botón */
+}
+
+.footer-price-info { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.footer-price-info .label { 
+    font-size: 0.7rem; 
+    color: #94a3b8; 
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.footer-price-info .price { 
+    font-size: 1.3rem; 
+    font-weight: 800; 
+    color: #1e293b; 
+}
+
+.action-btn { 
+    margin: 0; 
+    min-width: 180px; 
+    font-weight: 700; 
+    --box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25); 
+    --border-radius: 12px;
+}

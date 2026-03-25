@@ -1,0 +1,422 @@
+# Quira Mobile — Documentación de la aplicación
+
+Documento que describe la arquitectura funcional de la app: tipos de usuario, ciclo de vida de solicitudes, propuestas (pujas), preguntas, mercado y suscripciones.
+
+---
+
+## 1. Tipos de usuario y tiers de profesionales
+
+### Roles y tiers efectivos
+
+| Tier | Rol backend | Precio | Características |
+|------|-------------|--------|-----------------|
+| **CLIENTE** | Solo `clientProfile` | — | Crear solicitudes, aceptar propuestas, valorar. Sin perfil profesional. |
+| **FREE (Starter)** | `ROLE_FREE` o `professionalProfile` sin pago | Gratis | 3 propuestas/mes, acceso a LOW y MED Risk, alertas por email |
+| **SOLVER** | `ROLE_SOLVER` + `paidThroughAt` activo | 4,99€/mes | Propuestas ilimitadas, LOW y MED Risk, alertas PUSH |
+| **PRO** | `ROLE_PRO` + `paidThroughAt` activo | 12,99€/mes | Todo lo de Solver + HIGH Risk, prioridad en listados, alertas WhatsApp |
+
+### Lógica de tier efectivo (`effectiveTier.ts`)
+
+- Si el usuario es PRO o SOLVER pero `paidThroughAt` está vencido → se trata como **FREE**.
+- `paidThroughAt === null` → no se considera vencido.
+- `isDowngradedDueToExpiredPayment()`: indica si el usuario tenía PRO/SOLVER y su pago caducó.
+
+### Downgrade por caducidad
+
+- Se muestra un banner de "Cuota no renovada" cuando el usuario está degradado (una vez por sesión).
+- En Profile aparece un aviso si `paidThroughAt` está en el pasado.
+- Los pros degradados siguen viendo sus trabajos en curso, pero con límites en nuevas propuestas.
+
+### Verificación para crear solicitudes o pujar
+
+- Para **crear solicitudes**:
+  - Hace falta teléfono en `clientProfile.phoneNumber`.
+  - Y `clientProfile.verifiedPhone === true`.
+- Para **pujar como profesional**, el backend puede usar `professionalProfile.verifiedPhone` de forma análoga.
+- Se usa `useUserVerification.ts` para calcular:
+  - `hasPhone`: hay teléfono en cliente o profesional.
+  - `verifiedPhone`: hay al menos un perfil (cliente o pro) con `verifiedPhone === true`.
+  - `canCreateRequestOrBid`: solo `true` si el perfil de cliente tiene teléfono y está verificado.
+- En `NewRequest`:
+  - Si `!canCreateRequestOrBid` se muestra una pantalla de bloqueo explicando que debe verificar el teléfono desde el perfil antes de crear la solicitud (no se muestra el formulario).
+
+---
+
+## 2. Ciclo de vida de las solicitudes (Requests)
+
+### Estados posibles
+
+| Estado | Etiqueta | Descripción |
+|--------|----------|-------------|
+| `PENDING` | Pendiente | Sin profesional asignado, acepta propuestas |
+| `PENDING_APPROVAL` | En revisión | En validación |
+| `ACCEPTED` | Asignado | Profesional contratado, trabajo en curso |
+| `COMPLETED` | Finalizado | Trabajo completado |
+| `CANCELLED` | Cancelada | Cancelada por el cliente |
+
+### Transiciones
+
+- **Cliente cancela**: Solo si `status === 'PENDING'` y no hay `assignedProfessional`. Se hace `PATCH /requests/{id}` con `status: 'CANCELLED'`.
+- **Cliente acepta propuesta**: `PATCH /requests/{id}` con `status: 'ACCEPTED'`, `assignedProfessional` y `preciseAddress`; además `PATCH /bids/{id}/accept`.
+- **Pro finaliza trabajo**: `PATCH /requests/{id}` con `status: 'COMPLETED'`.
+- **Creación**: Al publicar, la solicitud empieza en `PENDING`.
+
+---
+
+## 3. Propuestas (Pujas / Bids)
+
+### Estados de una propuesta
+
+| Estado | Significado |
+|--------|-------------|
+| `PENDING` | Activa, visible para el cliente |
+| `ACCEPTED` | Propuesta aceptada (trabajo ganado) |
+| `REJECTED` | Retirada por el profesional |
+
+### Flujo de propuestas
+
+- **Crear**: `POST /bids` con `request` (IRI), `priceQuote`, `comment`, `status: 'PENDING'`.
+- **Retirar**: `PATCH /bids/{id}` con `status: 'REJECTED'` (solo si la request está PENDING y la propuesta PENDING).
+- **Aceptar**: `PATCH /bids/{id}/accept` cuando el cliente confirma la contratación.
+
+### Quién puede hacer propuestas
+
+- **FREE**: Máximo 3 propuestas al mes. Límite consultado vía `GET /professionals/me/can-bid` (`canBidThisMonth`). El conteo mensual en backend **no debe incluir** propuestas retiradas (`Bid.status === 'REJECTED'`); solo cuentan propuestas activas (p. ej. `PENDING` y, si aplica, `ACCEPTED`).
+- **SOLVER**: Propuestas ilimitadas en LOW y MED Risk.
+- **PRO**: Propuestas ilimitadas, incluido HIGH Risk.
+
+### Restricciones por riesgo (Risk Level)
+
+| Tier | LOW / MED Risk (baja / media dificultad) | HIGH Risk (alta dificultad) |
+|------|----------------|-----------|
+| FREE | Ve mercado, puja (con límite mensual) | No ve detalles (blur), no puede pujar |
+| SOLVER | Ve todo, puja | Ve detalles, pero no puede pujar |
+| PRO | Ve todo, puja | Ve todo, puja |
+
+### Orden de las propuestas (vista cliente)
+
+1. Por tier: PRO > SOLVER > FREE.
+2. Dentro de cada tier: por precio ascendente.
+3. Desempate: por rating descendente.
+
+Las propuestas con estado `REJECTED` no se muestran al cliente.
+
+En la lista de ofertas (RequestDetail) y en el bloque de profesional asignado se muestran `rating` y `reviewCount` del profesional (campos que vienen del backend en `ProfessionalProfile` / en el objeto del bid).
+
+### Visitas de valoración
+
+Un profesional puede **solicitar una visita** para valorar el trabajo en persona antes de dar un presupuesto final.
+
+- **Solicitar visita (PRO)**: `POST /requests/{id}/visit-request`. El botón "Solicitar visita para valorar" solo se muestra si aún no hay solicitud de visita.
+- **Cliente acepta**: `POST /visit-requests/{id}/accept`. Tras aceptar, el PRO ve teléfono del cliente y dirección precisa; el cliente ve botón "LLAMAR AL PROFESIONAL" con el teléfono del PRO (`professionalPhone` en la visita aceptada).
+- **Cliente rechaza**: `POST /visit-requests/{id}/reject`.
+
+El detalle de la solicitud (`GET /requests/{id}`) incluye `visitRequests[]`. Cada elemento tiene `id`, `status` (`PENDING` | `ACCEPTED` | `REJECTED`), `professional` (datos del pro) y, solo cuando `status === 'ACCEPTED'`, `professionalPhone`.
+
+---
+
+## 4. Preguntas (Request Questions)
+
+### Flujo
+
+- **Pro hace pregunta**: `POST /request_questions` con `request` (IRI) y `questionText`.
+- **Cliente responde**: `PATCH /request_questions/{id}` con `answerText`.
+- **Cliente ve preguntas**: `GET /request_questions?request=/api/requests/{id}`.
+
+### Estructura
+
+```typescript
+interface RequestQuestion {
+  id: number;
+  questionText: string;
+  answerText?: string;  // sin responder si undefined
+  createdAt: string;
+  author: { fullName: string };
+}
+```
+
+- Las preguntas solo se pueden crear y responder mientras el request está en `PENDING`.
+- Sin `answerText` → pregunta pendiente de respuesta.
+
+---
+
+## 5. Mercado y oportunidades
+
+### Qué son las oportunidades
+
+- Requests con `is_market=true` y `status=PENDING`.
+- Endpoint: `GET /requests?is_market=true&status=PENDING` (con filtros opcionales).
+
+### Filtros
+
+- `title`, `category`, `order[priceAmount]`, `order[createdAt]`.
+
+### Cards de oportunidad (`MarketOpportunityCard`)
+
+- Muestran título, precio, zona, categoría y media (foto/audio/video).
+- HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
+- `isBidden`: si el usuario tiene una propuesta **activa** (no retirada) en esa oportunidad.
+- `isLocked`: si no puede pujar (p. ej. HIGH Risk para no-PRO).
+
+### Botón "ME INTERESA"
+
+- Para FREE: antes de abrir el modal se llama a `GET /professionals/me/can-bid`. Si `canBidThisMonth === false`, se muestra alerta de límite alcanzado. El backend debe calcular el límite **excluyendo** pujas retiradas (`REJECTED`), alineado con la app (texto “propuestas gratuitas restantes” en `Market` usa solo pujas no `REJECTED`).
+- Para HIGH Risk y no-PRO: botón bloqueado con mensaje de cuenta PRO necesaria.
+
+---
+
+## 6. Suscripción y Stripe
+
+### Flujo en la app
+
+1. El usuario elige tier (FREE, SOLVER o PRO).
+2. Rellena formulario: nombre, teléfono, CIF (obligatorio para PRO), bio, skills.
+3. Si SOLVER o PRO → se llama a `createCheckoutSession()` y se redirige a Stripe Checkout.
+4. Retorno: `?success=1` o `?canceled=1`.
+5. El webhook del backend actualiza `paidThroughAt` y roles.
+
+### Precios (según UI)
+
+- FREE: Gratis.
+- SOLVER: 4,99€/mes.
+- PRO: 12,99€/mes.
+
+### `paidThroughAt` y cancelaciones
+
+- `paidThroughAt` indica hasta qué fecha está pagada la suscripción.
+- Es la fuente de verdad para decidir si el usuario es PRO/SOLVER o se trata como FREE.
+- Se actualiza desde el webhook de Stripe con `subscription.current_period_end`.
+- El backend puede exponer además en el recurso `User`:
+  - `subscriptionCancelAtPeriodEnd: boolean` para indicar si la suscripción está marcada en Stripe con `cancel_at_period_end = true`.
+- En `Profile`:
+  - La sección **Suscripción** muestra el plan actual (SOLVER / PRO) y el texto "Activo hasta el {fecha}. A partir de entonces tu cuenta pasará a Free.".
+  - Tras llamar a `POST /stripe/cancel-subscription`, si el backend marca `subscriptionCancelAtPeriodEnd = true`, el front muestra el estado "Tu suscripción está cancelada..." hasta fin de periodo y un botón **Reactivar suscripción** que lleva a `/become-pro`.
+  - Mientras tanto, el usuario mantiene las capacidades del plan hasta la fecha `paidThroughAt`.
+
+Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
+
+---
+
+## 7. Rutas principales
+
+| Ruta | Página | Acceso |
+|------|--------|--------|
+| `/login` | Login | Público |
+| `/register` | Registro | Público |
+| `/request-list` | Inicio / Mis solicitudes | Autenticado |
+| `/request/:id` | Detalle (cliente) | Autenticado |
+| `/pro/request/:id` | Detalle (profesional) | Autenticado + pro |
+| `/market` | Mercado de oportunidades | Autenticado + pro |
+| `/my-work` | Mis propuestas y trabajos | Autenticado + pro |
+| `/profile` | Perfil | Autenticado |
+| `/profile/notifications` | Configuración de notificaciones | Autenticado |
+| `/new-request` | Nueva solicitud | Autenticado |
+| `/become-pro` | Registro / mejora de plan | Autenticado |
+| `/directory` | Directorio de profesionales | Autenticado |
+| `/directory/:id` | Ficha de profesional | Autenticado |
+| `/forgot-password` | Recuperar contraseña | Público |
+| `/reset-password` | Establecer nueva contraseña (con token) | Público |
+| `/verify-email` | Verificación de email (con token) | Público |
+
+### Tabs visibles
+
+- **Mercado** y **Gestión (My Work)**: solo si el usuario tiene `ROLE_PRO` o `professionalProfile`.
+
+---
+
+## 8. Endpoints de API principales
+
+### Auth
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| POST | `/login_check` | Login email/password |
+| POST | `/social/login` | Login Google/Apple (token) |
+| GET | `/users?email=...` | Usuario por email |
+
+### Usuarios y perfiles
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| POST | `/users` | Registro |
+| POST | `/users/forgot-password` | Solicitar email de recuperación |
+| POST | `/users/reset-password` | Establecer nueva contraseña con token |
+| POST | `/verify/email` | Verificar email (por token) o reenviar verificación |
+| POST | `/verify/phone/send` | Enviar SMS de verificación de teléfono (`profile: 'client' \| 'professional'`) |
+| POST | `/verify/phone/confirm` | Confirmar SMS (`code`, `profile`) |
+| POST | `/professional_profiles` | Crear perfil profesional |
+| PATCH | `/professional_profiles/{id}` | Actualizar perfil profesional (CIF, bio, skills, zona) |
+| GET | `/professional_profiles?itemsPerPage=30` | Listado de pros |
+| GET | `/professional_profiles/{id}` | Detalle de un pro |
+| GET | `/professionals/me/can-bid` | ¿Puede pujar este mes? (FREE). `canBidThisMonth` debe basarse en el conteo de propuestas del mes **excluyendo** las retiradas (`REJECTED`). |
+
+### Subida de ficheros (tickets + signed URL)
+
+La app usa un flujo de subida por **ticket** (el backend devuelve `signedUrl` + `publicUrl`):
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| POST | `/upload-ticket/avatar` | Obtener ticket para subir avatar (devuelve `signedUrl` + `publicUrl`) |
+| POST | `/upload-ticket/request-media` | Obtener ticket para subir media de solicitud (foto/audio/vídeo; devuelve `signedUrl` + `publicUrl`) |
+
+Después del ticket, el frontend hace `PUT` a `signedUrl` y guarda/usa `publicUrl`.
+
+### Solicitudes
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| GET | `/requests?...` | Lista con filtros |
+| GET | `/requests/{id}` | Detalle |
+| POST | `/requests` | Crear |
+| PATCH | `/requests/{id}` | Actualizar (merge-patch) |
+
+Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`, `is_market`, `history`, `my_requests`, `my_jobs`.
+
+### Propuestas
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| GET | `/bids?my_bids=true&...` | Mis propuestas |
+| POST | `/bids` | Crear propuesta |
+| PATCH | `/bids/{id}` | Actualizar (p. ej. retirar) |
+| PATCH | `/bids/{id}/accept` | Aceptar propuesta |
+
+### Visitas de valoración
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| POST | `/requests/{id}/visit-request` | Solicitar visita (profesional) |
+| POST | `/visit-requests/{id}/accept` | Aceptar visita (cliente) |
+| POST | `/visit-requests/{id}/reject` | Rechazar visita (cliente) |
+
+### Preguntas
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| GET | `/request_questions?request=...` | Preguntas de una solicitud |
+| POST | `/request_questions` | Crear pregunta |
+| PATCH | `/request_questions/{id}` | Responder pregunta |
+
+### Valoraciones
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| GET | `/reviews?request=...&author=...` | Valoraciones de una solicitud |
+| POST | `/reviews` | Crear valoración |
+
+### Stripe
+
+| Método | Endpoint | Propósito |
+|--------|----------|-----------|
+| POST | `/stripe/checkout-session` | Crear sesión de pago Stripe |
+| POST | `/stripe/cancel-subscription` | Marcar la suscripción para cancelar al final del periodo actual |
+
+---
+
+## 9. Estructuras de datos principales
+
+### ServiceRequest
+
+`id`, `@id`, `title`, `description`, `priceAmount`, `status`, `riskLevel`, `category`, `address`, `preciseAddress`, `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, `extraVideoUrls`, `extraAudioUrls`, `desiredExecutionTime`, `locationPoint`, `createdAt`, `aiDiagnosis`, `client`, `assignedProfessional` (incluye `phoneNumber` para contacto cuando hay profesional asignado), `visitRequests`, `bids`, `questions`.
+
+### VisitRequest
+
+`id`, `status` (`PENDING` | `ACCEPTED` | `REJECTED`), `professional`, `professionalPhone` (solo cuando la visita está aceptada).
+
+### Bid
+
+`id`, `@id`, `priceQuote`, `comment`, `status`, `createdAt`, `professional`, `request`.
+
+### User
+
+`id`, `@id`, `email`, `roles`, `verifiedEmail`, `professionalProfile`, `clientProfile`, `paidThroughAt`, `subscriptionCancelAtPeriodEnd`.
+
+### ProfessionalProfile
+
+`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `taxId`, `bio`, `skills`, `isVerified`, `rating`, `reviewCount`, `user`.
+
+### ClientProfile
+
+`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `rating`, `reviewCount`, `user`. El backend expone `rating` y `reviewCount` (no `ratingAsClient`).
+
+### Categorías
+
+`DIY`, `PLUMBING`, `ELECTRICITY`, `MASONRY`, `HVAC`, `CLEANING`, `PAINTING`, `GARDENING`.
+
+---
+
+## 10. Vistas específicas
+
+### RequestDetail (cliente)
+
+- Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
+- Lista de ofertas ordenadas por tier y precio; cada oferta muestra **rating** y **reviewCount** del profesional.
+- Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
+- **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
+- Al hacer clic en el profesional → ficha en `/directory/:id`.
+- Botón "ACEPTAR PRESUPUESTO" → modal de dirección y confirmación.
+- En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección.
+
+### ProRequestDetail (profesional)
+
+- Vista de la solicitud para el profesional: descripción, categoría, **adjuntos adicionales** (fotos/vídeos/audios extra) dentro de "Detalles del trabajo".
+- **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
+- **Solicitar visita para valorar**: botón que llama a `POST /requests/{id}/visit-request`; tras enviar, se muestra el estado (PENDING / ACCEPTED / REJECTED).
+- Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
+- Si es HIGH Risk y no es PRO: bloqueo para pujar.
+- Si está degradado pero tiene relación con la solicitud: puede ver el detalle.
+
+### MyWork
+
+- Segmentos: "Propuestas" y "Trabajos".
+- Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
+- Estados de trabajos: ASIGNADO, FINALIZADO.
+
+### NewRequest
+
+- Paso 1: selección de modo (audio, vídeo, texto) y captura de descripción. Opción de capturar (cámara/micrófono) o elegir desde galería para foto, vídeo y audio.
+- Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, precio y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
+- Requiere dirección aproximada (Google Places o GPS).
+- Antes de llamar a la IA (`/predict`), se envía:
+  - `description`, `image`, `audio`,
+  - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
+- Para el lanzamiento:
+  - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
+  - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.
+  - Si el teléfono del cliente no está verificado, se muestra una pantalla de bloqueo que invita a ir a Perfil para verificarlo (no deja crear solicitudes).
+
+### Directorio y detalle de profesional
+
+- **Listado (Directorio y Profesionales top en RequestList)**: cada tarjeta muestra avatar redondeado, badge PRO/SOLVER/FREE **encima del avatar**, nombre, **habilidades o categoría en español** (p. ej. Fontanería, Climatización) mediante `getCategoryLabel` / `utils/categoryLabels`, y rating + reviewCount.
+- **Ficha de profesional (`/directory/:id`)**: hero con avatar y tier; **InfoCard** con nombre, subtítulo (primera skill o categoría traducida), rating y trabajos; secciones **Sobre el profesional**, **Especialidades** y **Opiniones** dentro de **cajas** (`.directory-detail-card`: fondo blanco, bordes redondeados, sombra suave).
+
+### Profile
+
+- Sección **Cuenta**:
+  - "Datos Personales" → modal con:
+    - Datos básicos: nombre, email de acceso (editar email pone `verifiedEmail = false` y muestra botón para reenviar verificación).
+    - Teléfonos:
+      - Si existe `clientProfile`: "Teléfono (como cliente) *" + botón "Verificar teléfono" si no está verificado.
+      - Si existe `professionalProfile`: "Teléfono (como profesional) *" + botón "Verificar teléfono" si no está verificado.
+    - Para perfiles profesionales:
+      - **Biografía\***, **Dirección base\***, **Especialidades\*** siempre obligatorias.
+      - **CIF/NIF\*** obligatorio solo para tier PRO.
+      - La Dirección base solo admite localidades de la provincia de Córdoba (igual que en `NewRequest`).
+- Sección **Suscripción**:
+  - Muestra el plan actual (SOLVER/PRO), la fecha `paidThroughAt` y el estado de cancelación (`subscriptionCancelAtPeriodEnd`). El bloque "Plan actual" tiene padding superior e inferior reducido (7px) para mejor lectura.
+  - Botón "Cancelar suscripción" → llama a `/stripe/cancel-subscription` y pasa a mostrar "Reactivar suscripción" mientras la cancelación es efectiva a fin de periodo.
+- Sección **Preferencias**:
+  - Enlace a **Configuración de notificaciones** (`/profile/notifications`), donde se pueden activar/desactivar notificaciones por tipo (solicitudes, ofertas, reseñas) tanto para cliente como para profesional.
+
+---
+
+## 11. Estrategia de tests (resumen)
+
+Para minimizar regresiones antes de publicar:
+
+- **Vitest (unit/integration)**:
+  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `getApiErrorMessage`) y flujos sensibles (subidas por ticket en `uploadService`).
+  - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaThumb`, `MarketOpportunityCard`).
+  - Robustez ante crashes con `ErrorBoundary`.
+- **Ionic en tests**:
+  - En ciertos tests se stubbean componentes (p. ej. `IonAlert`) o se evita envolver con `IonApp` cuando no es necesario para reducir flakiness y evitar timers internos que pueden causar errores al teardown en `jsdom`.

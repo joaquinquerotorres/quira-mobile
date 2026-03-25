@@ -1,0 +1,21 @@
+{
+  "@id": "/api/users/2",
+  "id": 2,
+  "email": "pro@e2e.quira",
+  "roles": ["ROLE_PRO"],
+  "verifiedEmail": true,
+  "verifiedPhone": true,
+  "paidThroughAt": "2099-12-31T23:59:59.000Z",
+  "professionalProfile": {
+    "@id": "/api/professional_profiles/10",
+    "id": 10,
+    "fullName": "Pro E2E",
+    "skills": ["PLUMBING"],
+    "isVerified": true,
+    "verifiedPhone": true,
+    "phoneNumber": "+34000000000",
+    "bio": "Perfil de prueba E2E",
+    "rating": 4.5,
+    "reviewCount": 2
+  }
+}

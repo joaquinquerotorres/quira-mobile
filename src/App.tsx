@@ -1,0 +1,230 @@
+import React from 'react';
+import { Redirect, Route, useLocation } from 'react-router-dom';
+import {
+  IonApp,
+  IonIcon,
+  IonLabel,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  setupIonicReact
+} from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
+import { 
+  homeOutline, 
+  hammerOutline, 
+  personOutline, 
+  briefcaseOutline, 
+  addCircleOutline 
+} from 'ionicons/icons';
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { env } from './config/env';
+
+import RequestList from './pages/RequestList';
+import Market from './pages/Market';
+import Profile from './pages/Profile';
+import MyWork from './pages/MyWork';
+import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import Register from './pages/Register';
+import BecomePro from './pages/BecomePro';
+import NewRequest from './pages/NewRequest';
+import RequestDetail from './pages/RequestDetail';
+import ProRequestDetail from './pages/ProRequestDetail';
+import Directory from './pages/Directory';
+import DirectoryDetail from './pages/DirectoryDetail';
+import NotificationSettings from './pages/NotificationSettings';
+import { DowngradeBanner } from './components/DowngradeBanner';
+
+import '@ionic/react/css/core.css';
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
+
+import './theme/variables.css';
+import './theme/inputs.css';
+
+setupIonicReact();
+
+const MainTabs: React.FC = () => {
+  
+  const location = useLocation();
+
+  const hideTabBarPaths = [
+    '/login', 
+    '/forgot-password',
+    '/verify-email',
+    '/reset-password',
+    '/register', 
+    '/become-pro', 
+    '/profile/notifications',
+    '/' // En la raíz para evitar flash antes del redirect
+  ];
+
+  // Verificamos si la ruta actual debe ocultar la barra
+  // Ocultamos si estamos dentro de un detalle (/directory/123)
+  const shouldHideTabBar = 
+    hideTabBarPaths.includes(location.pathname) || 
+    location.pathname.startsWith('/directory/'); // Oculta tabs en el detalle del pro
+
+  const userStr = localStorage.getItem('user');
+  let isPro = false;
+  
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      isPro = user.roles?.includes('ROLE_PRO') || !!user.professionalProfile; 
+    } catch (e) {
+      console.error("Error parsing user", e);
+    }
+  }
+
+  return (
+    <IonTabs>
+      <DowngradeBanner />
+      <IonRouterOutlet>
+        <Route exact path="/login">
+          <Login />
+        </Route>
+        <Route exact path="/forgot-password">
+          <ForgotPassword />
+        </Route>
+        <Route exact path="/verify-email">
+          <VerifyEmail />
+        </Route>
+        <Route exact path="/reset-password">
+          <ResetPassword />
+        </Route>
+        <Route exact path="/register">
+          <Register />
+        </Route>
+        <Route exact path="/new-request">
+          <NewRequest />
+        </Route>
+        <Route exact path="/become-pro">
+          <BecomePro />
+        </Route>
+        <Route exact path="/request/:id">
+            <RequestDetail />
+        </Route>
+        <Route exact path="/pro/request/:id">
+            <ProRequestDetail />
+        </Route>
+        <Route exact path="/request-list">
+          <RequestList />
+        </Route>
+        <Route exact path="/directory">
+          <Directory />
+        </Route>
+        
+        {/* --- 2. NUEVA RUTA DE DETALLE --- */}
+        <Route exact path="/directory/:id">
+          <DirectoryDetail />
+        </Route>
+
+        <Route exact path="/market">
+          <Market />
+        </Route>
+        <Route exact path="/profile">
+          <Profile />
+        </Route>
+        <Route exact path="/profile/notifications">
+          <NotificationSettings />
+        </Route>
+        <Route exact path="/my-work">
+          <MyWork />
+        </Route>
+        <Route exact path="/">
+          <Redirect to="/login" />
+        </Route>
+      </IonRouterOutlet>
+
+      {/* 4. Renderizado Condicional de la Barra */}
+      {/* Solo mostramos IonTabBar si NO estamos en las páginas de login/registro/detalle */}
+      {!shouldHideTabBar && (
+        <IonTabBar slot="bottom" style={{ height: '60px', borderTop: '1px solid #f1f5f9', paddingBottom: '5px' }}>
+          
+          {/* TAB 1: INICIO */}
+          <IonTabButton tab="requestList" href="/request-list">
+            <IonIcon aria-hidden="true" icon={homeOutline} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
+
+          {/* TAB 2: MERCADO (Solo PRO) */}
+          {isPro && (
+            <IonTabButton tab="market" href="/market">
+              <IonIcon aria-hidden="true" icon={hammerOutline} />
+              <IonLabel>Mercado</IonLabel>
+            </IonTabButton>
+          )}
+
+          {/* BOTÓN CENTRAL: PEDIR */}
+          <IonTabButton tab="new-request" href="/new-request">
+            <IonIcon 
+              aria-hidden="true" 
+              icon={addCircleOutline} 
+              style={{ fontSize: '34px', color: '#ea580c', marginBottom: '2px' }} 
+            />
+            <IonLabel style={{ color: '#ea580c', fontWeight: 700 }}>Pedir</IonLabel>
+          </IonTabButton>
+
+          {/* TAB 4: GESTIÓN (Solo PRO) */}
+          {isPro && (
+            <IonTabButton tab="my-work" href="/my-work">
+              <IonIcon aria-hidden="true" icon={briefcaseOutline} />
+              <IonLabel>Gestión</IonLabel>
+            </IonTabButton>
+          )}
+
+          {/* TAB 3: PERFIL */}
+          <IonTabButton tab="profile" href="/profile">
+            <IonIcon aria-hidden="true" icon={personOutline} />
+            <IonLabel>Perfil</IonLabel>
+          </IonTabButton>
+
+        </IonTabBar>
+      )}
+    </IonTabs>
+  );
+};
+
+const firebaseConfig = {
+  apiKey: env.firebaseApiKey,
+  authDomain: env.firebaseAuthDomain,
+  projectId: env.firebaseProjectId,
+  storageBucket: env.firebaseStorageBucket,
+  messagingSenderId: env.firebaseMessagingSenderId,
+  appId: env.firebaseAppId,
+  measurementId: env.firebaseMeasurementId,
+};
+
+// Inicialización defensiva: si no hay config, no inicializamos (tests/entornos locales).
+if (firebaseConfig.apiKey) {
+  const app = initializeApp(firebaseConfig);
+  // Analytics solo en navegador (jsdom/tests o entornos sin window pueden fallar).
+  if (typeof window !== 'undefined') {
+    getAnalytics(app);
+  }
+}
+
+// Componente Principal que envuelve todo
+const App: React.FC = () => (
+  <IonApp>
+    <IonReactRouter>
+      <MainTabs />
+    </IonReactRouter>
+  </IonApp>
+);
+
+export default App;

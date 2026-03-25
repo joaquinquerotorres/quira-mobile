@@ -1,0 +1,476 @@
+/* src/pages/NewRequest.css */
+
+/* --- HEADER Y LOGO CENTRADO --- */
+.new-request-header IonToolbar {
+    --background: var(--ion-color-primary) !important;
+}
+
+.quira-logo-toolbar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+}
+.quira-text-toolbar {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+.quira-x-icon-toolbar {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    margin: 3px 1px 0 1px;
+}
+.quira-x-leg-toolbar {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    border-radius: 4px;
+    left: 50%;
+}
+.quira-x-leg-toolbar.white {
+    background: white;
+    transform: translateX(-50%) rotate(45deg);
+}
+.quira-x-leg-toolbar.coral {
+    background: #ea580c;
+    transform: translateX(-50%) rotate(-45deg);
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.new-request-header-bg {
+    background: var(--ion-color-primary);
+    padding: 10px 24px 35px 24px;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+    position: relative;
+    z-index: 10;
+}
+.new-request-header-bg h2 {
+    font-weight: 900 !important;
+    color: white !important;
+    margin: 0 !important;
+    font-size: 1.8rem !important;
+    letter-spacing: -1px;
+}
+.new-request-header-bg p {
+    color: rgba(255, 255, 255, 0.8) !important;
+    margin: 4px 0 0 0 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+}
+
+/* --- BLOQUEO: VERIFICAR TELÉFONO --- */
+.new-request-verify-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+.new-request-verify-block-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f1f5f9;
+}
+.new-request-verify-block-card h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+}
+.new-request-verify-block-card p {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+/* --- SEGMENTO DE MODO --- */
+.mode-segment {
+    background: white;
+    border-radius: 16px;
+    padding: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.mode-segment ion-segment-button {
+    --indicator-color: #eef2ff;
+    --color-checked: var(--ion-color-primary);
+    --color: #94a3b8;
+    font-weight: 700;
+    --border-radius: 12px;
+}
+
+/* --- WRAPPER EXTERNO (INPUTS) --- */
+.input-wrapper {
+    background: white;
+    border: 2px solid #f1f5f9; 
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    transition: all 0.3s ease;
+    height: 56px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+    overflow: hidden; 
+    position: relative;
+}
+
+.input-wrapper.textarea-wrapper {
+    height: auto;
+    padding: 10px 15px;
+    align-items: flex-start;
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+/* LIMPIEZA TOTAL DE INPUTS */
+.input-wrapper ion-input,
+.input-wrapper ion-textarea,
+.input-wrapper ion-select {
+    --border-width: 0 !important;
+    --border-color: transparent !important;
+    --highlight-height: 0 !important;
+    --background: transparent !important;
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+    font-weight: 600;
+    color: #1e293b;
+    --placeholder-color: #94a3b8;
+    --placeholder-opacity: 1;
+}
+
+.section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-left: 4px;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- BOTONES MULTIMEDIA GRANDE --- */
+.record-btn-container {
+    background: white;
+    border: 2px dashed #cbd5e1;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.record-btn-container:active {
+    background: #f8fafc;
+    border-color: var(--ion-color-primary);
+}
+
+.record-btn-container.recording-pulse {
+    background: #fef2f2;
+    border: 2px solid #ef4444;
+    animation: pulse 1.5s infinite;
+}
+
+.media-icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    color: white;
+    font-size: 28px;
+    transition: all 0.3s ease;
+}
+
+.media-icon-circle.blue {
+    background: var(--ion-color-primary);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+.media-icon-circle.active-rec {
+    background: #ef4444;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.media-text-main {
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 0.9rem;
+    letter-spacing: -0.3px;
+}
+
+.record-text-sub {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* COMPACT PHOTO UPLOAD (MODO TEXTO) */
+.photo-upload-container.compact {
+    height: 180px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.photo-upload-label { text-align: center; }
+
+/* PREVIEWS */
+.media-preview-card {
+    border-radius: 20px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.media-preview-card.audio {
+    background: #1e293b;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.preview-left { display: flex; align-items: center; flex: 1; }
+
+.play-icon-box {
+    width: 45px;
+    height: 45px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #ea580c;
+    font-size: 24px;
+}
+
+.preview-title { color: white; font-weight: 700; font-size: 0.95rem; }
+.preview-sub { color: #94a3b8; font-size: 0.8rem; font-weight: 600; margin-top: 2px; }
+
+.delete-media-btn { margin: 0; --color: #ef4444; }
+
+.media-preview-card.video {
+    background: black;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-player-preview { width: 100%; height: 100%; object-fit: contain; }
+
+.delete-media-btn-overlay {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    color: white;
+    width: 44px;
+    height: 44px;
+    z-index: 10;
+}
+
+.gps-btn {
+    margin: 0 !important;
+    height: 56px;
+    width: 56px;
+    --border-radius: 18px;
+    --background: #fff7ed;
+    --color: #ea580c;
+    box-shadow: none;
+}
+
+.quira-main-btn {
+    --background: #ea580c; 
+    --border-radius: 16px;
+    height: 56px;
+    font-weight: 700;
+    margin-top: 20px;
+    --box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.3);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); border-color: #ef4444; }
+    50% { transform: scale(1.02); border-color: #f87171; }
+    100% { transform: scale(1); border-color: #ef4444; }
+}
+
+/* CARD IA RESULT */
+.ai-result-card {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    animation: slideUp 0.5s ease;
+}
+
+.ai-result-card .input-wrapper {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none;
+}
+
+.ai-badge-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    color: var(--ion-color-primary);
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 15px;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ESTILOS EXTRA PARA STEP 2 (ESTILO 2) --- */
+
+/* Caja de Aviso IA más bonita */
+.ai-warning-box {
+    background: #fff7ed;
+    color: #ea580c;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+    border: 1px solid #ffedd5;
+}
+
+/* Caja de Precio refinada */
+.price-box-container {
+    background: #f0f9ff; /* Azul muy muy suave */
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+    border: 1px solid #bae6fd;
+}
+.price-label {
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.price-range {
+    color: #0284c7;
+    font-weight: 800;
+    font-size: 1rem;
+}
+.price-input-wrapper {
+    border-color: #0ea5e9 !important;
+    background: white !important;
+    box-shadow: 0 4px 10px rgba(14, 165, 233, 0.1) !important;
+}
+.price-input-wrapper ion-input {
+    font-size: 1.5rem !important;
+    font-weight: 900 !important;
+    color: #0284c7 !important;
+}
+.currency-suffix {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0284c7;
+    margin-left: 5px;
+}
+
+/* --- NUEVA CARD DE PLANIFICACIÓN --- */
+.schedule-card {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    margin: 24px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border: 1px solid #f1f5f9;
+}
+
+/* Segmento estilo iOS limpio */
+.custom-segment-step2 {
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 14px;
+    margin-top: 15px;
+}
+.custom-segment-step2 ion-segment-button {
+    --indicator-color: white;
+    --indicator-box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    --color: #64748b;
+    --color-checked: #0f172a; /* Slate 900 */
+    font-weight: 700;
+    --border-radius: 10px;
+    min-height: 40px;
+}
+
+/* Datetime Integrado */
+.datetime-container {
+    margin-top: 14px;
+    background: #f8fafc;
+    border-radius: 16px;
+    overflow: hidden;
+    border: none;
+    display: flex;
+    justify-content: center;
+    max-height: 260px;
+}
+
+.custom-datetime {
+    --background: #f8fafc;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    transform: scale(0.8);
+    transform-origin: top center;
+}
+/* Forzar estilos internos del datetime para que se vea limpio */
+.custom-datetime::part(calendar-day active),
+.custom-datetime::part(calendar-day active):focus {
+    background: var(--ion-color-primary);
+    border-radius: 8px;
+    color: white;
+}
+.custom-datetime::part(time-button active) {
+    background: var(--ion-color-primary);
+    color: white;
+    border-radius: 8px;
+}

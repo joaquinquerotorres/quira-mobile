@@ -1,0 +1,17 @@
+{
+  "@id": "/api/professional_profiles/10",
+  "id": 10,
+  "fullName": "Pro Directorio E2E",
+  "skills": ["PLUMBING", "ELECTRICITY"],
+  "isVerified": true,
+  "bio": "Bio de prueba",
+  "rating": 4.7,
+  "reviewCount": 5,
+  "avatar": null,
+  "reviews": [],
+  "user": {
+    "id": 2,
+    "roles": ["ROLE_PRO"]
+  },
+  "category": { "code": "PLUMBING", "name": "Fontanería" }
+}

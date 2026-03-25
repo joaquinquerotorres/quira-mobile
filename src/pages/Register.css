@@ -1,0 +1,17 @@
+/* Register - alineado con Login y resto de la app */
+.register-content {
+  --background: #ffffff;
+}
+
+.register-back-btn {
+  --background: white;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-left: 10px;
+  height: 40px;
+  width: 40px;
+}
+
+.register-hero {
+  text-align: center;
+}

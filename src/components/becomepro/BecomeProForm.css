@@ -1,0 +1,111 @@
+.become-pro-form {
+  margin-bottom: 40px;
+}
+
+.become-pro-input-group {
+  margin-bottom: 20px;
+}
+.become-pro-input-group ion-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+.become-pro-input-wrapper {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  height: 52px;
+  transition: border-color 0.2s;
+}
+.become-pro-input-wrapper:focus-within {
+  border-color: var(--ion-color-primary);
+  border-width: 2px;
+}
+.become-pro-input-wrapper.become-pro-textarea-wrapper {
+  height: auto;
+  padding: 10px 15px;
+}
+
+.become-pro-input-wrapper ion-icon {
+  color: #94a3b8;
+  margin-right: 10px;
+  font-size: 20px;
+}
+.become-pro-input-wrapper ion-input,
+.become-pro-input-wrapper ion-textarea {
+  --padding-start: 0;
+  font-size: 0.95rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.become-pro-field-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 5px;
+  margin-left: 5px;
+  font-weight: 600;
+}
+
+.become-pro-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 15px;
+  margin-top: 25px;
+}
+.become-pro-subtitle-small {
+  display: block;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.become-pro-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.become-pro-skill-chip {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.become-pro-skill-chip.chip-selected {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+}
+.become-pro-skill-chip.chip-selected ion-icon {
+  color: #10b981;
+}
+
+.become-pro-form .become-pro-submit-btn {
+  --background: #ea580c;
+  --border-radius: 16px;
+  height: 56px;
+  font-weight: 800;
+  font-size: 1rem;
+  margin-top: 20px;
+  box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.3);
+}

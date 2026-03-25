@@ -1,0 +1,8 @@
+/* BecomePro - alineado con Directory, NewRequest, etc. */
+
+.become-pro-content-container {
+  padding: 0 16px 80px 16px;
+  position: relative;
+  z-index: 10;
+  margin-top: 0px;
+}

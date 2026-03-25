@@ -1,0 +1,22 @@
+{
+  "@id": "/api/requests/1",
+  "id": 1,
+  "title": "Solicitud mock E2E",
+  "status": "PENDING",
+  "category": "DIY",
+  "riskLevel": "LOW",
+  "priceAmount": 120,
+  "address": "Calle Prueba 1, Madrid",
+  "preciseAddress": "Calle Prueba 1, Madrid",
+  "description": "Descripción de prueba",
+  "desiredExecutionTime": "Esta semana",
+  "bids": [],
+  "questions": [],
+  "visitRequests": [],
+  "client": {
+    "fullName": "Cliente E2E",
+    "rating": 4.8,
+    "reviewCount": 3,
+    "phoneNumber": "+34111111111"
+  }
+}

@@ -1,0 +1,102 @@
+.verify-email-content {
+  --background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.verify-email-card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 28px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.verify-email-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.verify-logo-qu,
+.verify-logo-ra {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #4f46e5;
+  letter-spacing: -1px;
+}
+
+.verify-logo-i {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #f97316;
+  letter-spacing: -1px;
+}
+
+.verify-email-loading {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.verify-email-loading ion-spinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.verify-email-loading p {
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.verify-email-result {
+  text-align: center;
+}
+
+.verify-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.verify-icon-circle.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.verify-icon-circle.error {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.verify-email-result h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.verify-email-result p {
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.verify-email-btn {
+  --border-radius: 16px;
+  height: 52px;
+  font-weight: 700;
+}
