@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import './Register.css';
 import { RegisterHeader } from '../components/register/RegisterHeader';
@@ -88,6 +89,21 @@ const Register: React.FC = () => {
             onPasswordChange={setPassword}
             onSubmit={handleRegister}
           />
+          <p
+            style={{
+              marginTop: '16px',
+              textAlign: 'center',
+              fontSize: '0.8rem',
+              color: '#64748b',
+              lineHeight: 1.45,
+            }}
+          >
+            Al registrarte, confirmas haber leído la{' '}
+            <Link to="/legal/privacy" style={{ color: '#4f46e5', fontWeight: 600 }}>
+              información sobre privacidad y datos personales
+            </Link>
+            .
+          </p>
         </div>
 
         <IonLoading isOpen={loading} message="Registrando usuario..." />

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quira — Conecta clientes y profesionales</title>
+    <meta
+      name="description"
+      content="Quira es la herramienta para intermediar solicitudes de servicio entre clientes y profesionales."
+    />
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --text: #0f172a;
+        --muted: #64748b;
+        --brand: #4f46e5;
+        --brand-dark: #4338ca;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #fff;
+      }
+      .logo {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: var(--brand);
+        letter-spacing: -0.02em;
+      }
+      main {
+        flex: 1;
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
+      }
+      h1 {
+        font-size: clamp(1.75rem, 4vw, 2.25rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+        line-height: 1.2;
+      }
+      p.lead {
+        font-size: 1.125rem;
+        color: var(--muted);
+        margin: 0 0 2rem;
+      }
+      .pill {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--brand);
+        background: #eef2ff;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        margin-bottom: 1rem;
+      }
+      footer {
+        padding: 1.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--muted);
+        border-top: 1px solid #e2e8f0;
+        background: #fff;
+      }
+      footer a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <!-- Despliegue: publica esta carpeta como raíz de https://quira.app (Netlify, Vercel, S3+CloudFront, etc.) -->
+  </head>
+  <body>
+    <header>
+      <span class="logo">Quira</span>
+    </header>
+    <main>
+      <span class="pill">Próximamente</span>
+      <h1>La forma sencilla de encargar y ofrecer servicios cerca de ti.</h1>
+      <p class="lead">
+        Estamos preparando la landing pública. La aplicación Quira conecta a clientes y profesionales; las
+        suscripciones y el detalle del producto se anunciarán aquí.
+      </p>
+      <p style="color: var(--muted); font-size: 0.9375rem">
+        API del servicio: <a href="https://api.quira.app" style="color: var(--brand)">api.quira.app</a>
+      </p>
+    </main>
+    <footer>
+      <a href="/privacidad/">Privacidad</a>
+      ·
+      <a href="https://quira.app">quira.app</a>
+    </footer>
+  </body>
+</html>

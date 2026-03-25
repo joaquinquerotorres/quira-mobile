@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
@@ -54,7 +54,7 @@ const ResetPassword: React.FC = () => {
       await api.post(
         '/users/reset-password',
         { token, password },
-        { skipAuthRedirect: true } as { skipAuthRedirect?: boolean }
+        { skipAuthRedirect: true }
       );
       setSuccess(true);
     } catch (err: unknown) {

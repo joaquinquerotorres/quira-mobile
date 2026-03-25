@@ -127,6 +127,8 @@ export interface ServiceRequest {
   extraVideoUrls?: string[];
   /** Disponibilidad preferida para realizar el trabajo (sin fecha exacta) */
   desiredExecutionTime?: string | null;
+  /** Fecha/hora acordada o deseada para la visita o ejecución (si el backend la envía). */
+  scheduledAt?: string | null;
   locationPoint: LocationPoint;
   createdAt: string;
   aiDiagnosis?: Record<string, any>; 

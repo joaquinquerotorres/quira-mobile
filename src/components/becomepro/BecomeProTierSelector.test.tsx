@@ -1,11 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { IonApp } from '@ionic/react';
 import { BecomeProTierSelector } from './BecomeProTierSelector';
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <IonApp>{children}</IonApp>
-);
+const wrapper = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 
 test('BecomeProTierSelector renders all tier cards', () => {
   render(

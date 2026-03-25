@@ -18,6 +18,7 @@ import {
 import { ServiceRequest, Category, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import type { EffectiveTier } from '../../utils/effectiveTier';
 
 interface ProRequestDetailMainSectionProps {
   request: ServiceRequest;
@@ -27,7 +28,7 @@ interface ProRequestDetailMainSectionProps {
   isHighRisk: boolean;
   myBid: any;
   questionsCount: number;
-  userTier: 'FREE' | 'SOLVER' | 'PRO';
+  userTier: EffectiveTier;
   canSubmitBid: boolean;
   /** Hay una propuesta PENDING; si no, puede volver a enviar aunque existan retiradas anteriores. */
   hasActiveBid: boolean;

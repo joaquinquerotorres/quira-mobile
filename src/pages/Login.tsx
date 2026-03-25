@@ -218,6 +218,12 @@ const Login: React.FC = () => {
                 Regístrate con Email
             </IonButton>
 
+            <p className="login-legal-hint" style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
+              <Link to="/legal/privacy" style={{ color: '#4f46e5', fontWeight: 600 }}>
+                Privacidad y protección de datos
+              </Link>
+            </p>
+
             <IonLoading isOpen={loading && !error} message="Iniciando sesión..." />
             <IonToast 
                 isOpen={!!error} 

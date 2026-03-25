@@ -17,7 +17,7 @@ import {
   chevronForwardOutline,
   timeOutline,
 } from 'ionicons/icons';
-import { Bid, ServiceRequest, Category, VisitRequest } from '../../types';
+import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
 
@@ -564,15 +564,14 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                 </div>
           ) : (
             sortBidsForClient(visibleBids).map((bid: Bid) => {
-              const proProfile = bid.professional?.professionalProfile as { id?: number; '@id'?: string } | undefined;
+              const proProfile = bid.professional?.professionalProfile as ProfessionalProfile | undefined;
               const proId = proProfile?.id ?? (proProfile?.['@id'] ? parseInt(String(proProfile['@id']).split('/').pop() || '0', 10) : 0);
-              const proAny = proProfile as any;
-              const hasRating = proAny?.rating != null || proAny?.reviewCount != null;
+              const hasRating = proProfile?.rating != null || proProfile?.reviewCount != null;
               const numericRating =
-                typeof proAny?.rating === 'number'
-                  ? proAny.rating
-                  : typeof proAny?.rating === 'string'
-                    ? Number.parseFloat(proAny.rating)
+                typeof proProfile?.rating === 'number'
+                  ? proProfile.rating
+                  : typeof proProfile?.rating === 'string'
+                    ? Number.parseFloat(proProfile.rating)
                     : NaN;
               const displayRating = Number.isFinite(numericRating)
                 ? numericRating.toFixed(1)
@@ -644,8 +643,8 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                           >
                             <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.85rem' }} />
                             <span style={{ fontWeight: 600 }}>{displayRating}</span>
-                            {proAny?.reviewCount != null && (
-                              <span style={{ color: '#94a3b8' }}>({proAny.reviewCount})</span>
+                            {proProfile?.reviewCount != null && (
+                              <span style={{ color: '#94a3b8' }}>({proProfile.reviewCount})</span>
                             )}
                           </div>
                         )}

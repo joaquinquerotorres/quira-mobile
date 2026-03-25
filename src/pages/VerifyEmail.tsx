@@ -31,7 +31,7 @@ const VerifyEmail: React.FC = () => {
         await api.post(
           '/verify/email',
           { token },
-          { skipAuthRedirect: true } as { skipAuthRedirect?: boolean }
+          { skipAuthRedirect: true }
         );
         setStatus('success');
         setMessage('Email verificado correctamente.');

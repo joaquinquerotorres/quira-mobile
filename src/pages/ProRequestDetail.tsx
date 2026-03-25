@@ -23,7 +23,7 @@ import { ProRequestDetailMainSection } from '../components/pro/ProRequestDetailM
 import { env } from '../config/env';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { resolveMediaUrl } from '../utils/mediaUrl';
-import { getEffectiveTier } from '../utils/effectiveTier';
+import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import {
   getMyBidsFromRequest,
   getMyActiveBid,
@@ -43,7 +43,7 @@ const ProRequestDetail: React.FC = () => {
   const [toast, setToast] = useState<string | null>(null);
   const [myProfileId, setMyProfileId] = useState<number | null>(null);
   const [myUserId, setMyUserId] = useState<number | null>(null);
-  const [userTier, setUserTier] = useState<'FREE' | 'SOLVER' | 'PRO'>('FREE'); 
+  const [userTier, setUserTier] = useState<EffectiveTier>('FREE'); 
 
   // --- ESTADOS DE FLUJO ---
   const [isFinishing, setIsFinishing] = useState(false);
@@ -318,7 +318,7 @@ const ProRequestDetail: React.FC = () => {
   // PROTECCIÓN: Si es High Risk (alta dificultad) y es FREE, bloqueamos solo si NO tiene relación con el trabajo.
   // Si pujó o ganó el trabajo, puede ver todo (cliente, teléfono, ubicación) para poder ejecutarlo.
   const hasRelationshipWithRequest = isWinner || myBids.length > 0;
-  if (request && isHighRisk && userTier === 'FREE' && !hasRelationshipWithRequest) {
+  if (request && isHighRisk && (userTier === 'FREE' || userTier === 'CLIENT') && !hasRelationshipWithRequest) {
       return (
           <IonPage>
               <IonHeader className="ion-no-border">

@@ -168,7 +168,7 @@ const RequestList: React.FC = () => {
   const getStatusColorClass = (status: RequestStatus) => {
       switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'CANCELLED': return 'request-status-cancelled'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
   };
-  const renderScheduleInfo = (isoString?: string) => {
+  const renderScheduleInfo = (isoString?: string | null) => {
     const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem', fontWeight: 600 };
     if (!isoString) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>Lo antes posible</span></div>);
     const date = new Date(isoString);

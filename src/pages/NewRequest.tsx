@@ -311,7 +311,9 @@ const NewRequest: React.FC = () => {
         const simple = value.label.split(',')[0]?.trim();
         setLocationLabel(simple || '');
       }
-    } catch (error) { }
+    } catch {
+      // Fallos puntuales al resolver la dirección; el usuario puede seguir editando.
+    }
   };
 
   const handleAddExtraMedia = (type: 'photo' | 'video' | 'audio', file: File) => {
@@ -420,16 +422,19 @@ const NewRequest: React.FC = () => {
       return;
     }
     
+    let finalCoords: { lat: number; lng: number };
     if (!coords && address) {
-        try {
-            const results = await geocodeByAddress(address);
-            const { lat, lng } = await getLatLng(results[0]);
-            var finalCoords = { lat, lng }; 
-        } catch (e) {
-            setToast("Dirección no válida.");
-            return;
-        }
-    } else { var finalCoords = coords!; }
+      try {
+        const results = await geocodeByAddress(address);
+        const { lat, lng } = await getLatLng(results[0]);
+        finalCoords = { lat, lng };
+      } catch (_e) {
+        setToast('Dirección no válida.');
+        return;
+      }
+    } else {
+      finalCoords = coords!;
+    }
 
     setLoading(true);
     setLoadingMessage('Subiendo archivos...');

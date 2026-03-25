@@ -13,6 +13,31 @@
 
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
 
+## Privacidad y RGPD (pantalla informativa)
+
+- **Ruta:** `/legal/privacy` — componente `src/pages/PrivacyLegal.tsx` (estilos en `PrivacyLegal.css`).
+- **Acceso:** menú **Perfil** → «Privacidad y datos (RGPD)», enlaces en **Login** y **Registro**.
+- El texto describe el tratamiento acorde al código actual (API propia, Firebase Auth/Analytics, Google Maps/Places, Stripe, Sentry opcional, permisos Capacitor, `localStorage`, subidas vía tickets). Debe complementarse con la **política corporativa** del responsable (identidad, contacto, DPO, bases legales detalladas).
+
+## Apps nativas (iOS y Android) — objetivo principal
+
+Si lo que quieres son **dos aplicaciones** (una en **App Store** y otra en **Google Play**), el camino correcto **no** es subir “la app” a Cloudflare: **Cloudflare Pages solo publica la versión web** (HTML/JS en un dominio). Las apps de tienda son **binarios distintos** generados con **Capacitor** a partir del mismo código React/Vite.
+
+| Qué quieres | Dónde se publica | Qué usar |
+|-------------|------------------|----------|
+| App **Android** | [Google Play Console](https://play.google.com/console) — subes un **AAB** (recomendado) o APK firmado | Proyecto `android/` tras `npm run build` + `npx cap sync android` + firma con tu keystore |
+| App **iOS** | [App Store Connect](https://appstoreconnect.apple.com) — subes un **IPA** / archive firmado | Proyecto `ios/` tras `npm run build` + `npx cap sync ios` + certificados y perfil de aprovisionamiento de Apple |
+| Sitio web opcional (landing, PWA, demo) | Cloudflare Pages u otro hosting estático | `npm run build` → carpeta `dist/` |
+
+**Variables de entorno (`VITE_*`)**: se inyectan en **build time** cuando generas el bundle web que Capacitor copia al proyecto nativo. Configúralas en tu máquina (`.env`), en **GitHub Actions Variables** si usas los workflows de build, o en Xcode/Android Studio según cómo integres el paso de build; **no hace falta Cloudflare** para que las apps en tienda hablen con tu API.
+
+**CI/CD relevante para tiendas** (ya en este repo):
+
+- **Native build (manual)**: validar que **compila** Android (APK debug) e iOS (simulador, sin firma de distribución).
+- **Native release (manual, signed)**: **Android** puede producir **AAB firmado** si configuras los Secrets del keystore; **iOS** sigue como plantilla hasta que añadas certificados/provisioning (Fastlane match, etc.).
+
+La sección **Cloudflare Pages (web)** más abajo queda como **opcional**, solo si además quieres una URL web pública.
+
 ## Variables de entorno
 
 Copia `.env.example` a `.env` y configura:
@@ -21,6 +46,16 @@ Copia `.env.example` a `.env` y configura:
 |----------|-------------|
 | `VITE_API_URL` | URL base de la API (ej. `https://api.quira.app/api`) |
 | `VITE_GOOGLE_MAPS_KEY` | Clave de Google Maps para autocompletado (opcional) |
+| `VITE_SENTRY_DSN` | DSN del proyecto Sentry (opcional). Si está vacío, Sentry no se inicializa. |
+
+### Sentry (errores en la app)
+
+La app integra **`@sentry/capacitor`** + **`@sentry/react`**: captura errores de JavaScript/React, el `ErrorBoundary` envía excepciones con stack de componentes, y el bridge puede reportar **crashes nativos** (iOS/Android) según la [documentación de Sentry para Capacitor](https://docs.sentry.io/platforms/javascript/guides/capacitor/).
+
+1. Crea un proyecto en [sentry.io](https://sentry.io) y copia el **DSN** a `VITE_SENTRY_DSN` en `.env` (y en variables de CI si generáis builds con Sentry activo).
+2. Tras instalar o actualizar dependencias Sentry, ejecuta **`npx cap sync`** para alinear proyectos nativos.
+3. **Versiones**: `@sentry/capacitor` exige la misma versión menor de `@sentry/react` que indica su `package.json` (p. ej. `10.43.0`). No subir `@sentry/react` por encima sin comprobar compatibilidad.
+4. (Opcional) Subir **source maps** en release para stacks legibles: `npx @sentry/wizard@latest -i sourcemaps`.
 
 ## Firebase (Android/iOS) — ficheros locales (NO subir al repo)
 
@@ -120,6 +155,51 @@ El workflow genera un `.aab` en `android/app/build/outputs/bundle/release/` y lo
 
 El job de iOS está dejado como **plantilla** (para evitar builds falsamente “verdes” sin signing).
 Para habilitarlo necesitas aportar certificados y provisioning profiles (recomendado: Fastlane match).
+
+## Cloudflare Pages (web)
+
+**Solo aplica si quieres una versión web** (navegador). Para **solo** apps iOS/Android en tiendas, puedes **ignorar** esta sección.
+
+La app es **Vite + React SPA**; el build estático sale en **`dist/`**. En Cloudflare no hace falta tocar el CI de GitHub **si** conectas el repositorio desde el panel de Pages y dejas que Cloudflare ejecute el build.
+
+### Ajustes en el repo (ya hechos / recomendados)
+
+- **`public/_redirects`**: fallback a `index.html` para rutas del cliente (recargas y enlaces directos). Vite copia `public/` a la raíz de `dist/`.
+- **Build en Cloudflare**:
+  - **Build command**: `npm run build` (o `npm ci && npm run build` si el entorno no instala deps antes; el asistente de Pages suele incluir `npm ci`).
+  - **Build output directory**: `dist`
+  - **Root directory**: raíz del repo (si no usas monorepo).
+- **Node**: en Pages → Settings → Environment variables, fija **Node version** a **20** para alinear con GitHub Actions (opcional pero recomendable).
+
+### Variables de entorno (Vite)
+
+Las variables `VITE_*` se **inyectan en build time**. En Cloudflare Pages: **Settings → Environment variables** y repite los mismos nombres que en `.env.example` / GitHub **Variables** (p. ej. `VITE_API_URL`, Firebase web, `VITE_GOOGLE_MAPS_KEY`).
+
+- **Production** y **Preview**: configura ambas si quieres previews de PR con API de staging; si no, las previews pueden fallar al llamar a la API por CORS o URLs incorrectas.
+
+### Backend y CORS
+
+La API debe permitir el origen del sitio en Cloudflare:
+
+- Dominio de producción: `https://tu-dominio.com`
+- Dominio por defecto de Pages: `https://<project>.pages.dev`
+- **Previews** de PR: URLs tipo `https://<hash>.<project>.pages.dev` — si el navegador llama a la API, el backend debe aceptar esos `Origin` o usar una política acordada (a veces solo se habilita previews contra un API de staging con CORS amplio).
+
+### Firebase (solo web)
+
+En **Firebase Console → Authentication → Settings → Authorized domains** añade:
+
+- Tu dominio de Cloudflare
+- `*.pages.dev` si Firebase lo permite para previews, o el dominio concreto de preview que uses
+
+### CI/CD: ¿hay que cambiar GitHub Actions?
+
+| Enfoque | Qué hacer |
+|--------|-----------|
+| **Solo Cloudflare Pages conectado a Git** | No es obligatorio cambiar workflows: cada push puede desplegar en Cloudflare; GitHub sigue ejecutando **CI** (lint/test/build/e2e) en PRs y `main`. Mantén **las mismas variables** en GitHub (CI) y en Cloudflare (build del sitio). |
+| **Despliegue solo desde GitHub Actions** | Añadir un job con `wrangler pages deploy` o `cloudflare/pages-action` y secretos `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` + nombre del proyecto. Entonces **desactiva** el build automático duplicado en el panel de Pages para no publicar dos veces. |
+
+Recomendación práctica: **Pages conectado a Git** + mantener el CI actual en GitHub para calidad; sin duplicar deploy salvo que quieras un pipeline único en Actions.
 
 ## Tests (recomendado antes de release)
 

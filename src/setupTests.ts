@@ -32,6 +32,11 @@ const localStorageMock = {
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+vi.mock('@sentry/capacitor', () => ({
+  captureException: vi.fn(),
+  init: vi.fn(),
+}));
+
 // Mock Firebase/Capacitor
 vi.mock('@capacitor-firebase/authentication', () => ({
   FirebaseAuthentication: {

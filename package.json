@@ -29,6 +29,8 @@
     "@ionic/pwa-elements": "^3.3.0",
     "@ionic/react": "^8.5.0",
     "@ionic/react-router": "^8.5.0",
+    "@sentry/capacitor": "^3.2.0",
+    "@sentry/react": "10.43.0",
     "@supabase/supabase-js": "^2.98.0",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",

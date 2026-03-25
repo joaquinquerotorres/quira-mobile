@@ -34,7 +34,7 @@ interface MarketOpportunityCardProps {
   onCardClick: () => void;
   onBidClick: (e: React.MouseEvent) => void;
   serverUrl: string;
-  renderScheduleInfo: (isoString?: string) => React.ReactNode;
+  renderScheduleInfo: (isoString?: string | null) => React.ReactNode;
 }
 
 export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({

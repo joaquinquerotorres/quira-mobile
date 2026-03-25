@@ -24,7 +24,7 @@ import { MarketOpportunityCard } from '../components/market/MarketOpportunityCar
 
 import { env } from '../config/env';
 import { getVerificationStatus } from '../hooks/useUserVerification';
-import { getEffectiveTier } from '../utils/effectiveTier';
+import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const serverUrl = env.serverUrl;
@@ -53,7 +53,7 @@ const Market: React.FC = () => {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   
   // --- GESTIÓN DE ROLES / NIVELES ---
-  const [userTier, setUserTier] = useState<'FREE' | 'SOLVER' | 'PRO'>('FREE');
+  const [userTier, setUserTier] = useState<EffectiveTier>('FREE');
   const [myBidsCount, setMyBidsCount] = useState(0); 
 
   // --- LÓGICA DE PROPUESTAS (ANTES PUJAS) ---
@@ -186,7 +186,7 @@ const Market: React.FC = () => {
   // 1. Visibilidad (Niebla vs Claro)
   // ROLE_FREE: No ve detalles en HIGH. (Solver sí ve para tener FOMO)
   const canViewRequestDetails = (req: ServiceRequest) => {
-    if (isHighRisk(req) && userTier === 'FREE') {
+    if (isHighRisk(req) && (userTier === 'FREE' || userTier === 'CLIENT')) {
       return false;
     }
     return true;
@@ -220,7 +220,7 @@ const Market: React.FC = () => {
       return;
     }
 
-    if (userTier === 'FREE') {
+    if (userTier === 'FREE' || userTier === 'CLIENT') {
       try {
         // Backend: canBidThisMonth debe alinearse con el límite mensual sin contar pujas REJECTED (retiradas).
         const res = await api.get<{ canBidThisMonth: boolean }>('/professionals/me/can-bid');
@@ -277,7 +277,7 @@ const Market: React.FC = () => {
     }
   };
 
-  const renderScheduleInfo = (isoString?: string) => {
+  const renderScheduleInfo = (isoString?: string | null) => {
       if (!isoString) {
           return (
               <div className="info-row" style={{color: '#ea580c', fontWeight: 700}}>
@@ -307,7 +307,7 @@ const Market: React.FC = () => {
         <MainHeader 
             title="Mercado" 
             subtitle="Encuentra nuevas oportunidades de trabajo."
-            extraInfo={userTier === 'FREE' && canBidThisMonth !== false ? `Propuestas gratuitas: ${Math.max(0, FREE_BID_LIMIT - myBidsCount)} restantes` : undefined}
+            extraInfo={(userTier === 'FREE' || userTier === 'CLIENT') && canBidThisMonth !== false ? `Propuestas gratuitas: ${Math.max(0, FREE_BID_LIMIT - myBidsCount)} restantes` : undefined}
         />
 
         {/* CONTENEDOR PRINCIPAL CON BUSCADOR FLOTANTE */}

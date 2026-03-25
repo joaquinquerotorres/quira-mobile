@@ -292,7 +292,7 @@ const Profile: React.FC = () => {
       await api.post(
         '/verify/phone/confirm',
         { code: trimmed, profile: phoneVerifyProfile },
-        { skipAuthRedirect: true } as { skipAuthRedirect?: boolean }
+        { skipAuthRedirect: true }
       );
 
       const updatedUser = { ...user! };
@@ -322,7 +322,7 @@ const Profile: React.FC = () => {
       await api.post(
         '/verify/email',
         { email: user.email },
-        { skipAuthRedirect: true } as { skipAuthRedirect?: boolean }
+        { skipAuthRedirect: true }
       );
       setToast('Si tu email no estaba verificado, te hemos enviado un correo de verificación.');
     } catch {
@@ -344,7 +344,7 @@ const Profile: React.FC = () => {
       const res = await api.post(
         '/verify/phone/send',
         { profile },
-        { skipAuthRedirect: true } as { skipAuthRedirect?: boolean }
+        { skipAuthRedirect: true }
       );
       const data = res?.data as { success?: boolean; skipped?: boolean; reason?: string; message?: string } | undefined;
 
@@ -850,6 +850,11 @@ const Profile: React.FC = () => {
             <IonItem lines="none" detail={false} button routerLink="/profile/notifications" className="menu-item">
                 <div slot="start" className="icon-box icon-gray"><IonIcon icon={notificationsOutline} /></div>
                 <IonLabel className="item-label">Notificaciones</IonLabel>
+                <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
+            </IonItem>
+            <IonItem lines="none" detail={false} button routerLink="/legal/privacy" className="menu-item">
+                <div slot="start" className="icon-box icon-blue"><IonIcon icon={shieldCheckmarkOutline} /></div>
+                <IonLabel className="item-label">Privacidad y datos (RGPD)</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
             </IonItem>
             {!isPro && (
