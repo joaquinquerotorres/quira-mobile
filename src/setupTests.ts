@@ -5,6 +5,7 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import { setupIonicReact } from '@ionic/react';
+import { afterEach } from 'vitest';
 
 setupIonicReact();
 
@@ -32,6 +33,16 @@ const localStorageMock = {
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+// Prevent Ionic internal timers from firing after jsdom teardown.
+afterEach(() => {
+  // Best-effort cleanup (jsdom + Ionic can schedule async work).
+  try {
+    vi.runOnlyPendingTimers();
+  } catch {
+    // ignore if timers are not faked
+  }
+});
+
 vi.mock('@sentry/capacitor', () => ({
   captureException: vi.fn(),
   init: vi.fn(),
@@ -47,4 +58,15 @@ vi.mock('@capacitor-firebase/authentication', () => ({
     getIdToken: () => Promise.resolve({ token: 'mocked-token' }),
   },
 }));
+
+// Mock Google Places autocomplete (requires Google script in real runtime).
+vi.mock('react-google-places-autocomplete', async () => {
+  const React = (await import('react')).default;
+  return {
+    __esModule: true,
+    default: () => React.createElement('div', { 'data-testid': 'google-places-autocomplete' }),
+    geocodeByAddress: () => Promise.resolve([]),
+    getLatLng: () => Promise.resolve({ lat: 0, lng: 0 }),
+  };
+});
 
