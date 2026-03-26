@@ -143,7 +143,7 @@ jobs:
           start: npm run dev -- --host 127.0.0.1 --port 5173
           wait-on: http://127.0.0.1:5173
           wait-on-timeout: 120000
-          command: npm run test.e2e -- --spec "cypress/e2e/smoke.cy.ts"
+          command: npm run test.e2e -- --spec cypress/e2e/smoke.cy.ts
 
       - name: Upload Cypress artifacts on failure
         if: failure()
