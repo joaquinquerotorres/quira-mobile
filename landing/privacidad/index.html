@@ -1,110 +1,450 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Política de privacidad — Quira</title>
-    <meta
-      name="description"
-      content="Información sobre el tratamiento de datos personales en el servicio Quira (RGPD)."
-    />
-    <style>
-      :root {
-        --bg: #f8fafc;
-        --text: #0f172a;
-        --muted: #64748b;
-        --brand: #4f46e5;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family:
-          system-ui,
-          -apple-system,
-          'Segoe UI',
-          Roboto,
-          sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        line-height: 1.65;
-      }
-      header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
-        background: #fff;
-      }
-      .logo {
-        font-weight: 800;
-        font-size: 1.25rem;
-        color: var(--brand);
-        text-decoration: none;
-      }
-      main {
-        max-width: 42rem;
-        margin: 0 auto;
-        padding: 2rem 1.5rem 4rem;
-      }
-      h1 {
-        font-size: 1.75rem;
-        letter-spacing: -0.02em;
-        margin: 0 0 0.5rem;
-      }
-      .meta {
-        font-size: 0.875rem;
-        color: var(--muted);
-        margin-bottom: 2rem;
-      }
-      p {
-        margin: 0 0 1rem;
-      }
-      a {
-        color: var(--brand);
-      }
-      footer {
-        padding: 1.5rem;
-        text-align: center;
-        font-size: 0.875rem;
-        color: var(--muted);
-        border-top: 1px solid #e2e8f0;
-        background: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <a class="logo" href="/">← Quira</a>
-    </header>
-    <main>
-      <h1>Política de privacidad</h1>
-      <p class="meta">Resumen orientativo. Sustituye este bloque por el texto revisado por el responsable del tratamiento.</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidad — Quira</title>
+  <meta name="robots" content="index, follow" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --indigo: #4f46e5;
+      --indigo-light: #e0e7ff;
+      --orange: #f97316;
+      --orange-light: #ffedd5;
+      --dark: #1e1b4b;
+      --mid: #6b7280;
+      --cream: #f9f8ff;
+      --card: #ffffff;
+      --border: rgba(79,70,229,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--cream); color: var(--dark); line-height: 1.7; font-size: 1rem; }
+    .top-bar { background: var(--dark); padding: 14px 5%; display: flex; align-items: center; justify-content: space-between; }
+    .top-bar-logo { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+    .top-bar-logo span { color: var(--orange); }
+    .top-bar-link { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.88rem; font-weight: 700; transition: color 0.2s; }
+    .top-bar-link:hover { color: var(--orange); }
+    .hero { background: linear-gradient(135deg, var(--dark) 0%, #3730a3 100%); padding: 60px 5% 50px; text-align: center; }
+    .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #fff; letter-spacing: -1.5px; margin-bottom: 12px; }
+    .hero-meta { color: rgba(255,255,255,0.55); font-size: 0.9rem; font-weight: 600; }
+    .hero-meta span { color: var(--orange); }
+    .container { max-width: 820px; margin: 0 auto; padding: 60px 5% 80px; }
+    .toc { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 48px; }
+    .toc h2 { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 900; margin-bottom: 16px; color: var(--dark); }
+    .toc ol { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .toc li { font-size: 0.92rem; }
+    .toc a { color: var(--indigo); text-decoration: none; font-weight: 700; transition: color 0.2s; }
+    .toc a:hover { color: var(--orange); }
+    .policy-section { margin-bottom: 48px; scroll-margin-top: 30px; }
+    .policy-section h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; color: var(--dark); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--indigo-light); }
+    .policy-section h3 { font-weight: 800; font-size: 1.05rem; color: var(--dark); margin: 24px 0 10px; }
+    .policy-section p { font-size: 0.95rem; color: #374151; margin-bottom: 14px; line-height: 1.75; }
+    .policy-section ul, .policy-section ol { padding-left: 22px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .policy-section li { font-size: 0.95rem; color: #374151; line-height: 1.65; }
+    .policy-section strong { color: var(--dark); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 20px 0 14px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .data-table th { background: var(--dark); color: #fff; padding: 12px 16px; text-align: left; font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; color: #374151; line-height: 1.5; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:nth-child(even) td { background: #f9f8ff; }
+    .callout { border-radius: 12px; padding: 18px 22px; margin: 20px 0; font-size: 0.92rem; line-height: 1.65; display: flex; gap: 14px; align-items: flex-start; }
+    .callout-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+    .callout-info { background: var(--indigo-light); color: var(--dark); }
+    .callout-warn { background: var(--orange-light); color: #7c2d12; }
+    .callout p { margin: 0; font-size: 0.92rem; }
+    .rights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
+    .right-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px; transition: border-color 0.2s; }
+    .right-card:hover { border-color: var(--indigo); }
+    .right-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .right-card-title { font-weight: 800; font-size: 0.95rem; color: var(--dark); margin-bottom: 4px; }
+    .right-card-desc { font-size: 0.85rem; color: var(--mid); line-height: 1.5; }
+    .provider-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+    .tag-eu { background: var(--indigo-light); color: var(--indigo); }
+    .tag-us { background: var(--orange-light); color: #92400e; }
+    .policy-footer { background: var(--dark); color: rgba(255,255,255,0.55); padding: 32px 5%; text-align: center; font-size: 0.88rem; }
+    .policy-footer a { color: var(--orange); text-decoration: none; font-weight: 700; }
+    .back-top { display: inline-flex; align-items: center; gap: 8px; background: var(--indigo-light); color: var(--indigo); font-weight: 800; font-size: 0.85rem; padding: 10px 18px; border-radius: 50px; text-decoration: none; margin-top: 16px; transition: all 0.2s; }
+    .back-top:hover { background: var(--indigo); color: #fff; }
+    @media (max-width: 600px) { .data-table { display: block; overflow-x: auto; } .toc { padding: 20px; } }
+  </style>
+</head>
+<body>
 
-      <p>
-        El servicio <strong>Quira</strong> (sitio <a href="https://quira.app">quira.app</a>, API en{' '}
-        <a href="https://api.quira.app">api.quira.app</a>) trata datos personales de acuerdo con el Reglamento (UE)
-        2016/679 (RGPD) y la normativa española aplicable.
-      </p>
-      <p>
-        La información <strong>más completa y actualizada</strong> sobre categorías de datos, finalidades,
-        proveedores tecnológicos (Stripe, Twilio, Google Maps, Firebase, Gemini, etc.), transferencias y tus
-        derechos está disponible dentro de la <strong>aplicación móvil</strong>, en la sección
-        <strong>Privacidad y datos personales</strong> (menú de perfil / preferencias).
-      </p>
-      <p>
-        <strong>Responsable del tratamiento:</strong> publica aquí tu nombre o razón social, NIF y un correo de
-        contacto para ejercer derechos (acceso, rectificación, supresión, etc.). Mientras tanto, indica un correo de
-        soporte o privacidad visible para los usuarios.
-      </p>
-      <p>
-        Puedes presentar una reclamación ante la autoridad de control. En España:{' '}
-        <a href="https://www.aepd.es" rel="noopener noreferrer">Agencia Española de Protección de Datos (AEPD)</a>.
-      </p>
-    </main>
-    <footer>
-      <a href="/">Inicio</a>
-      ·
-      <a href="https://quira.app">quira.app</a>
-    </footer>
-  </body>
+<div class="top-bar">
+  <a href="index.html" class="top-bar-logo">Quir<span>a</span></a>
+  <a href="index.html" class="top-bar-link">← Volver a la web</a>
+</div>
+
+<div class="hero">
+  <h1>Política de Privacidad</h1>
+  <p class="hero-meta">Versión 1.1 — Última actualización: <span>26 de marzo de 2026</span></p>
+</div>
+
+<div class="container">
+
+  <div class="callout callout-info">
+    <div class="callout-icon">ℹ️</div>
+    <p>Esta política aplica a la aplicación móvil <strong>Quira</strong> y a su sitio web asociado. Está redactada de conformidad con el <strong>Reglamento (UE) 2016/679 (RGPD)</strong>, la <strong>Ley Orgánica 3/2018 (LOPDGDD)</strong> y los requisitos de la <strong>Google Play Store</strong>. Si tienes cualquier duda, escríbenos a <a href="mailto:privacidad@quira.app">privacidad@quira.app</a>.</p>
+  </div>
+
+  <nav class="toc" id="indice">
+    <h2>📋 Índice de contenidos</h2>
+    <ol>
+      <li><a href="#responsable">Responsable del tratamiento</a></li>
+      <li><a href="#datos-recogidos">Datos que recogemos y cómo los recogemos</a></li>
+      <li><a href="#finalidades">Finalidades y bases jurídicas del tratamiento</a></li>
+      <li><a href="#terceros">Terceros proveedores y transferencias internacionales</a></li>
+      <li><a href="#permisos">Permisos de la aplicación</a></li>
+      <li><a href="#conservacion">Conservación de los datos</a></li>
+      <li><a href="#derechos">Tus derechos</a></li>
+      <li><a href="#menores">Menores de edad</a></li>
+      <li><a href="#seguridad">Seguridad de los datos</a></li>
+      <li><a href="#ia">Tratamiento mediante Inteligencia Artificial</a></li>
+      <li><a href="#notificaciones">Notificaciones y comunicaciones</a></li>
+      <li><a href="#pagos">Pagos y suscripciones</a></li>
+      <li><a href="#cambios">Cambios en esta política</a></li>
+      <li><a href="#contacto">Contacto y reclamaciones</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. RESPONSABLE -->
+  <section class="policy-section" id="responsable">
+    <h2>1. Responsable del tratamiento</h2>
+    <p>El responsable del tratamiento de los datos personales recogidos a través de la aplicación Quira es:</p>
+    <table class="data-table">
+      <tr><th>Campo</th><th>Información</th></tr>
+      <tr><td><strong>Nombre comercial</strong></td><td>Quira</td></tr>
+      <tr><td><strong>Titular</strong></td><td>Joaquín Quero Torres</td></tr>
+      <tr><td><strong>NIF/CIF</strong></td><td>45742404M</td></tr>
+      <tr><td><strong>Domicilio fiscal</strong></td><td>Paseo Vereda de Trassierra, 9, 14005, Córdoa, España</td></tr>
+      <tr><td><strong>Correo de privacidad</strong></td><td><a href="mailto:privacidad@quira.app">privacidad@quira.app</a></td></tr>
+      <tr><td><strong>Web</strong></td><td>https://quira.app</td></tr>
+    </table>
+    <p>Los datos de identificación definitivos del responsable serán actualizados en esta política antes del lanzamiento público de la aplicación.</p>
+  </section>
+
+  <!-- 2. DATOS -->
+  <section class="policy-section" id="datos-recogidos">
+    <h2>2. Datos que recogemos y cómo los recogemos</h2>
+    <p>Recogemos los datos estrictamente necesarios para prestar el servicio de conexión entre clientes y profesionales.</p>
+
+    <h3>2.1 Datos que tú nos proporcionas directamente</h3>
+    <table class="data-table">
+      <tr><th>Dato</th><th>Quién lo proporciona</th><th>Cuándo</th></tr>
+      <tr><td>Nombre y apellidos</td><td>Clientes y profesionales</td><td>Registro</td></tr>
+      <tr><td>Dirección de correo electrónico</td><td>Clientes y profesionales</td><td>Registro</td></tr>
+      <tr><td>Número de teléfono</td><td>Clientes y profesionales</td><td>Registro / perfil</td></tr>
+      <tr><td>Foto de perfil</td><td>Profesionales (opcional)</td><td>Configuración de perfil</td></tr>
+      <tr><td>Biografía profesional</td><td>Profesionales</td><td>Perfil público</td></tr>
+      <tr><td>Categorías y especialidades</td><td>Profesionales</td><td>Configuración</td></tr>
+      <tr><td>CIF/NIF empresarial</td><td>Profesionales del plan Pro</td><td>Registro plan Pro</td></tr>
+      <tr><td>Zona geográfica aproximada</td><td>Clientes y profesionales</td><td>Configuración / publicación de solicitud</td></tr>
+      <tr><td>Dirección exacta del servicio</td><td>Clientes</td><td>Solo tras aceptación del trabajo</td></tr>
+      <tr><td>Descripción del servicio (texto, audio, vídeo)</td><td>Clientes</td><td>Creación de solicitud</td></tr>
+      <tr><td>Valoraciones y reseñas</td><td>Clientes y profesionales Pro</td><td>Tras finalización del trabajo</td></tr>
+      <tr><td>Datos de pago (gestionados por Stripe)</td><td>Profesionales Solver y Pro</td><td>Contratación de plan</td></tr>
+    </table>
+
+    <h3>2.2 Datos recogidos automáticamente</h3>
+    <ul>
+      <li>Identificador único de instalación de la app (Firebase App Instance ID)</li>
+      <li>Dirección IP y datos de red</li>
+      <li>Tipo y modelo de dispositivo, sistema operativo y versión</li>
+      <li>Versión de la aplicación instalada</li>
+      <li>Datos de uso y eventos de interacción (Firebase Analytics)</li>
+      <li>Registros de errores y excepciones (Sentry)</li>
+      <li>Tokens de notificación push (Firebase Cloud Messaging)</li>
+      <li>Fecha y hora de acceso</li>
+    </ul>
+
+    <h3>2.3 Datos de ubicación</h3>
+    <div class="callout callout-warn">
+      <div class="callout-icon">📍</div>
+      <p>Quira <strong>no solicita ni almacena tu ubicación GPS precisa</strong>. La ubicación se basa en la <strong>zona aproximada que tú indicas manualmente</strong> (por ejemplo, "Triana, Sevilla"). La dirección exacta del servicio solo se comparte una vez que el trabajo ha sido aceptado, y únicamente con el profesional contratado.</p>
+    </div>
+    <p>Para la visualización de zonas en el mapa utilizamos Google Maps Platform, que puede procesar nombres de localidades o coordenadas aproximadas. Consulta su política: <a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a>.</p>
+  </section>
+
+  <!-- 3. FINALIDADES -->
+  <section class="policy-section" id="finalidades">
+    <h2>3. Finalidades y bases jurídicas del tratamiento</h2>
+    <table class="data-table">
+      <tr><th>Finalidad</th><th>Datos implicados</th><th>Base jurídica (Art. 6 RGPD)</th></tr>
+      <tr><td>Gestión del registro y cuenta de usuario</td><td>Nombre, email, teléfono, foto</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Publicación y gestión de solicitudes de servicio</td><td>Descripción, zona, categoría, precio</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Generación de anuncios y estimación de precios mediante IA (Google Gemini)</td><td>Descripción de la solicitud; fichero de referencia de precios (datos anonimizados de servicios aceptados)</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Conexión cliente–profesional y gestión de ofertas</td><td>Zona, categoría, perfil profesional</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Envío de notificaciones (Twilio)</td><td>Email / número de teléfono / WhatsApp según plan</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Compartir dirección exacta con el profesional aceptado</td><td>Dirección completa del cliente</td><td>Ejecución del contrato (6.1.b) + consentimiento (6.1.a)</td></tr>
+      <tr><td>Gestión de reseñas y valoraciones</td><td>Texto de valoración, puntuación, autor</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Procesamiento de pagos (Stripe)</td><td>Nombre, email, datos de pago</td><td>Ejecución del contrato (6.1.b) + obligación legal (6.1.c)</td></tr>
+      <tr><td>Verificación de profesionales Pro (CIF)</td><td>CIF empresarial</td><td>Obligación legal (6.1.c) + ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Analítica de uso (Firebase Analytics / Google Analytics)</td><td>Eventos de uso, identificador de instancia</td><td>Interés legítimo (6.1.f) + consentimiento (6.1.a) según configuración</td></tr>
+      <tr><td>Detección y resolución de errores técnicos (Sentry)</td><td>Logs, stack traces, datos del dispositivo, IP parcial</td><td>Interés legítimo (6.1.f)</td></tr>
+      <tr><td>Mejora del modelo de estimación de precios (aprendizaje continuo)</td><td>Datos anonimizados de servicios no catalogados aceptados</td><td>Interés legítimo (6.1.f)</td></tr>
+      <tr><td>Atención al cliente</td><td>Email, nombre, descripción de la incidencia</td><td>Ejecución del contrato (6.1.b) + interés legítimo (6.1.f)</td></tr>
+      <tr><td>Cumplimiento de obligaciones legales</td><td>Datos fiscales, transacciones</td><td>Obligación legal (6.1.c)</td></tr>
+    </table>
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <p>Quira no utiliza tus datos para publicidad personalizada de terceros ni los vende a ningún tercero.</p>
+    </div>
+  </section>
+
+  <!-- 4. TERCEROS -->
+  <section class="policy-section" id="terceros">
+    <h2>4. Terceros proveedores y transferencias internacionales de datos</h2>
+    <p>Para prestar el servicio contamos con los siguientes subencargados del tratamiento. Con todos ellos hemos suscrito, o suscribiremos antes del lanzamiento, el Acuerdo de Tratamiento de Datos (DPA) exigido por el artículo 28 del RGPD:</p>
+
+    <table class="data-table">
+      <tr><th>Proveedor</th><th>Función</th><th>Datos transferidos</th><th>País</th><th>Garantía RGPD</th><th>Política</th></tr>
+      <tr>
+        <td><strong>Railway</strong> (Railway Corp.)<br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Hosting del backend, base de datos principal y API de la aplicación</td>
+        <td>Todos los datos de usuarios almacenados en la base de datos (cuentas, solicitudes, ofertas, reseñas)</td>
+        <td>EE.UU. (disponible región UE)</td>
+        <td>DPA disponible en railway.com/legal/dpa; SOC 2 Type II certificado; CCE de la Comisión Europea</td>
+        <td><a href="https://railway.com/legal/privacy" target="_blank">railway.com/legal/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Google Firebase</strong><br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Autenticación de usuarios, notificaciones push (FCM) y analítica de la app</td>
+        <td>Credenciales de autenticación, tokens push, datos de uso y eventos</td>
+        <td>EE.UU. / UE (según región)</td>
+        <td>CCE de la Comisión Europea; Google Data Processing Terms</td>
+        <td><a href="https://firebase.google.com/support/privacy" target="_blank">firebase.google.com/support/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Google Analytics for Firebase</strong><br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Analítica de uso de la aplicación</td>
+        <td>Eventos de uso, identificador de instancia, datos del dispositivo</td>
+        <td>EE.UU. / EEE</td>
+        <td>CCE; Google actúa como encargado del tratamiento</td>
+        <td><a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Google Gemini (Google AI)</strong><br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Generación automática de anuncios (título, descripción, categoría, precio estimado, dificultad) y aprendizaje del modelo de precios</td>
+        <td>Descripción del servicio del cliente; fichero de referencia de precios (datos anonimizados de servicios aceptados cargados en caché)</td>
+        <td>EE.UU.</td>
+        <td>CCE; Google Cloud Data Processing Addendum</td>
+        <td><a href="https://ai.google.dev/terms" target="_blank">ai.google.dev/terms</a></td>
+      </tr>
+      <tr>
+        <td><strong>Google Maps Platform</strong><br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Visualización de mapas y zonas aproximadas</td>
+        <td>Nombres de localidades / coordenadas aproximadas introducidas por el usuario</td>
+        <td>EE.UU. / EEE</td>
+        <td>CCE; Google Maps Platform Terms</td>
+        <td><a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Sentry</strong> (Functional Software, Inc.)<br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Monitorización de errores y excepciones de la aplicación</td>
+        <td>Logs de errores, stack traces, versión de app, tipo de dispositivo, IP parcial (enmascarada)</td>
+        <td>EE.UU.</td>
+        <td>CCE; DPA en sentry.io/legal/dpa</td>
+        <td><a href="https://sentry.io/privacy/" target="_blank">sentry.io/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong> (Twilio Inc.)<br><span class="provider-tag tag-us">EE.UU.</span></td>
+        <td>Envío de <strong>todas</strong> las notificaciones: correo electrónico (plan Free), SMS/push (plan Solver) y mensajes de WhatsApp Business (plan Pro)</td>
+        <td>Email o número de teléfono del destinatario y contenido de la notificación</td>
+        <td>EE.UU. / EEE</td>
+        <td>CCE; Twilio Data Protection Addendum</td>
+        <td><a href="https://www.twilio.com/en-us/legal/privacy" target="_blank">twilio.com/legal/privacy</a></td>
+      </tr>
+      <tr>
+        <td><strong>Stripe</strong> (Stripe Payments Europe, Ltd.)<br><span class="provider-tag tag-eu">Irlanda / EEE</span></td>
+        <td>Procesamiento de pagos de suscripciones (planes Solver y Pro)</td>
+        <td>Nombre, email, datos de tarjeta de crédito/débito, datos de facturación</td>
+        <td>Irlanda (EEE)</td>
+        <td>Entidad regulada en EEE; subprocesadores en EE.UU. bajo CCE; EU-U.S. Data Privacy Framework</td>
+        <td><a href="https://stripe.com/es/privacy" target="_blank">stripe.com/es/privacy</a></td>
+      </tr>
+    </table>
+
+    <h3>Transferencias internacionales — garantías aplicables</h3>
+    <p>Para todos los proveedores ubicados fuera del EEE que procesan datos de usuarios europeos, se aplica al menos una de las siguientes garantías (Arts. 44–49 RGPD):</p>
+    <ul>
+      <li><strong>Cláusulas Contractuales Estándar (CCE)</strong> — Decisión de Ejecución 2021/914/UE de la Comisión Europea.</li>
+      <li><strong>Marco de Privacidad de Datos UE-EE.UU.</strong> (EU-U.S. Data Privacy Framework) cuando el proveedor esté certificado.</li>
+      <li><strong>Acuerdo de Encargado del Tratamiento (DPA)</strong> específico con cada proveedor.</li>
+    </ul>
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <p><strong>Nota sobre Railway:</strong> Te recomendamos configurar tu proyecto en Railway en una región europea (p.ej. EU West) para minimizar las transferencias de datos fuera del EEE. En cualquier caso, el DPA de Railway cubre el tratamiento bajo CCE.</p>
+    </div>
+    <p>Puedes solicitar copia de las garantías contractuales aplicables a <a href="mailto:privacidad@quira.app">privacidad@quira.app</a>.</p>
+  </section>
+
+  <!-- 5. PERMISOS -->
+  <section class="policy-section" id="permisos">
+    <h2>5. Permisos de la aplicación</h2>
+    <table class="data-table">
+      <tr><th>Permiso</th><th>Finalidad</th><th>Obligatorio</th></tr>
+      <tr><td>Cámara</td><td>Grabar vídeos para describir el servicio solicitado</td><td>No (puedes usar texto o audio)</td></tr>
+      <tr><td>Micrófono</td><td>Grabar audios para describir el servicio solicitado</td><td>No (puedes usar texto o vídeo)</td></tr>
+      <tr><td>Almacenamiento / Fotos</td><td>Seleccionar vídeos o imágenes ya existentes en el dispositivo</td><td>No</td></tr>
+      <tr><td>Notificaciones push</td><td>Recibir alertas de nuevas solicitudes, ofertas y estados del trabajo</td><td>Recomendado</td></tr>
+      <tr><td>Internet</td><td>Funcionamiento general de la aplicación</td><td>Sí</td></tr>
+    </table>
+    <div class="callout callout-info">
+      <div class="callout-icon">🔒</div>
+      <p>Quira <strong>no solicita permiso de localización GPS</strong> (ACCESS_FINE_LOCATION ni ACCESS_COARSE_LOCATION). La zona geográfica se introduce manualmente por el usuario.</p>
+    </div>
+  </section>
+
+  <!-- 6. CONSERVACIÓN -->
+  <section class="policy-section" id="conservacion">
+    <h2>6. Conservación de los datos</h2>
+    <table class="data-table">
+      <tr><th>Tipo de dato</th><th>Período de conservación</th><th>Justificación</th></tr>
+      <tr><td>Datos de cuenta (nombre, email, teléfono)</td><td>Mientras la cuenta esté activa + 3 años tras su cancelación</td><td>Posibles reclamaciones (Art. 1964 CC)</td></tr>
+      <tr><td>Contenido de solicitudes (texto, audio, vídeo)</td><td>Hasta 12 meses tras el cierre de la solicitud</td><td>Resolución de disputas</td></tr>
+      <tr><td>Dirección exacta del cliente</td><td>Eliminada automáticamente 30 días tras la finalización del trabajo</td><td>Minimización de datos (Art. 5.1.e RGPD)</td></tr>
+      <tr><td>Datos de pago (registros de transacciones)</td><td>5 años desde la transacción</td><td>Obligación legal fiscal (Ley 58/2003 General Tributaria)</td></tr>
+      <tr><td>Logs de errores (Sentry)</td><td>90 días (eliminación automática configurada)</td><td>Depuración técnica</td></tr>
+      <tr><td>Datos de analítica (Firebase Analytics)</td><td>14 meses (máximo recomendado para RGPD)</td><td>Análisis de tendencias</td></tr>
+      <tr><td>Reseñas y valoraciones</td><td>Mientras la cuenta del evaluado esté activa</td><td>Servicio de reputación</td></tr>
+      <tr><td>Fichero de referencia de precios (IA)</td><td>Actualización continua; no contiene datos personales identificables</td><td>Mejora del servicio (datos anonimizados)</td></tr>
+      <tr><td>CIF de profesionales Pro</td><td>Mientras dure la relación + 5 años</td><td>Verificación y obligación legal fiscal</td></tr>
+    </table>
+  </section>
+
+  <!-- 7. DERECHOS -->
+  <section class="policy-section" id="derechos">
+    <h2>7. Tus derechos</h2>
+    <p>De conformidad con los artículos 15 a 22 del RGPD y la LOPDGDD, tienes los siguientes derechos:</p>
+    <div class="rights-grid">
+      <div class="right-card"><div class="right-card-icon">👁️</div><div class="right-card-title">Acceso</div><div class="right-card-desc">Conocer qué datos tenemos sobre ti y obtener una copia.</div></div>
+      <div class="right-card"><div class="right-card-icon">✏️</div><div class="right-card-title">Rectificación</div><div class="right-card-desc">Corregir datos inexactos o incompletos.</div></div>
+      <div class="right-card"><div class="right-card-icon">🗑️</div><div class="right-card-title">Supresión</div><div class="right-card-desc">Solicitar la eliminación de tus datos cuando ya no sean necesarios.</div></div>
+      <div class="right-card"><div class="right-card-icon">⏸️</div><div class="right-card-title">Limitación</div><div class="right-card-desc">Restringir el tratamiento en determinadas circunstancias.</div></div>
+      <div class="right-card"><div class="right-card-icon">📦</div><div class="right-card-title">Portabilidad</div><div class="right-card-desc">Recibir tus datos en formato estructurado y legible por máquina.</div></div>
+      <div class="right-card"><div class="right-card-icon">🚫</div><div class="right-card-title">Oposición</div><div class="right-card-desc">Oponerte al tratamiento basado en interés legítimo.</div></div>
+      <div class="right-card"><div class="right-card-icon">🤖</div><div class="right-card-title">No automatización</div><div class="right-card-desc">Solicitar revisión humana de decisiones automatizadas con efectos significativos.</div></div>
+      <div class="right-card"><div class="right-card-icon">↩️</div><div class="right-card-title">Retirada del consentimiento</div><div class="right-card-desc">Retirar en cualquier momento el consentimiento prestado, sin efecto retroactivo.</div></div>
+    </div>
+
+    <h3>Cómo ejercer tus derechos</h3>
+    <p>Escríbenos a <a href="mailto:privacidad@quira.app">privacidad@quira.app</a> indicando tu nombre completo, el derecho que deseas ejercer y una copia de tu documento de identidad.</p>
+    <p>Responderemos en un plazo máximo de <strong>30 días</strong> desde la recepción (prorrogable hasta 60 días adicionales en casos de especial complejidad, con comunicación previa).</p>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <p>Si consideras que el tratamiento infringe el RGPD, puedes reclamar ante la <strong>Agencia Española de Protección de Datos (AEPD)</strong>: <a href="https://www.aepd.es" target="_blank">www.aepd.es</a> — C/ Jorge Juan, 6, 28001 Madrid.</p>
+    </div>
+  </section>
+
+  <!-- 8. MENORES -->
+  <section class="policy-section" id="menores">
+    <h2>8. Menores de edad</h2>
+    <p>Quira está dirigida exclusivamente a personas mayores de <strong>16 años</strong> (Art. 8 RGPD y Art. 7 LOPDGDD). No recogemos conscientemente datos de menores. Si detectamos que un menor se ha registrado, eliminaremos sus datos de inmediato. Si eres tutor legal de un menor que pudiera haberse registrado, escríbenos a <a href="mailto:privacidad@quira.app">privacidad@quira.app</a>.</p>
+  </section>
+
+  <!-- 9. SEGURIDAD -->
+  <section class="policy-section" id="seguridad">
+    <h2>9. Seguridad de los datos</h2>
+    <p>Aplicamos medidas técnicas y organizativas conforme al artículo 32 del RGPD:</p>
+    <ul>
+      <li><strong>Cifrado en tránsito:</strong> Todas las comunicaciones se realizan mediante TLS 1.2 o superior.</li>
+      <li><strong>Cifrado en reposo:</strong> Los datos en Railway y Firebase están cifrados en reposo por defecto.</li>
+      <li><strong>Control de acceso:</strong> Acceso restringido al personal estrictamente necesario, bajo principio de mínimo privilegio.</li>
+      <li><strong>Monitorización:</strong> Sentry detecta anomalías en tiempo real. Las IPs se enmascaran parcialmente.</li>
+      <li><strong>Pagos seguros:</strong> Quira no almacena datos de tarjeta. El procesamiento es íntegramente de Stripe (PCI-DSS Nivel 1).</li>
+      <li><strong>Separación de entornos:</strong> Producción y desarrollo están separados.</li>
+      <li><strong>Railway SOC 2 Type II:</strong> El proveedor de hosting está certificado SOC 2 Type II.</li>
+    </ul>
+    <p>En caso de violación de seguridad que afecte a tus derechos, te notificaremos en un plazo máximo de <strong>72 horas</strong> desde que tengamos conocimiento del incidente (Art. 34 RGPD).</p>
+  </section>
+
+  <!-- 10. IA -->
+  <section class="policy-section" id="ia">
+    <h2>10. Tratamiento mediante Inteligencia Artificial</h2>
+    <p>Quira utiliza <strong>Google Gemini</strong> para dos finalidades relacionadas con la gestión de solicitudes:</p>
+
+    <h3>10.1 Generación automática del contenido de la solicitud</h3>
+    <p>A partir de la descripción que proporciona el cliente (texto, audio transcrito o vídeo transcrito), Gemini genera automáticamente el título, descripción técnica, categoría y nivel de dificultad del anuncio.</p>
+    <p><strong>Datos enviados a Gemini:</strong> únicamente el contenido descriptivo de la solicitud. No se envían datos de identificación personal (nombre, email, teléfono, dirección).</p>
+
+    <h3>10.2 Estimación del rango de precios y aprendizaje continuo</h3>
+    <p>Para estimar el rango de precio habitual de cada tipo de servicio, Gemini consulta un <strong>fichero de referencia de precios</strong> que Quira mantiene en caché. Este fichero:</p>
+    <ul>
+      <li>Contiene rangos de precios por tipo de servicio, basados en la experiencia acumulada de la plataforma.</li>
+      <li>Se actualiza automáticamente cuando se acepta una oferta por un servicio que no estaba previamente catalogado, incorporando ese nuevo dato de precio de forma <strong>anonimizada</strong> (sin datos personales del cliente ni del profesional).</li>
+      <li>Al actualizarse, se recarga en Gemini para que las estimaciones futuras sean progresivamente más precisas.</li>
+    </ul>
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <p>El fichero de referencia de precios que se carga en Gemini <strong>no contiene datos personales identificables</strong>. Sin embargo, dado que este fichero se procesa a través de la API de Google Gemini/Google Cloud, <strong>Google podría tener acceso técnico a su contenido</strong> conforme a sus condiciones de servicio. Quira utiliza la API bajo los <a href="https://cloud.google.com/terms/data-processing-terms" target="_blank">Google Cloud Data Processing Terms</a>, que establecen que el contenido de las peticiones de API no se utiliza para entrenar los modelos públicos de Google.</p>
+    </div>
+
+    <h3>10.3 Decisiones automatizadas con efectos sobre el servicio</h3>
+    <p>La determinación del <strong>nivel de dificultad</strong> (baja, media, alta) es un proceso automatizado que tiene efectos reales: determina qué profesionales pueden ver y responder la solicitud. Conforme al artículo 22 del RGPD, tienes derecho a:</p>
+    <ul>
+      <li>Obtener una explicación de la lógica aplicada para determinar el nivel de dificultad de tu solicitud.</li>
+      <li>Expresar tu punto de vista y solicitar una revisión de la clasificación asignada.</li>
+    </ul>
+    <p>Para solicitar revisión, escríbenos a <a href="mailto:privacidad@quira.app">privacidad@quira.app</a> indicando el número de tu solicitud.</p>
+  </section>
+
+  <!-- 11. NOTIFICACIONES -->
+  <section class="policy-section" id="notificaciones">
+    <h2>11. Notificaciones y comunicaciones</h2>
+    <p>Todas las notificaciones de la aplicación son gestionadas por <strong>Twilio</strong>, adaptándose al canal según el plan contratado por el profesional:</p>
+    <ul>
+      <li><strong>Plan Free:</strong> Notificaciones por correo electrónico (Twilio SendGrid o canal equivalente de Twilio).</li>
+      <li><strong>Plan Solver:</strong> Notificaciones por SMS o mensaje push (Twilio SMS / Twilio Notify).</li>
+      <li><strong>Plan Pro:</strong> Notificaciones por mensaje de WhatsApp Business (Twilio WhatsApp Business API).</li>
+    </ul>
+    <p>Los clientes reciben notificaciones push sobre el estado de sus solicitudes, también gestionadas por Twilio a través de Firebase Cloud Messaging (FCM).</p>
+    <p>Las notificaciones de estado del servicio son comunicaciones necesarias para la ejecución del contrato y no requieren consentimiento adicional. Puedes desactivarlas desde los ajustes de tu dispositivo, aunque ello puede reducir la utilidad del servicio.</p>
+  </section>
+
+  <!-- 12. PAGOS -->
+  <section class="policy-section" id="pagos">
+    <h2>12. Pagos y suscripciones</h2>
+    <p>Las suscripciones a los planes Solver (4,99€/mes) y Pro (11,99€/mes) son procesadas por <strong>Stripe Payments Europe, Ltd.</strong> (entidad regulada en Irlanda, nº C187865).</p>
+    <p><strong>Quira no almacena en ningún momento datos de tarjetas de pago.</strong> Toda la información se gestiona directamente por Stripe bajo certificación PCI-DSS Nivel 1.</p>
+    <p>Quira sí conserva los registros de transacciones (importe, fecha, plan) durante 5 años para cumplir con obligaciones fiscales y contables en España.</p>
+  </section>
+
+  <!-- 13. CAMBIOS -->
+  <section class="policy-section" id="cambios">
+    <h2>13. Cambios en esta política</h2>
+    <p>En caso de cambios significativos que afecten a tus derechos, te notificaremos con al menos <strong>30 días de antelación</strong> mediante notificación en la app y correo electrónico a la dirección registrada. El uso continuado de la aplicación tras la entrada en vigor de los cambios implica su aceptación.</p>
+    <p>La versión vigente siempre estará disponible en: <strong>https://quira.app/privacidad</strong></p>
+  </section>
+
+  <!-- 14. CONTACTO -->
+  <section class="policy-section" id="contacto">
+    <h2>14. Contacto y reclamaciones</h2>
+    <table class="data-table">
+      <tr><th>Canal</th><th>Contacto</th></tr>
+      <tr><td>Correo electrónico de privacidad</td><td><a href="mailto:privacidad@quira.app">privacidad@quira.app</a></td></tr>
+      <tr><td>Correo electrónico general</td><td><a href="mailto:hola@quira.app">hola@quira.app</a></td></tr>
+      <tr><td>Dirección postal</td><td>Calle Paseo Vereda de Trassierra, 9, 14005, Córdoba, España</td></tr>
+    </table>
+    <p style="margin-top:20px;">Autoridad de control competente:</p>
+    <ul>
+      <li><strong>Agencia Española de Protección de Datos (AEPD)</strong><br>
+        Web: <a href="https://www.aepd.es" target="_blank">www.aepd.es</a> — Sede electrónica: <a href="https://sedeagpd.gob.es" target="_blank">sedeagpd.gob.es</a><br>
+        C/ Jorge Juan, 6 — 28001 Madrid
+      </li>
+    </ul>
+  </section>
+
+  <a href="#indice" class="back-top">↑ Volver al índice</a>
+
+</div>
+
+<div class="policy-footer">
+  <p>© 2026 Quira — <a href="mailto:privacidad@quira.app">privacidad@quira.app</a></p>
+  <p style="margin-top:8px;font-size:0.82rem;">Disponible permanentemente en <strong>https://quira.app/privacidad</strong> — enlazable desde Google Play Store.</p>
+</div>
+
+</body>
 </html>
