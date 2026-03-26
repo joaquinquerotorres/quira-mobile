@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect, Route, useLocation } from 'react-router-dom';
 import {
   IonApp,
@@ -19,10 +19,6 @@ import {
   addCircleOutline 
 } from 'ionicons/icons';
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { env } from './config/env';
-
 import RequestList from './pages/RequestList';
 import Market from './pages/Market';
 import Profile from './pages/Profile';
@@ -41,6 +37,7 @@ import DirectoryDetail from './pages/DirectoryDetail';
 import NotificationSettings from './pages/NotificationSettings';
 import PrivacyLegal from './pages/PrivacyLegal';
 import { DowngradeBanner } from './components/DowngradeBanner';
+import { initAnalytics, logEvent } from './services/analytics';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -204,32 +201,20 @@ const MainTabs: React.FC = () => {
   );
 };
 
-const firebaseConfig = {
-  apiKey: env.firebaseApiKey,
-  authDomain: env.firebaseAuthDomain,
-  projectId: env.firebaseProjectId,
-  storageBucket: env.firebaseStorageBucket,
-  messagingSenderId: env.firebaseMessagingSenderId,
-  appId: env.firebaseAppId,
-  measurementId: env.firebaseMeasurementId,
-};
-
-// Inicialización defensiva: si no hay config, no inicializamos (tests/entornos locales).
-if (firebaseConfig.apiKey) {
-  const app = initializeApp(firebaseConfig);
-  // Analytics solo en navegador (jsdom/tests o entornos sin window pueden fallar).
-  if (typeof window !== 'undefined') {
-    getAnalytics(app);
-  }
-}
-
 // Componente Principal que envuelve todo
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <MainTabs />
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  useEffect(() => {
+    // Inicializamos Analytics (solo nativo) y registramos un evento simple de arranque.
+    initAnalytics().then(() => logEvent('app_start')).catch(() => {});
+  }, []);
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <MainTabs />
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
