@@ -94,6 +94,8 @@ jobs:
     env:
       VITE_API_URL: ${{ vars.VITE_API_URL }}
       VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
+      ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+      IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -124,11 +126,11 @@ jobs:
       # Opcional (solo si algún día añadís build nativo):
       # recrea ficheros reales desde Secrets en base64 si existen.
       - name: Restore Firebase native configs (optional)
-        if: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 != '' && secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 != '' }}
+        if: ${{ env.ANDROID_GOOGLE_SERVICES_JSON_BASE64 != '' && env.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 != '' }}
         shell: bash
         run: |
-          echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
-          echo "${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          echo "${ANDROID_GOOGLE_SERVICES_JSON_BASE64}" | base64 --decode > android/app/google-services.json
+          echo "${IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64}" | base64 --decode > ios/App/App/GoogleService-Info.plist
 
       - name: Cypress run (smoke)
         uses: cypress-io/github-action@v6
