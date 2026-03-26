@@ -22,6 +22,7 @@ concurrency:
 env:
   VITE_API_URL: ${{ vars.VITE_API_URL }}
   VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
+  VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
 
 jobs:
   gate:
@@ -46,6 +47,7 @@ jobs:
           cat > .env <<'EOF'
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
+          VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
           EOF
 
       - name: Lint

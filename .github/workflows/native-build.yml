@@ -33,6 +33,7 @@ env:
   # Vite env (recommended as Actions Variables)
   VITE_API_URL: ${{ vars.VITE_API_URL }}
   VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
+  VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
   ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
   IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
 
@@ -99,6 +100,7 @@ jobs:
           cat > .env <<'EOF'
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
+          VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
           EOF
 
       - name: Restore google-services.json (optional)
@@ -181,6 +183,7 @@ jobs:
           cat > .env <<'EOF'
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
+          VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
           EOF
 
       - name: Restore GoogleService-Info.plist (optional)
