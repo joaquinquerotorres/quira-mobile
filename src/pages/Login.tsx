@@ -9,11 +9,6 @@ import { Capacitor } from '@capacitor/core';
 import api from '../api/axios'; 
 import './Login.css'; 
 
-const getFirebaseAuthentication = async () => {
-  const mod = await import('@capacitor-firebase/authentication');
-  return mod.FirebaseAuthentication;
-};
-
 const Login: React.FC = () => {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
@@ -27,7 +22,7 @@ const Login: React.FC = () => {
     const checkUser = async () => {
         if (!Capacitor.isNativePlatform()) return;
         try {
-          const FirebaseAuthentication = await getFirebaseAuthentication();
+          const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
           const result = await FirebaseAuthentication.getCurrentUser();
           if (result.user) {
             // Usuario ya autenticado en Firebase
@@ -73,7 +68,7 @@ const Login: React.FC = () => {
           throw new Error('Social login only available on native platforms');
         }
 
-        const FirebaseAuthentication = await getFirebaseAuthentication();
+        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
         // 1. Ejecutar el login nativo
         if (provider === 'GOOGLE') {
             await FirebaseAuthentication.signInWithGoogle();
