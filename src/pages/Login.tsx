@@ -5,9 +5,14 @@ import {
 } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { logInOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from 'ionicons/icons';
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
 import api from '../api/axios'; 
 import './Login.css'; 
+
+const getFirebaseAuthentication = async () => {
+  const mod = await import('@capacitor-firebase/authentication');
+  return mod.FirebaseAuthentication;
+};
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState(''); 
@@ -20,9 +25,15 @@ const Login: React.FC = () => {
   // Inicialización
   useEffect(() => {
     const checkUser = async () => {
-        const result = await FirebaseAuthentication.getCurrentUser();
-        if (result.user) {
+        if (!Capacitor.isNativePlatform()) return;
+        try {
+          const FirebaseAuthentication = await getFirebaseAuthentication();
+          const result = await FirebaseAuthentication.getCurrentUser();
+          if (result.user) {
             // Usuario ya autenticado en Firebase
+          }
+        } catch {
+          // En web (Cypress) o si el plugin no está disponible, no bloqueamos el login.
         }
     };
     checkUser();
@@ -58,6 +69,11 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
+        if (!Capacitor.isNativePlatform()) {
+          throw new Error('Social login only available on native platforms');
+        }
+
+        const FirebaseAuthentication = await getFirebaseAuthentication();
         // 1. Ejecutar el login nativo
         if (provider === 'GOOGLE') {
             await FirebaseAuthentication.signInWithGoogle();
