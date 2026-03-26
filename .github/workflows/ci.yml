@@ -96,7 +96,6 @@ jobs:
     env:
       VITE_API_URL: ${{ vars.VITE_API_URL }}
       VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
-      VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
       ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
       IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
     steps:
@@ -124,7 +123,6 @@ jobs:
           cat > .env <<'EOF'
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
-          VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
           EOF
 
       # Opcional (solo si algún día añadís build nativo):
