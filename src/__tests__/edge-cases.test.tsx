@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { IonApp } from '@ionic/react';
 import { BecomeProForm } from '../components/becomepro';
 import type { BecomeProFormData } from '../components/becomepro';
 
@@ -16,7 +15,7 @@ const emptyFormData: BecomeProFormData = {
 };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <IonApp>{children}</IonApp>
+  <>{children}</>
 );
 
 describe('BecomeProForm loading state', () => {
