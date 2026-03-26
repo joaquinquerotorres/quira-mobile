@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { IonApp } from '@ionic/react';
 import { MemoryRouter } from 'react-router-dom';
 import NewRequest from './NewRequest';
 
@@ -22,7 +21,7 @@ vi.mock('capacitor-voice-recorder', () => ({
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter>
-    <IonApp>{children}</IonApp>
+    {children}
   </MemoryRouter>
 );
 
