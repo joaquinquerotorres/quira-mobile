@@ -22,6 +22,7 @@ concurrency:
 env:
   VITE_API_URL: ${{ vars.VITE_API_URL }}
   VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
+  CYPRESS_baseUrl: http://127.0.0.1:5173
 
 jobs:
   gate:
