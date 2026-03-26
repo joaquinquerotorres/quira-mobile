@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import { logInOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
+import * as Sentry from '@sentry/capacitor';
 import api from '../api/axios'; 
 import './Login.css'; 
 
@@ -103,11 +104,30 @@ const Login: React.FC = () => {
 
     } catch (err: any) {
         console.error("Error Social Login:", err);
-        
+
         // Filtro para cuando el usuario le da a "Cancelar" en la ventana de Google/Apple
-        if (err.message?.includes('canceled') || err.message?.includes('cancelled') || err.code === 'auth/popup-closed-by-user') {
+        const isUserCancel =
+          err?.message?.includes('canceled') ||
+          err?.message?.includes('cancelled') ||
+          err?.code === 'auth/popup-closed-by-user';
+
+        if (isUserCancel) {
             setError(null); // No mostramos error si el usuario canceló voluntariamente
         } else {
+            // Reporte explícito para diagnosticar fallos de login social en dispositivo.
+            Sentry.captureException(err, {
+              tags: {
+                area: 'auth',
+                flow: 'social-login',
+                provider,
+              },
+              extra: {
+                code: err?.code,
+                message: err?.message,
+                nativeMessage: err?.nativeMessage,
+                nativeStack: err?.nativeStack,
+              },
+            });
             setError(`Error al iniciar sesión con ${provider}`);
         }
     } finally {
