@@ -60,7 +60,7 @@ jobs:
 
       - name: Cypress full run
         if: ${{ inputs.e2e == 'true' }}
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           install-command: npm ci --legacy-peer-deps
           start: npm run dev -- --host 127.0.0.1 --port 5173
