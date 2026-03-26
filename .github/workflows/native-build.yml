@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Guard: require CI green for this commit
+      - name: "Guard: require CI green for this commit"
         if: ${{ inputs.require_ci_success == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
@@ -133,7 +133,7 @@ jobs:
     runs-on: macos-14
     timeout-minutes: 45
     steps:
-      - name: Guard: require CI green for this commit
+      - name: "Guard: require CI green for this commit"
         if: ${{ inputs.require_ci_success == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
