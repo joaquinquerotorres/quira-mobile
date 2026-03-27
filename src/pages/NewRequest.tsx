@@ -8,6 +8,7 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
 import { VoiceRecorder, RecordingData } from 'capacitor-voice-recorder';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
+import * as Sentry from '@sentry/capacitor';
 import api from '../api/axios';
 import './NewRequest.css';
 import '../components/layout/LogoHeader.css';
@@ -422,18 +423,70 @@ const NewRequest: React.FC = () => {
     setLoadingMessage('Consultando a la IA...');
     try {
       const locationForAi = locationLabel || address;
+      const predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const getDataUrlMeta = (value: string | null) => {
+        if (!value) return { mime: null as string | null, length: 0 };
+        const mimeMatch = value.match(/^data:([^;]+);base64,/);
+        return { mime: mimeMatch ? mimeMatch[1] : null, length: value.length };
+      };
+      const audioMeta = getDataUrlMeta(audioBase64);
+      const imageMeta = getDataUrlMeta(photoBase64);
+      const videoMeta = getDataUrlMeta(videoBase64);
+
+      Sentry.addBreadcrumb({
+        category: 'predict',
+        level: 'info',
+        message: 'predict:start',
+        data: {
+          requestId: predictRequestId,
+          inputMode,
+          hasAudio: !!audioBase64,
+          hasImage: !!photoBase64,
+          hasVideo: !!videoBase64,
+          audioMime: audioMeta.mime,
+          imageMime: imageMeta.mime,
+          videoMime: videoMeta.mime,
+          audioLength: audioMeta.length,
+          imageLength: imageMeta.length,
+          videoLength: videoMeta.length,
+          locationLength: locationForAi.length,
+        },
+      });
+
       const response = await api.post('/predict', { 
           description: userDescription, 
           image: photoBase64,
           audio: audioBase64, 
           location: locationForAi 
+      }, {
+          headers: {
+            'X-Request-Id': predictRequestId,
+          },
       });
       
-      const aiData = response.data;
-      setTitle(aiData.title);
-      setTechDescription(aiData.description);
-      setCategory(aiData.category);
-      if (aiData.summary_text) setUserDescription(aiData.summary_text);
+      const aiData = (response.data ?? {}) as Record<string, unknown>;
+      Sentry.addBreadcrumb({
+        category: 'predict',
+        level: 'info',
+        message: 'predict:response_received',
+        data: {
+          requestId: predictRequestId,
+          status: response.status,
+          topLevelKeys: Object.keys(aiData).slice(0, 12),
+        },
+      });
+      const safeTitle = String(aiData.title ?? '').trim();
+      const safeDescription = String(aiData.description ?? '').trim();
+      const safeCategory = String(aiData.category ?? '').trim().toUpperCase();
+      const safeSummary = String(aiData.summary_text ?? aiData.summaryText ?? '').trim();
+
+      // Normalizamos para que el formulario siempre quede relleno aunque Gemini devuelva
+      // un payload parcial o con nombres distintos.
+      setTitle(safeTitle || 'Solicitud pendiente de revisión');
+      setTechDescription(safeDescription || 'Revisa y completa los detalles técnicos de tu solicitud.');
+      setCategory(safeCategory || 'DIY');
+      if (safeSummary) setUserDescription(safeSummary);
+
       const rawRisk = (aiData.risk_level || aiData.riskLevel || '').toString().toUpperCase();
       if (rawRisk === 'LOW' || rawRisk === 'MEDIUM' || rawRisk === 'HIGH') {
         setRiskLevel(rawRisk as 'LOW' | 'MEDIUM' | 'HIGH');
@@ -441,16 +494,53 @@ const NewRequest: React.FC = () => {
         setRiskLevel(null);
       }
       
-      const minEuros = Math.round(aiData.estimated_price_min / 100);
-      const maxEuros = Math.round(aiData.estimated_price_max / 100);
+      const minCentsRaw = Number(aiData.estimated_price_min ?? aiData.estimatedPriceMin ?? 0);
+      const maxCentsRaw = Number(aiData.estimated_price_max ?? aiData.estimatedPriceMax ?? 0);
+      const minEuros = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw / 100)) : 0;
+      const maxEuros = Number.isFinite(maxCentsRaw) ? Math.max(minEuros, Math.round(maxCentsRaw / 100)) : minEuros;
       setPrice(minEuros);
       setAiRange({ min: minEuros, max: maxEuros });
+      Sentry.addBreadcrumb({
+        category: 'predict',
+        level: 'info',
+        message: 'predict:parsed_ok',
+        data: {
+          requestId: predictRequestId,
+          titleFilled: (safeTitle || '').length > 0,
+          descriptionFilled: (safeDescription || '').length > 0,
+          categoryFilled: (safeCategory || '').length > 0,
+          minEuros,
+          maxEuros,
+        },
+      });
       
       if (aiData.urgency === 'SCHEDULED' && aiData.schedule_intent) {
         setToast(`📅 Fecha aproximada detectada: "${aiData.schedule_intent}". Podrás ajustar tu disponibilidad preferida en el siguiente paso.`);
       }
       setStep(2);
-    } catch (error) { console.error(error); setToast("Error en el análisis."); } finally { setLoading(false); }
+    } catch (error: unknown) {
+      const anyErr = error as { response?: { status?: number; data?: Record<string, unknown> }; message?: string };
+      const status = anyErr?.response?.status;
+      const errData = anyErr?.response?.data ?? {};
+      const msg = (errData.violations as Array<{ message?: string }>)?.[0]?.message
+        ?? (errData.error as string)
+        ?? (errData['hydra:description'] as string)
+        ?? (errData.detail as string)
+        ?? anyErr?.message
+        ?? 'Error en el análisis.';
+      Sentry.captureException(error, {
+        tags: { feature: 'predict' },
+        extra: {
+          status,
+          responseKeys: Object.keys(errData).slice(0, 12),
+          hasAudio: !!audioBase64,
+          hasImage: !!photoBase64,
+          hasVideo: !!videoBase64,
+          locationLength: (locationLabel || address).length,
+        },
+      });
+      setToast(msg);
+    } finally { setLoading(false); }
   };
 
   // --- SUBMIT ---
