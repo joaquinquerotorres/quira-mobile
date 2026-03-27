@@ -1,19 +1,16 @@
 import React from 'react';
-import { IonLabel, IonButton, IonIcon } from '@ionic/react';
-import { navigateOutline } from 'ionicons/icons';
+import { IonLabel } from '@ionic/react';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 interface NewRequestLocationProps {
   address: string;
   onAddressSelect: (value: { label: string; value: string } | null) => void;
-  onGetCurrentLocation: () => void;
   googleApiKey: string;
 }
 
 export const NewRequestLocation: React.FC<NewRequestLocationProps> = ({
   address,
   onAddressSelect,
-  onGetCurrentLocation,
   googleApiKey,
 }) => (
   <div style={{ marginBottom: '30px' }}>
@@ -74,9 +71,6 @@ export const NewRequestLocation: React.FC<NewRequestLocationProps> = ({
           autocompletionRequest={{ componentRestrictions: { country: ['es'] } }}
         />
       </div>
-      <IonButton className="gps-btn" onClick={onGetCurrentLocation} aria-label="Usar mi ubicación actual">
-        <IonIcon slot="icon-only" icon={navigateOutline} />
-      </IonButton>
     </div>
   </div>
 );

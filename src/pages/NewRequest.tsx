@@ -582,7 +582,6 @@ const NewRequest: React.FC = () => {
                     <NewRequestLocation
                         address={address}
                         onAddressSelect={handleAddressSelect}
-                        onGetCurrentLocation={getCurrentLocation}
                         googleApiKey={GOOGLE_API_KEY || ''}
                     />
 
