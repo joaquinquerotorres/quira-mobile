@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet,
+  IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet, useIonViewWillLeave,
 } from '@ionic/react';
 import { colorWandOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -71,6 +71,42 @@ const NewRequest: React.FC = () => {
   useEffect(() => {
     VoiceRecorder.requestAudioRecordingPermission();
   }, []);
+
+  const resetDraft = () => {
+    setStep(1);
+    setInputMode('AUDIO');
+    setLoading(false);
+    setLoadingMessage('');
+    setUserDescription('');
+    setPhotoBase64(null);
+    setIsRecording(false);
+    setAudioBase64(null);
+    setAudioDuration(0);
+    setIsPlayingAudio(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setVideoBase64(null);
+    if (videoInputRef.current) videoInputRef.current.value = '';
+    setMediaPickerType(null);
+    setTitle('');
+    setTechDescription('');
+    setCategory('DIY');
+    setPrice(undefined);
+    setAiRange(null);
+    setRiskLevel(null);
+    setDesiredExecutionTime('Lo antes posible');
+    setAddress('');
+    setLocationLabel('');
+    setCoords(null);
+    setExtraMedia([]);
+  };
+
+  // Si el usuario abandona la pantalla (tabs, back, navegación), limpiamos el borrador.
+  useIonViewWillLeave(() => {
+    resetDraft();
+  });
 
   // --- LIMPIEZA AL CAMBIAR MODO ---
   const handleModeChange = (mode: 'AUDIO' | 'VIDEO' | 'TEXT') => {
