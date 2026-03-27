@@ -26,6 +26,7 @@ import { NewRequestStep2Form } from '../components/newrequest/NewRequestStep2For
 import { env } from '../config/env';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
+import { buildAudioDataUrlForApi } from '../utils/audioDataUrl';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -150,11 +151,11 @@ const NewRequest: React.FC = () => {
         const result: RecordingData = await VoiceRecorder.stopRecording();
         setIsRecording(false);
         if (result.value && result.value.recordDataBase64) {
-            const mimeType =
-              (result.value as RecordingData['value'] & { mimeType?: string })?.mimeType ||
-              'audio/webm';
-            setAudioBase64(`data:${mimeType};base64,${result.value.recordDataBase64}`);
-            setAudioDuration(result.value.msDuration / 1000);
+            const dataUrl = buildAudioDataUrlForApi(result.value);
+            if (dataUrl) {
+              setAudioBase64(dataUrl);
+              setAudioDuration((result.value.msDuration ?? 0) / 1000);
+            }
         }
     } catch (e) { setToast("Error al parar grabación"); }
   };

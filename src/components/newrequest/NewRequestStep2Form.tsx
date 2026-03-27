@@ -11,6 +11,11 @@ import {
 } from '@ionic/react';
 import { VoiceRecorder, RecordingData } from 'capacitor-voice-recorder';
 import {
+  audioDataUrlToBlob,
+  buildAudioDataUrlForApi,
+  extensionForAudioMime,
+} from '../../utils/audioDataUrl';
+import {
   analyticsOutline,
   alertCircleOutline,
   saveOutline,
@@ -112,17 +117,14 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       const result: RecordingData = await VoiceRecorder.stopRecording();
       setIsRecordingExtraAudio(false);
       if (result.value && result.value.recordDataBase64) {
-        const base64 = result.value.recordDataBase64;
-        const byteString = atob(base64);
-        const bytes = new Uint8Array(byteString.length);
-        for (let i = 0; i < byteString.length; i++) {
-          bytes[i] = byteString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: 'audio/aac' });
+        const dataUrl = buildAudioDataUrlForApi(result.value);
+        if (!dataUrl) return;
+        const blob = audioDataUrlToBlob(dataUrl);
+        const ext = extensionForAudioMime(blob.type);
         const file = new File(
           [blob],
-          `extra-audio-${Date.now()}.aac`,
-          { type: 'audio/aac' },
+          `extra-audio-${Date.now()}.${ext}`,
+          { type: blob.type },
         );
         onAddExtraMedia('audio', file);
       }
