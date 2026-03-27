@@ -463,6 +463,7 @@ const NewRequest: React.FC = () => {
         description: userDescription,
         image: photoBase64,
         audio: audioBase64,
+        video: videoBase64,
         location: locationForAi,
       });
       

@@ -39,6 +39,15 @@
   color: #1e293b;
 }
 
+/* Textareas: menos padding superior interno (Ionic por defecto deja el cursor muy abajo) */
+.quira-input-wrapper.quira-input-textarea ion-textarea,
+.profile-edit-input.profile-edit-textarea ion-textarea,
+.input-wrapper.textarea-wrapper ion-textarea,
+.become-pro-input-wrapper.become-pro-textarea-wrapper ion-textarea {
+  --padding-top: 4px;
+  --padding-bottom: 10px;
+}
+
 .quira-input-label {
   display: block;
   font-size: 0.8rem;

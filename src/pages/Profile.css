@@ -444,6 +444,8 @@
 .profile-menu-card.highlight-border {
     border: 2px solid #fdba74;
     background: #fff7ed;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 /* --- SERVICE ZONE CARD --- */

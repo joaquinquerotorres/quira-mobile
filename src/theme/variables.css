@@ -336,17 +336,23 @@ ion-datetime::part(time-button active) {
     border-radius: 12px;
 }
 
-/* Tab bar: compacta; solo safe-area abajo (sin duplicar altura + inset) */
+/* Tab bar: altura suficiente para etiquetas de dos líneas (p. ej. "Pedir") */
 .quira-tabbar {
     --background: #ffffff;
     border-top: 1px solid #f1f5f9;
-    min-height: 48px;
+    min-height: 56px;
     height: auto;
-    padding-top: 2px;
+    padding-top: 4px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     box-sizing: border-box;
 }
 
 .plt-android .quira-tabbar {
-    min-height: 48px;
+    min-height: 56px;
+}
+
+.quira-tabbar ion-tab-button {
+    --padding-top: 4px;
+    --padding-bottom: 6px;
+    min-height: 52px;
 }
