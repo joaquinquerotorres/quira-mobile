@@ -12,3 +12,17 @@
     text-transform: none;
     letter-spacing: 0;
 }
+
+.segment-tab-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 0;
+    line-height: 1;
+}
+
+/* En Android nativo el texto del ion-segment tiende a verse ligeramente alto. */
+.plt-android .custom-segment .segment-tab-label {
+    transform: translateY(1px);
+}

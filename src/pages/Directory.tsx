@@ -13,9 +13,9 @@ import { DirectoryCategoryChip } from '../components/directory/DirectoryCategory
 import { DirectoryEmptyState } from '../components/directory/DirectoryEmptyState';
 
 import { env } from '../config/env';
-import { shuffleArray } from '../utils/shuffle';
 
 const serverUrl = env.serverUrl;
+const DIRECTORY_ORDER_KEY = 'directory-pro-order-v1';
 
 const Directory: React.FC = () => {
   const history = useHistory();
@@ -73,14 +73,29 @@ const Directory: React.FC = () => {
             });
         }
 
-        // Agrupar por tier (PRO=3, SOLVER=2, FREE=1) y barajar dentro de cada grupo
-        const byWeight = new Map<number, any[]>();
+        // Orden aleatorio estable por sesión:
+        // se calcula una vez por id y se reutiliza hasta cerrar/reabrir la app.
+        const storedOrder = sessionStorage.getItem(DIRECTORY_ORDER_KEY);
+        const orderById: Record<string, number> = storedOrder ? JSON.parse(storedOrder) : {};
+        let updated = false;
         for (const pro of data) {
-            const w = getTierWeight(pro);
-            if (!byWeight.has(w)) byWeight.set(w, []);
-            byWeight.get(w)!.push(pro);
+          const id = String(pro.id ?? '');
+          if (!id) continue;
+          if (orderById[id] == null) {
+            orderById[id] = Math.random();
+            updated = true;
+          }
         }
-        data = [3, 2, 1].flatMap((w) => shuffleArray(byWeight.get(w) || []));
+        if (updated) {
+          sessionStorage.setItem(DIRECTORY_ORDER_KEY, JSON.stringify(orderById));
+        }
+        data = [...data].sort((a, b) => {
+          const tierDiff = getTierWeight(b) - getTierWeight(a);
+          if (tierDiff !== 0) return tierDiff;
+          const aKey = orderById[String(a.id ?? '')] ?? 0;
+          const bKey = orderById[String(b.id ?? '')] ?? 0;
+          return aKey - bKey;
+        });
 
         setPros(data);
       }

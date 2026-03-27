@@ -30,7 +30,7 @@ export const SegmentTab: React.FC<Props> = ({
       >
         {options.map((opt) => (
           <IonSegmentButton key={opt.value} value={opt.value}>
-            <IonLabel style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+            <IonLabel className="segment-tab-label">
               {opt.icon && <IonIcon icon={opt.icon} style={{ fontSize: '16px' }} />}
               {opt.label}
             </IonLabel>

@@ -49,6 +49,7 @@ export async function uploadRequestMediaWithTicket(
   const { blob, contentType } = dataUrlToBlob(dataUrl);
   const { data } = await api.post<UploadTicketResponse>('/upload-ticket/request-media', {
     type,
+    contentType,
   });
   await fetch(data.signedUrl, {
     method: 'PUT',

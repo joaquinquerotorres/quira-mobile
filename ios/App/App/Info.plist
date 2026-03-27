@@ -47,5 +47,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Quira necesita acceso a la camara para tomar fotos y videos de la incidencia.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Quira necesita acceso al microfono para grabar notas de voz y videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Quira necesita acceso a la galeria para adjuntar fotos y videos a tu solicitud.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Quira puede guardar contenido multimedia cuando el usuario lo solicite.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Quira usa tu ubicacion para autocompletar la direccion de la solicitud.</string>
 </dict>
 </plist>

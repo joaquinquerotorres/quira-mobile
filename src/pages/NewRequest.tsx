@@ -109,7 +109,10 @@ const NewRequest: React.FC = () => {
         const result: RecordingData = await VoiceRecorder.stopRecording();
         setIsRecording(false);
         if (result.value && result.value.recordDataBase64) {
-            setAudioBase64(`data:audio/aac;base64,${result.value.recordDataBase64}`);
+            const mimeType =
+              (result.value as RecordingData['value'] & { mimeType?: string })?.mimeType ||
+              'audio/webm';
+            setAudioBase64(`data:${mimeType};base64,${result.value.recordDataBase64}`);
             setAudioDuration(result.value.msDuration / 1000);
         }
     } catch (e) { setToast("Error al parar grabación"); }

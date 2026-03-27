@@ -48,7 +48,10 @@ describe('uploadService', () => {
     const dataUrl = 'data:text/plain;base64,aGVsbG8=';
     const url = await uploadRequestMediaWithTicket(dataUrl, 'audio');
 
-    expect(api.post).toHaveBeenCalledWith('/upload-ticket/request-media', { type: 'audio' });
+    expect(api.post).toHaveBeenCalledWith('/upload-ticket/request-media', {
+      type: 'audio',
+      contentType: 'text/plain',
+    });
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://signed/media',
       expect.objectContaining({
