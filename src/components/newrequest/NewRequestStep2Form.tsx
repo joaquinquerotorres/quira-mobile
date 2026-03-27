@@ -144,18 +144,11 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           {photoBase64 && (
             <div>
               <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Foto</span>
-              <div
-                style={{
-                  marginTop: 6,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
+              <div className="step2-attach-media-wrap">
                 <img
                   src={photoBase64}
                   alt="Foto adjunta"
-                  style={{ width: '100%', display: 'block', maxHeight: 200, objectFit: 'cover' }}
+                  className="step2-attach-photo"
                 />
               </div>
             </div>
@@ -163,18 +156,11 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           {videoBase64 && (
             <div>
               <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Vídeo</span>
-              <div
-                style={{
-                  marginTop: 6,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
+              <div className="step2-attach-media-wrap is-video">
                 <video
                   src={videoBase64}
                   controls
-                  style={{ width: '100%', display: 'block', maxHeight: 220, objectFit: 'cover' }}
+                  className="step2-attach-video"
                 />
               </div>
             </div>
@@ -513,11 +499,13 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
                   />
                 )}
                 {m.type === 'video' && (
-                  <video
-                    src={m.data}
-                    controls
-                    style={{ width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 8 }}
-                  />
+                  <div className="step2-extra-video-shell">
+                    <video
+                      src={m.data}
+                      controls
+                      className="step2-extra-video"
+                    />
+                  </div>
                 )}
                 {m.type === 'audio' && (
                   <audio
