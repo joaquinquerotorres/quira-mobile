@@ -11,8 +11,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const SRC = path.join(ROOT, "resources", "splash.png");
 
-/** Fraction of min(splash width, height) kept from the center (0.5–1). Lower = logo larger. */
-const SPLASH_CENTER_CROP = 0.62;
+/**
+ * Fraction of min(splash width, height) kept from the center (0.5–1).
+ * Use 1 to avoid cropping the logo (aggressive crops were clipping the top of the Q).
+ */
+const SPLASH_CENTER_CROP = 1;
 
 /** Pixels that are white/light gray margins; keep saturated colors (tail, ring). */
 function isMarginPixel(r, g, b) {

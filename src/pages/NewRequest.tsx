@@ -10,6 +10,10 @@ import { VoiceRecorder, RecordingData } from 'capacitor-voice-recorder';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import * as Sentry from '@sentry/capacitor';
 import api from '../api/axios';
+import {
+  axiosErrorUserHint,
+  buildAxiosErrorReport,
+} from '../api/axiosErrorDebug';
 import './NewRequest.css';
 import '../components/layout/LogoHeader.css';
 import { NewRequestModeSelector } from '../components/newrequest/NewRequestModeSelector';
@@ -421,9 +425,10 @@ const NewRequest: React.FC = () => {
 
     setLoading(true);
     setLoadingMessage('Consultando a la IA...');
+    let predictRequestId = '';
     try {
       const locationForAi = locationLabel || address;
-      const predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
       const getDataUrlMeta = (value: string | null) => {
         if (!value) return { mime: null as string | null, length: 0 };
         const mimeMatch = value.match(/^data:([^;]+);base64,/);
@@ -522,21 +527,32 @@ const NewRequest: React.FC = () => {
       const anyErr = error as { response?: { status?: number; data?: Record<string, unknown> }; message?: string };
       const status = anyErr?.response?.status;
       const errData = anyErr?.response?.data ?? {};
-      const msg = (errData.violations as Array<{ message?: string }>)?.[0]?.message
+      const axiosHint = axiosErrorUserHint(error);
+      const msg =
+        (errData.violations as Array<{ message?: string }>)?.[0]?.message
         ?? (errData.error as string)
         ?? (errData['hydra:description'] as string)
         ?? (errData.detail as string)
+        ?? axiosHint
         ?? anyErr?.message
         ?? 'Error en el análisis.';
+      const axiosDebug = buildAxiosErrorReport(error);
       Sentry.captureException(error, {
-        tags: { feature: 'predict' },
+        tags: {
+          feature: 'predict',
+          ...(axiosDebug.noResponseLikelyNetwork
+            ? { httpResponse: 'none' }
+            : {}),
+        },
         extra: {
+          predictRequestId,
           status,
           responseKeys: Object.keys(errData).slice(0, 12),
           hasAudio: !!audioBase64,
           hasImage: !!photoBase64,
           hasVideo: !!videoBase64,
           locationLength: (locationLabel || address).length,
+          axios: axiosDebug,
         },
       });
       setToast(msg);
