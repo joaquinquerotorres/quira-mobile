@@ -30,8 +30,8 @@ import { RequestMediaThumb } from '../components/shared/RequestMediaThumb';
 
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
-import { shuffleArray } from '../utils/shuffle';
 
+const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
 
 const RequestList: React.FC = () => {
   const history = useHistory();
@@ -87,14 +87,29 @@ const RequestList: React.FC = () => {
           let pros = response.data['hydra:member'] || response.data['member'];
           
           if (pros) {
-            // Agrupar por tier (PRO=3, SOLVER=2, FREE=1) y barajar dentro de cada grupo
-            const byWeight = new Map<number, any[]>();
+            // Orden aleatorio estable por sesión:
+            // cambia al reiniciar app, no al entrar/salir de esta pantalla.
+            const storedOrder = sessionStorage.getItem(TOP_PROS_ORDER_KEY);
+            const orderById: Record<string, number> = storedOrder ? JSON.parse(storedOrder) : {};
+            let updated = false;
             for (const pro of pros) {
-                const w = getTierWeight(pro);
-                if (!byWeight.has(w)) byWeight.set(w, []);
-                byWeight.get(w)!.push(pro);
+                const id = String(pro.id ?? '');
+                if (!id) continue;
+                if (orderById[id] == null) {
+                  orderById[id] = Math.random();
+                  updated = true;
+                }
             }
-            pros = [3, 2, 1].flatMap((w) => shuffleArray(byWeight.get(w) || []));
+            if (updated) {
+              sessionStorage.setItem(TOP_PROS_ORDER_KEY, JSON.stringify(orderById));
+            }
+            pros = [...pros].sort((a, b) => {
+              const tierDiff = getTierWeight(b) - getTierWeight(a);
+              if (tierDiff !== 0) return tierDiff;
+              const aKey = orderById[String(a.id ?? '')] ?? 0;
+              const bKey = orderById[String(b.id ?? '')] ?? 0;
+              return aKey - bKey;
+            });
 
             // Nos quedamos con los 5 mejores
             setTopPros(pros.slice(0, 5));

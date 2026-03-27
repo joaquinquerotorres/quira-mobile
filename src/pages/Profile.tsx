@@ -500,7 +500,11 @@ const Profile: React.FC = () => {
 
   const getCurrentLocation = async () => {
     try {
-        const coordinates = await Geolocation.getCurrentPosition();
+        const coordinates = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 20000,
+          maximumAge: 60000,
+        });
         const { latitude, longitude } = coordinates.coords;
         setCoords({ lat: latitude, lng: longitude });
         if (GOOGLE_API_KEY) {
@@ -527,8 +531,18 @@ const Profile: React.FC = () => {
                }
                setAddress(result.formatted_address.replace(', España', ''));
             }
+        } else {
+          const fallback = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          setAddress(fallback);
         }
-    } catch (error) { setToast("Error al obtener ubicación."); }
+    } catch (error: any) {
+      const code = error?.code || error?.message;
+      if (typeof code === 'string' && code.includes('timeout')) {
+        setToast('No se pudo obtener la ubicación a tiempo. Intenta de nuevo cerca de una ventana o con el GPS activado.');
+      } else {
+        setToast("Error al obtener ubicación.");
+      }
+    }
   };
 
   const handleAddressSelect = async (value: any) => {

@@ -262,7 +262,11 @@ const NewRequest: React.FC = () => {
     setLoading(true);
     setLoadingMessage('Localizando...');
     try {
-        const coordinates = await Geolocation.getCurrentPosition();
+        const coordinates = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 20000,
+          maximumAge: 60000,
+        });
         const { latitude, longitude } = coordinates.coords;
         setCoords({ lat: latitude, lng: longitude });
         if (GOOGLE_API_KEY) {
@@ -286,8 +290,20 @@ const NewRequest: React.FC = () => {
                setAddress(fallback);
                setLocationLabel('');
             }
+        } else {
+            // Sin API key de Google, mantenemos funcionalidad mínima con coordenadas.
+            const fallback = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+            setAddress(fallback);
+            setLocationLabel('');
         }
-    } catch (error) { setToast("No se pudo obtener la ubicación."); } finally { setLoading(false); }
+    } catch (error: any) {
+      const code = error?.code || error?.message;
+      if (typeof code === 'string' && code.includes('timeout')) {
+        setToast('No se pudo obtener la ubicación a tiempo. Intenta de nuevo cerca de una ventana o con el GPS activado.');
+      } else {
+        setToast("No se pudo obtener la ubicación.");
+      }
+    } finally { setLoading(false); }
   };
 
   const handleAddressSelect = async (value: { label: string; value: string } | null) => {

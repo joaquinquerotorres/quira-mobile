@@ -97,7 +97,7 @@ jobs:
       - name: Generate .env (from vars)
         shell: bash
         run: |
-          cat > .env <<'EOF'
+          cat > .env <<EOF
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
           VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
@@ -180,7 +180,7 @@ jobs:
       - name: Generate .env (from vars)
         shell: bash
         run: |
-          cat > .env <<'EOF'
+          cat > .env <<EOF
           VITE_API_URL=${VITE_API_URL}
           VITE_GOOGLE_MAPS_KEY=${VITE_GOOGLE_MAPS_KEY}
           VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
