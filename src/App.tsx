@@ -150,7 +150,7 @@ const MainTabs: React.FC = () => {
       {/* 4. Renderizado Condicional de la Barra */}
       {/* Solo mostramos IonTabBar si NO estamos en las páginas de login/registro/detalle */}
       {!shouldHideTabBar && (
-        <IonTabBar slot="bottom" style={{ height: '60px', borderTop: '1px solid #f1f5f9', paddingBottom: '5px' }}>
+        <IonTabBar slot="bottom" className="quira-tabbar">
           
           {/* TAB 1: INICIO */}
           <IonTabButton tab="requestList" href="/request-list">

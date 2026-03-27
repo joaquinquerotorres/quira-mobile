@@ -335,3 +335,17 @@ ion-datetime::part(time-button active) {
     color: white !important;
     border-radius: 12px;
 }
+
+/* Tab bar inferior: respeta safe area y evita choque con navegación Android */
+.quira-tabbar {
+    --background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-top: 4px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.plt-android .quira-tabbar {
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
