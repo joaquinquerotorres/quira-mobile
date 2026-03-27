@@ -4,8 +4,24 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect';
 
-import { setupIonicReact } from '@ionic/react';
+import React from 'react';
 import { afterEach } from 'vitest';
+
+/**
+ * El web component ion-app programa trabajo async (rIC / setTimeout) que puede
+ * ejecutarse tras desmontar jsdom → ReferenceError: window is not defined.
+ * En tests no necesitamos ese lifecycle; passthrough evita timers colgados.
+ */
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonApp: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+  };
+});
+
+import { setupIonicReact } from '@ionic/react';
 
 setupIonicReact();
 
