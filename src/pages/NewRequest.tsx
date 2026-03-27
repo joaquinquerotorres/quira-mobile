@@ -458,15 +458,11 @@ const NewRequest: React.FC = () => {
         },
       });
 
-      const response = await api.post('/predict', { 
-          description: userDescription, 
-          image: photoBase64,
-          audio: audioBase64, 
-          location: locationForAi 
-      }, {
-          headers: {
-            'X-Request-Id': predictRequestId,
-          },
+      const response = await api.post('/predict', {
+        description: userDescription,
+        image: photoBase64,
+        audio: audioBase64,
+        location: locationForAi,
       });
       
       const aiData = (response.data ?? {}) as Record<string, unknown>;

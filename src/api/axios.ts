@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as Sentry from '@sentry/capacitor';
 import { env } from '../config/env';
-import { buildAxiosErrorReport, ensureRequestIdHeader } from './axiosErrorDebug';
+import { buildAxiosErrorReport } from './axiosErrorDebug';
 
 const api = axios.create({
   baseURL: env.apiUrl,
@@ -18,7 +18,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    ensureRequestIdHeader(config);
     return config;
   },
   (error) => Promise.reject(error)
