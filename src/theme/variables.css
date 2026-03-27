@@ -340,7 +340,7 @@ ion-datetime::part(time-button active) {
 .quira-tabbar {
     --background: #ffffff;
     border-top: 1px solid #f1f5f9;
-    min-height: 44px;
+    min-height: 48px;
     height: auto;
     padding-top: 2px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -348,5 +348,5 @@ ion-datetime::part(time-button active) {
 }
 
 .plt-android .quira-tabbar {
-    min-height: 44px;
+    min-height: 48px;
 }
