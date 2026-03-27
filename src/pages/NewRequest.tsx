@@ -309,6 +309,9 @@ const NewRequest: React.FC = () => {
   const handleAddressSelect = async (value: { label: string; value: string } | null) => {
     if (!value) { setAddress(''); setLocationLabel(''); setCoords(null); return; }
     setAddress(value.label);
+    // Priorizamos exactamente lo elegido en el selector (barrio/zona incluida)
+    // para no degradar a una ubicación genérica como "Córdoba (España)".
+    setLocationLabel(value.label.replace(', España', ''));
     try {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
@@ -322,14 +325,7 @@ const NewRequest: React.FC = () => {
       }
       const { lat, lng } = await getLatLng(result);
       setCoords({ lat, lng });
-      const label = extractLocationLabelFromComponents(comps);
-      if (label) {
-        setLocationLabel(label);
-      } else {
-        // Fallback: intenta quedarse con la parte de ciudad/pueblo antes de la primera coma
-        const simple = value.label.split(',')[0]?.trim();
-        setLocationLabel(simple || '');
-      }
+      // Mantenemos locationLabel basado en lo seleccionado por el usuario.
     } catch {
       // Fallos puntuales al resolver la dirección; el usuario puede seguir editando.
     }
