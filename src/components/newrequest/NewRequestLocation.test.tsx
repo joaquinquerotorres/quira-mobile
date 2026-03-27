@@ -17,12 +17,11 @@ vi.mock('react-google-places-autocomplete', () => ({
 
 const wrapper = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 
-test('NewRequestLocation renders label and GPS button', () => {
+test('NewRequestLocation renders label and autocomplete input', () => {
   render(
     <NewRequestLocation
       address=""
       onAddressSelect={vi.fn()}
-      onGetCurrentLocation={vi.fn()}
       googleApiKey="test-key"
     />,
     { wrapper }
@@ -31,19 +30,20 @@ test('NewRequestLocation renders label and GPS button', () => {
   expect(screen.getByTestId('google-places-autocomplete')).toBeInTheDocument();
 });
 
-test('NewRequestLocation calls onGetCurrentLocation when GPS button clicked', () => {
-  const onGetCurrentLocation = vi.fn();
-  const { container } = render(
+test('NewRequestLocation calls onAddressSelect when typing', () => {
+  const onAddressSelect = vi.fn();
+  render(
     <NewRequestLocation
       address=""
-      onAddressSelect={vi.fn()}
-      onGetCurrentLocation={onGetCurrentLocation}
+      onAddressSelect={onAddressSelect}
       googleApiKey="test"
     />,
     { wrapper }
   );
-  const gpsBtn = container.querySelector('ion-button.gps-btn');
-  expect(gpsBtn).toBeInTheDocument();
-  if (gpsBtn) fireEvent.click(gpsBtn);
-  expect(onGetCurrentLocation).toHaveBeenCalled();
+  const input = screen.getByTestId('places-input');
+  fireEvent.change(input, { target: { value: 'Santa Rosa, Córdoba, España' } });
+  expect(onAddressSelect).toHaveBeenCalledWith({
+    label: 'Santa Rosa, Córdoba, España',
+    value: 'Santa Rosa, Córdoba, España',
+  });
 });
