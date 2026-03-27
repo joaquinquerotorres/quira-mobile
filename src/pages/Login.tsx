@@ -250,9 +250,14 @@ const Login: React.FC = () => {
             </IonButton>
 
             <p className="login-legal-hint" style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
-              <Link to="/legal/privacy" style={{ color: '#4f46e5', fontWeight: 600 }}>
+              <a
+                href="https://quira.app/privacidad/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#4f46e5', fontWeight: 600 }}
+              >
                 Privacidad y protección de datos
-              </Link>
+              </a>
             </p>
 
             <IonLoading isOpen={loading && !error} message="Iniciando sesión..." />

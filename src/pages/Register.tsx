@@ -12,7 +12,6 @@ import {
 } from '@ionic/react';
 import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
-import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import './Register.css';
 import { RegisterHeader } from '../components/register/RegisterHeader';
@@ -99,9 +98,14 @@ const Register: React.FC = () => {
             }}
           >
             Al registrarte, confirmas haber leído la{' '}
-            <Link to="/legal/privacy" style={{ color: '#4f46e5', fontWeight: 600 }}>
+            <a
+              href="https://quira.app/privacidad/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#4f46e5', fontWeight: 600 }}
+            >
               información sobre privacidad y datos personales
-            </Link>
+            </a>
             .
           </p>
         </div>

@@ -42,6 +42,10 @@ test('Login renders Entrar and social login buttons', () => {
   expect(screen.getByText('Google')).toBeInTheDocument();
   expect(screen.getByText('Apple')).toBeInTheDocument();
   expect(screen.getByText('Regístrate con Email')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Privacidad y protección de datos' })).toHaveAttribute(
+    'href',
+    'https://quira.app/privacidad/index.html',
+  );
 });
 
 test('Login shows error on failed API call', async () => {

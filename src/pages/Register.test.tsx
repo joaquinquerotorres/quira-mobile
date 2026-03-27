@@ -37,6 +37,10 @@ test('Register renders submit and login link', () => {
   render(<Register />, { wrapper });
   expect(screen.getByText('COMENZAR AHORA')).toBeInTheDocument();
   expect(screen.getByText('Inicia Sesión')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /información sobre privacidad y datos personales/i })).toHaveAttribute(
+    'href',
+    'https://quira.app/privacidad/index.html',
+  );
 });
 
 test('Register does not call API when fields are empty', async () => {

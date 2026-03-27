@@ -13,8 +13,8 @@ export interface VerificationStatus {
 }
 
 /**
- * Comprueba si el usuario puede crear solicitudes (cliente) o hacer pujas (pro).
- * Requiere: teléfono en el perfil correspondiente Y verifiedPhone en ese perfil.
+ * Comprueba si el usuario puede publicar solicitudes (cliente) o hacer pujas (pro).
+ * Requiere: teléfono en el perfil correspondiente y verifiedPhone en ese perfil.
  */
 export function getVerificationStatus(): VerificationStatus | null {
   try {

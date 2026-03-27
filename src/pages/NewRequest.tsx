@@ -3,7 +3,7 @@ import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet,
 } from '@ionic/react';
-import { colorWandOutline, callOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
+import { colorWandOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
 import { VoiceRecorder, RecordingData } from 'capacitor-voice-recorder';
@@ -407,9 +407,9 @@ const NewRequest: React.FC = () => {
     const verification = getVerificationStatus();
     if (!verification?.canCreateRequest) {
       if (!verification?.hasClientPhone) {
-        setToast("Debes añadir tu número de teléfono en tu perfil antes de crear una solicitud.");
+        setToast("Debes añadir y verificar tu número de teléfono en tu perfil antes de publicar una solicitud.");
       } else {
-        setToast("Debes verificar tu número de teléfono en tu perfil antes de crear una solicitud.");
+        setToast("Debes verificar tu número de teléfono en tu perfil antes de publicar una solicitud.");
       }
       router.push('/profile');
       return;
@@ -496,9 +496,6 @@ const NewRequest: React.FC = () => {
     } finally { setLoading(false); }
   };
 
-  const verification = getVerificationStatus();
-  const cannotCreateRequest = verification && !verification.canCreateRequest;
-
   return (
     <IonPage>
       <IonHeader className="ion-no-border new-request-header">
@@ -518,22 +515,6 @@ const NewRequest: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen style={{'--background': '#f8fafc'}}>
-        {cannotCreateRequest ? (
-          <div className="new-request-verify-block ion-padding">
-            <div className="new-request-verify-block-card">
-              <IonIcon icon={callOutline} style={{ fontSize: '48px', color: 'var(--ion-color-primary)', marginBottom: '16px' }} />
-              <h2>Verifica tu teléfono</h2>
-              <p>
-                {!verification?.hasClientPhone
-                  ? 'Para crear una solicitud necesitas añadir y verificar tu número de teléfono en tu perfil de cliente.'
-                  : 'Para crear una solicitud necesitas verificar tu número de teléfono en tu perfil de cliente.'}
-              </p>
-              <IonButton expand="block" className="quira-main-btn" onClick={() => router.push('/profile')}>
-                Ir a Perfil a verificar
-              </IonButton>
-            </div>
-          </div>
-        ) : (
         <>
         <div className="new-request-header-bg animate__animated animate__fadeIn">
             <h2>{step === 1 ? 'Nueva Solicitud' : 'Revisar Datos'}</h2>
@@ -617,7 +598,6 @@ const NewRequest: React.FC = () => {
             )}
         </div>
         </>
-        )}
 
         <input
           id="step1-audio-file-input"

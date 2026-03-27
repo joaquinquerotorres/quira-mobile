@@ -51,7 +51,7 @@ test('NewRequest has Analyze button', () => {
   expect(btn).toBeInTheDocument();
 });
 
-test('NewRequest shows verify-phone blocking screen when user cannot create requests but has phone', () => {
+test('NewRequest still allows filling step 1 when user cannot create requests yet', () => {
   mockGetVerificationStatus.mockReturnValue({
     hasClientPhone: true,
     verifiedClientPhone: false,
@@ -63,13 +63,11 @@ test('NewRequest shows verify-phone blocking screen when user cannot create requ
 
   render(<NewRequest />, { wrapper });
 
-  expect(screen.getByText('Verifica tu teléfono')).toBeInTheDocument();
-  expect(screen.getByText('Para crear una solicitud necesitas verificar tu número de teléfono en tu perfil de cliente.')).toBeInTheDocument();
-  expect(screen.getByText('Ir a Perfil a verificar')).toBeInTheDocument();
-  expect(screen.queryByText('Elige cómo quieres contárnoslo')).not.toBeInTheDocument();
+  expect(screen.getByText('Nueva Solicitud')).toBeInTheDocument();
+  expect(screen.getByText('Elige cómo quieres contárnoslo')).toBeInTheDocument();
 });
 
-test('NewRequest shows add-and-verify message when user has no phone', () => {
+test('NewRequest step 1 is shown even when user has no phone', () => {
   mockGetVerificationStatus.mockReturnValue({
     hasClientPhone: false,
     verifiedClientPhone: false,
@@ -81,10 +79,6 @@ test('NewRequest shows add-and-verify message when user has no phone', () => {
 
   render(<NewRequest />, { wrapper });
 
-  expect(screen.getByText('Verifica tu teléfono')).toBeInTheDocument();
-  expect(
-    screen.getByText(
-      'Para crear una solicitud necesitas añadir y verificar tu número de teléfono en tu perfil de cliente.',
-    ),
-  ).toBeInTheDocument();
+  expect(screen.getByText('Nueva Solicitud')).toBeInTheDocument();
+  expect(screen.getByText('Elige cómo quieres contárnoslo')).toBeInTheDocument();
 });

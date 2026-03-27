@@ -852,7 +852,15 @@ const Profile: React.FC = () => {
                 <IonLabel className="item-label">Notificaciones</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
             </IonItem>
-            <IonItem lines="none" detail={false} button routerLink="/legal/privacy" className="menu-item">
+            <IonItem
+              lines="none"
+              detail={false}
+              button
+              href="https://quira.app/privacidad/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="menu-item"
+            >
                 <div slot="start" className="icon-box icon-blue"><IonIcon icon={shieldCheckmarkOutline} /></div>
                 <IonLabel className="item-label">Privacidad y datos (RGPD)</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />

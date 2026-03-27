@@ -35,7 +35,6 @@ import ProRequestDetail from './pages/ProRequestDetail';
 import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
 import NotificationSettings from './pages/NotificationSettings';
-import PrivacyLegal from './pages/PrivacyLegal';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { initAnalytics, logEvent } from './services/analytics';
 
@@ -67,7 +66,6 @@ const MainTabs: React.FC = () => {
     '/register', 
     '/become-pro', 
     '/profile/notifications',
-    '/legal/privacy',
     '/' // En la raíz para evitar flash antes del redirect
   ];
 
@@ -140,9 +138,6 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/profile/notifications">
           <NotificationSettings />
-        </Route>
-        <Route exact path="/legal/privacy">
-          <PrivacyLegal />
         </Route>
         <Route exact path="/my-work">
           <MyWork />

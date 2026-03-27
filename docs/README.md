@@ -13,11 +13,11 @@
 
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
 
-## Privacidad y RGPD (pantalla informativa)
+## Privacidad y RGPD
 
-- **Ruta:** `/legal/privacy` — componente `src/pages/PrivacyLegal.tsx` (estilos en `PrivacyLegal.css`).
-- **Acceso:** menú **Perfil** → «Privacidad y datos (RGPD)», enlaces en **Login** y **Registro**.
-- El texto describe el tratamiento acorde al código actual (API propia, Firebase Auth/Analytics, Google Maps/Places, Stripe, Sentry opcional, permisos Capacitor, `localStorage`, subidas vía tickets). Debe complementarse con la **política corporativa** del responsable (identidad, contacto, DPO, bases legales detalladas).
+- **URL oficial:** `https://quira.app/privacidad/index.html`.
+- **Acceso desde la app:** menú **Perfil** → «Privacidad y datos (RGPD)», enlaces en **Login** y **Registro** (apertura externa en navegador).
+- La política legal se mantiene en la landing web para tener una única fuente actualizada.
 
 ## Apps nativas (iOS y Android) — objetivo principal
 

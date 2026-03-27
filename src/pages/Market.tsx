@@ -207,7 +207,7 @@ const Market: React.FC = () => {
     const verification = getVerificationStatus();
     if (!verification?.canBid) {
       if (!verification?.hasProPhone) {
-        setToast('Debes añadir tu teléfono en tu perfil profesional antes de hacer una puja.');
+        setToast('Debes añadir y verificar tu teléfono en tu perfil profesional antes de hacer una puja.');
       } else {
         setToast('Debes verificar tu teléfono profesional en tu perfil antes de hacer una puja.');
       }
