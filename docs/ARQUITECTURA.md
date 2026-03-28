@@ -25,9 +25,15 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 
 ### Downgrade por caducidad
 
-- Se muestra un banner de "Cuota no renovada" cuando el usuario está degradado (una vez por sesión).
+- El componente global `DowngradeBanner` muestra la alerta **Cuota no renovada** cuando `isDowngradedDueToExpiredPayment(user)` es verdadero **y** hay sesión activa: debe existir `quira_token` en `localStorage` además del objeto `user`. Así no aparece en `/login` si quedó un `user` huérfano (p. ej. tras caducar el JWT).
+- La alerta se muestra como máximo **una vez por sesión de navegador** (`sessionStorage`), salvo que el usuario cierre sesión desde Perfil (se limpia la marca de “ya vista”).
 - En Profile aparece aviso de plan caducado si la fecha está en el pasado **o** si hay rol PRO/SOLVER sin suscripción activa (`paidThroughAt` null o no futuro).
 - Los pros degradados siguen viendo sus trabajos en curso, pero con límites en nuevas propuestas.
+
+### Cliente HTTP y cierre de sesión por 401
+
+- El interceptor de `src/api/axios.ts` ante respuesta **401** (salvo `skipAuthRedirect` en la petición) llama a `clearStoredAuthAndRedirectToLogin()` (`src/api/authSession.ts`): elimina **`quira_token`** y **`user`** y asigna `window.location.href = '/login'`.
+- Objetivo: mantener `localStorage` coherente con “no hay sesión” y evitar modales o UI que lean `user` sin token válido.
 
 ### Verificación para crear solicitudes o pujar
 

@@ -4,6 +4,7 @@
 
 - **[ARQUITECTURA.md](./ARQUITECTURA.md)** — Documentación funcional de la aplicación:
   - Tipos de usuario y tiers (CLIENTE, FREE, SOLVER, PRO)
+  - Sesión, 401 y banner de cuota caducada (`DowngradeBanner`)
   - Ciclo de vida de las solicitudes
   - Propuestas (pujas): estados, quién puede pujar, orden
   - Preguntas (Request Questions)

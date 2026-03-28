@@ -27,6 +27,7 @@ test('DowngradeBanner shows alert when user is downgraded due to expired payment
     paidThroughAt: '2020-01-01T00:00:00Z',
     roles: ['ROLE_PRO'],
   };
+  localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
   render(<DowngradeBanner />, { wrapper });
@@ -44,6 +45,7 @@ test('DowngradeBanner shows when ROLE_PRO and paidThroughAt is null (sin pago vi
     roles: ['ROLE_PRO'],
     professionalProfile: {},
   };
+  localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
   render(<DowngradeBanner />, { wrapper });
@@ -59,6 +61,7 @@ test('DowngradeBanner does not show when user is not downgraded', async () => {
     paidThroughAt: '2030-01-01T00:00:00Z',
     roles: ['ROLE_PRO'],
   };
+  localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
   render(<DowngradeBanner />, { wrapper });
@@ -70,6 +73,22 @@ test('DowngradeBanner does not show when user is not downgraded', async () => {
 
 test('DowngradeBanner does not show when session already dismissed', async () => {
   sessionStorage.setItem(SESSION_KEY_DOWNGADE_DISMISSED, '1');
+  const user = {
+    id: 1,
+    paidThroughAt: '2020-01-01T00:00:00Z',
+    roles: ['ROLE_PRO'],
+  };
+  localStorage.setItem('quira_token', 'test-token');
+  localStorage.setItem('user', JSON.stringify(user));
+
+  render(<DowngradeBanner />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.queryByText('Cuota no renovada')).not.toBeInTheDocument();
+  });
+});
+
+test('DowngradeBanner does not show without token (p. ej. login tras 401)', async () => {
   const user = {
     id: 1,
     paidThroughAt: '2020-01-01T00:00:00Z',

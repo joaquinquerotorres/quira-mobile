@@ -6,7 +6,8 @@ export const SESSION_KEY_DOWNGADE_DISMISSED = 'quira_downgrade_banner_dismissed'
 
 /**
  * Muestra una alerta única por sesión cuando un PRO/SOLVER ha dejado de pagar
- * y se le trata como FREE. Al cerrar, no se vuelve a mostrar hasta el próximo login.
+ * y se le trata como FREE. Solo con sesión activa (token), no en /login con datos huérfanos.
+ * Al cerrar, no se vuelve a mostrar hasta el próximo login.
  */
 export const DowngradeBanner: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
@@ -14,6 +15,9 @@ export const DowngradeBanner: React.FC = () => {
   useEffect(() => {
     if (typeof sessionStorage === 'undefined') return;
     if (sessionStorage.getItem(SESSION_KEY_DOWNGADE_DISMISSED) === '1') return;
+
+    const token = localStorage.getItem('quira_token');
+    if (!token) return;
 
     const userStr = localStorage.getItem('user');
     if (!userStr) return;
