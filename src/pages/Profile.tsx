@@ -27,7 +27,12 @@ import './Profile.css';
 import '../components/layout/LogoHeader.css';
 
 import { env } from '../config/env';
-import { getEffectiveTier } from '../utils/effectiveTier';
+import {
+  getEffectiveTier,
+  resolvePaidThroughAt,
+  isDowngradedDueToExpiredPayment,
+} from '../utils/effectiveTier';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { SESSION_KEY_DOWNGADE_DISMISSED } from '../components/DowngradeBanner';
 
 const SESSION_KEY_SUBSCRIPTION_CANCEL_REQUESTED = 'quira_subscription_cancel_requested';
@@ -122,7 +127,8 @@ const Profile: React.FC = () => {
         const isProfessional = Boolean(parsedUser.professionalProfile);
         setCurrentTier(tier);
         setIsPro(isProfessional);
-        const paidThrough = parsedUser.paidThroughAt ? new Date(parsedUser.paidThroughAt) : null;
+        const paidIso = resolvePaidThroughAt(parsedUser);
+        const paidThrough = paidIso ? new Date(paidIso) : null;
         const periodExpired = paidThrough != null && paidThrough <= new Date();
         // Fuente de verdad: backend subscriptionCancelAtPeriodEnd. Si no existe, usamos sessionStorage (cancelación desde esta sesión).
         if (parsedUser.subscriptionCancelAtPeriodEnd === true) {
@@ -137,23 +143,10 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** Refresca el usuario desde la API para tener subscriptionCancelAtPeriodEnd y demás campos al día. */
+  /** Refresca el usuario desde la API para paidThroughAt, subscriptionCancelAtPeriodEnd, etc. */
   const refreshUserFromApi = async () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return;
-    const parsed = JSON.parse(userStr);
-    const userId = parsed.id ?? parsed['@id']?.split('/').pop();
-    if (!userId) return;
-    try {
-      const res = await api.get(`/users/${userId}`);
-      const freshUser = res.data?.id != null ? res.data : res.data?.['hydra:member']?.[0] ?? res.data?.member?.[0];
-      if (freshUser) {
-        localStorage.setItem('user', JSON.stringify(freshUser));
-        loadUserFromStorage();
-      }
-    } catch {
-      // Mantener datos de localStorage si la API falla (ej. sin conexión)
-    }
+    const ok = await refreshCurrentUserInStorage();
+    if (ok) loadUserFromStorage();
   };
 
   // --- CÁLCULO DE ZOOM (mantiene el mapa cercano, evita alejarse demasiado) ---
@@ -259,16 +252,17 @@ const Profile: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       setSubscriptionCancelRequested(true);
-      const paidThroughAt = user.paidThroughAt
-        ? new Date(user.paidThroughAt).toLocaleDateString('es-ES', {
+      const paidIso = resolvePaidThroughAt(user);
+      const paidThroughLabel = paidIso
+        ? new Date(paidIso).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
           })
         : null;
       setToast(
-        paidThroughAt
-          ? `Tu suscripción se cancelará al final del periodo actual (${paidThroughAt}). Seguirás siendo ${currentTier} hasta entonces.`
+        paidThroughLabel
+          ? `Tu suscripción se cancelará al final del periodo actual (${paidThroughLabel}). Seguirás siendo ${currentTier} hasta entonces.`
           : 'Tu suscripción se cancelará al final del periodo actual. Seguirás teniendo acceso hasta entonces.'
       );
     } catch {
@@ -698,8 +692,12 @@ const Profile: React.FC = () => {
       }
   };
 
-  const paidThroughAt = user?.paidThroughAt;
-  const showTrialExpiredBanner = paidThroughAt != null && new Date(paidThroughAt) < new Date();
+  const subscriptionEndIso = user ? resolvePaidThroughAt(user) : null;
+  const showTrialExpiredBanner = Boolean(
+    user &&
+      ((subscriptionEndIso != null && new Date(subscriptionEndIso) < new Date()) ||
+        isDowngradedDueToExpiredPayment(user)),
+  );
 
   return (
     <IonPage>
@@ -752,7 +750,7 @@ const Profile: React.FC = () => {
                     <div slot="start" className="icon-box icon-orange"><IonIcon icon={trendingUpOutline} /></div>
                     <IonLabel className="item-label" style={{color: '#ea580c', fontWeight: 800}}>
                         Mejorar mi Plan
-                        <p style={{fontSize: '0.75rem', fontWeight: 400, color: '#64748b'}}>Consigue más trabajos y alertas WhatsApp</p>
+                        <p style={{fontSize: '0.75rem', fontWeight: 400, color: '#64748b'}}>Consigue más trabajos y alertas push en tiempo real</p>
                     </IonLabel>
                     <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
                 </IonItem>
@@ -816,9 +814,9 @@ const Profile: React.FC = () => {
                   </div>
                   <div className="profile-verification-sub">
                     {subscriptionCancelRequested ? (
-                      user?.paidThroughAt ? (
+                      subscriptionEndIso ? (
                         <>Tu suscripción está cancelada. Seguirás teniendo acceso {currentTier} hasta el{' '}
-                          {new Date(user.paidThroughAt).toLocaleDateString('es-ES', {
+                          {new Date(subscriptionEndIso).toLocaleDateString('es-ES', {
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric',
@@ -826,8 +824,8 @@ const Profile: React.FC = () => {
                       ) : (
                         'Tu suscripción está cancelada. Seguirás teniendo acceso hasta el final del periodo actual; después pasarás a Free.'
                       )
-                    ) : user?.paidThroughAt ? (
-                      `Activo hasta el ${new Date(user.paidThroughAt).toLocaleDateString('es-ES', {
+                    ) : subscriptionEndIso ? (
+                      `Activo hasta el ${new Date(subscriptionEndIso).toLocaleDateString('es-ES', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',

@@ -29,6 +29,7 @@ import {
   getMyActiveBid,
   getMyBidForProUi,
 } from '../utils/bidDisplay';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -255,9 +256,7 @@ const ProRequestDetail: React.FC = () => {
           setShowBidModal(false);
           fetchDetail(); 
       } catch (error: unknown) {
-          const data = (error as { response?: { data?: Record<string, unknown> } })?.response?.data ?? {};
-          const msg = (data.violations as Array<{ message?: string }>)?.[0]?.message ?? (data['hydra:description'] as string) ?? (data.detail as string);
-          setToast(msg || "Error al enviar la oferta.");
+          setToast(getApiErrorMessage(error) || 'Error al enviar la oferta.');
       } finally {
           setSubmittingBid(false);
       }
@@ -285,12 +284,8 @@ const ProRequestDetail: React.FC = () => {
       await api.post(`/requests/${id}/visit-request`);
       setToast('Has solicitado una visita de valoración. Espera a que el cliente responda.');
       fetchDetail();
-    } catch (error: any) {
-      const msg =
-        error.response?.data?.violations?.[0]?.message ||
-        error.response?.data?.message ||
-        'Error al solicitar la visita de valoración.';
-      setToast(msg);
+    } catch (error: unknown) {
+      setToast(getApiErrorMessage(error) || 'Error al solicitar la visita de valoración.');
     } finally {
       setVisitLoading(false);
     }

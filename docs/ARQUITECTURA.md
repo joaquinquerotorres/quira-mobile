@@ -12,33 +12,32 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 |------|-------------|--------|-----------------|
 | **CLIENTE** | Solo `clientProfile` | — | Crear solicitudes, aceptar propuestas, valorar. Sin perfil profesional. |
 | **FREE (Starter)** | `ROLE_FREE` o `professionalProfile` sin pago | Gratis | 3 propuestas/mes, acceso a LOW y MED Risk, alertas por email |
-| **SOLVER** | `ROLE_SOLVER` + `paidThroughAt` activo | 4,99€/mes | Propuestas ilimitadas, LOW y MED Risk, alertas PUSH |
-| **PRO** | `ROLE_PRO` + `paidThroughAt` activo | 11,99€/mes | Todo lo de Solver + HIGH Risk, prioridad en listados, alertas WhatsApp |
+| **SOLVER** | `ROLE_SOLVER` + `paidThroughAt` activo | 4,99€/mes | Propuestas ilimitadas, LOW y MED Risk, alertas push en tiempo real |
+| **PRO** | `ROLE_PRO` + `paidThroughAt` activo | 11,99€/mes | Todo lo de Solver + HIGH Risk, prioridad en listados, alertas push en tiempo real |
 
 ### Lógica de tier efectivo (`effectiveTier.ts`)
 
-- Si el usuario es PRO o SOLVER pero `paidThroughAt` está vencido → se trata como **FREE**.
-- `paidThroughAt === null` → no se considera vencido.
-- `isDowngradedDueToExpiredPayment()`: indica si el usuario tenía PRO/SOLVER y su pago caducó.
+- **Suscripción de pago activa** solo si hay una fecha `paidThroughAt` resuelta y es **estrictamente futura** (`> now`, ISO 8601). Misma regla que el backend para límites, HIGH y visitas.
+- **Resolución de fecha**: primero `professionalProfile.paidThroughAt` si viene informado; si no, `user.paidThroughAt`.
+- **`paidThroughAt === null`**, ausente o cadena vacía → **sin ventana de pago conocida**: quien tenga `ROLE_PRO` o `ROLE_SOLVER` se trata como **FREE** en la UI (no se asume Pro de pago “por rol” solo).
+- Fecha **vencida** con rol PRO/SOLVER → **FREE** en la UI.
+- `isDowngradedDueToExpiredPayment()`: rol PRO o SOLVER **sin** suscripción activa según lo anterior (incluye `null` y caducidad). Alimenta el banner global y avisos de renovación en perfil.
 
 ### Downgrade por caducidad
 
 - Se muestra un banner de "Cuota no renovada" cuando el usuario está degradado (una vez por sesión).
-- En Profile aparece un aviso si `paidThroughAt` está en el pasado.
+- En Profile aparece aviso de plan caducado si la fecha está en el pasado **o** si hay rol PRO/SOLVER sin suscripción activa (`paidThroughAt` null o no futuro).
 - Los pros degradados siguen viendo sus trabajos en curso, pero con límites en nuevas propuestas.
 
 ### Verificación para crear solicitudes o pujar
 
-- Para **crear solicitudes**:
-  - Hace falta teléfono en `clientProfile.phoneNumber`.
-  - Y `clientProfile.verifiedPhone === true`.
-- Para **pujar como profesional**, el backend puede usar `professionalProfile.verifiedPhone` de forma análoga.
-- Se usa `useUserVerification.ts` para calcular:
-  - `hasPhone`: hay teléfono en cliente o profesional.
-  - `verifiedPhone`: hay al menos un perfil (cliente o pro) con `verifiedPhone === true`.
-  - `canCreateRequestOrBid`: solo `true` si el perfil de cliente tiene teléfono y está verificado.
-- En `NewRequest`:
-  - Si `!canCreateRequestOrBid` se muestra una pantalla de bloqueo explicando que debe verificar el teléfono desde el perfil antes de crear la solicitud (no se muestra el formulario).
+- Para **crear solicitudes**: hace falta `clientProfile` con `phoneNumber` y `verifiedPhone === true`.
+- Para **pujar como profesional**: hace falta `professionalProfile` con `phoneNumber` y `verifiedPhone === true` (el backend valida además límites y tier).
+- `getVerificationStatus()` en `hooks/useUserVerification.ts` devuelve:
+  - **Cliente**: `hasClientPhone`, `verifiedClientPhone`, `canCreateRequest`.
+  - **Profesional**: `hasProPhone`, `verifiedProPhone`, `canBid`.
+- En `NewRequest`: si `!canCreateRequest`, pantalla de bloqueo hasta verificar el teléfono del cliente.
+- En **Mercado** / **ProRequestDetail**: si `!canBid`, se redirige o avisa para completar/verificar el teléfono profesional en perfil.
 
 ---
 
@@ -107,7 +106,8 @@ En la lista de ofertas (RequestDetail) y en el bloque de profesional asignado se
 
 Un profesional puede **solicitar una visita** para valorar el trabajo en persona antes de dar un presupuesto final.
 
-- **Solicitar visita (PRO)**: `POST /requests/{id}/visit-request`. El botón "Solicitar visita para valorar" solo se muestra si aún no hay solicitud de visita.
+- **Solicitar visita** (trabajos **HIGH**): en la app el CTA solo aparece con **tier efectivo PRO** (rol PRO **y** suscripción activa según `paidThroughAt`). El API puede rechazar con 403/422 si no hay pago vigente; el front muestra el mensaje del servidor.
+- **Endpoint**: `POST /requests/{id}/visit-request`. El botón solo se muestra si aún no hay solicitud de visita (flujos según estado en UI).
 - **Cliente acepta**: `POST /visit-requests/{id}/accept`. Tras aceptar, el PRO ve teléfono del cliente y dirección precisa; el cliente ve botón "LLAMAR AL PROFESIONAL" con el teléfono del PRO (`professionalPhone` en la visita aceptada).
 - **Cliente rechaza**: `POST /visit-requests/{id}/reject`.
 
@@ -160,8 +160,9 @@ interface RequestQuestion {
 
 ### Botón "ME INTERESA"
 
-- Para FREE: antes de abrir el modal se llama a `GET /professionals/me/can-bid`. Si `canBidThisMonth === false`, se muestra alerta de límite alcanzado. El backend debe calcular el límite **excluyendo** pujas retiradas (`REJECTED`), alineado con la app (texto “propuestas gratuitas restantes” en `Market` usa solo pujas no `REJECTED`).
-- Para HIGH Risk y no-PRO: botón bloqueado con mensaje de cuenta PRO necesaria.
+- Para **tier efectivo FREE o CLIENT** (incluye ex-PRO / ex-SOLVER sin `paidThroughAt` vigente): antes del modal se llama a `GET /professionals/me/can-bid`. El backend debe aplicar el límite al **plan efectivo**, no solo al rol `ROLE_FREE`. Si `canBidThisMonth === false`, alerta de límite. El conteo debe **excluir** pujas retiradas (`REJECTED`); el texto de “propuestas gratuitas restantes” en `Market` cuenta solo pujas no `REJECTED`.
+- **SOLVER** y **PRO** con suscripción activa abren el modal sin esa llamada.
+- **HIGH Risk** sin tier **PRO** efectivo: candado / no puede pujar (el API también rechaza `POST /bids` con 422; mensaje vía `getApiErrorMessage`, p. ej. código `BID_HIGH_REQUIRES_PAID_SUBSCRIPTION` o `BID_MONTHLY_LIMIT_EXCEEDED`).
 
 ---
 
@@ -173,7 +174,8 @@ interface RequestQuestion {
 2. Rellena formulario: nombre, teléfono, CIF (obligatorio para PRO), bio, skills.
 3. Si SOLVER o PRO → se llama a `createCheckoutSession()` y se redirige a Stripe Checkout.
 4. Retorno: `?success=1` o `?canceled=1`.
-5. El webhook del backend actualiza `paidThroughAt` y roles.
+5. Si `success=1`: `POST /stripe/sync-subscription` (JWT) y acto seguido `GET /users/{id}` para refrescar `localStorage` con `paidThroughAt` y `subscriptionCancelAtPeriodEnd` aunque el webhook llegue tarde (ver `docs/STRIPE_BACKEND.md`).
+6. El webhook del backend debe mantener `paidThroughAt` y roles al día de forma habitual.
 
 ### Precios (según UI)
 
@@ -183,9 +185,10 @@ interface RequestQuestion {
 
 ### `paidThroughAt` y cancelaciones
 
-- `paidThroughAt` indica hasta qué fecha está pagada la suscripción.
-- Es la fuente de verdad para decidir si el usuario es PRO/SOLVER o se trata como FREE.
-- Se actualiza desde el webhook de Stripe con `subscription.current_period_end`.
+- `paidThroughAt` indica hasta qué fecha está pagada la suscripción (en `User` y/o `professionalProfile`; el cliente prioriza el del perfil profesional si existe).
+- Es la fuente de verdad en cliente y servidor para el **plan efectivo**: sin fecha futura → límites FREE, sin nuevas pujas HIGH, etc.
+- `null` significa **sin periodo de pago conocido** en API (no “Pro implícito por rol”).
+- Se actualiza desde webhooks Stripe (`subscription.current_period_end`, etc.) y puede alinearse antes con `POST /stripe/sync-subscription` tras Checkout.
 - El backend puede exponer además en el recurso `User`:
   - `subscriptionCancelAtPeriodEnd: boolean` para indicar si la suscripción está marcada en Stripe con `cancel_at_period_end = true`.
 - En `Profile`:
@@ -220,7 +223,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 
 ### Tabs visibles
 
-- **Mercado** y **Gestión (My Work)**: solo si el usuario tiene `ROLE_PRO` o `professionalProfile`.
+- **Mercado** y **Gestión (My Work)**: si tiene `ROLE_PRO` o `professionalProfile` (flujo “profesional” en la app; no equivale solo a “PRO de pago”: el tier efectivo y el API acotan pujas y HIGH).
 
 ---
 
@@ -248,7 +251,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 | PATCH | `/professional_profiles/{id}` | Actualizar perfil profesional (CIF, bio, skills, zona) |
 | GET | `/professional_profiles?itemsPerPage=30` | Listado de pros |
 | GET | `/professional_profiles/{id}` | Detalle de un pro |
-| GET | `/professionals/me/can-bid` | ¿Puede pujar este mes? (FREE). `canBidThisMonth` debe basarse en el conteo de propuestas del mes **excluyendo** las retiradas (`REJECTED`). |
+| GET | `/professionals/me/can-bid` | ¿Puede pujar este mes según **plan efectivo** (FREE / ex-PRO sin pago, etc.)? `canBidThisMonth` debe basarse en el conteo del mes **excluyendo** retiradas (`REJECTED`). |
 
 ### Subida de ficheros (tickets + signed URL)
 
@@ -309,6 +312,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 | Método | Endpoint | Propósito |
 |--------|----------|-----------|
 | POST | `/stripe/checkout-session` | Crear sesión de pago Stripe |
+| POST | `/stripe/sync-subscription` | Tras Checkout success: alinear BD con Stripe si el webhook va tarde; luego el cliente hace GET usuario |
 | POST | `/stripe/cancel-subscription` | Marcar la suscripción para cancelar al final del periodo actual |
 
 ---
@@ -333,7 +337,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 
 ### ProfessionalProfile
 
-`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `taxId`, `bio`, `skills`, `isVerified`, `rating`, `reviewCount`, `user`.
+`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `taxId`, `bio`, `skills`, `isVerified`, `rating`, `reviewCount`, `user`, `paidThroughAt` (opcional; fin de suscripción si el API lo expone aquí además de en `User`).
 
 ### ClientProfile
 
@@ -361,10 +365,10 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 
 - Vista de la solicitud para el profesional: descripción, categoría, **adjuntos adicionales** (fotos/vídeos/audios extra) dentro de "Detalles del trabajo".
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
-- **Solicitar visita para valorar**: botón que llama a `POST /requests/{id}/visit-request`; tras enviar, se muestra el estado (PENDING / ACCEPTED / REJECTED).
+- **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
 - Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
-- Si es HIGH Risk y no es PRO: bloqueo para pujar.
-- Si está degradado pero tiene relación con la solicitud: puede ver el detalle.
+- Si es HIGH Risk y el tier efectivo no es PRO: bloqueo para pujar; el API valida igualmente.
+- Si está degradado pero tiene relación con la solicitud (puja activa o ganador): puede ver el detalle pese a HIGH.
 
 ### MyWork
 

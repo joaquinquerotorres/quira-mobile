@@ -410,7 +410,7 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
         )}
 
-      {/* VISITA DE VALORACIÓN (solo PRO, solo HIGH RISK, solo requests PENDING, integrado en Detalles del trabajo) */}
+      {/* VISITA DE VALORACIÓN: solo HIGH + PENDING; userTier PRO implica suscripción vigente (paidThroughAt futuro), alineado con API */}
       {userTier === 'PRO' && isHighRisk && request.status === 'PENDING' && (
           <div
             style={{

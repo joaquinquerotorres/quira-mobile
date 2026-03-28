@@ -1,6 +1,9 @@
 /**
  * Smoke E2E: flujos críticos con API simulada (sin backend real).
  * Ejecutar con: npm run dev (puerto 5173) y en otra terminal: npm run test.e2e
+ *
+ * Stripe Checkout simulado + mercado (sync, refetch usuario, can-bid): ver
+ * cypress/e2e/stripe-checkout-market.cy.ts → npm run test.e2e:stripe
  */
 describe('Quira — smoke E2E', () => {
   describe('Rutas públicas', () => {

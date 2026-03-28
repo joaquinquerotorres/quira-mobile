@@ -15,7 +15,8 @@ import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import { createCheckoutSession } from '../services/stripeService';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
+import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
 import { BecomeProHero, BecomeProTierSelector, BecomeProForm, type BecomeProFormData } from '../components/becomepro';
 import '../components/layout/LogoHeader.css';
 import './BecomePro.css';
@@ -43,15 +44,23 @@ const BecomePro: React.FC = () => {
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [existingProId, setExistingProId] = useState<number | null>(null);
 
-  // Detectar retorno exitoso desde Stripe Checkout
+  // Detectar retorno exitoso desde Stripe Checkout: refrescar usuario para paidThroughAt al día.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('success') === '1') {
-      setToast('¡Pago completado! Tu suscripción está activa.');
-      setTimeout(() => {
-        window.history.replaceState({}, '', '/become-pro');
-        window.location.href = '/market';
-      }, 2000);
+      void (async () => {
+        try {
+          await syncSubscriptionFromStripe();
+        } catch {
+          /* sync opcional si red falla; el GET siguiente puede bastar tras webhook */
+        }
+        await refreshCurrentUserInStorage();
+        setToast('¡Pago completado! Tu suscripción está activa.');
+        setTimeout(() => {
+          window.history.replaceState({}, '', '/become-pro');
+          window.location.href = '/market';
+        }, 2000);
+      })();
     } else if (params.get('canceled') === '1') {
       setToast('El pago fue cancelado. Puedes intentarlo de nuevo cuando quieras.');
       window.history.replaceState({}, '', '/become-pro');

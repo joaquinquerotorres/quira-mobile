@@ -34,7 +34,7 @@ const TIERS = [
     price: '11,99€/mes',
     trial: '3 Meses Gratis',
     icon: shieldCheckmarkOutline,
-    features: ['Acceso TOTAL (incluye trabajos de alta dificultad)', 'Prioridad en listados', 'Alertas WhatsApp'],
+    features: ['Acceso TOTAL (incluye trabajos de alta dificultad)', 'Prioridad en listados', 'Alertas push en tiempo real'],
     color: 'secondary',
   },
 ];

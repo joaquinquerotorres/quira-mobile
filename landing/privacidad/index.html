@@ -87,7 +87,7 @@
 
 <div class="hero">
   <h1>Política de Privacidad</h1>
-  <p class="hero-meta">Versión 1.1 — Última actualización: <span>26 de marzo de 2026</span></p>
+  <p class="hero-meta">Versión 1.2 — Última actualización: <span>27 de marzo de 2026</span></p>
 </div>
 
 <div class="container">
@@ -126,7 +126,7 @@
       <tr><td><strong>Nombre comercial</strong></td><td>Quira</td></tr>
       <tr><td><strong>Titular</strong></td><td>Joaquín Quero Torres</td></tr>
       <tr><td><strong>NIF/CIF</strong></td><td>45742404M</td></tr>
-      <tr><td><strong>Domicilio fiscal</strong></td><td>Paseo Vereda de Trassierra, 9, 14005, Córdoa, España</td></tr>
+      <tr><td><strong>Domicilio fiscal</strong></td><td>Paseo Vereda de Trassierra, 9, 14005, Córdoba, España</td></tr>
       <tr><td><strong>Correo de privacidad</strong></td><td>privacidad@quira.app</td></tr>
       <tr><td><strong>Web</strong></td><td>https://quira.app</td></tr>
     </table>
@@ -153,6 +153,7 @@
       <tr><td>Descripción del servicio (texto, audio, vídeo)</td><td>Clientes</td><td>Creación de solicitud</td></tr>
       <tr><td>Valoraciones y reseñas</td><td>Clientes y profesionales Pro</td><td>Tras finalización del trabajo</td></tr>
       <tr><td>Datos de pago (gestionados por Stripe)</td><td>Profesionales Solver y Pro</td><td>Contratación de plan</td></tr>
+      <tr><td>Estado de la suscripción (p. ej. fecha hasta la que está pagado el periodo, indicación de cancelación al final del periodo)</td><td>Profesionales Solver y Pro</td><td>Tras el pago o cambios en Stripe; se asocia a tu cuenta en los servidores de Quira</td></tr>
     </table>
 
     <h3>2.2 Datos recogidos automáticamente</h3>
@@ -184,10 +185,10 @@
       <tr><td>Publicación y gestión de solicitudes de servicio</td><td>Descripción, zona, categoría, precio</td><td>Ejecución del contrato (6.1.b)</td></tr>
       <tr><td>Generación de anuncios y estimación de precios mediante IA (Google Gemini)</td><td>Descripción de la solicitud; fichero de referencia de precios (datos anonimizados de servicios aceptados)</td><td>Ejecución del contrato (6.1.b)</td></tr>
       <tr><td>Conexión cliente–profesional y gestión de ofertas</td><td>Zona, categoría, perfil profesional</td><td>Ejecución del contrato (6.1.b)</td></tr>
-      <tr><td>Envío de notificaciones (Twilio)</td><td>Email / número de teléfono / WhatsApp según plan</td><td>Ejecución del contrato (6.1.b)</td></tr>
+      <tr><td>Envío de notificaciones (Twilio, Firebase u otros proveedores según canal)</td><td>Correo (plan Free); teléfono y notificaciones push u otros canales según plan (Solver/Pro)</td><td>Ejecución del contrato (6.1.b)</td></tr>
       <tr><td>Compartir dirección exacta con el profesional aceptado</td><td>Dirección completa del cliente</td><td>Ejecución del contrato (6.1.b) + consentimiento (6.1.a)</td></tr>
       <tr><td>Gestión de reseñas y valoraciones</td><td>Texto de valoración, puntuación, autor</td><td>Ejecución del contrato (6.1.b)</td></tr>
-      <tr><td>Procesamiento de pagos (Stripe)</td><td>Nombre, email, datos de pago</td><td>Ejecución del contrato (6.1.b) + obligación legal (6.1.c)</td></tr>
+      <tr><td>Procesamiento de pagos y gestión del plan (Stripe + servidores Quira)</td><td>Nombre, email, datos de pago (solo en Stripe); en Quira, identificador de cuenta y datos técnicos de suscripción necesarios para aplicar el plan contratado</td><td>Ejecución del contrato (6.1.b) + obligación legal (6.1.c)</td></tr>
       <tr><td>Verificación de profesionales Pro (CIF)</td><td>CIF empresarial</td><td>Obligación legal (6.1.c) + ejecución del contrato (6.1.b)</td></tr>
       <tr><td>Analítica de uso (Firebase Analytics / Google Analytics)</td><td>Eventos de uso, identificador de instancia</td><td>Interés legítimo (6.1.f) + consentimiento (6.1.a) según configuración</td></tr>
       <tr><td>Detección y resolución de errores técnicos (Sentry)</td><td>Logs, stack traces, datos del dispositivo, IP parcial</td><td>Interés legítimo (6.1.f)</td></tr>
@@ -258,7 +259,7 @@
       </tr>
       <tr>
         <td><strong>Twilio</strong> (Twilio Inc.)<br><span class="provider-tag tag-us">EE.UU.</span></td>
-        <td>Envío de <strong>todas</strong> las notificaciones: correo electrónico (plan Free), SMS/push (plan Solver) y mensajes de WhatsApp Business (plan Pro)</td>
+        <td>Correo electrónico (plan Free) y, según configuración, SMS u otros canales para profesionales. Las notificaciones <strong>push en tiempo real</strong> de los planes Solver y Pro se entregan principalmente mediante <strong>Firebase Cloud Messaging</strong> (Google), descrito en la fila de Google Firebase.</td>
         <td>Email o número de teléfono del destinatario y contenido de la notificación</td>
         <td>EE.UU. / EEE</td>
         <td>CCE; Twilio Data Protection Addendum</td>
@@ -266,8 +267,8 @@
       </tr>
       <tr>
         <td><strong>Stripe</strong> (Stripe Payments Europe, Ltd.)<br><span class="provider-tag tag-eu">Irlanda / EEE</span></td>
-        <td>Procesamiento de pagos de suscripciones (planes Solver y Pro)</td>
-        <td>Nombre, email, datos de tarjeta de crédito/débito, datos de facturación</td>
+        <td>Procesamiento de pagos de suscripciones (planes Solver y Pro); notificaciones seguras (webhooks) al backend de Quira para mantener al día el estado de la suscripción en tu cuenta</td>
+        <td>Nombre, email, datos de tarjeta de crédito/débito, datos de facturación; metadatos de suscripción que Stripe comunica a Quira conforme a su servicio</td>
         <td>Irlanda (EEE)</td>
         <td>Entidad regulada en EEE; subprocesadores en EE.UU. bajo CCE; EU-U.S. Data Privacy Framework</td>
         <td><a href="https://stripe.com/es/privacy" target="_blank">stripe.com/es/privacy</a></td>
@@ -402,13 +403,13 @@
   <!-- 11. NOTIFICACIONES -->
   <section class="policy-section" id="notificaciones">
     <h2>11. Notificaciones y comunicaciones</h2>
-    <p>Todas las notificaciones de la aplicación son gestionadas por <strong>Twilio</strong>, adaptándose al canal según el plan contratado por el profesional:</p>
+    <p>Los canales dependen del plan del profesional y del tipo de aviso. Pueden intervenir <strong>Twilio</strong> (correo, SMS u otros), <strong>Google Firebase Cloud Messaging (FCM)</strong> para push en la app, u otros proveedores indicados en el apartado de terceros.</p>
     <ul>
-      <li><strong>Plan Free:</strong> Notificaciones por correo electrónico (Twilio SendGrid o canal equivalente de Twilio).</li>
-      <li><strong>Plan Solver:</strong> Notificaciones por SMS o mensaje push (Twilio SMS / Twilio Notify).</li>
-      <li><strong>Plan Pro:</strong> Notificaciones por mensaje de WhatsApp Business (Twilio WhatsApp Business API).</li>
+      <li><strong>Plan Free:</strong> Notificaciones por correo electrónico (p. ej. Twilio SendGrid o canal equivalente).</li>
+      <li><strong>Plan Solver:</strong> Notificaciones por SMS o mensaje push en tiempo real (según implementación: Twilio para SMS u otros canales; push mediante FCM en el dispositivo).</li>
+      <li><strong>Plan Pro:</strong> Notificaciones <strong>push en tiempo real</strong> en la aplicación (mismo tipo de alertas instantáneas que Solver, mediante FCM u infraestructura equivalente de la app), además del acceso diferenciado a funciones del servicio descritas en las condiciones de uso.</li>
     </ul>
-    <p>Los clientes reciben notificaciones push sobre el estado de sus solicitudes, también gestionadas por Twilio a través de Firebase Cloud Messaging (FCM).</p>
+    <p>Los clientes reciben notificaciones push sobre el estado de sus solicitudes principalmente mediante <strong>Firebase Cloud Messaging (FCM)</strong> (Google).</p>
     <p>Las notificaciones de estado del servicio son comunicaciones necesarias para la ejecución del contrato y no requieren consentimiento adicional. Puedes desactivarlas desde los ajustes de tu dispositivo, aunque ello puede reducir la utilidad del servicio.</p>
   </section>
 
@@ -417,7 +418,9 @@
     <h2>12. Pagos y suscripciones</h2>
     <p>Las suscripciones a los planes Solver (4,99€/mes) y Pro (11,99€/mes) son procesadas por <strong>Stripe Payments Europe, Ltd.</strong> (entidad regulada en Irlanda, nº C187865).</p>
     <p><strong>Quira no almacena en ningún momento datos de tarjetas de pago.</strong> Toda la información se gestiona directamente por Stripe bajo certificación PCI-DSS Nivel 1.</p>
-    <p>Quira sí conserva los registros de transacciones (importe, fecha, plan) durante 5 años para cumplir con obligaciones fiscales y contables en España.</p>
+    <p>Tras completar el pago en la página segura de Stripe Checkout, la aplicación se comunica con los <strong>servidores de Quira</strong> (con tu sesión autenticada) para confirmar o alinear el estado de la suscripción y actualizar tu perfil en la app. Este paso no implica que Quira reciba datos de tarjeta: solo permite que tu cuenta refleje de forma coherente el plan contratado cuando Stripe notifica el resultado del pago (incluido por canales automáticos entre Stripe y nuestro backend, como webhooks seguros).</p>
+    <p>En tu cuenta asociamos <strong>datos técnicos imprescindibles para el contrato</strong>, por ejemplo la fecha hasta la que está cubierto el periodo de pago vigente y, si procede, si has solicitado la cancelación al final del periodo. Estos datos provienen de la información que Stripe pone a disposición del responsable del tratamiento y sirven para aplicar las condiciones del plan (acceso a funciones de Solver o Pro) de acuerdo con las condiciones de uso.</p>
+    <p>Quira conserva los <strong>registros de transacciones</strong> (importe, fecha, plan) durante 5 años para cumplir con obligaciones fiscales y contables en España.</p>
   </section>
 
   <!-- 13. CAMBIOS -->

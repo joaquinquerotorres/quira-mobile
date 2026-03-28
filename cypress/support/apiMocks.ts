@@ -12,6 +12,14 @@ export function registerDefaultApiMocks(): void {
       return req.reply({ fixture: 'users-by-email-hydra.json' });
     }
 
+    if (u.includes('/requests') && u.includes('is_market')) {
+      return req.reply({ fixture: 'market-requests.json' });
+    }
+
+    if (u.includes('/professionals/me/can-bid')) {
+      return req.reply({ body: { canBidThisMonth: true } });
+    }
+
     const userPath = u.match(/\/users\/(\d+)(?:\?|$)/);
     if (userPath) {
       const id = userPath[1];
@@ -44,6 +52,9 @@ export function registerDefaultApiMocks(): void {
     const u = req.url;
     if (u.includes('login_check')) {
       return req.reply({ statusCode: 200, body: { token: 'e2e-test-jwt' } });
+    }
+    if (u.includes('stripe/sync-subscription')) {
+      return req.reply({ statusCode: 200, body: {} });
     }
     return req.reply({ statusCode: 201, body: {} });
   }).as('apiPost');

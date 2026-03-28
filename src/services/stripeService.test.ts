@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCheckoutSession } from './stripeService';
+import { createCheckoutSession, syncSubscriptionFromStripe } from './stripeService';
 
 import api from '../api/axios';
 
@@ -66,5 +66,11 @@ describe('stripeService', () => {
     await expect(
       createCheckoutSession({ tier: 'PRO', professionalProfileId: 1 })
     ).rejects.toThrow('No se recibió la URL de checkout');
+  });
+
+  it('syncSubscriptionFromStripe posts /stripe/sync-subscription', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: {} });
+    await syncSubscriptionFromStripe();
+    expect(api.post).toHaveBeenCalledWith('/stripe/sync-subscription', {});
   });
 });

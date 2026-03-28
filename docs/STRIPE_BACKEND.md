@@ -2,7 +2,7 @@
 
 La app móvil integra Stripe para el pago de suscripciones SOLVER (4,99€/mes) y PRO (11,99€/mes). El frontend redirige a Stripe Checkout; el backend debe implementar los siguientes endpoints y webhooks.
 
-## Endpoint requerido
+## Endpoints requeridos
 
 ### POST /stripe/checkout-session
 
@@ -56,6 +56,20 @@ $session = \Stripe\Checkout\Session::create([
 return ['url' => $session->url];
 ```
 
+### POST /stripe/sync-subscription
+
+Tras volver de **Stripe Checkout** con `success`, la app llama a este endpoint **con el JWT del usuario** y acto seguido hace **GET** del usuario (`/users/{id}`) para leer `professionalProfile.paidThroughAt` y `subscriptionCancelAtPeriodEnd`. Sirve cuando el **webhook llega tarde**: el backend debe consultar Stripe (suscripción del customer asociado al usuario), actualizar `paidThroughAt` (y flags como `subscriptionCancelAtPeriodEnd` si aplica) en BD, y responder **200** con cuerpo vacío o mínimo (`{}`).
+
+**Requisitos:**
+
+- Autenticación: mismo esquema que el resto de la API (Bearer).
+- Idempotente o seguro de llamar varias veces tras un pago.
+- Tras responder, el **GET usuario** siguiente debe ya reflejar la ventana de pago actualizada.
+
+**Body:** puede ser `{}` (JSON vacío); la app envía `POST` con cuerpo vacío objeto.
+
+**Respuesta:** `200` — cuerpo libre; la app no interpreta el body, solo comprueba éxito de red.
+
 ## Webhook Stripe
 
 Configurar webhook para `checkout.session.completed` (y opcionalmente `customer.subscription.updated`, `customer.subscription.deleted`).
@@ -76,3 +90,14 @@ En `checkout.session.completed`:
 - `STRIPE_WEBHOOK_SECRET`: Para verificar firma del webhook
 - `STRIPE_PRICE_SOLVER`: price_xxx del producto SOLVER (4,99€/mes)
 - `STRIPE_PRICE_PRO`: price_xxx del producto PRO (11,99€/mes)
+
+## Verificación E2E (app)
+
+Con la API simulada en Cypress se comprueba el flujo **post-checkout** (`/become-pro?success=1` → `POST /stripe/sync-subscription` → `GET /users/{id}` → `paidThroughAt` en `localStorage` → redirección a `/market`) y el **mercado** (listado mock, `ME INTERESA`, `GET /professionals/me/can-bid` cuando el tier efectivo es FREE).
+
+- Arranque: `npm run dev` (mismo puerto que `baseUrl` en `cypress.config.ts`, por defecto **5173**; si Vite usa otro puerto, ajusta `baseUrl` o reinicia sin conflictos).
+- Spec dedicado: `npm run test.e2e:stripe` → `cypress/e2e/stripe-checkout-market.cy.ts`.
+- Smoke general (login, tabs, etc.): `npm run test.e2e` → incluye `cypress/e2e/smoke.cy.ts`.
+- Si Cypress avisa de binario ausente: `npx cypress install`.
+
+La documentación funcional de tiers y mercado está en `docs/ARQUITECTURA.md` (secciones 1, 5 y 6).

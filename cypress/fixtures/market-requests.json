@@ -1,0 +1,26 @@
+{
+  "@context": "/api/contexts/Request",
+  "@id": "/api/requests",
+  "@type": "hydra:Collection",
+  "hydra:member": [
+    {
+      "@id": "/api/requests/501",
+      "id": 501,
+      "title": "E2E fontanería mercado",
+      "description": "Oportunidad simulada para E2E",
+      "priceAmount": 45,
+      "status": "PENDING",
+      "riskLevel": "LOW",
+      "category": "PLUMBING",
+      "address": "Calle E2E 1, Madrid",
+      "locationPoint": { "type": "Point", "coordinates": [-3.7, 40.4] },
+      "bids": [],
+      "client": {
+        "id": 1,
+        "fullName": "Cliente E2E",
+        "@id": "/api/clients/1"
+      }
+    }
+  ],
+  "hydra:totalItems": 1
+}

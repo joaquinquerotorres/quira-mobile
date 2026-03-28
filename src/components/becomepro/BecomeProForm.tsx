@@ -67,7 +67,7 @@ export const BecomeProForm: React.FC<BecomeProFormProps> = ({
     </div>
 
     <div className="become-pro-input-group">
-      <IonLabel>Teléfono Móvil (WhatsApp) *</IonLabel>
+      <IonLabel>Teléfono móvil profesional *</IonLabel>
       <div className="become-pro-input-wrapper">
         <IonIcon icon={logoWhatsapp} />
         <IonInput

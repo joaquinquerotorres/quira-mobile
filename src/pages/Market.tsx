@@ -26,6 +26,7 @@ import { env } from '../config/env';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const serverUrl = env.serverUrl;
 
@@ -66,7 +67,7 @@ const Market: React.FC = () => {
   const [toast, setToast] = useState<string | null>(null);
   const [showAlertLimit, setShowAlertLimit] = useState(false);
 
-  // API can-bid para usuarios FREE (Pro Free)
+  // GET can-bid cuando el tier efectivo es FREE/CLIENT (incluye ex-PRO/SOLVER sin paidThroughAt vigente; el API aplica el límite al plan efectivo).
   const [canBidThisMonth, setCanBidThisMonth] = useState<boolean | null>(null);
   const [showCanBidLimitAlert, setShowCanBidLimitAlert] = useState(false);
 
@@ -225,7 +226,6 @@ const Market: React.FC = () => {
 
     if (userTier === 'FREE' || userTier === 'CLIENT') {
       try {
-        // Backend: canBidThisMonth debe alinearse con el límite mensual sin contar pujas REJECTED (retiradas).
         const res = await api.get<{ canBidThisMonth: boolean }>('/professionals/me/can-bid');
         const { canBidThisMonth: canBid } = res.data;
         setCanBidThisMonth(canBid);
@@ -272,9 +272,7 @@ const Market: React.FC = () => {
         setShowModal(false);
         fetchOpportunities(); 
     } catch (error: unknown) {
-        const data = (error as { response?: { data?: Record<string, unknown> } })?.response?.data ?? {};
-        const msg = (data.violations as Array<{ message?: string }>)?.[0]?.message ?? (data['hydra:description'] as string) ?? (data.detail as string);
-        setToast(msg || "Error al enviar la propuesta.");
+        setToast(getApiErrorMessage(error) || 'Error al enviar la propuesta.');
     } finally {
         setSubmitting(false);
     }

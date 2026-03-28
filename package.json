@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test.e2e": "cypress run",
+    "test.e2e:stripe": "cypress run --spec cypress/e2e/stripe-checkout-market.cy.ts",
     "cy:open": "cypress open",
     "test": "NODE_OPTIONS='--max-old-space-size=8192' vitest run",
     "test.unit": "vitest",

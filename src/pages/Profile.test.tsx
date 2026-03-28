@@ -55,9 +55,21 @@ test('Profile renders menu sections', () => {
   expect(screen.getByText('CERRAR SESIÓN')).toBeInTheDocument();
 });
 
-test('Profile does not show paid-through-expired banner when paidThroughAt is null', () => {
+test('Profile does not show paid-through-expired banner when paidThroughAt is null for CLIENT', () => {
   render(<Profile />, { wrapper });
   expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();
+});
+
+test('Profile shows paid-through-expired banner when ROLE_PRO and paidThroughAt is null', async () => {
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    email: 'pro@test.com',
+    roles: ['ROLE_PRO'],
+    professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
+    paidThroughAt: null,
+  }));
+  render(<Profile />, { wrapper });
+  expect(await screen.findByText('Tu plan ha caducado')).toBeInTheDocument();
 });
 
 test('Profile does not show paid-through-expired banner when paidThroughAt is in the future', () => {

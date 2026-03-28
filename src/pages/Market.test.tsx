@@ -131,6 +131,28 @@ test('FREE user sees HIGH job clearly when they already have a bid (ex PRO)', as
   expect(screen.queryByText('Oportunidad Reservada')).not.toBeInTheDocument();
 });
 
+test('ex-PRO effective FREE (paidThroughAt null) calls can-bid like ROLE_FREE', async () => {
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    roles: ['ROLE_PRO'],
+    paidThroughAt: null,
+    '@id': '/users/1',
+    professionalProfile: { id: 1, phoneNumber: '+34600000000', verifiedPhone: true, fullName: 'Ex Pro', '@id': '/professionals/1' },
+  }));
+
+  render(<Market />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.getByText('ME INTERESA')).toBeInTheDocument();
+  });
+
+  await userEvent.click(screen.getByText('ME INTERESA'));
+
+  await waitFor(() => {
+    expect(api.get).toHaveBeenCalledWith('/professionals/me/can-bid');
+  });
+});
+
 test('FREE user opens bid modal when canBidThisMonth is true', async () => {
   (localStorage as any).setItem?.('user', JSON.stringify({
     id: 1,

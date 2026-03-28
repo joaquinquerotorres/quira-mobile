@@ -43,6 +43,8 @@ export interface ProfessionalProfile {
   notifyRequestActivity?: boolean;
   notifyBidActivity?: boolean;
   notifyReviews?: boolean;
+  /** Fin de suscripción vigente (ISO 8601); el backend puede exponerlo aquí o en User. */
+  paidThroughAt?: string | null;
 }
 
 export interface ClientProfile {
@@ -146,11 +148,21 @@ export interface HydraMember {
   id?: number;
 }
 
+/** Violación 422 de API Platform (propertyPath, code estable, message para UI). */
+export interface ApiViolation {
+  message?: string;
+  propertyPath?: string;
+  /** Ej. BID_HIGH_REQUIRES_PAID_SUBSCRIPTION, BID_MONTHLY_LIMIT_EXCEEDED */
+  code?: string;
+}
+
 /** Error de API típico de API Platform / Symfony */
 export interface ApiError {
+  violations?: ApiViolation[];
   'hydra:description'?: string;
   message?: string;
   detail?: string;
+  error?: string;
 }
 
 // (Opcional) Si vas a listar reviews en el futuro, te vendrá bien esto:

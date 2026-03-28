@@ -39,3 +39,12 @@ export async function createCheckoutSession(
   }
   return data;
 }
+
+/**
+ * Fuerza sincronización con Stripe en servidor (p. ej. tras Checkout success).
+ * Imprescindible si el webhook llega tarde: luego GET /users/{id} para paidThroughAt.
+ * POST /stripe/sync-subscription (JWT en cabecera vía interceptor).
+ */
+export async function syncSubscriptionFromStripe(): Promise<void> {
+  await api.post('/stripe/sync-subscription', {});
+}

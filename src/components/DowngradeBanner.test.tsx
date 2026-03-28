@@ -37,6 +37,22 @@ test('DowngradeBanner shows alert when user is downgraded due to expired payment
   });
 });
 
+test('DowngradeBanner shows when ROLE_PRO and paidThroughAt is null (sin pago vigente)', async () => {
+  const user = {
+    id: 1,
+    paidThroughAt: null,
+    roles: ['ROLE_PRO'],
+    professionalProfile: {},
+  };
+  localStorage.setItem('user', JSON.stringify(user));
+
+  render(<DowngradeBanner />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.getByText('Cuota no renovada')).toBeInTheDocument();
+  });
+});
+
 test('DowngradeBanner does not show when user is not downgraded', async () => {
   const user = {
     id: 1,
