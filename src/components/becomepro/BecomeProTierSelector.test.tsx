@@ -57,5 +57,5 @@ test('BecomeProTierSelector shows correct prices for SOLVER and PRO', () => {
     { wrapper }
   );
   expect(screen.getByText('4,99€/mes')).toBeInTheDocument();
-  expect(screen.getByText('12,99€/mes')).toBeInTheDocument();
+  expect(screen.getByText('11,99€/mes')).toBeInTheDocument();
 });

@@ -13,7 +13,7 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 | **CLIENTE** | Solo `clientProfile` | — | Crear solicitudes, aceptar propuestas, valorar. Sin perfil profesional. |
 | **FREE (Starter)** | `ROLE_FREE` o `professionalProfile` sin pago | Gratis | 3 propuestas/mes, acceso a LOW y MED Risk, alertas por email |
 | **SOLVER** | `ROLE_SOLVER` + `paidThroughAt` activo | 4,99€/mes | Propuestas ilimitadas, LOW y MED Risk, alertas PUSH |
-| **PRO** | `ROLE_PRO` + `paidThroughAt` activo | 12,99€/mes | Todo lo de Solver + HIGH Risk, prioridad en listados, alertas WhatsApp |
+| **PRO** | `ROLE_PRO` + `paidThroughAt` activo | 11,99€/mes | Todo lo de Solver + HIGH Risk, prioridad en listados, alertas WhatsApp |
 
 ### Lógica de tier efectivo (`effectiveTier.ts`)
 
@@ -179,7 +179,7 @@ interface RequestQuestion {
 
 - FREE: Gratis.
 - SOLVER: 4,99€/mes.
-- PRO: 12,99€/mes.
+- PRO: 11,99€/mes.
 
 ### `paidThroughAt` y cancelaciones
 

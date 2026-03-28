@@ -86,6 +86,51 @@ test('FREE user sees can-bid limit alert when canBidThisMonth is false', async (
   });
 });
 
+test('FREE user sees HIGH job clearly when they already have a bid (ex PRO)', async () => {
+  const highWithMyBid = {
+    ...mockOpportunity,
+    id: 99,
+    title: 'Reforma integral alta',
+    riskLevel: 'HIGH',
+    bids: [
+      {
+        id: 1,
+        status: 'PENDING',
+        professional: { id: 1, '@id': '/professionals/1' },
+      },
+    ],
+  };
+
+  vi.mocked(api.get).mockImplementation((url: string) => {
+    return Promise.resolve({
+      data: { 'hydra:member': [highWithMyBid], member: [highWithMyBid] },
+    });
+  });
+
+  (localStorage as any).setItem?.(
+    'user',
+    JSON.stringify({
+      id: 1,
+      roles: ['ROLE_PRO'],
+      paidThroughAt: '2020-01-01T00:00:00.000Z',
+      professionalProfile: {
+        id: 1,
+        phoneNumber: '+34600000000',
+        verifiedPhone: true,
+        fullName: 'Ex Pro',
+        '@id': '/professionals/1',
+      },
+    }),
+  );
+
+  render(<Market />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.getByText('Reforma integral alta')).toBeInTheDocument();
+  });
+  expect(screen.queryByText('Oportunidad Reservada')).not.toBeInTheDocument();
+});
+
 test('FREE user opens bid modal when canBidThisMonth is true', async () => {
   (localStorage as any).setItem?.('user', JSON.stringify({
     id: 1,

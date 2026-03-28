@@ -166,14 +166,10 @@ const MainTabs: React.FC = () => {
             </IonTabButton>
           )}
 
-          {/* BOTÓN CENTRAL: PEDIR */}
-          <IonTabButton tab="new-request" href="/new-request">
-            <IonIcon 
-              aria-hidden="true" 
-              icon={addCircleOutline} 
-              style={{ fontSize: '34px', color: '#ea580c', marginBottom: '2px' }} 
-            />
-            <IonLabel style={{ color: '#ea580c', fontWeight: 700 }}>Pedir</IonLabel>
+          {/* BOTÓN CENTRAL: PEDIR (icono grande pero sin margin extra: evita recortar la etiqueta) */}
+          <IonTabButton tab="new-request" href="/new-request" className="quira-tab-pedir">
+            <IonIcon aria-hidden="true" icon={addCircleOutline} />
+            <IonLabel>Pedir</IonLabel>
           </IonTabButton>
 
           {/* TAB 4: GESTIÓN (Solo PRO) */}

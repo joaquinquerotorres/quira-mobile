@@ -17,6 +17,12 @@ const SRC = path.join(ROOT, "resources", "splash.png");
  */
 const SPLASH_CENTER_CROP = 1;
 
+/**
+ * Escala el logo respecto al lienzo antes de generar mipmaps (solo recorte central simétrico).
+ * >1 agranda la Q en el icono; subir con cuidado para no recortar cola/anillo del logo.
+ */
+const ICON_CENTER_ZOOM = 1.12;
+
 /** Pixels that are white/light gray margins; keep saturated colors (tail, ring). */
 function isMarginPixel(r, g, b) {
   const max = Math.max(r, g, b);
@@ -107,6 +113,30 @@ async function processSource() {
   return { rgba, bgRgb: { r: br, g: bg, b: bb } };
 }
 
+/**
+ * @param {Buffer} pngBuffer
+ * @param {number} zoom >1 amplía el contenido visible (equivalente a acercar el centro).
+ */
+async function applyCenterZoom(pngBuffer, zoom) {
+  if (zoom <= 1.001) return pngBuffer;
+  const meta = await sharp(pngBuffer).metadata();
+  const w = meta.width ?? 0;
+  const h = meta.height ?? 0;
+  if (!w || !h) return pngBuffer;
+  const sw = Math.round(w * zoom);
+  const sh = Math.round(h * zoom);
+  return sharp(pngBuffer)
+    .resize(sw, sh, { fit: "fill" })
+    .extract({
+      left: Math.max(0, Math.floor((sw - w) / 2)),
+      top: Math.max(0, Math.floor((sh - h) / 2)),
+      width: Math.min(w, sw),
+      height: Math.min(h, sh),
+    })
+    .png()
+    .toBuffer();
+}
+
 const IOS_APP_ICON_1024 = path.join(
   ROOT,
   "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
@@ -122,7 +152,8 @@ const densities = {
 };
 
 async function main() {
-  const { rgba, bgRgb } = await processSource();
+  let { rgba, bgRgb } = await processSource();
+  rgba = await applyCenterZoom(rgba, ICON_CENTER_ZOOM);
   const hex =
     "#" +
     [bgRgb.r, bgRgb.g, bgRgb.b]

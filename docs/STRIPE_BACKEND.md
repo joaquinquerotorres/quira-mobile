@@ -1,6 +1,6 @@
 # Integración Stripe - Requisitos Backend
 
-La app móvil integra Stripe para el pago de suscripciones SOLVER (4,99€/mes) y PRO (12,99€/mes). El frontend redirige a Stripe Checkout; el backend debe implementar los siguientes endpoints y webhooks.
+La app móvil integra Stripe para el pago de suscripciones SOLVER (4,99€/mes) y PRO (11,99€/mes). El frontend redirige a Stripe Checkout; el backend debe implementar los siguientes endpoints y webhooks.
 
 ## Endpoint requerido
 
@@ -75,4 +75,4 @@ En `checkout.session.completed`:
 - `STRIPE_SECRET_KEY`: Clave secreta de Stripe
 - `STRIPE_WEBHOOK_SECRET`: Para verificar firma del webhook
 - `STRIPE_PRICE_SOLVER`: price_xxx del producto SOLVER (4,99€/mes)
-- `STRIPE_PRICE_PRO`: price_xxx del producto PRO (12,99€/mes)
+- `STRIPE_PRICE_PRO`: price_xxx del producto PRO (11,99€/mes)

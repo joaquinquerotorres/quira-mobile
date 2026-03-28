@@ -184,9 +184,12 @@ const Market: React.FC = () => {
   const isHighRisk = (req: ServiceRequest) => req.riskLevel === 'HIGH';
 
   // 1. Visibilidad (Niebla vs Claro)
-  // ROLE_FREE: No ve detalles en HIGH. (Solver sí ve para tener FOMO)
+  // FREE/CLIENT: no ven HIGH salvo que ya tengan puja (p. ej. ex PRO sin pagar debe seguir la oferta).
+  // Solver sigue viendo HIGH sin borrar (FOMO), alineado con ProRequestDetail + relación previa.
   const canViewRequestDetails = (req: ServiceRequest) => {
-    if (isHighRisk(req) && (userTier === 'FREE' || userTier === 'CLIENT')) {
+    if (!isHighRisk(req)) return true;
+    if (userTier === 'FREE' || userTier === 'CLIENT') {
+      if (hasUserBid(req)) return true;
       return false;
     }
     return true;
