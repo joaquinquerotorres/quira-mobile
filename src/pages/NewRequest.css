@@ -1,5 +1,19 @@
 /* src/pages/NewRequest.css */
 
+.new-request-video-network-hint {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: #9a3412;
+    line-height: 1.45;
+}
+.new-request-video-network-hint p {
+    margin: 0;
+}
+
 /* --- HEADER Y LOGO CENTRADO --- */
 .new-request-header IonToolbar {
     --background: var(--ion-color-primary) !important;

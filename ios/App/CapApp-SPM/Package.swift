@@ -20,6 +20,7 @@ let package = Package(
         .package(name: "CapacitorGeolocation", path: "../../../node_modules/@capacitor/geolocation"),
         .package(name: "CapacitorHaptics", path: "../../../node_modules/@capacitor/haptics"),
         .package(name: "CapacitorKeyboard", path: "../../../node_modules/@capacitor/keyboard"),
+        .package(name: "CapacitorNetwork", path: "../../../node_modules/@capacitor/network"),
         .package(name: "CapacitorPreferences", path: "../../../node_modules/@capacitor/preferences"),
         .package(name: "CapacitorStatusBar", path: "../../../node_modules/@capacitor/status-bar"),
         .package(name: "SentryCapacitor", path: "../../../node_modules/@sentry/capacitor")
@@ -38,6 +39,7 @@ let package = Package(
                 .product(name: "CapacitorGeolocation", package: "CapacitorGeolocation"),
                 .product(name: "CapacitorHaptics", package: "CapacitorHaptics"),
                 .product(name: "CapacitorKeyboard", package: "CapacitorKeyboard"),
+                .product(name: "CapacitorNetwork", package: "CapacitorNetwork"),
                 .product(name: "CapacitorPreferences", package: "CapacitorPreferences"),
                 .product(name: "CapacitorStatusBar", package: "CapacitorStatusBar"),
                 .product(name: "SentryCapacitor", package: "SentryCapacitor")

@@ -4,11 +4,14 @@ import {
   IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet, useIonViewWillLeave,
 } from '@ionic/react';
 import { colorWandOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
+import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
+import { Network } from '@capacitor/network';
 import { VoiceRecorder, RecordingData } from 'capacitor-voice-recorder';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import * as Sentry from '@sentry/capacitor';
+import { isAxiosError } from 'axios';
 import api from '../api/axios';
 import {
   axiosErrorUserHint,
@@ -24,9 +27,14 @@ import { NewRequestLocation } from '../components/newrequest/NewRequestLocation'
 import { NewRequestStep2Form } from '../components/newrequest/NewRequestStep2Form';
 
 import { env } from '../config/env';
+import { PREDICT_REQUEST_TIMEOUT_MS } from '../config/httpTimeouts';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
 import { buildAudioDataUrlForApi } from '../utils/audioDataUrl';
+import {
+  getVideoUploadConnectionHint,
+  type VideoUploadConnectionHint,
+} from '../utils/videoUploadNetworkHint';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -74,9 +82,43 @@ const NewRequest: React.FC = () => {
   const [extraMedia, setExtraMedia] = useState<Array<{ type: 'photo' | 'video' | 'audio'; data: string }>>([]);
   const MAX_EXTRA_MEDIA = 3;
 
+  /** Para avisar en pestaña vídeo si hay datos móviles o red lenta (web). */
+  const [videoUploadNetworkHint, setVideoUploadNetworkHint] =
+    useState<VideoUploadConnectionHint | null>(null);
+
   useEffect(() => {
     VoiceRecorder.requestAudioRecordingPermission();
   }, []);
+
+  useEffect(() => {
+    if (step !== 1 || inputMode !== 'VIDEO') {
+      setVideoUploadNetworkHint(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const refresh = async () => {
+      const h = await getVideoUploadConnectionHint();
+      if (!cancelled) setVideoUploadNetworkHint(h);
+    };
+
+    void refresh();
+
+    let removeListener: (() => void) | undefined;
+    if (Capacitor.isNativePlatform()) {
+      void Network.addListener('networkStatusChange', () => {
+        void refresh();
+      }).then((handle) => {
+        removeListener = () => handle.remove();
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      removeListener?.();
+    };
+  }, [step, inputMode]);
 
   const resetDraft = () => {
     setStep(1);
@@ -107,6 +149,7 @@ const NewRequest: React.FC = () => {
     setLocationLabel('');
     setCoords(null);
     setExtraMedia([]);
+    setVideoUploadNetworkHint(null);
   };
 
   // Si el usuario abandona la pantalla (tabs, back, navegación), limpiamos el borrador.
@@ -114,11 +157,44 @@ const NewRequest: React.FC = () => {
     resetDraft();
   });
 
-  // --- LIMPIEZA AL CAMBIAR MODO ---
-  const handleModeChange = (mode: 'AUDIO' | 'VIDEO' | 'TEXT') => {
-      setInputMode(mode);
-      // Opcional: Limpiar los otros estados si quieres que sean exclusivos
-      // setAudioBase64(null); setVideoBase64(null); setUserDescription(''); setPhotoBase64(null);
+  const clearAudioCaptureState = () => {
+    setAudioBase64(null);
+    setAudioDuration(0);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlayingAudio(false);
+    const audioFileInput = document.getElementById(
+      'step1-audio-file-input',
+    ) as HTMLInputElement | null;
+    if (audioFileInput) audioFileInput.value = '';
+  };
+
+  /** Cada pestaña es independiente: solo cuenta lo que el usuario ve al pulsar analizar. */
+  const handleModeChange = async (mode: 'AUDIO' | 'VIDEO' | 'TEXT') => {
+    if (inputMode === 'AUDIO' && mode !== 'AUDIO' && isRecording) {
+      try {
+        await VoiceRecorder.stopRecording();
+      } catch {
+        /* ignorar si ya estaba parado */
+      }
+      setIsRecording(false);
+    }
+
+    if (mode !== 'AUDIO') {
+      clearAudioCaptureState();
+    }
+    if (mode !== 'VIDEO') {
+      setVideoBase64(null);
+      if (videoInputRef.current) videoInputRef.current.value = '';
+    }
+    if (mode !== 'TEXT') {
+      setUserDescription('');
+      setPhotoBase64(null);
+    }
+
+    setInputMode(mode);
   };
 
   // --- HANDLERS MEDIA ---
@@ -177,10 +253,7 @@ const NewRequest: React.FC = () => {
   };
 
   const deleteAudio = () => {
-    setAudioBase64(null);
-    setAudioDuration(0);
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    setIsPlayingAudio(false);
+    clearAudioCaptureState();
   };
 
   // VIDEO INPUT
@@ -425,19 +498,30 @@ const NewRequest: React.FC = () => {
     }
 
     setLoading(true);
-    setLoadingMessage('Consultando a la IA...');
+    setLoadingMessage(
+      inputMode === 'VIDEO'
+        ? 'Subiendo vídeo y consultando a la IA… En 4G puede tardar varios minutos.'
+        : inputMode === 'AUDIO' && audioBase64 && audioBase64.length > 2_500_000
+          ? 'Subiendo audio… Puede tardar si la red es lenta.'
+          : 'Consultando a la IA…',
+    );
     let predictRequestId = '';
     try {
       const locationForAi = locationLabel || address;
       predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const predictAudio = inputMode === 'AUDIO' ? audioBase64 : null;
+      const predictImage = inputMode === 'TEXT' ? photoBase64 : null;
+      const predictVideo = inputMode === 'VIDEO' ? videoBase64 : null;
+      const predictDescription = inputMode === 'TEXT' ? userDescription : '';
+
       const getDataUrlMeta = (value: string | null) => {
         if (!value) return { mime: null as string | null, length: 0 };
         const mimeMatch = value.match(/^data:([^;]+);base64,/);
         return { mime: mimeMatch ? mimeMatch[1] : null, length: value.length };
       };
-      const audioMeta = getDataUrlMeta(audioBase64);
-      const imageMeta = getDataUrlMeta(photoBase64);
-      const videoMeta = getDataUrlMeta(videoBase64);
+      const audioMeta = getDataUrlMeta(predictAudio);
+      const imageMeta = getDataUrlMeta(predictImage);
+      const videoMeta = getDataUrlMeta(predictVideo);
 
       Sentry.addBreadcrumb({
         category: 'predict',
@@ -446,9 +530,9 @@ const NewRequest: React.FC = () => {
         data: {
           requestId: predictRequestId,
           inputMode,
-          hasAudio: !!audioBase64,
-          hasImage: !!photoBase64,
-          hasVideo: !!videoBase64,
+          hasAudio: !!predictAudio,
+          hasImage: !!predictImage,
+          hasVideo: !!predictVideo,
           audioMime: audioMeta.mime,
           imageMime: imageMeta.mime,
           videoMime: videoMeta.mime,
@@ -456,16 +540,21 @@ const NewRequest: React.FC = () => {
           imageLength: imageMeta.length,
           videoLength: videoMeta.length,
           locationLength: locationForAi.length,
+          predictTimeoutMs: PREDICT_REQUEST_TIMEOUT_MS,
         },
       });
 
-      const response = await api.post('/predict', {
-        description: userDescription,
-        image: photoBase64,
-        audio: audioBase64,
-        video: videoBase64,
-        location: locationForAi,
-      });
+      const response = await api.post(
+        '/predict',
+        {
+          description: predictDescription,
+          image: predictImage,
+          audio: predictAudio,
+          video: predictVideo,
+          location: locationForAi,
+        },
+        { timeout: PREDICT_REQUEST_TIMEOUT_MS },
+      );
       
       const aiData = (response.data ?? {}) as Record<string, unknown>;
       Sentry.addBreadcrumb({
@@ -526,11 +615,22 @@ const NewRequest: React.FC = () => {
       const status = anyErr?.response?.status;
       const errData = anyErr?.response?.data ?? {};
       const axiosHint = axiosErrorUserHint(error);
+      const isLikelyUploadOrServerCut =
+        isAxiosError(error) &&
+        !error.response &&
+        (error.code === 'ERR_NETWORK' ||
+          error.message === 'Network Error' ||
+          error.code === 'ECONNABORTED');
+      const videoNetworkHint =
+        inputMode === 'VIDEO' && isLikelyUploadOrServerCut
+          ? 'No se pudo completar la subida del vídeo (red lenta o tiempo agotado). Prueba con Wi‑Fi, acerca el móvil a la router o usa un vídeo más corto.'
+          : undefined;
       const msg =
         (errData.violations as Array<{ message?: string }>)?.[0]?.message
         ?? (errData.error as string)
         ?? (errData['hydra:description'] as string)
         ?? (errData.detail as string)
+        ?? videoNetworkHint
         ?? axiosHint
         ?? anyErr?.message
         ?? 'Error en el análisis.';
@@ -546,9 +646,10 @@ const NewRequest: React.FC = () => {
           predictRequestId,
           status,
           responseKeys: Object.keys(errData).slice(0, 12),
-          hasAudio: !!audioBase64,
-          hasImage: !!photoBase64,
-          hasVideo: !!videoBase64,
+          inputMode,
+          hasAudio: inputMode === 'AUDIO' && !!audioBase64,
+          hasImage: inputMode === 'TEXT' && !!photoBase64,
+          hasVideo: inputMode === 'VIDEO' && !!videoBase64,
           locationLength: (locationLabel || address).length,
           axios: axiosDebug,
         },
@@ -598,9 +699,15 @@ const NewRequest: React.FC = () => {
       let audioUrl: string | null = null;
       let videoUrl: string | null = null;
 
-      if (photoBase64) photoUrl = await uploadRequestMediaWithTicket(photoBase64, 'photo');
-      if (audioBase64) audioUrl = await uploadRequestMediaWithTicket(audioBase64, 'audio');
-      if (videoBase64) videoUrl = await uploadRequestMediaWithTicket(videoBase64, 'video');
+      if (inputMode === 'TEXT' && photoBase64) {
+        photoUrl = await uploadRequestMediaWithTicket(photoBase64, 'photo');
+      }
+      if (inputMode === 'AUDIO' && audioBase64) {
+        audioUrl = await uploadRequestMediaWithTicket(audioBase64, 'audio');
+      }
+      if (inputMode === 'VIDEO' && videoBase64) {
+        videoUrl = await uploadRequestMediaWithTicket(videoBase64, 'video');
+      }
 
       const extraPhotoUrls: string[] = [];
       const extraAudioUrls: string[] = [];
@@ -696,6 +803,20 @@ const NewRequest: React.FC = () => {
                     )}
 
                     {inputMode === 'VIDEO' && (
+                        <>
+                        {(videoUploadNetworkHint === 'cellular' ||
+                          videoUploadNetworkHint === 'slow_or_unreliable') && (
+                          <div
+                            className="new-request-video-network-hint"
+                            role="status"
+                          >
+                            <p>
+                              {videoUploadNetworkHint === 'cellular'
+                                ? 'Estás usando datos móviles. Subir el vídeo puede tardar varios minutos y la red puede ser menos estable que con Wi‑Fi. Si puedes, conéctate a Wi‑Fi antes de analizar.'
+                                : 'Tu conexión parece lenta o poco estable. El vídeo puede tardar mucho en subir o fallar; Wi‑Fi suele ir mejor.'}
+                            </p>
+                          </div>
+                        )}
                         <NewRequestInputVideo
                             videoBase64={videoBase64}
                             onOpenOptions={() => setMediaPickerType('video')}
@@ -703,6 +824,7 @@ const NewRequest: React.FC = () => {
                             onDelete={deleteVideo}
                             inputRef={videoInputRef}
                         />
+                        </>
                     )}
 
                     {inputMode === 'TEXT' && (

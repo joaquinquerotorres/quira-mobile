@@ -387,9 +387,12 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 - Paso 1: selección de modo (audio, vídeo, texto) y captura de descripción. Opción de capturar (cámara/micrófono) o elegir desde galería para foto, vídeo y audio.
 - Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, precio y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
 - Requiere dirección aproximada (Google Places o GPS).
+- Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
 - Antes de llamar a la IA (`/predict`), se envía:
-  - `description`, `image`, `audio`,
+  - `description`, `image`, `audio`, **`video`** (según el modo; el resto va vacío o `null`),
   - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
+- El cliente usa **timeout explícito** para `POST /predict` (p. ej. 300 s en `httpTimeouts.ts`; recomendado 120–300 s con vídeo). El backend debe permitir lectura del cuerpo y ejecución suficientes; ver **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network`) o **red lenta** en navegador (`navigator.connection.effectiveType` 2g/3g), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.
