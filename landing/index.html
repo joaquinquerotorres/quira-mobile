@@ -30,6 +30,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Nunito', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
+    html { overflow-x: hidden; }
 
     /* NAV */
     nav {
@@ -76,12 +77,12 @@
         radial-gradient(ellipse 40% 40% at 15% 70%, rgba(249,115,22,0.08) 0%, transparent 70%);
     }
     .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.45; animation: float 8s ease-in-out infinite; }
-    .blob-1 { width: 420px; height: 420px; background: rgba(99,102,241,0.18); top: -100px; right: 5%; }
-    .blob-2 { width: 300px; height: 300px; background: rgba(249,115,22,0.12); bottom: 0; right: 22%; animation-delay: -3s; }
-    .blob-3 { width: 200px; height: 200px; background: rgba(79,70,229,0.1); top: 40%; left: -60px; animation-delay: -5s; }
+    .blob-1 { width: min(420px, 80vw); height: min(420px, 80vw); background: rgba(99,102,241,0.18); top: -100px; right: 5%; }
+    .blob-2 { width: min(300px, 60vw); height: min(300px, 60vw); background: rgba(249,115,22,0.12); bottom: 0; right: 22%; animation-delay: -3s; }
+    .blob-3 { width: min(200px, 40vw); height: min(200px, 40vw); background: rgba(79,70,229,0.1); top: 40%; left: -60px; animation-delay: -5s; }
     @keyframes float { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-30px) scale(1.05);} }
 
-    .hero-content { position: relative; max-width: 600px; animation: slideUp 0.8s ease both; }
+    .hero-content { position: relative; max-width: 600px; width: 100%; animation: slideUp 0.8s ease both; }
     @keyframes slideUp { from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);} }
 
     .hero-badge {
@@ -139,12 +140,14 @@
       font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 8px;
       white-space: nowrap; animation: chipFloat 3s ease-in-out infinite;
     }
+    @media(max-width:900px){ .floating-chip{display:none;} }
     .chip-1 { top: 12%; left: -105px; }
     .chip-2 { bottom: 18%; left: -115px; animation-delay: -1.5s; }
     @keyframes chipFloat { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
 
     /* SECTIONS */
     section { padding: 100px 5%; }
+    @media(max-width:600px){ section { padding: 60px 5%; } }
     .section-label {
       display: inline-flex; align-items: center; gap: 8px;
       font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
@@ -158,6 +161,7 @@
 
     /* HOW IT WORKS */
     .how { background: var(--dark); border-radius: 32px; margin: 0 3%; color: #fff; padding: 80px 6%; }
+    @media(max-width:600px){ .how{ padding: 60px 5%; } }
     .how .section-label { color: var(--orange); }
     .how .section-title { color: #fff; }
     .how .section-desc { color: rgba(255,255,255,0.6); }
@@ -208,6 +212,7 @@
 
     /* SOLICITUD FIELDS */
     .solicitud-section { background: var(--warm-white); padding: 80px 5%; }
+    @media(max-width:600px){ .solicitud-section{ padding: 60px 5%; } }
     .solicitud-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1100px; margin: 0 auto; }
     .fields-card {
       background: #fff; border-radius: 24px; padding: 36px;
@@ -249,6 +254,7 @@
 
     /* PRICING */
     .pricing-section { padding: 100px 5%; }
+    @media(max-width:600px){ section { padding: 60px 5%; } }
     .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:56px; }
     .pricing-card {
       background:#fff; border-radius:28px; padding:36px 32px;
@@ -349,10 +355,45 @@
     .modal-close { position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.08); border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
     .modal-close:hover { background:rgba(0,0,0,0.15); }
 
-    @media(max-width:1024px){ .pricing-grid{grid-template-columns:1fr 1fr;} }
-    @media(max-width:900px){ .hero-visual{display:none;} .dual-cta-inner{grid-template-columns:1fr;} .solicitud-inner{grid-template-columns:1fr;} }
-    @media(max-width:768px){ .pricing-grid{grid-template-columns:1fr;} }
-    @media(max-width:600px){ .hero{padding:120px 5% 60px;} .how{margin:0;border-radius:0;} }
+    @media(max-width:1024px){
+      .pricing-grid{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:900px){
+      .hero-visual{display:none;}
+      .dual-cta-inner{grid-template-columns:1fr;}
+      .solicitud-inner{grid-template-columns:1fr;}
+      .earn-grid{grid-template-columns:1fr !important;}
+    }
+    @media(max-width:768px){
+      .pricing-grid{grid-template-columns:1fr;}
+      .footer-top{flex-direction:column;}
+      .footer-links{width:100%;}
+      .tabs{border-radius:16px; width:100%; justify-content:center;}
+      .tab{flex:1; text-align:center; padding:10px 12px;}
+      .how{margin:0; border-radius:0; padding:60px 5%;}
+      .solicitud-inner{grid-template-columns:1fr; gap:32px;}
+      .dual-cta-inner{grid-template-columns:1fr;}
+      .data-table{display:block;overflow-x:auto;}
+    }
+    @media(max-width:600px){
+      .hero{padding:120px 5% 60px;}
+      .how{margin:0;border-radius:0;}
+      .hero-stats{gap:24px;}
+      .steps-grid{grid-template-columns:1fr;}
+      .features-grid{grid-template-columns:1fr;}
+      .rights-grid{grid-template-columns:1fr 1fr;}
+      .pricing-grid{grid-template-columns:1fr;}
+      .footer-bottom{flex-direction:column; align-items:flex-start; gap:16px;}
+      .cta-card{padding:36px 28px;}
+      .section-title{letter-spacing:-1px;}
+      .hero-stats .stat-item{min-width:80px;}
+      .earn-grid{grid-template-columns:1fr !important;}
+    }
+    @media(max-width:400px){
+      .rights-grid{grid-template-columns:1fr;}
+      .hero-actions{flex-direction:column; align-items:flex-start;}
+      .btn-primary, .btn-secondary{width:100%; justify-content:center;}
+    } .how{margin:0;border-radius:0;} }
   </style>
 </head>
 <body>
@@ -497,7 +538,7 @@
 <!-- EARN SECTION -->
 <section style="padding: 80px 5%;">
   <div style="max-width:1100px;margin:0 auto;">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
+    <div class="earn-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
 
       <!-- Left: text -->
       <div>
@@ -666,7 +707,7 @@
     </div>
     <div class="footer-links"><h4>Producto</h4><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#features">Características</a></li><li><a href="#planes">Planes</a></li><li><a href="#descarga">Descargar</a></li></ul></div>
     <div class="footer-links"><h4>Empresa</h4><ul><li><a href="#">Sobre Quira</a></li></ul></div>
-    <div class="footer-links" style="min-width:220px;">
+    <div class="footer-links" style="min-width:0;width:100%;max-width:320px;">
       <h4>Contacto</h4>
       <form id="contactForm" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
         <input type="text" id="cf-name" placeholder="Tu nombre" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:9px 12px;color:#fff;font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;" />
