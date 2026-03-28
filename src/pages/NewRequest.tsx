@@ -732,6 +732,8 @@ const NewRequest: React.FC = () => {
                 <NewRequestStep2Form
                     title={title}
                     techDescription={techDescription}
+                    category={category}
+                    onCategoryChange={setCategory}
                     price={price}
                     aiRange={aiRange}
                     riskLevel={riskLevel || undefined}

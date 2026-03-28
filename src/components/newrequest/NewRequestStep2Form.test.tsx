@@ -9,6 +9,8 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
     <NewRequestStep2Form
       title="Fuga de agua"
       techDescription="Desc"
+      category="PLUMBING"
+      onCategoryChange={vi.fn()}
       price={50}
       aiRange={{ min: 40, max: 80 }}
       riskLevel="HIGH"
@@ -30,6 +32,7 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
   );
   expect(screen.getByText('Diagnóstico IA')).toBeInTheDocument();
   expect(screen.getByText(/Revisa los datos/)).toBeInTheDocument();
+  expect(screen.getByText('Categoría')).toBeInTheDocument();
   expect(screen.getByText('40€ - 80€')).toBeInTheDocument();
   expect(screen.getByText(/Dificultad estimada/i)).toBeInTheDocument();
 });
@@ -39,6 +42,8 @@ test('NewRequestStep2Form shows schedule options', () => {
     <NewRequestStep2Form
       title=""
       techDescription=""
+      category="DIY"
+      onCategoryChange={vi.fn()}
       price={undefined}
       aiRange={null}
       riskLevel={undefined}
@@ -53,6 +58,7 @@ test('NewRequestStep2Form shows schedule options', () => {
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onPriceChange={vi.fn()}
+      onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper }
@@ -67,6 +73,8 @@ test('NewRequestStep2Form calls onSubmit when button clicked', () => {
     <NewRequestStep2Form
       title=""
       techDescription=""
+      category="DIY"
+      onCategoryChange={vi.fn()}
       price={50}
       aiRange={{ min: 40, max: 80 }}
       riskLevel={undefined}
@@ -81,6 +89,7 @@ test('NewRequestStep2Form calls onSubmit when button clicked', () => {
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onPriceChange={vi.fn()}
+      onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={onSubmit}
     />,
     { wrapper }
@@ -94,6 +103,8 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
     <NewRequestStep2Form
       title=""
       techDescription=""
+      category="DIY"
+      onCategoryChange={vi.fn()}
       price={undefined}
       aiRange={null}
       riskLevel={undefined}
@@ -108,6 +119,7 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onPriceChange={vi.fn()}
+      onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper }

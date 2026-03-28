@@ -24,6 +24,7 @@ import {
   micOutline,
   trashOutline,
 } from 'ionicons/icons';
+import { CATEGORY_LABELS } from '../../utils/categoryLabels';
 
 type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -43,6 +44,8 @@ interface NewRequestStep2FormProps {
   maxExtraMedia: number;
   onAddExtraMedia: (type: 'photo' | 'video' | 'audio', file: File) => void;
   onRemoveExtraMedia: (index: number) => void;
+  category: string;
+  onCategoryChange: (value: string) => void;
   onTitleChange: (value: string) => void;
   onTechDescriptionChange: (value: string) => void;
   onPriceChange: (value: number) => void;
@@ -51,6 +54,22 @@ interface NewRequestStep2FormProps {
 }
 
 const EXTRA_MEDIA_TYPES: Array<'photo' | 'video' | 'audio'> = ['photo', 'video', 'audio'];
+
+const CATEGORY_SELECT_ORDER = [
+  'PLUMBING',
+  'ELECTRICITY',
+  'MASONRY',
+  'PAINTING',
+  'GARDENING',
+  'CLEANING',
+  'HVAC',
+  'DIY',
+] as const;
+
+const CATEGORY_OPTIONS = CATEGORY_SELECT_ORDER.map((code) => ({
+  value: code,
+  label: CATEGORY_LABELS[code] ?? code,
+}));
 
 export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   title,
@@ -66,6 +85,8 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   maxExtraMedia,
   onAddExtraMedia,
   onRemoveExtraMedia,
+  category,
+  onCategoryChange,
   onTitleChange,
   onTechDescriptionChange,
   onPriceChange,
@@ -276,6 +297,24 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
             value={techDescription}
             onIonInput={(e) => onTechDescriptionChange(e.detail.value || '')}
           />
+        </div>
+      </div>
+      <div style={{ marginBottom: '20px' }}>
+        <IonLabel className="section-label">Categoría</IonLabel>
+        <div className="input-wrapper">
+          <IonSelect
+            interface="action-sheet"
+            cancelText="Cancelar"
+            value={category}
+            placeholder="Selecciona categoría"
+            onIonChange={(e) => onCategoryChange(String(e.detail.value ?? ''))}
+          >
+            {CATEGORY_OPTIONS.map((opt) => (
+              <IonSelectOption key={opt.value} value={opt.value}>
+                {opt.label}
+              </IonSelectOption>
+            ))}
+          </IonSelect>
         </div>
       </div>
       <div className="price-box-container">

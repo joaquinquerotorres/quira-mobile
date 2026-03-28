@@ -70,6 +70,7 @@ test('Profile shows paid-through-expired banner when ROLE_PRO and paidThroughAt 
   }));
   render(<Profile />, { wrapper });
   expect(await screen.findByText('Tu plan ha caducado')).toBeInTheDocument();
+  expect(screen.queryByText('Mejorar mi plan')).not.toBeInTheDocument();
 });
 
 test('Profile does not show paid-through-expired banner when paidThroughAt is in the future', () => {
@@ -83,6 +84,21 @@ test('Profile does not show paid-through-expired banner when paidThroughAt is in
     paidThroughAt: futureDate.toISOString(),
   }));
   render(<Profile />, { wrapper });
+  expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();
+});
+
+test('Profile shows Mejorar mi plan for SOLVER with suscripción activa (no caducada)', () => {
+  const futureDate = new Date();
+  futureDate.setFullYear(futureDate.getFullYear() + 1);
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    email: 'solver@test.com',
+    roles: ['ROLE_SOLVER'],
+    professionalProfile: { id: 10, fullName: 'Solver User', '@id': '/professional_profiles/10' },
+    paidThroughAt: futureDate.toISOString(),
+  }));
+  render(<Profile />, { wrapper });
+  expect(screen.getByText('Mejorar mi plan')).toBeInTheDocument();
   expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();
 });
 
@@ -150,6 +166,7 @@ test('Profile shows subscription section for PRO with future paidThroughAt and n
 
   render(<Profile />, { wrapper });
 
+  expect(screen.queryByText('Mejorar mi plan')).not.toBeInTheDocument();
   expect(screen.getByText('Suscripción')).toBeInTheDocument();
   expect(screen.getByText('Plan actual')).toBeInTheDocument();
   expect(screen.getByText('PRO')).toBeInTheDocument();

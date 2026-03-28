@@ -744,16 +744,19 @@ const Profile: React.FC = () => {
             </div>
         )}
 
-        {isPro && currentTier !== 'PRO' && (
-            <div className="profile-menu-card highlight-border">
-                <IonItem lines="none" detail={false} button routerLink="/become-pro" className="menu-item">
-                    <div slot="start" className="icon-box icon-orange"><IonIcon icon={trendingUpOutline} /></div>
-                    <IonLabel className="item-label" style={{color: '#ea580c', fontWeight: 800}}>
-                        Mejorar mi Plan
-                        <p style={{fontSize: '0.75rem', fontWeight: 400, color: '#64748b'}}>Consigue más trabajos y alertas push en tiempo real</p>
-                    </IonLabel>
-                    <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
-                </IonItem>
+        {isPro && currentTier !== 'PRO' && !showTrialExpiredBanner && (
+            <div
+                className="profile-trial-expired-banner"
+                onClick={() => router.push('/become-pro')}
+            >
+                <div className="profile-trial-expired-content">
+                    <IonIcon icon={trendingUpOutline} />
+                    <div>
+                        <strong>Mejorar mi plan</strong>
+                        <p>Más trabajos y alertas push en tiempo real</p>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} />
+                </div>
             </div>
         )}
 
