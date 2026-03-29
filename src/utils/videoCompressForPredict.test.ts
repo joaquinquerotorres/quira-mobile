@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   shouldCompressVideoForUpload,
   maybeCompressVideoDataUrlForPredict,
+  predictVideoPayloadDecodedBytes,
   PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC,
   PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN,
 } from './videoCompressForPredict';
@@ -77,6 +78,29 @@ describe('maybeCompressVideoDataUrlForPredict', () => {
     );
     expect(r.compressed).toBe(false);
     expect(r.dataUrl).toBe(tinyPngDataUrl);
+  });
+});
+
+describe('predictVideoPayloadDecodedBytes', () => {
+  it('calcula bytes decodificados del payload base64 (PNG 1×1)', () => {
+    const dataUrl =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const n = predictVideoPayloadDecodedBytes(dataUrl);
+    expect(n).toBeGreaterThan(0);
+    expect(n).toBeLessThan(500);
+  });
+
+  it('coincide con el tamaño binario real (Buffer en Node)', () => {
+    const buf = Buffer.alloc(256, 7);
+    const b64 = buf.toString('base64');
+    const dataUrl = `data:application/octet-stream;base64,${b64}`;
+    expect(predictVideoPayloadDecodedBytes(dataUrl)).toBe(256);
+  });
+
+  it('shouldCompress en Wi‑Fi usa el mismo criterio de bytes que predictVideoPayloadDecodedBytes', () => {
+    const bytes = PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN;
+    expect(shouldCompressVideoForUpload('wifi', bytes)).toBe(true);
+    expect(shouldCompressVideoForUpload('wifi', bytes - 1)).toBe(false);
   });
 });
 

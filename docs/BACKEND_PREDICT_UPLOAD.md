@@ -40,11 +40,11 @@ El cliente entonces ve **Axios `ERR_NETWORK`** sin cuerpo de respuesta (conexió
 Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** cuando:
 
 - Hay **datos móviles** (`cellular`) o **red lenta** (`slow_or_unreliable`) — siempre que no supere el límite de duración (véase abajo), **o**
-- Hay **Wi‑Fi** o estado **desconocido** (`unknown`) y el vídeo decodificado pesa **≥ ~10 MB** (`PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN`): se considera fichero **grande** (p. ej. alta resolución o bitrate alto); por debajo de ese umbral en Wi‑Fi/`unknown` **no** se comprime.
+- Hay **Wi‑Fi** o estado **desconocido** (`unknown`) y el vídeo decodificado pesa **≥ 10 MiB** (`PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN` en `src/utils/videoCompressForPredict.ts`): se considera fichero **grande** (p. ej. alta resolución o bitrate alto); por debajo de ese umbral en Wi‑Fi/`unknown` **no** se comprime.
 
 El objetivo no es el archivo mínimo, sino **aligerar la subida** sin destruir el contenido para el modelo: resolución máxima ~**960px** de ancho, bitrate moderado (~**2,5 Mbit/s**), audio del vídeo cuando el navegador lo permite — orientado a que modelos multimodales (p. ej. Gemini) sigan entendiendo imagen y sonido.
 
-Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder`, …). Si la API no está disponible, el resultado no reduce tamaño o falla el proceso, se **envía el vídeo original**.
+Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder`, …). El tamaño “decodificado” del data URL usa **`atob`** para acotar bien el umbral de 10 MiB (el cálculo naïf `length×3/4` falla con padding base64). Si la API no está disponible, el resultado no reduce tamaño o falla el proceso, se **envía el vídeo original**.
 
 El fichero resultante suele ser **WebM (VP8/VP9)** aunque el de cámara fuera MP4/MOV: el backend/Gemini debe aceptar ese contenedor para la ruta `/predict` o rechazar con mensaje claro.
 

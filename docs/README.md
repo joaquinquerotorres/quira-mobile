@@ -13,7 +13,7 @@
   - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA)
 
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
-- **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Timeouts PHP/nginx, subidas lentas (`/predict` con vídeo) y timeout explícito en cliente (`PREDICT_REQUEST_TIMEOUT_MS`, 120–300 s).
+- **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Timeouts PHP/nginx, subidas lentas (`/predict` con vídeo), timeout en cliente (`PREDICT_REQUEST_TIMEOUT_MS`) y **compresión opcional** antes de `/predict` (`videoCompressForPredict.ts`: celular/red lenta siempre; Wi‑Fi/`unknown` solo si el vídeo ≥ **~10 MiB** decodificados, `PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN`).
 
 ## Privacidad y RGPD
 
@@ -239,6 +239,7 @@ Si desplegaras la SPA de **`dist/`** en un origen HTTPS y usaras Auth orientado 
 
 - Algunos tests **stubbean componentes de Ionic** (p. ej. `IonAlert`, wrappers sin `IonApp`) para evitar timers internos que pueden producir errores al teardown en `jsdom`.
 - Plugins de **Capacitor** (`@capacitor/network`, micrófono, etc.) suelen **mockearse** en tests de páginas; la lógica de red para avisos en vídeo está cubierta en `src/utils/videoUploadNetworkHint.test.ts`.
+- Criterios de **compresión de vídeo** antes de `/predict` (red + umbral Wi‑Fi) y `predictVideoPayloadDecodedBytes`: `src/utils/videoCompressForPredict.test.ts`.
 - El timeout de **`POST /predict`** se documenta y fija en `src/config/httpTimeouts.ts`; su valor está cubierto en `src/config/httpTimeouts.test.ts`.
 - Si un test redefine `vi.mock('@ionic/react', importOriginal => …)`, debe seguir sustituyendo **`IonApp`** por un stub ligero (p. ej. `Fragment`), no el componente real: de lo contrario `ion-app` programa timers que pueden ejecutarse tras el teardown de jsdom y Vitest reporta rechazos no gestionados (`window` / `document` is not defined). Opcionalmente reutiliza los mismos stubs que `src/setupTests.ts` (`IonRouterOutlet`, `IonTabs`, …).
 - El objetivo es priorizar tests **deterministas** y rápidos para reducir flakiness antes de publicar.

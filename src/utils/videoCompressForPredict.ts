@@ -47,6 +47,13 @@ export function shouldCompressVideoForUpload(
 function dataUrlByteLength(dataUrl: string): number {
   const base64 = dataUrl.split(',')[1];
   if (!base64) return dataUrl.length;
+  try {
+    if (typeof atob === 'function') {
+      return atob(base64).length;
+    }
+  } catch {
+    /* fallthrough */
+  }
   return Math.floor((base64.length * 3) / 4);
 }
 
