@@ -23,6 +23,7 @@ import { FilterModal } from '../components/shared/FilterModal';
 import { MarketOpportunityCard } from '../components/market/MarketOpportunityCard';
 
 import { env } from '../config/env';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { resolveMediaUrl } from '../utils/mediaUrl';
@@ -522,7 +523,7 @@ const Market: React.FC = () => {
             </div>
         </FilterModal>
 
-        <IonToast isOpen={!!toast} message={toast || ''} duration={2500} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{ '--border-radius': '12px' }} />
+        <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{ '--border-radius': '12px' }} />
       </IonContent>
     </IonPage>
   );

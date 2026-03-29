@@ -179,17 +179,6 @@
     font-weight: 700;
 }
 
-.login-error-message {
-    background: #fef2f2;
-    color: #ef4444;
-    padding: 12px;
-    border-radius: 12px;
-    text-align: center;
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-    border: 1px solid #fee2e2;
-}
-
 .login-social-grid {
     display: flex;
     gap: 15px;

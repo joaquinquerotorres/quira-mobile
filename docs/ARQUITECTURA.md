@@ -37,7 +37,8 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 
 - El interceptor de `src/api/axios.ts` ante respuesta **401** (salvo `skipAuthRedirect` en la petición) llama a `clearStoredAuthAndRedirectToLogin()` (`src/api/authSession.ts`): elimina **`quira_token`** y **`user`**, limpia claves del banner de downgrade y asigna `window.location.href = '/login'`.
 - Las peticiones pueden enviar **`Authorization: Bearer <token>`** salvo que la config lleve **`skipAuthHeader: true`**. En **`POST /social/login`** (Google/Apple) se usa **`skipAuthHeader` + `skipAuthRedirect`**: no se envía el JWT viejo junto al ID token de Firebase (evita 401/conflictos al verificar) y un 401 de credenciales sociales rechazadas **no** dispara el cierre de sesión automático.
-- Tras `signInWithGoogle` / `signInWithApple`, se obtiene el ID token con **`getIdToken({ forceRefresh: true })`**. Los errores de Axios con cuerpo JSON (p. ej. `detail`, `hydra:description`) se muestran al usuario vía `getBackendErrorMessage()` en `src/api/axiosErrorDebug.ts`.
+- Tras `signInWithGoogle` / `signInWithApple`, el ID token para el backend se resuelve en **`resolveSocialIdToken()`** (`src/pages/Login.tsx`): primero **`credential.idToken`** si el plugin lo devuelve; si no, **`getIdToken({ forceRefresh: false })`** y, en último caso, **`getIdToken({ forceRefresh: true })`**. Los errores de Axios con cuerpo JSON (p. ej. `detail`, `hydra:description`) se muestran vía `getBackendErrorMessage()` en `src/api/axiosErrorDebug.ts`.
+- En la pantalla de **login**, los fallos de credenciales o login social se muestran con **`IonAlert`** (un solo canal, el usuario cierra con «Entendido»); no se duplica con toast. En el resto de pantallas, **`IonToast`** usa la duración **`TOAST_DURATION_MS`** (`src/config/uiTiming.ts`, p. ej. 6 s) para poder leer el mensaje.
 - Objetivo: mantener `localStorage` coherente con “no hay sesión” y evitar modales o UI que lean `user` sin token válido.
 
 ### Verificación para crear solicitudes o pujar
@@ -245,7 +246,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 | Método | Endpoint | Propósito |
 |--------|----------|-----------|
 | POST | `/login_check` | Login email/password |
-| POST | `/social/login` | Login Google/Apple (token ID de Firebase en el cuerpo; `skipAuthHeader` / `skipAuthRedirect` en cliente) |
+| POST | `/social/login` | Login Google/Apple: JSON **`{ "token": "<id_token>", "provider": "GOOGLE" \| "APPLE" }`** — campo **`token`**, no `firebaseToken` (ver **[API.md](./API.md)**). Cliente: `skipAuthHeader` / `skipAuthRedirect`. |
 | GET | `/users?email=...` | Usuario por email |
 
 ### Usuarios y perfiles

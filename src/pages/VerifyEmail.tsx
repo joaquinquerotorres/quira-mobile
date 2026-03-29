@@ -8,6 +8,7 @@ import {
 } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import './VerifyEmail.css';
 
 const VerifyEmail: React.FC = () => {
@@ -100,7 +101,7 @@ const VerifyEmail: React.FC = () => {
         <IonToast
           isOpen={!!toast}
           message={toast || ''}
-          duration={3000}
+          duration={TOAST_DURATION_MS}
           onDidDismiss={() => setToast(null)}
           position="top"
         />

@@ -28,6 +28,7 @@ import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
 import { RequestMediaThumb } from '../components/shared/RequestMediaThumb';
 
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 
@@ -488,7 +489,7 @@ const RequestList: React.FC = () => {
                     </IonButton>
             </div>
         </FilterModal>
-        <IonToast isOpen={!!toast} message={toast || ''} duration={2500} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{ '--border-radius': '12px' }} />
+        <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{ '--border-radius': '12px' }} />
       </IonContent>
     </IonPage>
   );

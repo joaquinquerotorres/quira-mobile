@@ -12,8 +12,11 @@
   - Suscripción y Stripe
   - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA)
 
+- **[API.md](./API.md)** — `POST /social/login`: cuerpo con **`token`** + **`provider`** (no `firebaseToken`); diagnóstico si falla Google antes o después de la API.
+- **[FEATURES.md](./FEATURES.md)** — Referencia rápida de auth y enlaces a API / otros docs.
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
 - **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Timeouts PHP/nginx, subidas lentas (`/predict` con vídeo), timeout en cliente (`PREDICT_REQUEST_TIMEOUT_MS`) y **compresión opcional** antes de `/predict` (`videoCompressForPredict.ts`: celular/red lenta siempre; Wi-Fi/`unknown` solo si el vídeo ≥ **~10 MiB** decodificados; límites extra en app nativa para reducir OOM).
+- **Feedback en UI:** `src/config/uiTiming.ts` (`TOAST_DURATION_MS`) para toasts legibles; errores en **Login** con `IonAlert` (ver `FEATURES.md`).
 
 ## Privacidad y RGPD
 
@@ -241,7 +244,9 @@ Si desplegaras la SPA de **`dist/`** en un origen HTTPS y usaras Auth orientado 
 - Plugins de **Capacitor** (`@capacitor/network`, micrófono, etc.) suelen **mockearse** en tests de páginas; la lógica de red para avisos en vídeo está cubierta en `src/utils/videoUploadNetworkHint.test.ts`.
 - Criterios de **compresión de vídeo** antes de `/predict` (red + umbral Wi-Fi, límites por plataforma) y `predictVideoPayloadDecodedBytes`: `src/utils/videoCompressForPredict.test.ts`.
 - El timeout de **`POST /predict`** se documenta y fija en `src/config/httpTimeouts.ts`; su valor está cubierto en `src/config/httpTimeouts.test.ts`.
+- **Duración de toasts:** `TOAST_DURATION_MS` en `src/config/uiTiming.ts`; test en `src/config/uiTiming.test.ts`.
 - **Errores HTTP** para mensajes al usuario: `getBackendErrorMessage` / `axiosErrorUserHint` en `src/api/axiosErrorDebug.ts`; tests en `src/api/axiosErrorDebug.test.ts`.
 - **`DowngradeBanner`**: montar con **`MemoryRouter`** y ruta inicial si se prueba visibilidad por path (`/login` vs `/profile`); ver `src/components/DowngradeBanner.test.tsx`.
+- **Login:** `src/pages/Login.test.tsx` comprueba errores de API vía **`IonAlert`** (`alertdialog`, botón «Entendido»), coherente con la UI real.
 - Si un test redefine `vi.mock('@ionic/react', importOriginal => …)`, debe seguir sustituyendo **`IonApp`** por un stub ligero (p. ej. `Fragment`), no el componente real: de lo contrario `ion-app` programa timers que pueden ejecutarse tras el teardown de jsdom y Vitest reporta rechazos no gestionados (`window` / `document` is not defined). Opcionalmente reutiliza los mismos stubs que `src/setupTests.ts` (`IonRouterOutlet`, `IonTabs`, …).
 - El objetivo es priorizar tests **deterministas** y rápidos para reducir flakiness antes de publicar.

@@ -27,6 +27,7 @@ import './Profile.css';
 import '../components/layout/LogoHeader.css';
 
 import { env } from '../config/env';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import {
   getEffectiveTier,
   resolvePaidThroughAt,
@@ -867,6 +868,7 @@ const Profile: React.FC = () => {
                 <IonLabel className="item-label">Notificaciones</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
             </IonItem>
+            <div className="menu-separator"></div>
             <IonItem
               lines="none"
               detail={false}
@@ -1376,7 +1378,7 @@ const Profile: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        <IonToast isOpen={!!toast} message={toast || ''} duration={2000} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
+        <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
       </IonContent>
     </IonPage>
   );

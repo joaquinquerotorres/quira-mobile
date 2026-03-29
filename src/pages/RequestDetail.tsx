@@ -24,6 +24,7 @@ import { RequestDetailMedia } from '../components/request/RequestDetailMedia';
 import { RequestDetailMainSection } from '../components/request/RequestDetailMainSection';
 
 import { env } from '../config/env';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
 
@@ -891,7 +892,7 @@ const RequestDetail: React.FC = () => {
           ]}
         />
 
-        <IonToast isOpen={!!toast} message={toast || ''} duration={2500} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
+        <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
       </IonContent>
     </IonPage>
   );

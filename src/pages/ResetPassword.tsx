@@ -16,6 +16,7 @@ import {
 import { chevronBackOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import './ResetPassword.css';
 
 const ResetPassword: React.FC = () => {
@@ -81,7 +82,7 @@ const ResetPassword: React.FC = () => {
           <IonToast
             isOpen={!!toast}
             message={toast || ''}
-            duration={4000}
+            duration={TOAST_DURATION_MS}
             onDidDismiss={() => setToast(null)}
             position="top"
           />
@@ -165,7 +166,7 @@ const ResetPassword: React.FC = () => {
         <IonToast
           isOpen={!!toast}
           message={toast || ''}
-          duration={4000}
+          duration={TOAST_DURATION_MS}
           onDidDismiss={() => setToast(null)}
           position="top"
           color="danger"

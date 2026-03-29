@@ -13,6 +13,7 @@ import {
 import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import api from '../api/axios';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import './Register.css';
 import { RegisterHeader } from '../components/register/RegisterHeader';
 import { RegisterForm } from '../components/register/RegisterForm';
@@ -114,7 +115,7 @@ const Register: React.FC = () => {
         <IonToast
           isOpen={!!toast}
           message={toast ?? ''}
-          duration={3000}
+          duration={TOAST_DURATION_MS}
           onDidDismiss={() => setToast(null)}
           position="top"
           color="dark"

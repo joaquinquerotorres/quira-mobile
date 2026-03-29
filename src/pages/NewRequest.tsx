@@ -28,6 +28,7 @@ import { NewRequestStep2Form } from '../components/newrequest/NewRequestStep2For
 
 import { env } from '../config/env';
 import { PREDICT_REQUEST_TIMEOUT_MS } from '../config/httpTimeouts';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
 import { buildAudioDataUrlForApi } from '../utils/audioDataUrl';
@@ -1016,7 +1017,7 @@ const NewRequest: React.FC = () => {
         />
 
         <IonLoading isOpen={loading} message={loadingMessage} spinner="crescent" />
-        <IonToast isOpen={!!toast} message={toast || ''} duration={2500} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
+        <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
       </IonContent>
     </IonPage>
   );

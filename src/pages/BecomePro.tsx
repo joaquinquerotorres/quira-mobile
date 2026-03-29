@@ -15,6 +15,7 @@ import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
 import { BecomeProHero, BecomeProTierSelector, BecomeProForm, type BecomeProFormData } from '../components/becomepro';
@@ -260,7 +261,7 @@ const BecomePro: React.FC = () => {
         <IonToast
           isOpen={!!toast}
           message={toast!}
-          duration={3000}
+          duration={TOAST_DURATION_MS}
           onDidDismiss={() => setToast(null)}
           position="top"
           className="custom-toast"

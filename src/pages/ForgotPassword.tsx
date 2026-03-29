@@ -16,6 +16,7 @@ import {
 } from '@ionic/react';
 import { chevronBackOutline } from 'ionicons/icons';
 import api from '../api/axios';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import './ForgotPassword.css';
 
 const ForgotPassword: React.FC = () => {
@@ -109,7 +110,7 @@ const ForgotPassword: React.FC = () => {
         <IonToast
           isOpen={!!toast}
           message={toast || ''}
-          duration={4000}
+          duration={TOAST_DURATION_MS}
           onDidDismiss={() => setToast(null)}
           position="top"
         />

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  IonContent, IonPage, IonInput, IonButton, IonIcon, 
-  IonSpinner, IonToast, IonLoading
+import {
+  IonContent,
+  IonPage,
+  IonInput,
+  IonButton,
+  IonIcon,
+  IonSpinner,
+  IonLoading,
+  IonAlert,
 } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { logInOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from 'ionicons/icons';
@@ -17,6 +23,32 @@ import './Login.css';
 /** Sign in with Apple solo aplica en la app nativa iOS (no en Android). */
 const canUseAppleSignIn = () =>
   Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+
+/**
+ * ID token para el backend: primero el de la credencial OAuth (si viene),
+ * luego getIdToken sin forzar refresh (más estable justo tras el sign-in),
+ * y por último con refresh forzado.
+ */
+async function resolveSocialIdToken(
+  FirebaseAuthentication: typeof import('@capacitor-firebase/authentication').FirebaseAuthentication,
+  signInResult: { credential?: { idToken?: string } | null },
+): Promise<string> {
+  const fromCredential = signInResult.credential?.idToken;
+  if (typeof fromCredential === 'string' && fromCredential.length > 20) {
+    return fromCredential;
+  }
+  try {
+    const t = await FirebaseAuthentication.getIdToken({ forceRefresh: false });
+    if (t.token) return t.token;
+  } catch {
+    /* continuar */
+  }
+  const t2 = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+  if (!t2.token) {
+    throw new Error('No se pudo obtener el token de seguridad.');
+  }
+  return t2.token;
+}
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState(''); 
@@ -84,30 +116,26 @@ const Login: React.FC = () => {
         }
 
         const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-        // 1. Ejecutar el login nativo
+        // 1. Login nativo y 2. ID token (credencial OAuth → getIdToken sin refresh → con refresh)
+        let signInResult: { credential?: { idToken?: string } | null };
         if (provider === 'GOOGLE') {
             // Android: el Credential Manager por defecto suele devolver "No credentials available" si no
             // hay credenciales guardadas para ese flujo. El flujo clásico con selector de cuenta es más fiable.
             if (Capacitor.getPlatform() === 'android') {
-              await FirebaseAuthentication.signInWithGoogle({
+              signInResult = await FirebaseAuthentication.signInWithGoogle({
                 useCredentialManager: false,
               });
             } else {
-              await FirebaseAuthentication.signInWithGoogle();
+              signInResult = await FirebaseAuthentication.signInWithGoogle();
             }
         } else {
-            await FirebaseAuthentication.signInWithApple();
+            signInResult = await FirebaseAuthentication.signInWithApple();
         }
 
-        // 2. OBTENCIÓN SEGURA DEL TOKEN (La clave del éxito)
-        // En lugar de confiar en el resultado del signIn, pedimos explícitamente 
-        // el token actual al SDK. Esto garantiza que es un ID TOKEN válido y no ha caducado.
-        const tokenResult = await FirebaseAuthentication.getIdToken({
-          forceRefresh: true,
-        });
-        const idToken = tokenResult.token;
-
-        if (!idToken) throw new Error("No se pudo obtener el token de seguridad.");
+        const idToken = await resolveSocialIdToken(
+          FirebaseAuthentication,
+          signInResult,
+        );
 
         // 3. Enviamos el token al backend (sin JWT antiguo: evita 401/conflictos al verificar el ID token).
         const backendResponse = await api.post(
@@ -228,8 +256,6 @@ const Login: React.FC = () => {
         </div>
 
         <div className="login-form-container">
-            {error && <div className="login-error-message">{error}</div>}
-
             <div className="login-input-group">
                 <IonInput 
                     type="email" 
@@ -318,13 +344,18 @@ const Login: React.FC = () => {
             </p>
 
             <IonLoading isOpen={loading && !error} message="Iniciando sesión..." />
-            <IonToast 
-                isOpen={!!error} 
-                message={error || ''} 
-                duration={3000} 
-                color="danger"
-                position="top"
-                onDidDismiss={() => setError(null)}
+            <IonAlert
+              isOpen={!!error}
+              header="Inicio de sesión"
+              message={error ?? ''}
+              buttons={[
+                {
+                  text: 'Entendido',
+                  role: 'confirm',
+                  handler: () => setError(null),
+                },
+              ]}
+              onDidDismiss={() => setError(null)}
             />
         </div>
       </IonContent>

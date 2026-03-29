@@ -21,6 +21,7 @@ import { ProRequestDetailMedia } from '../components/pro/ProRequestDetailMedia';
 import { ProRequestDetailMainSection } from '../components/pro/ProRequestDetailMainSection';
 
 import { env } from '../config/env';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
@@ -629,7 +630,7 @@ const ProRequestDetail: React.FC = () => {
           ]}
         />
 
-        <IonToast isOpen={!!toast} message={toast!} duration={3000} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
+        <IonToast isOpen={!!toast} message={toast!} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
       </IonContent>
     </IonPage>
   );

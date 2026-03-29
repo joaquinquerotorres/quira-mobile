@@ -8,7 +8,6 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonList,
   IonItem,
   IonLabel,
   IonToggle,
@@ -19,6 +18,8 @@ import {
 import { chevronBackOutline } from 'ionicons/icons';
 import api from '../api/axios';
 import { ClientProfile, ProfessionalProfile } from '../types';
+import { TOAST_DURATION_MS } from '../config/uiTiming';
+import './Profile.css';
 import './NotificationSettings.css';
 
 const CLIENT_LABELS = {
@@ -97,11 +98,13 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
     (profile.notifyReviews ?? true) !== notifyReviews;
 
   return (
-    <div className="notification-section">
-      <h3 className="notification-section-title">{sectionTitle}</h3>
-      <IonList lines="full" className="notification-list">
-        <IonItem lines="full">
-          <IonLabel className="ion-text-wrap">{labels.notifyRequestActivity}</IonLabel>
+    <div className="notification-settings-block">
+      <div className="profile-section-title">{sectionTitle}</div>
+      <div className="profile-menu-card">
+        <IonItem lines="none" className="menu-item">
+          <IonLabel className="ion-text-wrap item-label">
+            {labels.notifyRequestActivity}
+          </IonLabel>
           <IonToggle
             slot="end"
             checked={notifyRequestActivity}
@@ -109,8 +112,11 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
             color="primary"
           />
         </IonItem>
-        <IonItem lines="full">
-          <IonLabel className="ion-text-wrap">{labels.notifyBidActivity}</IonLabel>
+        <div className="menu-separator" />
+        <IonItem lines="none" className="menu-item">
+          <IonLabel className="ion-text-wrap item-label">
+            {labels.notifyBidActivity}
+          </IonLabel>
           <IonToggle
             slot="end"
             checked={notifyBidActivity}
@@ -118,8 +124,11 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
             color="primary"
           />
         </IonItem>
-        <IonItem lines="full">
-          <IonLabel className="ion-text-wrap">{labels.notifyReviews}</IonLabel>
+        <div className="menu-separator" />
+        <IonItem lines="none" className="menu-item">
+          <IonLabel className="ion-text-wrap item-label">
+            {labels.notifyReviews}
+          </IonLabel>
           <IonToggle
             slot="end"
             checked={notifyReviews}
@@ -127,7 +136,7 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
             color="primary"
           />
         </IonItem>
-      </IonList>
+      </div>
       <IonButton
         expand="block"
         className="notification-save-btn"
@@ -143,7 +152,7 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
       <IonToast
         isOpen={!!toast}
         message={toast || ''}
-        duration={2500}
+        duration={TOAST_DURATION_MS}
         onDidDismiss={() => setToast(null)}
         position="top"
       />
@@ -191,7 +200,11 @@ const NotificationSettings: React.FC = () => {
           <IonTitle>Configuración de notificaciones</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent
+        fullscreen
+        className="notification-settings-content"
+        style={{ '--background': '#f8fafc' }}
+      >
         {hasClient && (
           <NotificationSection
             profile={user.clientProfile}

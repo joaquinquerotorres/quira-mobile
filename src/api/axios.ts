@@ -18,6 +18,12 @@ api.interceptors.request.use(
       config as { skipAuthHeader?: boolean }
     ).skipAuthHeader;
     if (skipAuthHeader) {
+      const h = config.headers;
+      if (h && typeof h.delete === 'function') {
+        h.delete('Authorization');
+      } else if (h && typeof h === 'object') {
+        delete (h as Record<string, unknown>).Authorization;
+      }
       return config;
     }
     const token = localStorage.getItem('quira_token');

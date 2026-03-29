@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { IonApp } from '@ionic/react';
 import { MemoryRouter } from 'react-router-dom';
 /** Simula entorno no nativo (Vitest/jsdom); el producto solo distribuye Android e iOS. */
@@ -67,9 +67,15 @@ test('Login muestra Apple cuando la plataforma es iOS nativa', () => {
   expect(screen.getByText('Apple')).toBeInTheDocument();
 });
 
-test('Login shows error on failed API call', async () => {
+test('Login muestra error en IonAlert (sin duplicar toast) ante fallo de API', async () => {
   vi.mocked(api.post).mockRejectedValue(new Error('Network error'));
   render(<Login />, { wrapper });
   fireEvent.click(screen.getByText('Entrar'));
-  await screen.findByText(/Credenciales incorrectas|error/i);
+  await waitFor(() => {
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+  });
+  expect(
+    screen.getByText('Credenciales incorrectas o error de conexión'),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Entendido')).toBeInTheDocument();
 });
