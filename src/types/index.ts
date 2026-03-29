@@ -114,6 +114,8 @@ export interface ServiceRequest {
   id: number;
   title: string;
   description: string;
+  /** Texto libre que escribió el cliente (modo texto + imagen), antes de la valoración IA. Opcional; requiere soporte en API. */
+  clientOriginalDescription?: string | null;
   priceAmount: number;
   status: RequestStatus;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';

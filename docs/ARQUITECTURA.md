@@ -327,7 +327,18 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 
 ### ServiceRequest
 
-`id`, `@id`, `title`, `description`, `priceAmount`, `status`, `riskLevel`, `category`, `address`, `preciseAddress`, `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, `extraVideoUrls`, `extraAudioUrls`, `desiredExecutionTime`, `locationPoint`, `createdAt`, `aiDiagnosis`, `client`, `assignedProfessional` (incluye `phoneNumber` para contacto cuando hay profesional asignado), `visitRequests`, `bids`, `questions`.
+`id`, `@id`, `title`, `description` (valoración técnica devuelta por la IA / editable en paso 2), **`clientOriginalDescription`** (opcional: texto libre que escribió el cliente en modo texto + imagen antes del análisis; requiere columna y grupos API en backend), `priceAmount`, `status`, `riskLevel`, `category`, `address`, `preciseAddress`, `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, `extraVideoUrls`, `extraAudioUrls`, `desiredExecutionTime`, `locationPoint`, `createdAt`, `aiDiagnosis`, `client`, `assignedProfessional` (incluye `phoneNumber` para contacto cuando hay profesional asignado), `visitRequests`, `bids`, `questions`.
+
+#### Backend: campo `clientOriginalDescription`
+
+El cliente envía `clientOriginalDescription` en **`POST /requests`** cuando la solicitud se creó desde el modo texto (y opcionalmente imagen). El backend debe:
+
+1. Añadir en la entidad **ServiceRequest** (o equivalente) una propiedad nullable, p. ej. tipo `text` / `LONGTEXT`: `clientOriginalDescription`.
+2. Migración: columna en snake_case según convención del proyecto, p. ej. `client_original_description`.
+3. **API Platform / serialización**: incluir el campo en los grupos de lectura y escritura del recurso Request (mismo patrón que `description`), expuesto en JSON como **`clientOriginalDescription`** (camelCase) para alinear con el frontend.
+4. Validación: opcional, longitud máxima razonable (p. ej. coincide con lo que acepta `/predict` para `description`).
+
+Sin este campo en API, el frontend sigue enviándolo pero el servidor puede ignorarlo hasta que exista la columna.
 
 ### VisitRequest
 
@@ -384,6 +395,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 
 ### NewRequest
 
+- En modo **texto** (+ imagen opcional), el texto del usuario **no** se sustituye por el `summary_text` de la IA: se conserva para el paso 2 y se persiste como **`clientOriginalDescription`**. La **`description`** almacenada es la valoración técnica (campo `description` de `/predict`).
 - Paso 1: selección de modo (audio, vídeo, texto) y captura de descripción. Opción de capturar (cámara/micrófono) o elegir desde galería para foto, vídeo y audio.
 - Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, precio y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
 - Requiere dirección aproximada (Google Places o GPS).

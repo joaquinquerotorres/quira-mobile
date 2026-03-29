@@ -203,3 +203,34 @@ test('RequestDetailMainSection shows category label (e.g. Manitas for DIY)', () 
   );
   expect(screen.getByText('Manitas')).toBeInTheDocument();
 });
+
+test('RequestDetailMainSection muestra texto original del cliente y valoración IA cuando existen', () => {
+  const requestWithBoth = {
+    ...mockRequest,
+    clientOriginalDescription: 'El radiador hace ruido desde el lunes',
+    description: 'Posible purgado de radiador y revisión de válvula.',
+  };
+  render(
+    <RequestDetailMainSection
+      request={requestWithBoth}
+      addressDisplay={addressDisplay}
+      serverUrl=""
+      questionsCount={0}
+      pendingAnswers={0}
+      hasReviewed={false}
+      onCallProfessional={noop}
+      onOpenReviewModal={noop}
+      onOpenQAModal={noop}
+      onOpenAcceptModal={noop}
+    />,
+    { wrapper },
+  );
+  expect(screen.getByText('Tu texto original')).toBeInTheDocument();
+  expect(
+    screen.getByText('El radiador hace ruido desde el lunes'),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Valoración técnica (IA)')).toBeInTheDocument();
+  expect(
+    screen.getByText('Posible purgado de radiador y revisión de válvula.'),
+  ).toBeInTheDocument();
+});

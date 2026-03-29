@@ -50,6 +50,8 @@ const NewRequest: React.FC = () => {
 
   // --- ESTADOS DE CONTENIDO ---
   const [userDescription, setUserDescription] = useState('');
+  /** Texto del paso 1 en modo TEXT; no se sobrescribe con el resumen de la IA. */
+  const [clientOriginalDescription, setClientOriginalDescription] = useState('');
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   
   // Audio
@@ -191,6 +193,7 @@ const NewRequest: React.FC = () => {
     }
     if (mode !== 'TEXT') {
       setUserDescription('');
+      setClientOriginalDescription('');
       setPhotoBase64(null);
     }
 
@@ -570,14 +573,19 @@ const NewRequest: React.FC = () => {
       const safeTitle = String(aiData.title ?? '').trim();
       const safeDescription = String(aiData.description ?? '').trim();
       const safeCategory = String(aiData.category ?? '').trim().toUpperCase();
-      const safeSummary = String(aiData.summary_text ?? aiData.summaryText ?? '').trim();
+      const textSnapshot = inputMode === 'TEXT' ? userDescription.trim() : '';
 
       // Normalizamos para que el formulario siempre quede relleno aunque Gemini devuelva
       // un payload parcial o con nombres distintos.
       setTitle(safeTitle || 'Solicitud pendiente de revisión');
       setTechDescription(safeDescription || 'Revisa y completa los detalles técnicos de tu solicitud.');
       setCategory(safeCategory || 'DIY');
-      if (safeSummary) setUserDescription(safeSummary);
+      // No sustituir userDescription por summary_text: el texto del cliente se conserva para paso 2 y API.
+      if (inputMode === 'TEXT') {
+        setClientOriginalDescription(textSnapshot);
+      } else {
+        setClientOriginalDescription('');
+      }
 
       const rawRisk = (aiData.risk_level || aiData.riskLevel || '').toString().toUpperCase();
       if (rawRisk === 'LOW' || rawRisk === 'MEDIUM' || rawRisk === 'HIGH') {
@@ -736,6 +744,9 @@ const NewRequest: React.FC = () => {
         aiDiagnosis: aiRange,
         desiredExecutionTime,
       };
+      if (clientOriginalDescription.trim()) {
+        payload.clientOriginalDescription = clientOriginalDescription.trim();
+      }
       if (riskLevel) {
         // El backend persiste este campo como risk_level en base de datos
         (payload as any).riskLevel = riskLevel;
@@ -854,6 +865,7 @@ const NewRequest: React.FC = () => {
                 <NewRequestStep2Form
                     title={title}
                     techDescription={techDescription}
+                    clientOriginalDescription={clientOriginalDescription}
                     category={category}
                     onCategoryChange={setCategory}
                     price={price}

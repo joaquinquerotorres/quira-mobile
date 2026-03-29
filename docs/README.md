@@ -10,7 +10,7 @@
   - Preguntas (Request Questions)
   - Mercado y oportunidades
   - Suscripción y Stripe
-  - Rutas, endpoints y estructuras de datos
+  - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA)
 
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
 - **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Timeouts PHP/nginx, subidas lentas (`/predict` con vídeo) y timeout explícito en cliente (`PREDICT_REQUEST_TIMEOUT_MS`, 120–300 s).

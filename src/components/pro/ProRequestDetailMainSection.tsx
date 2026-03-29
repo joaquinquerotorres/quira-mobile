@@ -339,6 +339,36 @@ export const ProRequestDetailMainSection: React.FC<
           {request.desiredExecutionTime || 'Lo antes posible'}
         </div>
 
+        {request.clientOriginalDescription?.trim() ? (
+          <>
+            <div
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: '#64748b',
+                marginBottom: '8px',
+              }}
+            >
+              Texto del cliente
+            </div>
+            <p style={{ marginBottom: '16px' }}>{request.clientOriginalDescription.trim()}</p>
+            <div
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: '#64748b',
+                marginBottom: '8px',
+              }}
+            >
+              Valoración técnica (IA)
+            </div>
+          </>
+        ) : null}
+
         {CATEGORY_LABELS[request.category] && (
           <div
             style={{
@@ -357,7 +387,7 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
         )}
 
-        {request.description && <p>{request.description}</p>}
+        {request.description ? <p>{request.description}</p> : null}
 
         {((request.extraPhotoUrls?.length ?? 0) +
           (request.extraVideoUrls?.length ?? 0) +

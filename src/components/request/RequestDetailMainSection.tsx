@@ -186,9 +186,38 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
           </div>
         </div>
 
-        {request.description && (
+        {(request.clientOriginalDescription?.trim() || request.description) && (
           <div className="description-box">
             <div className="section-header">Descripción del problema</div>
+            {request.clientOriginalDescription?.trim() ? (
+              <>
+                <div
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#64748b',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Tu texto original
+                </div>
+                <p style={{ marginBottom: '18px' }}>{request.clientOriginalDescription.trim()}</p>
+                <div
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#64748b',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Valoración técnica (IA)
+                </div>
+              </>
+            ) : null}
             {CATEGORY_LABELS[request.category] && (
               <div
                 style={{
@@ -206,7 +235,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                 {CATEGORY_LABELS[request.category]}
               </div>
             )}
-            <p>{request.description}</p>
+            {request.description ? <p>{request.description}</p> : null}
 
             {hasExtraMedia && (
               <div className="detail-extra-media-inside">

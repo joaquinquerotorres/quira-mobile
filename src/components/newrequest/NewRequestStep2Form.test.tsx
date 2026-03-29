@@ -4,6 +4,37 @@ import { NewRequestStep2Form } from './NewRequestStep2Form';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 
+test('NewRequestStep2Form muestra el texto original del cliente cuando viene informado', () => {
+  render(
+    <NewRequestStep2Form
+      title="Fuga"
+      techDescription="Desc IA"
+      clientOriginalDescription="  Mi grifo gotea desde ayer  "
+      category="PLUMBING"
+      onCategoryChange={vi.fn()}
+      price={50}
+      aiRange={{ min: 40, max: 80 }}
+      riskLevel="LOW"
+      desiredExecutionTime="Lo antes posible"
+      photoBase64={null}
+      audioBase64={null}
+      videoBase64={null}
+      extraMedia={[]}
+      maxExtraMedia={3}
+      onAddExtraMedia={vi.fn()}
+      onRemoveExtraMedia={vi.fn()}
+      onTitleChange={vi.fn()}
+      onTechDescriptionChange={vi.fn()}
+      onPriceChange={vi.fn()}
+      onDesiredExecutionTimeChange={vi.fn()}
+      onSubmit={vi.fn()}
+    />,
+    { wrapper },
+  );
+  expect(screen.getByText('Tu texto original')).toBeInTheDocument();
+  expect(screen.getByText('Mi grifo gotea desde ayer')).toBeInTheDocument();
+});
+
 test('NewRequestStep2Form renders Diagnóstico IA section', () => {
   render(
     <NewRequestStep2Form

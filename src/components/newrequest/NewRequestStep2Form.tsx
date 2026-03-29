@@ -31,6 +31,8 @@ type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 interface NewRequestStep2FormProps {
   title: string;
   techDescription: string;
+  /** Texto libre del cliente (modo texto + imagen), sin sobrescribir con la IA. */
+  clientOriginalDescription?: string;
   price: number | undefined;
   aiRange: { min: number; max: number } | null;
   /** Nivel de riesgo estimado por la IA (no modificable por el usuario) */
@@ -74,6 +76,7 @@ const CATEGORY_OPTIONS = CATEGORY_SELECT_ORDER.map((code) => ({
 export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   title,
   techDescription,
+  clientOriginalDescription = '',
   price,
   aiRange,
   riskLevel,
@@ -207,6 +210,33 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
     )}
 
     <div className="ai-result-card">
+      {clientOriginalDescription.trim() ? (
+        <div
+          style={{
+            marginBottom: '18px',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            background: '#f1f5f9',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: '#64748b',
+              marginBottom: '8px',
+            }}
+          >
+            Tu texto original
+          </div>
+          <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.45, color: '#0f172a' }}>
+            {clientOriginalDescription.trim()}
+          </p>
+        </div>
+      ) : null}
       <div className="ai-badge-header">
         <IonIcon
           icon={analyticsOutline}
@@ -240,7 +270,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
         />
         <span>
           Revisa los datos. Si la IA se ha equivocado, puedes editar el título,
-          la descripción o la categoría ahora.
+          la descripción técnica o la categoría ahora.
         </span>
       </div>
       {riskLevel && (
