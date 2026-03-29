@@ -13,6 +13,7 @@
   - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA)
 
 - **[API.md](./API.md)** — `POST /social/login`: cuerpo con **`token`** + **`provider`** (no `firebaseToken`); diagnóstico si falla Google antes o después de la API.
+- **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)** — Verificación de email tras el registro: rutas `/verify-email`, API sin JWT, reenvío con JWT, App Links / Universal Links y tests asociados.
 - **[FEATURES.md](./FEATURES.md)** — Referencia rápida de auth y enlaces a API / otros docs.
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
 - **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Timeouts PHP/nginx, subidas lentas (`/predict` con vídeo), timeout en cliente (`PREDICT_REQUEST_TIMEOUT_MS`) y **compresión opcional** antes de `/predict` (`videoCompressForPredict.ts`: celular/red lenta siempre; Wi-Fi/`unknown` solo si el vídeo ≥ **~10 MiB** decodificados; límites extra en app nativa para reducir OOM).

@@ -26,6 +26,8 @@ import MyWork from './pages/MyWork';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyEmail';
+import VerifyEmailPending from './pages/VerifyEmailPending';
+import DeepLinkHandler from './components/DeepLinkHandler';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import BecomePro from './pages/BecomePro';
@@ -62,6 +64,7 @@ const MainTabs: React.FC = () => {
     '/login', 
     '/forgot-password',
     '/verify-email',
+    '/verify-email-pending',
     '/reset-password',
     '/register', 
     '/become-pro', 
@@ -88,7 +91,9 @@ const MainTabs: React.FC = () => {
   }
 
   return (
-    <IonTabs>
+    <>
+      <DeepLinkHandler />
+      <IonTabs>
       <DowngradeBanner />
       <IonRouterOutlet>
         <Route exact path="/login">
@@ -99,6 +104,9 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/verify-email">
           <VerifyEmail />
+        </Route>
+        <Route exact path="/verify-email-pending">
+          <VerifyEmailPending />
         </Route>
         <Route exact path="/reset-password">
           <ResetPassword />
@@ -189,6 +197,7 @@ const MainTabs: React.FC = () => {
         </IonTabBar>
       )}
     </IonTabs>
+    </>
   );
 };
 

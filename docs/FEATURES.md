@@ -5,6 +5,7 @@ El contrato HTTP detallado (p. ej. login social) está en **[API.md](./API.md)**
 ## Autenticación
 
 - **Email y contraseña:** `POST /login_check` (ver ARQUITECTURA).
+- **Verificación de email (enlace del registro):** pantalla **`/verify-email?token=...`**, confirmación con **`POST /verify/email`** sin JWT; reenvío con sesión en **`POST /verify/email/resend`**. Detalle, deep links y tests: **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)**.
 - **Google y Apple (app nativa):** Firebase Auth en el dispositivo; luego **`POST /social/login`** con cuerpo JSON **`{ "token": "<id_token_firebase>", "provider": "GOOGLE" | "APPLE" }`**.  
   - El backend y la app usan el campo **`token`**, no `firebaseToken`.
 

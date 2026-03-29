@@ -21,6 +21,7 @@ import {
 import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import { Geolocation } from '@capacitor/geolocation';
 import api from '../api/axios';
+import { resendVerificationEmail } from '../api/verifyEmailApi';
 import { uploadAvatarWithTicket } from '../services/uploadService';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import './Profile.css';
@@ -314,12 +315,14 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      await api.post(
-        '/verify/email',
-        { email: user.email },
-        { skipAuthRedirect: true }
+      const data = await resendVerificationEmail();
+      setToast(
+        data.success
+          ? data.message ||
+              'Si tu email no estaba verificado, te hemos enviado un correo de verificación.'
+          : data.message ||
+              'No se pudo enviar el correo de verificación. Inténtalo de nuevo más tarde.',
       );
-      setToast('Si tu email no estaba verificado, te hemos enviado un correo de verificación.');
     } catch {
       setToast('No se pudo enviar el correo de verificación. Inténtalo de nuevo más tarde.');
     }

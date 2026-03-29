@@ -4,11 +4,12 @@ import {
   IonContent,
   IonSpinner,
   IonButton,
-  IonToast,
 } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
-import api from '../api/axios';
-import { TOAST_DURATION_MS } from '../config/uiTiming';
+import axios from 'axios';
+import { confirmEmailWithToken } from '../api/verifyEmailApi';
+import { getBackendErrorMessage } from '../api/axiosErrorDebug';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import './VerifyEmail.css';
 
 const VerifyEmail: React.FC = () => {
@@ -18,36 +19,66 @@ const VerifyEmail: React.FC = () => {
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
-  const [toast, setToast] = useState<string | null>(null);
+  const [postVerifyCta, setPostVerifyCta] = useState<'session' | 'login'>('login');
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('No se ha encontrado un token de verificación.');
+      setMessage(
+        'Falta el enlace de verificación. Abre el correo y pulsa el botón, o pide un nuevo correo desde Perfil.',
+      );
       return;
     }
 
     const verify = async () => {
       try {
-        await api.post(
-          '/verify/email',
-          { token },
-          { skipAuthRedirect: true }
-        );
+        const data = await confirmEmailWithToken(token);
+        if (!data.success) {
+          setStatus('error');
+          setMessage(
+            data.message ||
+              'No se pudo verificar el correo. El enlace puede haber caducado.',
+          );
+          return;
+        }
+
+        const hadSession = !!localStorage.getItem('quira_token');
+        if (hadSession) {
+          const ok = await refreshCurrentUserInStorage();
+          setPostVerifyCta(ok ? 'session' : 'login');
+        } else {
+          setPostVerifyCta('login');
+        }
+
         setStatus('success');
-        setMessage('Email verificado correctamente.');
-      } catch (err: unknown) {
-        const axiosErr = err as { response?: { data?: { message?: string } } };
-        setStatus('error');
         setMessage(
-          axiosErr.response?.data?.message ||
-            'Token inválido o expirado. Solicita un nuevo correo de verificación.'
+          data.message?.trim()
+            ? data.message
+            : 'Tu correo quedó verificado correctamente.',
+        );
+      } catch (err: unknown) {
+        setStatus('error');
+        if (axios.isAxiosError(err) && err.response?.data) {
+          const d = err.response.data as { success?: boolean; message?: string };
+          if (typeof d.success === 'boolean' && d.success === false && d.message) {
+            setMessage(d.message);
+            return;
+          }
+        }
+        setMessage(
+          getBackendErrorMessage(err) ||
+            'Token inválido o expirado. Solicita un nuevo correo de verificación desde Perfil.',
         );
       }
     };
 
     verify();
   }, [token]);
+
+  const primaryHref =
+    postVerifyCta === 'session' ? '/request-list' : '/login';
+  const primaryLabel =
+    postVerifyCta === 'session' ? 'Ir al inicio' : 'Ir a iniciar sesión';
 
   return (
     <IonPage>
@@ -73,8 +104,12 @@ const VerifyEmail: React.FC = () => {
               </div>
               <h2>¡Correo verificado!</h2>
               <p>{message}</p>
-              <IonButton expand="block" routerLink="/login" className="verify-email-btn">
-                Ir a iniciar sesión
+              <IonButton
+                expand="block"
+                routerLink={primaryHref}
+                className="verify-email-btn"
+              >
+                {primaryLabel}
               </IonButton>
             </div>
           )}
@@ -90,21 +125,21 @@ const VerifyEmail: React.FC = () => {
                 expand="block"
                 fill="outline"
                 color="primary"
+                routerLink="/verify-email-pending"
+                className="verify-email-btn"
+              >
+                Reenviar correo de verificación
+              </IonButton>
+              <IonButton
+                expand="block"
                 routerLink="/login"
                 className="verify-email-btn"
               >
-                Volver al inicio
+                Volver al inicio de sesión
               </IonButton>
             </div>
           )}
         </div>
-        <IonToast
-          isOpen={!!toast}
-          message={toast || ''}
-          duration={TOAST_DURATION_MS}
-          onDidDismiss={() => setToast(null)}
-          position="top"
-        />
       </IonContent>
     </IonPage>
   );

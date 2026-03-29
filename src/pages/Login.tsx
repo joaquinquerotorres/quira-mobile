@@ -29,6 +29,26 @@ const canUseAppleSignIn = () =>
  * luego getIdToken sin forzar refresh (más estable justo tras el sign-in),
  * y por último con refresh forzado.
  */
+/**
+ * Android: ApiException / código 10 = DEVELOPER_ERROR (SHA-1 u OAuth no alineados con Firebase).
+ * El plugin suele devolver message "10" o "10: ".
+ */
+function isGoogleDeveloperConfigurationError(err: unknown): boolean {
+  const e = err as {
+    message?: string;
+    nativeMessage?: string;
+    code?: string | number;
+  };
+  const msg = `${e.message ?? ''}`.trim();
+  const native = `${e.nativeMessage ?? ''}`;
+  if (msg === '10' || /^10\s*:/.test(msg)) return true;
+  if (native.includes('ApiException: 10') || native.includes('statusCode=10')) {
+    return true;
+  }
+  if (e.code === 10 || e.code === '10') return true;
+  return false;
+}
+
 async function resolveSocialIdToken(
   FirebaseAuthentication: typeof import('@capacitor-firebase/authentication').FirebaseAuthentication,
   signInResult: { credential?: { idToken?: string } | null },
@@ -185,6 +205,13 @@ const Login: React.FC = () => {
             ) {
               setError(
                 'Google no pudo mostrar cuentas en este dispositivo. Comprueba que tengas una cuenta de Google configurada, Play Store actualizado y vuelve a intentarlo; también puedes entrar con email y contraseña.',
+              );
+            } else if (
+              provider === 'GOOGLE' &&
+              isGoogleDeveloperConfigurationError(err)
+            ) {
+              setError(
+                'Google Sign-In falló por configuración (código 10). Añade en Firebase Console la huella SHA-1 del keystore con el que firmas la app (en proyecto Android: `./gradlew signingReport`), descarga de nuevo `google-services.json`, sustituye `android/app/google-services.json` y vuelve a compilar. En emulador suele ser el keystore de depuración de Android Studio.',
               );
             } else if (
               rawMessage.includes('Apple Sign-In solo está disponible') ||
