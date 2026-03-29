@@ -35,18 +35,19 @@ El cliente entonces ve **Axios `ERR_NETWORK`** sin cuerpo de respuesta (conexió
 - Para `POST /api/predict` con vídeo, usar **timeout explícito** en el cliente (p. ej. **120 000–300 000 ms**), no el default corto de algunas pilas.
 - En este repo: `PREDICT_REQUEST_TIMEOUT_MS` en `src/config/httpTimeouts.ts` (**300 000 ms** = 5 min) y se pasa a `api.post('/predict', …, { timeout: … })` desde `NewRequest.tsx`.
 
-### Compresión moderada en cliente (solo red “lenta”)
+### Compresión moderada en cliente (red lenta y/o fichero pesado)
 
-Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** solo si la red se considera limitada:
+Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** cuando conviene reducir el payload:
 
-- **Sí comprimir:** `cellular` (datos móviles) o `slow_or_unreliable` (heurística de red lenta en entornos sin detalle nativo).
-- **No comprimir:** Wi‑Fi ni estado `unknown` (no degradar sin señal clara).
+- **Sí comprimir:** datos móviles (`cellular`) o red lenta (`slow_or_unreliable`).
+- **También sí** si el vídeo en base64 supera **~6 MB decodificados** (`PREDICT_VIDEO_COMPRESS_IF_LARGER_THAN_BYTES`), **aunque** el sistema reporte Wi‑Fi o `unknown` (cubre Wi‑Fi lenta o vídeos cortos pero muy pesados, p. ej. muchos megas en pocos segundos).
+- **No comprimir:** Wi‑Fi/`unknown` **y** fichero por debajo de ese umbral (evita trabajo innecesario con buena conexión y clip ligero).
 
 Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder`, ancho máx. ~854px, ~2,2 Mbit/s, mantiene audio del fichero cuando el navegador expone `captureStream` en el `<video>`). Si la API no está disponible, el resultado no reduce tamaño o falla el proceso, se **envía el vídeo original**.
 
 El fichero resultante suele ser **WebM (VP8/VP9)** aunque el de cámara fuera MP4/MOV: el backend/Gemini debe aceptar ese contenedor para la ruta `/predict` o rechazar con mensaje claro.
 
-Límite práctico: no se intenta comprimir en cliente si el vídeo supera **~5 minutos** de duración (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC`): en ese caso se envía el original (la compresión cliente es sobre todo para no bloquear la subida en 4G).
+**Límite de duración (solo vídeos muy largos):** no se intenta la compresión en cliente si el vídeo dura **más de ~5 minutos** (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC`), para evitar memoria/tiempo excesivos en el móvil. Los vídeos **cortos** (p. ej. 10 s) **sí** pueden comprimirse siempre que cumplan lo anterior; no hay “no hacer nada” solo por ser cortos.
 
 ## Mejoras a medio plazo
 

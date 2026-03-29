@@ -6,16 +6,31 @@ export const PREDICT_VIDEO_TARGET_FPS = 24;
 /** ~2.2 Mbps — por debajo de calidad “cámara” pero usable para diagnóstico visual. */
 export const PREDICT_VIDEO_BITS_PER_SECOND = 2_200_000;
 
-/** No intentar re-codificar vídeos extremadamente largos (riesgo de memoria / tiempo). */
+/**
+ * No intentar re-codificar vídeos **más largos** que esto (riesgo de memoria / tiempo en el dispositivo).
+ * Vídeos **cortos** (p. ej. 10 s) **sí** entran en la compresión si aplica red o tamaño, salvo que superen esta duración.
+ */
 export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC = 300;
 
 /**
- * Comprimir solo en redes típicamente lentas o limitadas.
- * Wi‑Fi y “desconocido” dejan el fichero tal cual para no perder calidad sin motivo.
+ * Si el payload (base64) supera este tamaño **decodificado**, intentamos comprimir aunque el hint sea
+ * `wifi` o `unknown` (Wi‑Fi lenta o etiqueta de red incorrecta; p. ej. 10 s y 14 MB).
+ */
+export const PREDICT_VIDEO_COMPRESS_IF_LARGER_THAN_BYTES = 6 * 1024 * 1024;
+
+/**
+ * ¿Intentar compresión moderada antes de `/predict`?
+ * - Red móvil o lenta: sí.
+ * - Fichero muy grande: sí (reduce subidas pesadas aunque el sistema reporte Wi‑Fi).
+ * - Wi‑Fi + fichero pequeño: no (evita trabajo innecesario en buena conexión).
  */
 export function shouldCompressVideoForUpload(
   hint: VideoUploadConnectionHint,
+  decodedSizeBytes: number,
 ): boolean {
+  if (decodedSizeBytes >= PREDICT_VIDEO_COMPRESS_IF_LARGER_THAN_BYTES) {
+    return true;
+  }
   return hint === 'cellular' || hint === 'slow_or_unreliable';
 }
 
@@ -23,6 +38,11 @@ function dataUrlByteLength(dataUrl: string): number {
   const base64 = dataUrl.split(',')[1];
   if (!base64) return dataUrl.length;
   return Math.floor((base64.length * 3) / 4);
+}
+
+/** Tamaño aproximado del binario decodificado del data URL del vídeo (útil para umbral de compresión). */
+export function predictVideoPayloadDecodedBytes(dataUrl: string): number {
+  return dataUrlByteLength(dataUrl);
 }
 
 function pickRecorderMime(): string {
@@ -218,7 +238,7 @@ export async function maybeCompressVideoDataUrlForPredict(
   hint: VideoUploadConnectionHint,
 ): Promise<MaybeCompressVideoResult> {
   const originalBytes = dataUrlByteLength(dataUrl);
-  if (!shouldCompressVideoForUpload(hint)) {
+  if (!shouldCompressVideoForUpload(hint, originalBytes)) {
     return {
       dataUrl,
       compressed: false,

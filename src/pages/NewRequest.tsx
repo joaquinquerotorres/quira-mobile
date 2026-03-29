@@ -35,7 +35,11 @@ import {
   getVideoUploadConnectionHint,
   type VideoUploadConnectionHint,
 } from '../utils/videoUploadNetworkHint';
-import { maybeCompressVideoDataUrlForPredict } from '../utils/videoCompressForPredict';
+import {
+  maybeCompressVideoDataUrlForPredict,
+  predictVideoPayloadDecodedBytes,
+  shouldCompressVideoForUpload,
+} from '../utils/videoCompressForPredict';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -527,8 +531,10 @@ const NewRequest: React.FC = () => {
 
       if (inputMode === 'VIDEO' && predictVideo) {
         const netHint = await getVideoUploadConnectionHint();
+        const videoBytes = predictVideoPayloadDecodedBytes(predictVideo);
+        const willTryCompress = shouldCompressVideoForUpload(netHint, videoBytes);
         setLoadingMessage(
-          netHint === 'cellular' || netHint === 'slow_or_unreliable'
+          willTryCompress
             ? 'Optimizando vídeo para la red… Puede tardar un poco.'
             : 'Subiendo vídeo y consultando a la IA…',
         );
@@ -538,8 +544,7 @@ const NewRequest: React.FC = () => {
         );
         predictVideo = compressResult.dataUrl;
         videoCompressMeta = {
-          attempted:
-            netHint === 'cellular' || netHint === 'slow_or_unreliable',
+          attempted: willTryCompress,
           compressed: compressResult.compressed,
           originalBytes: compressResult.originalBytes,
           resultBytes: compressResult.resultBytes,
