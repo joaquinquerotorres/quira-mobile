@@ -35,6 +35,7 @@ import {
   getVideoUploadConnectionHint,
   type VideoUploadConnectionHint,
 } from '../utils/videoUploadNetworkHint';
+import { maybeCompressVideoDataUrlForPredict } from '../utils/videoCompressForPredict';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -514,8 +515,39 @@ const NewRequest: React.FC = () => {
       predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
       const predictAudio = inputMode === 'AUDIO' ? audioBase64 : null;
       const predictImage = inputMode === 'TEXT' ? photoBase64 : null;
-      const predictVideo = inputMode === 'VIDEO' ? videoBase64 : null;
+      let predictVideo = inputMode === 'VIDEO' ? videoBase64 : null;
       const predictDescription = inputMode === 'TEXT' ? userDescription : '';
+
+      let videoCompressMeta: {
+        attempted: boolean;
+        compressed: boolean;
+        originalBytes: number;
+        resultBytes: number;
+      } | null = null;
+
+      if (inputMode === 'VIDEO' && predictVideo) {
+        const netHint = await getVideoUploadConnectionHint();
+        setLoadingMessage(
+          netHint === 'cellular' || netHint === 'slow_or_unreliable'
+            ? 'Optimizando vídeo para la red… Puede tardar un poco.'
+            : 'Subiendo vídeo y consultando a la IA…',
+        );
+        const compressResult = await maybeCompressVideoDataUrlForPredict(
+          predictVideo,
+          netHint,
+        );
+        predictVideo = compressResult.dataUrl;
+        videoCompressMeta = {
+          attempted:
+            netHint === 'cellular' || netHint === 'slow_or_unreliable',
+          compressed: compressResult.compressed,
+          originalBytes: compressResult.originalBytes,
+          resultBytes: compressResult.resultBytes,
+        };
+        if (compressResult.compressed) {
+          setLoadingMessage('Consultando a la IA…');
+        }
+      }
 
       const getDataUrlMeta = (value: string | null) => {
         if (!value) return { mime: null as string | null, length: 0 };
@@ -544,6 +576,7 @@ const NewRequest: React.FC = () => {
           videoLength: videoMeta.length,
           locationLength: locationForAi.length,
           predictTimeoutMs: PREDICT_REQUEST_TIMEOUT_MS,
+          videoCompress: videoCompressMeta,
         },
       });
 

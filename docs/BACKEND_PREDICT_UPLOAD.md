@@ -35,6 +35,19 @@ El cliente entonces ve **Axios `ERR_NETWORK`** sin cuerpo de respuesta (conexió
 - Para `POST /api/predict` con vídeo, usar **timeout explícito** en el cliente (p. ej. **120 000–300 000 ms**), no el default corto de algunas pilas.
 - En este repo: `PREDICT_REQUEST_TIMEOUT_MS` en `src/config/httpTimeouts.ts` (**300 000 ms** = 5 min) y se pasa a `api.post('/predict', …, { timeout: … })` desde `NewRequest.tsx`.
 
+### Compresión moderada en cliente (solo red “lenta”)
+
+Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** solo si la red se considera limitada:
+
+- **Sí comprimir:** `cellular` (datos móviles) o `slow_or_unreliable` (heurística de red lenta en entornos sin detalle nativo).
+- **No comprimir:** Wi‑Fi ni estado `unknown` (no degradar sin señal clara).
+
+Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder`, ancho máx. ~854px, ~2,2 Mbit/s, mantiene audio del fichero cuando el navegador expone `captureStream` en el `<video>`). Si la API no está disponible, el resultado no reduce tamaño o falla el proceso, se **envía el vídeo original**.
+
+El fichero resultante suele ser **WebM (VP8/VP9)** aunque el de cámara fuera MP4/MOV: el backend/Gemini debe aceptar ese contenedor para la ruta `/predict` o rechazar con mensaje claro.
+
+Límite práctico: no se intenta comprimir en cliente si el vídeo supera **~5 minutos** de duración (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC`): en ese caso se envía el original (la compresión cliente es sobre todo para no bloquear la subida en 4G).
+
 ## Mejoras a medio plazo
 
 - Recibir el vídeo por **multipart** o **URL firmada** a almacenamiento objeto, y que `/predict` solo reciba la referencia: menos tiempo bloqueando PHP y menos RAM.

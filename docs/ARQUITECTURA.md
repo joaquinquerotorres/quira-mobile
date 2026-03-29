@@ -405,6 +405,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
   - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
 - El cliente usa **timeout explícito** para `POST /predict` (p. ej. 300 s en `httpTimeouts.ts`; recomendado 120–300 s con vídeo). El backend debe permitir lectura del cuerpo y ejecución suficientes; ver **`docs/BACKEND_PREDICT_UPLOAD.md`**.
 - En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network` en iOS/Android) o, cuando no hay detalle de red nativo, **conexión lenta** vía heurística (`navigator.connection.effectiveType` 2g/3g, p. ej. en tests), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
+- **Vídeo hacia `/predict`:** en **datos móviles** o red **lenta** (`getVideoUploadConnectionHint`), la app intenta **re-codificar** el vídeo en cliente (`videoCompressForPredict.ts`: resolución y bitrate moderados, audio preservado si el navegador lo permite) para reducir el payload; en **Wi‑Fi** o red **desconocida** no se comprime. Si falla la compresión o no reduce tamaño, se envía el fichero original. La publicación de la solicitud (paso 2) sigue usando el vídeo **original** del paso 1 para subida al bucket.
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.
