@@ -6,7 +6,7 @@ import type { VideoUploadConnectionHint } from './videoUploadNetworkHint';
  */
 export const PREDICT_VIDEO_MAX_WIDTH = 960;
 export const PREDICT_VIDEO_TARGET_FPS = 24;
-/** Bitrate acotado pero legible para análisis de vídeo por IA (no “miniatura ilegible”). */
+/** Bitrate acotado pero legible para análisis de vídeo por IA (no "miniatura ilegible"). */
 export const PREDICT_VIDEO_BITS_PER_SECOND = 2_500_000;
 
 /**
@@ -16,17 +16,17 @@ export const PREDICT_VIDEO_BITS_PER_SECOND = 2_500_000;
 export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC = 300;
 
 /**
- * Tamaño **decodificado** del vídeo (bytes del binario) a partir del cual, en **Wi‑Fi** o red **desconocida**,
- * se considera fichero “grande” y se intenta compresión moderada antes de `/predict`.
- * ~10 MB en vídeo suele ser ya un clip pesado (alta resolución, bitrate alto o duración media); el JSON
- * en base64 añade ~33 % de overhead en la subida.
+ * Tamaño **decodificado** del vídeo (bytes del binario) a partir del cual, en **Wi-Fi** o red **desconocida**,
+ * se considera fichero "grande" y se intenta compresión moderada antes de `/predict`.
+ * ~10 MB en vídeo suele ser ya un clip pesado (alta resolución, bitrate alto o duración media); el JSON
+ * en base64 añade ~33% de overhead en la subida.
  */
 export const PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN = 10 * 1024 * 1024;
 
 /**
  * ¿Intentar compresión antes de `/predict`?
  * - **Siempre** con **datos móviles** (`cellular`) o red **lenta** (`slow_or_unreliable`).
- * - Con **Wi‑Fi** o **`unknown`**: solo si el vídeo supera {@link PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN} (fichero grande).
+ * - Con **Wi-Fi** o **`unknown`**: solo si el vídeo supera {@link PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN} (fichero grande).
  *
  * La compresión no busca el mínimo tamaño posible, sino aligerar la subida **manteniendo** calidad útil para Gemini
  * (ver constantes de ancho/bitrate arriba).
@@ -57,7 +57,7 @@ function dataUrlByteLength(dataUrl: string): number {
   return Math.floor((base64.length * 3) / 4);
 }
 
-/** Tamaño aproximado del binario decodificado del data URL del vídeo (para umbral Wi‑Fi / unknown). */
+/** Tamaño aproximado del binario decodificado del data URL del vídeo (para umbral Wi-Fi / unknown). */
 export function predictVideoPayloadDecodedBytes(dataUrl: string): number {
   return dataUrlByteLength(dataUrl);
 }
@@ -246,7 +246,7 @@ export interface MaybeCompressVideoResult {
 }
 
 /**
- * Si la red **no** es móvil ni lenta (p. ej. Wi‑Fi), devuelve el mismo data URL.
+ * Si la red **no** es móvil ni lenta (p. ej. Wi-Fi), devuelve el mismo data URL.
  * Si aplica compresión y la re-codificación tiene éxito, devuelve el nuevo data URL (p. ej. WebM).
  * Ante cualquier fallo, devuelve el original sin lanzar.
  */
