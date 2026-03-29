@@ -26,7 +26,7 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 ### Downgrade por caducidad
 
 - El componente global `DowngradeBanner` muestra la alerta **Cuota no renovada** cuando `isDowngradedDueToExpiredPayment(user)` es verdadero **y** hay sesión activa: debe existir `quira_token` en `localStorage` además del objeto `user`. Así no aparece en `/login` si quedó un `user` huérfano (p. ej. tras caducar el JWT).
-- La alerta se muestra como máximo **una vez por sesión de navegador** (`sessionStorage`), salvo que el usuario cierre sesión desde Perfil (se limpia la marca de “ya vista”).
+- La alerta se muestra como máximo **una vez por sesión de la app** (`sessionStorage` en el WebView), salvo que el usuario cierre sesión desde Perfil (se limpia la marca de “ya vista”).
 - En Profile aparece aviso de plan caducado si la fecha está en el pasado **o** si hay rol PRO/SOLVER sin suscripción activa (`paidThroughAt` null o no futuro).
 - Los pros degradados siguen viendo sus trabajos en curso, pero con límites en nuevas propuestas.
 
@@ -392,7 +392,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
   - `description`, `image`, `audio`, **`video`** (según el modo; el resto va vacío o `null`),
   - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
 - El cliente usa **timeout explícito** para `POST /predict` (p. ej. 300 s en `httpTimeouts.ts`; recomendado 120–300 s con vídeo). El backend debe permitir lectura del cuerpo y ejecución suficientes; ver **`docs/BACKEND_PREDICT_UPLOAD.md`**.
-- En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network`) o **red lenta** en navegador (`navigator.connection.effectiveType` 2g/3g), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
+- En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network` en iOS/Android) o, cuando no hay detalle de red nativo, **conexión lenta** vía heurística (`navigator.connection.effectiveType` 2g/3g, p. ej. en tests), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.

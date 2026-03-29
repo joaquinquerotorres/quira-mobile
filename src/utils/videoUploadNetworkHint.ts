@@ -16,7 +16,7 @@ interface NavigatorWithConnection extends Navigator {
 /**
  * Indicador para avisar al usuario en la pestaña vídeo.
  * - En app nativa (Capacitor): distingue Wi‑Fi vs datos móviles vía @capacitor/network.
- * - En navegador no se puede saber Wi‑Fi vs 4G; solo marcamos conexiones lentas (Network Information API).
+ * - Fuera de plataforma nativa (p. ej. tests): no se distingue Wi‑Fi vs datos; solo heurística de conexión lenta si existe Network Information API.
  */
 export async function getVideoUploadConnectionHint(): Promise<VideoUploadConnectionHint> {
   if (Capacitor.isNativePlatform()) {

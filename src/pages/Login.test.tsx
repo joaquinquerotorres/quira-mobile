@@ -2,6 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { IonApp } from '@ionic/react';
 import { MemoryRouter } from 'react-router-dom';
+/** Simula entorno no nativo (Vitest/jsdom); el producto solo distribuye Android e iOS. */
+const capacitorMock = vi.hoisted(() => ({
+  isNativePlatform: vi.fn(() => false),
+  getPlatform: vi.fn(() => 'web' as const),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: capacitorMock,
+}));
+
 import Login from './Login';
 
 vi.mock('../api/axios', () => ({
@@ -22,6 +32,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 beforeEach(() => {
   vi.mocked(api.post).mockReset();
   vi.mocked(api.get).mockReset();
+  capacitorMock.isNativePlatform.mockReturnValue(false);
+  capacitorMock.getPlatform.mockReturnValue('web');
 });
 
 test('Login renders Quira logo and slogan', () => {
@@ -36,16 +48,23 @@ test('Login renders email and password inputs', () => {
   expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument();
 });
 
-test('Login renders Entrar and social login buttons', () => {
+test('Login renders Entrar and Google; Apple solo en iOS nativo', () => {
   render(<Login />, { wrapper });
   expect(screen.getByText('Entrar')).toBeInTheDocument();
   expect(screen.getByText('Google')).toBeInTheDocument();
-  expect(screen.getByText('Apple')).toBeInTheDocument();
+  expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   expect(screen.getByText('Regístrate con Email')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Privacidad y protección de datos' })).toHaveAttribute(
     'href',
     'https://quira.app/privacidad/index.html',
   );
+});
+
+test('Login muestra Apple cuando la plataforma es iOS nativa', () => {
+  capacitorMock.isNativePlatform.mockReturnValue(true);
+  capacitorMock.getPlatform.mockReturnValue('ios');
+  render(<Login />, { wrapper });
+  expect(screen.getByText('Apple')).toBeInTheDocument();
 });
 
 test('Login shows error on failed API call', async () => {

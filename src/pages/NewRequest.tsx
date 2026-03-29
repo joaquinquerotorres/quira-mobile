@@ -82,7 +82,7 @@ const NewRequest: React.FC = () => {
   const [extraMedia, setExtraMedia] = useState<Array<{ type: 'photo' | 'video' | 'audio'; data: string }>>([]);
   const MAX_EXTRA_MEDIA = 3;
 
-  /** Para avisar en pestaña vídeo si hay datos móviles o red lenta (web). */
+  /** Aviso en pestaña vídeo si hay datos móviles o red lenta (detalle fino solo en app nativa). */
   const [videoUploadNetworkHint, setVideoUploadNetworkHint] =
     useState<VideoUploadConnectionHint | null>(null);
 

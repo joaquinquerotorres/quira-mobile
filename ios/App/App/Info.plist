@@ -57,5 +57,16 @@
 	<string>Quira puede guardar contenido multimedia cuando el usuario lo solicite.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Quira usa tu ubicacion para autocompletar la direccion de la solicitud.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.147003903442-go6b5t5fmp2i3bjb3drapvtrrqm7p8et</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

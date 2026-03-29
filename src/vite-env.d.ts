@@ -7,7 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_PRIVACY_CONTROLLER_SUMMARY?: string;
   /** Email para privacidad y ejercicio de derechos RGPD. */
   readonly VITE_PRIVACY_CONTACT_EMAIL?: string;
-  /** URL de la política de privacidad completa en web (opcional). */
+  /** URL de la política de privacidad completa en el sitio público / landing (opcional). */
   readonly VITE_PRIVACY_POLICY_URL?: string;
 }
 

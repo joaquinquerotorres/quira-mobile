@@ -8,7 +8,11 @@ import { logInOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from '
 import { Capacitor } from '@capacitor/core';
 import * as Sentry from '@sentry/capacitor';
 import api from '../api/axios'; 
-import './Login.css'; 
+import './Login.css';
+
+/** Sign in with Apple solo aplica en la app nativa iOS (no en Android). */
+const canUseAppleSignIn = () =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState(''); 
@@ -29,7 +33,7 @@ const Login: React.FC = () => {
             // Usuario ya autenticado en Firebase
           }
         } catch {
-          // En web (Cypress) o si el plugin no está disponible, no bloqueamos el login.
+          // Fuera de app nativa (p. ej. CI con jsdom) o sin plugin: no bloqueamos el login por email.
         }
     };
     checkUser();
@@ -66,7 +70,13 @@ const Login: React.FC = () => {
 
     try {
         if (!Capacitor.isNativePlatform()) {
-          throw new Error('Social login only available on native platforms');
+          throw new Error(
+            'El inicio de sesión con Google o Apple solo está disponible en la app para Android e iOS.',
+          );
+        }
+
+        if (provider === 'APPLE' && !canUseAppleSignIn()) {
+          throw new Error('Apple Sign-In solo está disponible en la app para iPhone e iPad.');
         }
 
         const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
@@ -132,8 +142,15 @@ const Login: React.FC = () => {
               setError(
                 'Google no pudo mostrar cuentas en este dispositivo. Comprueba que tengas una cuenta de Google configurada, Play Store actualizado y vuelve a intentarlo; también puedes entrar con email y contraseña.',
               );
+            } else if (
+              rawMessage.includes('Apple Sign-In solo está disponible') ||
+              rawMessage.includes('solo está disponible en la app para Android e iOS')
+            ) {
+              setError(rawMessage);
             } else {
-              setError(`Error al iniciar sesión con ${provider}`);
+              setError(
+                `Error al iniciar sesión con ${provider === 'GOOGLE' ? 'Google' : 'Apple'}`,
+              );
             }
             // Reporte explícito para diagnosticar fallos de login social en dispositivo.
             Sentry.captureException(err, {
@@ -249,10 +266,12 @@ const Login: React.FC = () => {
                     <span>Google</span>
                 </button>
 
-                <button className="login-social-btn apple" onClick={() => handleSocialLogin('APPLE')} disabled={loading}>
+                {canUseAppleSignIn() ? (
+                  <button className="login-social-btn apple" onClick={() => handleSocialLogin('APPLE')} disabled={loading}>
                     <IonIcon icon={logoApple} />
                     <span>Apple</span>
-                </button>
+                  </button>
+                ) : null}
             </div>
 
             <div className="login-divider" style={{marginTop: '20px'}}>

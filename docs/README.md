@@ -18,27 +18,27 @@
 ## Privacidad y RGPD
 
 - **URL oficial:** `https://quira.app/privacidad/index.html`.
-- **Acceso desde la app:** menú **Perfil** → «Privacidad y datos (RGPD)», enlaces en **Login** y **Registro** (apertura externa en navegador).
-- La política legal se mantiene en la landing web para tener una única fuente actualizada.
+- **Acceso desde la app:** menú **Perfil** → «Privacidad y datos (RGPD)», enlaces en **Login** y **Registro** (se abre la URL en el navegador del sistema).
+- La política legal y el sitio público de marketing viven en la carpeta **`landing/`** del repo (p. ej. `quira.app`), no en el bundle que corre dentro de la app.
 
-## Apps nativas (iOS y Android) — objetivo principal
+## Apps nativas (iOS y Android) — producto
 
-Si lo que quieres son **dos aplicaciones** (una en **App Store** y otra en **Google Play**), el camino correcto **no** es subir “la app” a Cloudflare: **Cloudflare Pages solo publica la versión web** (HTML/JS en un dominio). Las apps de tienda son **binarios distintos** generados con **Capacitor** a partir del mismo código React/Vite.
+El producto son **las apps en tienda** (Android e iOS). El código React/Vite genera **`dist/`**, que **Capacitor incrusta en el WebView** de cada app: ese bundle **no** está pensado como sitio web para usuarios finales. La única web pública del proyecto es lo que despliegues desde **`landing/`** (estático).
 
 | Qué quieres | Dónde se publica | Qué usar |
 |-------------|------------------|----------|
 | App **Android** | [Google Play Console](https://play.google.com/console) — subes un **AAB** (recomendado) o APK firmado | Proyecto `android/` tras `npm run build` + `npx cap sync android` + firma con tu keystore |
 | App **iOS** | [App Store Connect](https://appstoreconnect.apple.com) — subes un **IPA** / archive firmado | Proyecto `ios/` tras `npm run build` + `npx cap sync ios` + certificados y perfil de aprovisionamiento de Apple |
-| Sitio web opcional (landing, PWA, demo) | Cloudflare Pages u otro hosting estático | `npm run build` → carpeta `dist/` |
+| **Sitio público** (marketing, privacidad, legales) | **Cloudflare Pages** sirve la carpeta **`landing/`** (p. ej. `quira.app` + `/privacidad`) | Output de deploy = **`landing/`**; no es el bundle **`dist/`** de la app |
 
-**Variables de entorno (`VITE_*`)**: se inyectan en **build time** cuando generas el bundle web que Capacitor copia al proyecto nativo. Configúralas en tu máquina (`.env`), en **GitHub Actions Variables** si usas los workflows de build, o en Xcode/Android Studio según cómo integres el paso de build; **no hace falta Cloudflare** para que las apps en tienda hablen con tu API.
+**Variables de entorno (`VITE_*`)**: se inyectan en **build time** al ejecutar `npm run build`; el resultado en **`dist/`** lo empaqueta Capacitor dentro del binario nativo. Configúralas en `.env`, en **GitHub Actions Variables** para CI, o donde integres el paso de build; **no hace falta** publicar `dist/` en internet para que las apps hablen con tu API.
 
 **CI/CD relevante para tiendas** (ya en este repo):
 
 - **Native build (manual)**: validar que **compila** Android (APK debug) e iOS (simulador, sin firma de distribución).
 - **Native release (manual, signed)**: **Android** puede producir **AAB firmado** si configuras los Secrets del keystore; **iOS** sigue como plantilla hasta que añadas certificados/provisioning (Fastlane match, etc.).
 
-La sección **Cloudflare Pages (web)** más abajo queda como **opcional**, solo si además quieres una URL web pública.
+El despliegue de la **web pública** (`landing/` en Cloudflare Pages) se describe más abajo. Eso **no sustituye** las apps en tienda. Publicar el bundle **`dist/`** en una URL es **otro asunto** (solo tendría sentido para previews o demos internas, no para la web de producto).
 
 ## Variables de entorno
 
@@ -87,6 +87,19 @@ Requisitos del plugin **`@capacitor-firebase/authentication`** (ver [setup Googl
 3. **Authentication → Método de inicio de sesión**: **Google** activado.
 4. En código, en Android se llama a `signInWithGoogle({ useCredentialManager: false })` para usar el selector de cuenta clásico; el **Credential Manager** por defecto a menudo devuelve *No credentials available* si no hay credenciales guardadas para ese flujo.
 
+### Google Sign-In en la app iOS
+
+Con **`@capacitor-firebase/authentication`** y el **Swift Package** generado por Capacitor (`ios/App/CapApp-SPM/Package.swift`), el plugin ya incluye **GoogleSignIn** en iOS; no hace falta añadir el subspec CocoaPods `CapacitorFirebaseAuthentication/Google` salvo que migres a Pods.
+
+Requisitos para que el flujo funcione de extremo a extremo:
+
+1. **`GoogleService-Info.plist`** en `ios/App/App/` con `CLIENT_ID` y **`REVERSED_CLIENT_ID`** del cliente iOS de Firebase (como en la sección de configuración local).
+2. **`Info.plist` → URL Types (`CFBundleURLTypes`)**: debe existir un esquema cuyo valor sea exactamente el **`REVERSED_CLIENT_ID`** del plist de Firebase. Sin esto, tras el flujo de Google (Safari / vista del sistema), la app no recibe el redirect y el login falla de forma silenciosa o con error genérico.
+3. **Firebase Console → Authentication**: proveedor **Google** activado; en la app iOS registrada, el **Bundle ID** coincide con el de Xcode (`com.quira.app` en este proyecto).
+4. **`AppDelegate`**: mantener `application(_:open:options:)` delegando en `ApplicationDelegateProxy.shared` (ya está en la plantilla Capacitor); eso enruta la URL de vuelta al plugin.
+
+En TypeScript, en iOS basta con `FirebaseAuthentication.signInWithGoogle()` sin opciones; `useCredentialManager` solo aplica en Android.
+
 ### Configuración en CI (GitHub Actions)
 
 Recomendado: guardar los ficheros reales como **Secrets** en base64 y recrearlos en el runner.
@@ -101,7 +114,7 @@ echo "$ANDROID_GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/goog
 echo "$IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/App/App/GoogleService-Info.plist
 ```
 
-Nota: en el CI actual (web build + tests) **no hace falta** recrearlos salvo que añadas jobs de build nativo.
+Nota: en el CI actual (build de `dist/` para tests y calidad) **no hace falta** recrearlos salvo que añadas jobs de build nativo.
 
 ## Builds nativos (Android/iOS) en CI bajo demanda
 
@@ -167,50 +180,44 @@ El workflow genera un `.aab` en `android/app/build/outputs/bundle/release/` y lo
 El job de iOS está dejado como **plantilla** (para evitar builds falsamente “verdes” sin signing).
 Para habilitarlo necesitas aportar certificados y provisioning profiles (recomendado: Fastlane match).
 
-## Cloudflare Pages (web)
+## Web pública: `landing/` en Cloudflare Pages
 
-**Solo aplica si quieres una versión web** (navegador). Para **solo** apps iOS/Android en tiendas, puedes **ignorar** esta sección.
+La **única web** del producto es el sitio estático de la carpeta **`landing/`**: portada (`index.html`), **privacidad** (`privacidad/`, p. ej. `https://quira.app/privacidad/…`) y el resto de páginas legales o de marketing que vivan ahí. Eso es lo que está (y debe estar) publicado en **Cloudflare Pages** con el dominio público (p. ej. `quira.app`). **No** uses el bundle **`dist/`** de la app Capacitor como sustituto de esta web.
 
-La app es **Vite + React SPA**; el build estático sale en **`dist/`**. En Cloudflare no hace falta tocar el CI de GitHub **si** conectas el repositorio desde el panel de Pages y dejas que Cloudflare ejecute el build.
+### Configuración típica en Cloudflare Pages (solo `landing/`)
 
-### Ajustes en el repo (ya hechos / recomendados)
+- **Root directory** del proyecto en Pages: raíz del repositorio (o la carpeta que uses en tu pipeline).
+- **Build command**: suele poder dejarse **vacío** o ser un no-op si publicas HTML estático tal cual; si el asistente exige comando, algo como `exit 0` puede bastar según cómo definas el directorio de salida.
+- **Build output directory**: **`landing`** (Cloudflare sirve el contenido de esa carpeta: es el sitio web real).
 
-- **`public/_redirects`**: fallback a `index.html` para rutas del cliente (recargas y enlaces directos). Vite copia `public/` a la raíz de `dist/`.
-- **Build en Cloudflare**:
-  - **Build command**: `npm run build` (o `npm ci && npm run build` si el entorno no instala deps antes; el asistente de Pages suele incluir `npm ci`).
-  - **Build output directory**: `dist`
-  - **Root directory**: raíz del repo (si no usas monorepo).
-- **Node**: en Pages → Settings → Environment variables, fija **Node version** a **20** para alinear con GitHub Actions (opcional pero recomendable).
+Ajusta nombres exactos según tu proyecto en el panel de Cloudflare; lo importante es que **el origen del sitio público sea `landing/`**, no `dist/`.
 
-### Variables de entorno (Vite)
+### Backend y CORS (landing)
 
-Las variables `VITE_*` se **inyectan en build time**. En Cloudflare Pages: **Settings → Environment variables** y repite los mismos nombres que en `.env.example` / GitHub **Variables** (p. ej. `VITE_API_URL`, Firebase web, `VITE_GOOGLE_MAPS_KEY`).
+Si **`landing/`** hace peticiones `fetch` / XHR a tu API, el backend debe permitir en CORS el origen de producción (p. ej. `https://quira.app`) y el de previews de Pages si los usas (`*.pages.dev` o el host concreto).
 
-- **Production** y **Preview**: configura ambas si quieres previews de PR con API de staging; si no, las previews pueden fallar al llamar a la API por CORS o URLs incorrectas.
-
-### Backend y CORS
-
-La API debe permitir el origen del sitio en Cloudflare:
-
-- Dominio de producción: `https://tu-dominio.com`
-- Dominio por defecto de Pages: `https://<project>.pages.dev`
-- **Previews** de PR: URLs tipo `https://<hash>.<project>.pages.dev` — si el navegador llama a la API, el backend debe aceptar esos `Origin` o usar una política acordada (a veces solo se habilita previews contra un API de staging con CORS amplio).
-
-### Firebase (solo web)
-
-En **Firebase Console → Authentication → Settings → Authorized domains** añade:
-
-- Tu dominio de Cloudflare
-- `*.pages.dev` si Firebase lo permite para previews, o el dominio concreto de preview que uses
-
-### CI/CD: ¿hay que cambiar GitHub Actions?
+### CI/CD y GitHub Actions
 
 | Enfoque | Qué hacer |
 |--------|-----------|
-| **Solo Cloudflare Pages conectado a Git** | No es obligatorio cambiar workflows: cada push puede desplegar en Cloudflare; GitHub sigue ejecutando **CI** (lint/test/build/e2e) en PRs y `main`. Mantén **las mismas variables** en GitHub (CI) y en Cloudflare (build del sitio). |
-| **Despliegue solo desde GitHub Actions** | Añadir un job con `wrangler pages deploy` o `cloudflare/pages-action` y secretos `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` + nombre del proyecto. Entonces **desactiva** el build automático duplicado en el panel de Pages para no publicar dos veces. |
+| **Cloudflare Pages conectado al repo** | Cada push puede desplegar la **landing**; GitHub sigue ejecutando **CI** (lint/test/build/e2e) en PRs y `main`. No confundir el build de **`dist/`** en CI (para tests y empaquetado nativo) con el despliegue web. |
+| **Despliegue de Pages solo desde Actions** | Job con `wrangler pages deploy landing` (o equivalente) y secretos `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, nombre del proyecto; evita despliegues duplicados si también tienes build automático en el panel. |
 
-Recomendación práctica: **Pages conectado a Git** + mantener el CI actual en GitHub para calidad; sin duplicar deploy salvo que quieras un pipeline único en Actions.
+Recomendación práctica: **Pages para `landing/`** + CI en GitHub para calidad del monorepo (app + landing en el mismo repo).
+
+---
+
+## Publicar el bundle `dist/` en una URL (no es la web del producto)
+
+Solo relevante si en algún momento quisieras una **demo o preview** de la misma SPA que va dentro del WebView de Capacitor. **Quira** no define la web pública así: la web pública es **`landing/`**, arriba.
+
+- El proyecto app es **Vite + React**; `npm run build` genera **`dist/`**.
+- **`public/_redirects`**: fallback a `index.html` para rutas del cliente en ese bundle; Vite copia `public/` a la raíz de `dist/` (sirve si despliegas `dist/`, no para la landing estática).
+- **Variables `VITE_*`**: solo aplican al **build de la app** (`npm run build` para Capacitor o para un despliegue puntual de `dist/`).
+
+### Firebase Auth: dominios autorizados (solo si publicas `dist/` con login Firebase en navegador)
+
+Si desplegaras la SPA de **`dist/`** en un origen HTTPS y usaras Auth orientado a navegador ahí, en **Firebase Console → Authentication → Authorized domains** habría que añadir ese dominio. Para **apps nativas** + **`landing/`** estática, la configuración habitual en Firebase son los clientes **iOS/Android**; la landing no sustituye a la app.
 
 ## Tests (recomendado antes de release)
 

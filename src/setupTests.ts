@@ -8,7 +8,7 @@ import React from 'react';
 import { afterEach } from 'vitest';
 
 /**
- * El web component ion-app programa trabajo async (rIC / setTimeout) que puede
+ * El shell Ionic (`ion-app`) programa trabajo async (rIC / setTimeout) que puede
  * ejecutarse tras desmontar jsdom → ReferenceError: window is not defined.
  * En tests no necesitamos ese lifecycle; passthrough evita timers colgados.
  */
