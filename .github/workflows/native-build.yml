@@ -30,7 +30,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Vite env (recommended as Actions Variables)
+  # Variables: VITE_API_URL, VITE_GOOGLE_MAPS_KEY, VITE_SENTRY_DSN
+  # Secrets: ANDROID_GOOGLE_SERVICES_JSON_BASE64, IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 (Android keystore → native-release only)
   VITE_API_URL: ${{ vars.VITE_API_URL }}
   VITE_GOOGLE_MAPS_KEY: ${{ vars.VITE_GOOGLE_MAPS_KEY }}
   VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
@@ -107,8 +108,13 @@ jobs:
         if: ${{ env.ANDROID_GOOGLE_SERVICES_JSON_BASE64 != '' }}
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p android/app
-          echo "${ANDROID_GOOGLE_SERVICES_JSON_BASE64}" | base64 --decode > android/app/google-services.json
+          # Strip accidental spaces/newlines from pasted base64; printf avoids echo quirks
+          B64="${ANDROID_GOOGLE_SERVICES_JSON_BASE64//[$'\t\r\n ']/}"
+          printf '%s' "$B64" | base64 -d > android/app/google-services.json
+          python3 -m json.tool android/app/google-services.json > /dev/null
+          echo "google-services.json restored ($(wc -c < android/app/google-services.json) bytes, valid JSON)"
 
       - name: Build web (dist)
         run: npm run build
@@ -196,8 +202,12 @@ jobs:
         if: ${{ env.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 != '' }}
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p ios/App/App
-          echo "${IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64}" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          B64="${IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64//[$'\t\r\n ']/}"
+          printf '%s' "$B64" | base64 -d > ios/App/App/GoogleService-Info.plist
+          plutil -lint ios/App/App/GoogleService-Info.plist
+          echo "GoogleService-Info.plist restored ($(wc -c < ios/App/App/GoogleService-Info.plist) bytes, valid plist)"
 
       - name: Build web (dist)
         run: npm run build
