@@ -21,7 +21,7 @@ const SPLASH_CENTER_CROP = 1;
  * Escala el logo respecto al lienzo antes de generar mipmaps (solo recorte central simétrico).
  * >1 agranda la Q en el icono; subir con cuidado para no recortar cola/anillo del logo.
  */
-const ICON_CENTER_ZOOM = 1.2;
+const ICON_CENTER_ZOOM = 1.26;
 
 /** Pixels that are white/light gray margins; keep saturated colors (tail, ring). */
 function isMarginPixel(r, g, b) {

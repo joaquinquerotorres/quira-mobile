@@ -78,6 +78,15 @@ En el repo dejamos **plantillas** sin datos sensibles:
    - `cp ios/App/App/GoogleService-Info.plist.example ios/App/App/GoogleService-Info.plist`
 2. Sustituye los valores `REPLACE_ME_*` por los de tu proyecto Firebase (desde Firebase Console).
 
+### Google Sign-In en la app Android
+
+Requisitos del plugin **`@capacitor-firebase/authentication`** (ver [setup Google](https://github.com/capawesome-team/capacitor-firebase/blob/main/packages/authentication/docs/setup-google.md)):
+
+1. En **`android/variables.gradle`**: `rgcfaIncludeGoogle = true` y `androidxCredentialsVersion = '1.3.0'` (sin esto las dependencias de Google pueden quedar solo como `compileOnly` y el login falla de formas opacas).
+2. En **Firebase Console → Configuración del proyecto**, añade la **huella SHA-1** (y SHA-256 si aplica) del keystore con el que firmas el APK/AAB (debug y release). Descarga de nuevo `google-services.json` si hace falta.
+3. **Authentication → Método de inicio de sesión**: **Google** activado.
+4. En código, en Android se llama a `signInWithGoogle({ useCredentialManager: false })` para usar el selector de cuenta clásico; el **Credential Manager** por defecto a menudo devuelve *No credentials available* si no hay credenciales guardadas para ese flujo.
+
 ### Configuración en CI (GitHub Actions)
 
 Recomendado: guardar los ficheros reales como **Secrets** en base64 y recrearlos en el runner.
@@ -224,4 +233,5 @@ Recomendación práctica: **Pages conectado a Git** + mantener el CI actual en G
 - Algunos tests **stubbean componentes de Ionic** (p. ej. `IonAlert`, wrappers sin `IonApp`) para evitar timers internos que pueden producir errores al teardown en `jsdom`.
 - Plugins de **Capacitor** (`@capacitor/network`, micrófono, etc.) suelen **mockearse** en tests de páginas; la lógica de red para avisos en vídeo está cubierta en `src/utils/videoUploadNetworkHint.test.ts`.
 - El timeout de **`POST /predict`** se documenta y fija en `src/config/httpTimeouts.ts`; su valor está cubierto en `src/config/httpTimeouts.test.ts`.
+- Si un test redefine `vi.mock('@ionic/react', importOriginal => …)`, debe seguir sustituyendo **`IonApp`** por un stub ligero (p. ej. `Fragment`), no el componente real: de lo contrario `ion-app` programa timers que pueden ejecutarse tras el teardown de jsdom y Vitest reporta rechazos no gestionados (`window` / `document` is not defined). Opcionalmente reutiliza los mismos stubs que `src/setupTests.ts` (`IonRouterOutlet`, `IonTabs`, …).
 - El objetivo es priorizar tests **deterministas** y rápidos para reducir flakiness antes de publicar.

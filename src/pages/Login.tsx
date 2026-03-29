@@ -72,7 +72,15 @@ const Login: React.FC = () => {
         const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
         // 1. Ejecutar el login nativo
         if (provider === 'GOOGLE') {
-            await FirebaseAuthentication.signInWithGoogle();
+            // Android: el Credential Manager por defecto suele devolver "No credentials available" si no
+            // hay credenciales guardadas para ese flujo. El flujo clásico con selector de cuenta es más fiable.
+            if (Capacitor.getPlatform() === 'android') {
+              await FirebaseAuthentication.signInWithGoogle({
+                useCredentialManager: false,
+              });
+            } else {
+              await FirebaseAuthentication.signInWithGoogle();
+            }
         } else {
             await FirebaseAuthentication.signInWithApple();
         }
@@ -114,6 +122,19 @@ const Login: React.FC = () => {
         if (isUserCancel) {
             setError(null); // No mostramos error si el usuario canceló voluntariamente
         } else {
+            const rawMessage = String(
+              err?.message ?? err?.nativeMessage ?? '',
+            );
+            if (
+              rawMessage.includes('No credentials available') ||
+              rawMessage.includes('GetCredentialException')
+            ) {
+              setError(
+                'Google no pudo mostrar cuentas en este dispositivo. Comprueba que tengas una cuenta de Google configurada, Play Store actualizado y vuelve a intentarlo; también puedes entrar con email y contraseña.',
+              );
+            } else {
+              setError(`Error al iniciar sesión con ${provider}`);
+            }
             // Reporte explícito para diagnosticar fallos de login social en dispositivo.
             Sentry.captureException(err, {
               tags: {
@@ -128,7 +149,6 @@ const Login: React.FC = () => {
                 nativeStack: err?.nativeStack,
               },
             });
-            setError(`Error al iniciar sesión con ${provider}`);
         }
     } finally {
         setLoading(false);

@@ -2,6 +2,10 @@ ext {
     minSdkVersion = 24
     compileSdkVersion = 36
     targetSdkVersion = 36
+    // @capacitor-firebase/authentication (Google): incluir dependencias reales, no solo compileOnly.
+    // Ver https://github.com/capawesome-team/capacitor-firebase/blob/main/packages/authentication/docs/setup-google.md
+    rgcfaIncludeGoogle = true
+    androidxCredentialsVersion = '1.3.0'
     androidxActivityVersion = '1.11.0'
     androidxAppCompatVersion = '1.7.1'
     androidxCoordinatorLayoutVersion = '1.3.0'

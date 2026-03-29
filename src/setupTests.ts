@@ -18,6 +18,37 @@ vi.mock('@ionic/react', async (importOriginal) => {
     ...actual,
     IonApp: ({ children }: { children?: React.ReactNode }) =>
       React.createElement(React.Fragment, null, children),
+    /** Evita ion-router-outlet nativo: tras desmontar jsdom puede quedar async y romper Vitest (document/window). */
+    IonRouterOutlet: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement('div', { 'data-testid': 'ion-router-outlet' }, children),
+    IonTabs: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement('div', { 'data-testid': 'ion-tabs' }, children),
+    IonTabBar: ({
+      children,
+      ...rest
+    }: {
+      children?: React.ReactNode;
+      [key: string]: unknown;
+    }) =>
+      React.createElement(
+        'div',
+        { 'data-testid': 'ion-tab-bar', ...rest },
+        children,
+      ),
+    IonTabButton: ({
+      children,
+      href,
+      ...rest
+    }: {
+      children?: React.ReactNode;
+      href?: string;
+      [key: string]: unknown;
+    }) =>
+      React.createElement(
+        'a',
+        { href: href ?? '#', 'data-testid': 'ion-tab-button', ...rest },
+        children,
+      ),
   };
 });
 

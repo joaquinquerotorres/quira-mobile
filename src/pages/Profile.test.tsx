@@ -19,6 +19,8 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
   return {
     ...actual,
+    IonApp: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
     useIonViewWillEnter: (cb: () => void) => useEffect(() => { cb(); }, []),
     useIonRouter: () => ionRouterStub,
     /** El contenido real de IonModal queda en shadow DOM; en tests exponemos hijos en light DOM. */

@@ -14,6 +14,8 @@ vi.mock('@ionic/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ionic/react')>();
   return {
     ...actual,
+    IonApp: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
     useIonViewWillEnter: (cb: () => void) => useEffect(() => { cb(); }, []),
   };
 });
