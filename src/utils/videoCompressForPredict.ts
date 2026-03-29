@@ -1,36 +1,31 @@
 import type { VideoUploadConnectionHint } from './videoUploadNetworkHint';
 
-/** Red moderada: suficiente para subir antes en redes malas sin destrozar el contenido para la IA. */
-export const PREDICT_VIDEO_MAX_WIDTH = 854;
+/**
+ * Re-codificación **moderada** orientada a modelos multimodales (p. ej. Gemini): suficiente resolución
+ * y bitrate para entender gestos, objetos y audio, sin calidad de estudio (innecesaria para el diagnóstico).
+ */
+export const PREDICT_VIDEO_MAX_WIDTH = 960;
 export const PREDICT_VIDEO_TARGET_FPS = 24;
-/** ~2.2 Mbps — por debajo de calidad “cámara” pero usable para diagnóstico visual. */
-export const PREDICT_VIDEO_BITS_PER_SECOND = 2_200_000;
+/** Bitrate acotado pero legible para análisis de vídeo por IA (no “miniatura ilegible”). */
+export const PREDICT_VIDEO_BITS_PER_SECOND = 2_500_000;
 
 /**
  * No intentar re-codificar vídeos **más largos** que esto (riesgo de memoria / tiempo en el dispositivo).
- * Vídeos **cortos** (p. ej. 10 s) **sí** entran en la compresión si aplica red o tamaño, salvo que superen esta duración.
+ * Vídeos más cortos **sí** pueden comprimirse cuando la red lo amerita (véase {@link shouldCompressVideoForUpload}).
  */
 export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC = 300;
 
 /**
- * Si el payload (base64) supera este tamaño **decodificado**, intentamos comprimir aunque el hint sea
- * `wifi` o `unknown` (Wi‑Fi lenta o etiqueta de red incorrecta; p. ej. 10 s y 14 MB).
- */
-export const PREDICT_VIDEO_COMPRESS_IF_LARGER_THAN_BYTES = 6 * 1024 * 1024;
-
-/**
- * ¿Intentar compresión moderada antes de `/predict`?
- * - Red móvil o lenta: sí.
- * - Fichero muy grande: sí (reduce subidas pesadas aunque el sistema reporte Wi‑Fi).
- * - Wi‑Fi + fichero pequeño: no (evita trabajo innecesario en buena conexión).
+ * ¿Intentar compresión antes de `/predict`?
+ * - **Sí** solo con **datos móviles** (`cellular`) o red **lenta** (`slow_or_unreliable`).
+ * - **No** con **Wi‑Fi** ni con estado `unknown`: en Wi‑Fi suele bastar subir el original; no forzamos compresión.
+ *
+ * La compresión no busca el mínimo tamaño posible, sino aligerar la subida **manteniendo** calidad útil para Gemini
+ * (ver constantes de ancho/bitrate arriba).
  */
 export function shouldCompressVideoForUpload(
   hint: VideoUploadConnectionHint,
-  decodedSizeBytes: number,
 ): boolean {
-  if (decodedSizeBytes >= PREDICT_VIDEO_COMPRESS_IF_LARGER_THAN_BYTES) {
-    return true;
-  }
   return hint === 'cellular' || hint === 'slow_or_unreliable';
 }
 
@@ -38,11 +33,6 @@ function dataUrlByteLength(dataUrl: string): number {
   const base64 = dataUrl.split(',')[1];
   if (!base64) return dataUrl.length;
   return Math.floor((base64.length * 3) / 4);
-}
-
-/** Tamaño aproximado del binario decodificado del data URL del vídeo (útil para umbral de compresión). */
-export function predictVideoPayloadDecodedBytes(dataUrl: string): number {
-  return dataUrlByteLength(dataUrl);
 }
 
 function pickRecorderMime(): string {
@@ -229,8 +219,8 @@ export interface MaybeCompressVideoResult {
 }
 
 /**
- * Si la red no es “lenta”, devuelve el mismo data URL.
- * Si conviene comprimir y la re-codificación tiene éxito, devuelve el nuevo data URL (p. ej. WebM).
+ * Si la red **no** es móvil ni lenta (p. ej. Wi‑Fi), devuelve el mismo data URL.
+ * Si aplica compresión y la re-codificación tiene éxito, devuelve el nuevo data URL (p. ej. WebM).
  * Ante cualquier fallo, devuelve el original sin lanzar.
  */
 export async function maybeCompressVideoDataUrlForPredict(
@@ -238,7 +228,7 @@ export async function maybeCompressVideoDataUrlForPredict(
   hint: VideoUploadConnectionHint,
 ): Promise<MaybeCompressVideoResult> {
   const originalBytes = dataUrlByteLength(dataUrl);
-  if (!shouldCompressVideoForUpload(hint, originalBytes)) {
+  if (!shouldCompressVideoForUpload(hint)) {
     return {
       dataUrl,
       compressed: false,
