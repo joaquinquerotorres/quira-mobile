@@ -35,12 +35,12 @@ El cliente entonces ve **Axios `ERR_NETWORK`** sin cuerpo de respuesta (conexió
 - Para `POST /api/predict` con vídeo, usar **timeout explícito** en el cliente (p. ej. **120 000–300 000 ms**), no el default corto de algunas pilas.
 - En este repo: `PREDICT_REQUEST_TIMEOUT_MS` en `src/config/httpTimeouts.ts` (**300 000 ms** = 5 min) y se pasa a `api.post('/predict', …, { timeout: … })` desde `NewRequest.tsx`.
 
-### Compresión moderada en cliente (datos móviles, red lenta o Wi‑Fi con vídeo grande)
+### Compresión moderada en cliente (datos móviles, red lenta o Wi-Fi con vídeo grande)
 
 Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** cuando:
 
 - Hay **datos móviles** (`cellular`) o **red lenta** (`slow_or_unreliable`) — siempre que no supere el límite de duración (véase abajo), **o**
-- Hay **Wi‑Fi** o estado **desconocido** (`unknown`) y el vídeo decodificado pesa **≥ 10 MiB** (`PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN` en `src/utils/videoCompressForPredict.ts`): se considera fichero **grande** (p. ej. alta resolución o bitrate alto); por debajo de ese umbral en Wi‑Fi/`unknown` **no** se comprime.
+- Hay **Wi-Fi** o estado **desconocido** (`unknown`) y el vídeo decodificado pesa **≥ 10 MiB** (`PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN` en `src/utils/videoCompressForPredict.ts`): se considera fichero **grande** (p. ej. alta resolución o bitrate alto); por debajo de ese umbral en Wi-Fi/`unknown` **no** se comprime.
 
 El objetivo no es el archivo mínimo, sino **aligerar la subida** sin destruir el contenido para el modelo: resolución máxima ~**960px** de ancho, bitrate moderado (~**2,5 Mbit/s**), audio del vídeo cuando el navegador lo permite — orientado a que modelos multimodales (p. ej. Gemini) sigan entendiendo imagen y sonido.
 
@@ -48,7 +48,11 @@ Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder
 
 El fichero resultante suele ser **WebM (VP8/VP9)** aunque el de cámara fuera MP4/MOV: el backend/Gemini debe aceptar ese contenedor para la ruta `/predict` o rechazar con mensaje claro.
 
-**Límite de duración (solo vídeos muy largos):** no se intenta la compresión en cliente si el vídeo dura **más de ~5 minutos** (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC`), para evitar memoria/tiempo excesivos en el móvil. Los vídeos **cortos** **sí** pueden comprimirse cuando la red es móvil/lenta.
+**Límite de duración (solo vídeos muy largos):** por defecto (p. ej. web) no se intenta la compresión en cliente si el vídeo dura **más de ~5 minutos** (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC`). En **app nativa** (Capacitor) el máximo de duración para re-codificar es **más bajo** (`PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE`, p. ej. 120 s) para reducir memoria y tiempo en el WebView.
+
+**Límite de tamaño decodificado:** no se intenta comprimir si el binario del data URL supera un tope (web vs nativo: `PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_*`), para limitar picos de memoria (`atob`, canvas, `MediaRecorder`) que en dispositivos reales pueden cerrar el proceso.
+
+Los vídeos **cortos y dentro de los topes** **sí** pueden comprimirse cuando la red lo amerita.
 
 ## Mejoras a medio plazo
 

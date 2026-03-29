@@ -2,7 +2,9 @@ import 'axios';
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
-    /** Si es true, un 401 no redirige a /login (verify, reset password, etc.). */
+    /** No enviar Authorization (p. ej. POST /social/login con token de Firebase). */
+    skipAuthHeader?: boolean;
+    /** Ante 401, no redirigir a login (p. ej. credenciales sociales rechazadas). */
     skipAuthRedirect?: boolean;
   }
 }

@@ -39,6 +39,10 @@ import {
   maybeCompressVideoDataUrlForPredict,
   predictVideoPayloadDecodedBytes,
   shouldCompressVideoForUpload,
+  PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT,
+  PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE,
+  PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC,
+  PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE,
 } from '../utils/videoCompressForPredict';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
@@ -532,9 +536,21 @@ const NewRequest: React.FC = () => {
       if (inputMode === 'VIDEO' && predictVideo) {
         const netHint = await getVideoUploadConnectionHint();
         const videoBytes = predictVideoPayloadDecodedBytes(predictVideo);
+        const videoCompressClientOpts = Capacitor.isNativePlatform()
+          ? {
+              maxDecodedBytes:
+                PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE,
+              maxDurationSec: PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE,
+            }
+          : {
+              maxDecodedBytes:
+                PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT,
+              maxDurationSec: PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC,
+            };
         const willTryCompress = shouldCompressVideoForUpload(
           netHint,
           videoBytes,
+          videoCompressClientOpts,
         );
         setLoadingMessage(
           willTryCompress
@@ -544,6 +560,7 @@ const NewRequest: React.FC = () => {
         const compressResult = await maybeCompressVideoDataUrlForPredict(
           predictVideo,
           netHint,
+          videoCompressClientOpts,
         );
         predictVideo = compressResult.dataUrl;
         videoCompressMeta = {

@@ -90,3 +90,30 @@ export function axiosErrorUserHint(error: unknown): string | undefined {
   }
   return undefined;
 }
+
+/**
+ * Mensaje legible del cuerpo de error (API Platform / Symfony) para mostrar al usuario.
+ */
+export function getBackendErrorMessage(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error) || error.response?.data == null) return undefined;
+  const d = error.response.data;
+  if (typeof d === 'string') {
+    const t = d.trim();
+    return t.length > 0 && t.length < 400 ? t : undefined;
+  }
+  if (typeof d !== 'object') return undefined;
+  const o = d as Record<string, unknown>;
+  if (typeof o.detail === 'string') return o.detail;
+  if (typeof o.message === 'string') return o.message;
+  if (typeof o.title === 'string') return o.title;
+  if (typeof o['hydra:description'] === 'string') {
+    return o['hydra:description'] as string;
+  }
+  if (typeof o['hydra:title'] === 'string') return o['hydra:title'] as string;
+  const v = o.violations;
+  if (Array.isArray(v) && v[0] && typeof v[0] === 'object' && v[0] !== null) {
+    const m = (v[0] as { message?: string }).message;
+    if (typeof m === 'string') return m;
+  }
+  return undefined;
+}

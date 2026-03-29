@@ -18,7 +18,7 @@
 
 .login-logo-text-indigo {
     font-family: 'Outfit', 'Inter', sans-serif;
-    font-size: 4rem; 
+    font-size: 5.25rem;
     font-weight: 900;
     color: #312e81; 
     letter-spacing: -3px;
@@ -27,7 +27,7 @@
 
 .login-logo-text-orange {
     font-family: 'Outfit', 'Inter', sans-serif;
-    font-size: 4rem; 
+    font-size: 5.25rem;
     font-weight: 900;
     color: #f97316; 
     letter-spacing: -3px;
@@ -41,10 +41,10 @@
 
 .login-smart-dot-big {
     position: absolute;
-    top: 7px;
+    top: 9px;
     right: 0px;
-    width: 13px;
-    height: 13px;
+    width: 16px;
+    height: 16px;
     background: #f97316; 
     border-radius: 50%;
     box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 

@@ -14,6 +14,12 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    const skipAuthHeader = (
+      config as { skipAuthHeader?: boolean }
+    ).skipAuthHeader;
+    if (skipAuthHeader) {
+      return config;
+    }
     const token = localStorage.getItem('quira_token');
 
     if (token) {

@@ -4,6 +4,9 @@ import {
   maybeCompressVideoDataUrlForPredict,
   predictVideoPayloadDecodedBytes,
   PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC,
+  PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE,
+  PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT,
+  PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE,
   PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN,
 } from './videoCompressForPredict';
 
@@ -15,7 +18,7 @@ describe('shouldCompressVideoForUpload', () => {
     expect(shouldCompressVideoForUpload('slow_or_unreliable', 0)).toBe(true);
   });
 
-  it('en Wi‑Fi o unknown solo si el vídeo supera el umbral “grande” (~10 MB)', () => {
+  it('en Wi-Fi o unknown solo si el video supera el umbral grande (~10 MB)', () => {
     expect(
       shouldCompressVideoForUpload(
         'wifi',
@@ -35,6 +38,20 @@ describe('shouldCompressVideoForUpload', () => {
       ),
     ).toBe(true);
     expect(shouldCompressVideoForUpload('unknown', 500 * 1024)).toBe(false);
+  });
+
+  it('no comprime si el binario decodificado supera maxDecodedBytes (evita OOM en movil)', () => {
+    const over = PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE + 1;
+    expect(
+      shouldCompressVideoForUpload('cellular', over, {
+        maxDecodedBytes: PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE,
+      }),
+    ).toBe(false);
+    expect(
+      shouldCompressVideoForUpload('wifi', 12 * MB, {
+        maxDecodedBytes: 10 * MB,
+      }),
+    ).toBe(false);
   });
 });
 
@@ -97,7 +114,7 @@ describe('predictVideoPayloadDecodedBytes', () => {
     expect(predictVideoPayloadDecodedBytes(dataUrl)).toBe(256);
   });
 
-  it('shouldCompress en Wi‑Fi usa el mismo criterio de bytes que predictVideoPayloadDecodedBytes', () => {
+  it('shouldCompress en Wi-Fi usa el mismo criterio de bytes que predictVideoPayloadDecodedBytes', () => {
     const bytes = PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN;
     expect(shouldCompressVideoForUpload('wifi', bytes)).toBe(true);
     expect(shouldCompressVideoForUpload('wifi', bytes - 1)).toBe(false);
@@ -109,7 +126,13 @@ describe('constantes', () => {
     expect(PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC).toBe(300);
   });
 
-  it('umbral “grande” para Wi‑Fi / unknown es 10 MB decodificados', () => {
+  it('umbral grande para Wi-Fi / unknown es 10 MB decodificados', () => {
     expect(PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN).toBe(10 * MB);
+  });
+
+  it('limites nativos vs web para compresion en cliente', () => {
+    expect(PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE).toBe(120);
+    expect(PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE).toBe(10 * MB);
+    expect(PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT).toBe(16 * MB);
   });
 });

@@ -7,7 +7,11 @@ import { Link } from 'react-router-dom';
 import { logInOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import * as Sentry from '@sentry/capacitor';
-import api from '../api/axios'; 
+import api from '../api/axios';
+import {
+  axiosErrorUserHint,
+  getBackendErrorMessage,
+} from '../api/axiosErrorDebug';
 import './Login.css';
 
 /** Sign in with Apple solo aplica en la app nativa iOS (no en Android). */
@@ -98,17 +102,22 @@ const Login: React.FC = () => {
         // 2. OBTENCIÓN SEGURA DEL TOKEN (La clave del éxito)
         // En lugar de confiar en el resultado del signIn, pedimos explícitamente 
         // el token actual al SDK. Esto garantiza que es un ID TOKEN válido y no ha caducado.
-        const tokenResult = await FirebaseAuthentication.getIdToken();
+        const tokenResult = await FirebaseAuthentication.getIdToken({
+          forceRefresh: true,
+        });
         const idToken = tokenResult.token;
 
         if (!idToken) throw new Error("No se pudo obtener el token de seguridad.");
 
-
-        // 3. Enviamos el token a Symfony
-        const backendResponse = await api.post('/social/login', {
+        // 3. Enviamos el token al backend (sin JWT antiguo: evita 401/conflictos al verificar el ID token).
+        const backendResponse = await api.post(
+          '/social/login',
+          {
             token: idToken,
-            provider: provider // Enviamos qué proveedor es
-        });
+            provider,
+          },
+          { skipAuthHeader: true, skipAuthRedirect: true },
+        );
 
         // 4. Procesar respuesta del Backend
         const { token, user } = backendResponse.data;
@@ -120,21 +129,28 @@ const Login: React.FC = () => {
         // Forzamos recarga o usamos router para limpiar estados
         window.location.href = '/request-list';
 
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("Error Social Login:", err);
 
         // Filtro para cuando el usuario le da a "Cancelar" en la ventana de Google/Apple
+        const errObj = err as {
+          message?: string;
+          nativeMessage?: string;
+          code?: string;
+        };
         const isUserCancel =
-          err?.message?.includes('canceled') ||
-          err?.message?.includes('cancelled') ||
-          err?.code === 'auth/popup-closed-by-user';
+          errObj?.message?.includes('canceled') ||
+          errObj?.message?.includes('cancelled') ||
+          errObj?.code === 'auth/popup-closed-by-user';
 
         if (isUserCancel) {
             setError(null); // No mostramos error si el usuario canceló voluntariamente
         } else {
             const rawMessage = String(
-              err?.message ?? err?.nativeMessage ?? '',
+              errObj?.message ?? errObj?.nativeMessage ?? '',
             );
+            const backendMsg = getBackendErrorMessage(err);
+            const networkHint = axiosErrorUserHint(err);
             if (
               rawMessage.includes('No credentials available') ||
               rawMessage.includes('GetCredentialException')
@@ -149,7 +165,9 @@ const Login: React.FC = () => {
               setError(rawMessage);
             } else {
               setError(
-                `Error al iniciar sesión con ${provider === 'GOOGLE' ? 'Google' : 'Apple'}`,
+                backendMsg ??
+                  networkHint ??
+                  `Error al iniciar sesión con ${provider === 'GOOGLE' ? 'Google' : 'Apple'}`,
               );
             }
             // Reporte explícito para diagnosticar fallos de login social en dispositivo.
@@ -160,10 +178,10 @@ const Login: React.FC = () => {
                 provider,
               },
               extra: {
-                code: err?.code,
-                message: err?.message,
-                nativeMessage: err?.nativeMessage,
-                nativeStack: err?.nativeStack,
+                code: errObj?.code,
+                message: errObj?.message,
+                nativeMessage: errObj?.nativeMessage,
+                nativeStack: (err as { nativeStack?: string })?.nativeStack,
               },
             });
         }

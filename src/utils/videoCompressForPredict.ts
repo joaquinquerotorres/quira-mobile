@@ -16,6 +16,32 @@ export const PREDICT_VIDEO_BITS_PER_SECOND = 2_500_000;
 export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC = 300;
 
 /**
+ * En app nativa (Capacitor), la re-codificación en WebView es más propensa a OOM / cierre del proceso.
+ * Duración máxima más baja que en escritorio para reducir carga de memoria y tiempo de CPU.
+ */
+export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE = 120;
+
+/**
+ * Tope de bytes decodificados por encima del cual **no** se intenta compresión en cliente (web).
+ * Por debajo del máximo de fichero de la UI (~25 MB), pero evita picos de memoria (atob + Blob + vídeo + canvas).
+ */
+export const PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT =
+  16 * 1024 * 1024;
+
+/**
+ * Tope más estricto en iOS/Android: el proceso suele tener menos memoria que un navegador de escritorio.
+ */
+export const PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_NATIVE =
+  10 * 1024 * 1024;
+
+export interface VideoCompressClientOptions {
+  /** Si el binario decodificado supera este valor, no se intenta comprimir (subida del original). */
+  maxDecodedBytes?: number;
+  /** Máxima duración aceptada para re-codificar (por defecto {@link PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC}). */
+  maxDurationSec?: number;
+}
+
+/**
  * Tamaño **decodificado** del vídeo (bytes del binario) a partir del cual, en **Wi-Fi** o red **desconocida**,
  * se considera fichero "grande" y se intenta compresión moderada antes de `/predict`.
  * ~10 MB en vídeo suele ser ya un clip pesado (alta resolución, bitrate alto o duración media); el JSON
@@ -34,7 +60,14 @@ export const PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN = 10 * 1024 * 1024;
 export function shouldCompressVideoForUpload(
   hint: VideoUploadConnectionHint,
   decodedSizeBytes: number,
+  options?: Pick<VideoCompressClientOptions, 'maxDecodedBytes'>,
 ): boolean {
+  const maxDecoded =
+    options?.maxDecodedBytes ??
+    PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT;
+  if (decodedSizeBytes > maxDecoded) {
+    return false;
+  }
   if (hint === 'cellular' || hint === 'slow_or_unreliable') {
     return true;
   }
@@ -105,8 +138,11 @@ function dataUrlToBlob(dataUrl: string): Blob {
  */
 export async function compressVideoDataUrlModerate(
   dataUrl: string,
+  options?: Pick<VideoCompressClientOptions, 'maxDurationSec'>,
 ): Promise<{ dataUrl: string; originalBytes: number; resultBytes: number }> {
   const originalBytes = dataUrlByteLength(dataUrl);
+  const maxDurationSec =
+    options?.maxDurationSec ?? PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC;
   if (typeof document === 'undefined' || typeof MediaRecorder === 'undefined') {
     throw new Error('compress: no MediaRecorder');
   }
@@ -134,7 +170,7 @@ export async function compressVideoDataUrlModerate(
     URL.revokeObjectURL(url);
     throw new Error('invalid duration');
   }
-  if (duration > PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC) {
+  if (duration > maxDurationSec) {
     URL.revokeObjectURL(url);
     throw new Error('video too long for client compress');
   }
@@ -228,6 +264,13 @@ export async function compressVideoDataUrlModerate(
   URL.revokeObjectURL(url);
 
   const outBlob = await stopped;
+  for (const t of outStream.getTracks()) {
+    try {
+      t.stop();
+    } catch {
+      /* ignore */
+    }
+  }
   const outDataUrl = await blobToDataUrl(outBlob);
   const resultBytes = dataUrlByteLength(outDataUrl);
 
@@ -253,9 +296,10 @@ export interface MaybeCompressVideoResult {
 export async function maybeCompressVideoDataUrlForPredict(
   dataUrl: string,
   hint: VideoUploadConnectionHint,
+  options?: VideoCompressClientOptions,
 ): Promise<MaybeCompressVideoResult> {
   const originalBytes = dataUrlByteLength(dataUrl);
-  if (!shouldCompressVideoForUpload(hint, originalBytes)) {
+  if (!shouldCompressVideoForUpload(hint, originalBytes, options)) {
     return {
       dataUrl,
       compressed: false,
@@ -265,7 +309,9 @@ export async function maybeCompressVideoDataUrlForPredict(
   }
 
   try {
-    const r = await compressVideoDataUrlModerate(dataUrl);
+    const r = await compressVideoDataUrlModerate(dataUrl, {
+      maxDurationSec: options?.maxDurationSec,
+    });
     return {
       dataUrl: r.dataUrl,
       compressed: true,

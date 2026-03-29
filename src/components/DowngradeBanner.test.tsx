@@ -1,6 +1,10 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { DowngradeBanner, SESSION_KEY_DOWNGADE_DISMISSED } from './DowngradeBanner';
+import { MemoryRouter } from 'react-router-dom';
+import {
+  DowngradeBanner,
+  SESSION_KEY_DOWNGADE_DISMISSED,
+} from './DowngradeBanner';
 
 vi.mock('@ionic/react', () => ({
   IonAlert: ({ isOpen, header, message }: any) =>
@@ -12,9 +16,12 @@ vi.mock('@ionic/react', () => ({
     ) : null,
 }));
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <div>{children}</div>
-);
+const renderBanner = (path: string) =>
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <DowngradeBanner />
+    </MemoryRouter>,
+  );
 
 beforeEach(() => {
   sessionStorage.clear();
@@ -30,7 +37,7 @@ test('DowngradeBanner shows alert when user is downgraded due to expired payment
   localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
-  render(<DowngradeBanner />, { wrapper });
+  renderBanner('/profile');
 
   await waitFor(() => {
     expect(screen.getByText('Cuota no renovada')).toBeInTheDocument();
@@ -48,7 +55,7 @@ test('DowngradeBanner shows when ROLE_PRO and paidThroughAt is null (sin pago vi
   localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
-  render(<DowngradeBanner />, { wrapper });
+  renderBanner('/profile');
 
   await waitFor(() => {
     expect(screen.getByText('Cuota no renovada')).toBeInTheDocument();
@@ -64,24 +71,27 @@ test('DowngradeBanner does not show when user is not downgraded', async () => {
   localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
-  render(<DowngradeBanner />, { wrapper });
+  renderBanner('/profile');
 
   await waitFor(() => {
     expect(screen.queryByText('Cuota no renovada')).not.toBeInTheDocument();
   });
 });
 
-test('DowngradeBanner does not show when session already dismissed', async () => {
-  sessionStorage.setItem(SESSION_KEY_DOWNGADE_DISMISSED, '1');
+test('DowngradeBanner does not show when already dismissed (localStorage por usuario)', async () => {
   const user = {
     id: 1,
     paidThroughAt: '2020-01-01T00:00:00Z',
     roles: ['ROLE_PRO'],
   };
+  localStorage.setItem(
+    `${SESSION_KEY_DOWNGADE_DISMISSED}_1`,
+    '1',
+  );
   localStorage.setItem('quira_token', 'test-token');
   localStorage.setItem('user', JSON.stringify(user));
 
-  render(<DowngradeBanner />, { wrapper });
+  renderBanner('/profile');
 
   await waitFor(() => {
     expect(screen.queryByText('Cuota no renovada')).not.toBeInTheDocument();
@@ -96,7 +106,23 @@ test('DowngradeBanner does not show without token (p. ej. login tras 401)', asyn
   };
   localStorage.setItem('user', JSON.stringify(user));
 
-  render(<DowngradeBanner />, { wrapper });
+  renderBanner('/profile');
+
+  await waitFor(() => {
+    expect(screen.queryByText('Cuota no renovada')).not.toBeInTheDocument();
+  });
+});
+
+test('DowngradeBanner no se muestra en /login aunque quede token y usuario sin cuota', async () => {
+  const user = {
+    id: 1,
+    paidThroughAt: '2020-01-01T00:00:00Z',
+    roles: ['ROLE_PRO'],
+  };
+  localStorage.setItem('quira_token', 'test-token');
+  localStorage.setItem('user', JSON.stringify(user));
+
+  renderBanner('/login');
 
   await waitFor(() => {
     expect(screen.queryByText('Cuota no renovada')).not.toBeInTheDocument();
