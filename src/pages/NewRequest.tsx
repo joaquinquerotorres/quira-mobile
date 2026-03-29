@@ -37,6 +37,7 @@ import {
 } from '../utils/videoUploadNetworkHint';
 import {
   maybeCompressVideoDataUrlForPredict,
+  predictVideoPayloadDecodedBytes,
   shouldCompressVideoForUpload,
 } from '../utils/videoCompressForPredict';
 
@@ -530,7 +531,11 @@ const NewRequest: React.FC = () => {
 
       if (inputMode === 'VIDEO' && predictVideo) {
         const netHint = await getVideoUploadConnectionHint();
-        const willTryCompress = shouldCompressVideoForUpload(netHint);
+        const videoBytes = predictVideoPayloadDecodedBytes(predictVideo);
+        const willTryCompress = shouldCompressVideoForUpload(
+          netHint,
+          videoBytes,
+        );
         setLoadingMessage(
           willTryCompress
             ? 'Optimizando vídeo para la red… Puede tardar un poco.'

@@ -35,11 +35,14 @@ El cliente entonces ve **Axios `ERR_NETWORK`** sin cuerpo de respuesta (conexió
 - Para `POST /api/predict` con vídeo, usar **timeout explícito** en el cliente (p. ej. **120 000–300 000 ms**), no el default corto de algunas pilas.
 - En este repo: `PREDICT_REQUEST_TIMEOUT_MS` en `src/config/httpTimeouts.ts` (**300 000 ms** = 5 min) y se pasa a `api.post('/predict', …, { timeout: … })` desde `NewRequest.tsx`.
 
-### Compresión moderada en cliente (solo datos móviles o red lenta)
+### Compresión moderada en cliente (datos móviles, red lenta o Wi‑Fi con vídeo grande)
 
-Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** **únicamente** cuando el dispositivo reporta **datos móviles** (`cellular`) o **red lenta** (`slow_or_unreliable`). En **Wi‑Fi** o estado **desconocido** (`unknown`) **no** se comprime: se asume que la subida del original suele ser aceptable.
+Antes de enviar el vídeo a `/predict`, la app puede **re-codificarlo en el dispositivo** cuando:
 
-El objetivo no es el archivo mínimo, sino **aligerar la subida en redes malas** sin destruir el contenido para el modelo: resolución máxima ~**960px** de ancho, bitrate moderado (~**2,5 Mbit/s**), audio del vídeo cuando el navegador lo permite — orientado a que modelos multimodales (p. ej. Gemini) sigan entendiendo imagen y sonido.
+- Hay **datos móviles** (`cellular`) o **red lenta** (`slow_or_unreliable`) — siempre que no supere el límite de duración (véase abajo), **o**
+- Hay **Wi‑Fi** o estado **desconocido** (`unknown`) y el vídeo decodificado pesa **≥ ~10 MB** (`PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN`): se considera fichero **grande** (p. ej. alta resolución o bitrate alto); por debajo de ese umbral en Wi‑Fi/`unknown` **no** se comprime.
+
+El objetivo no es el archivo mínimo, sino **aligerar la subida** sin destruir el contenido para el modelo: resolución máxima ~**960px** de ancho, bitrate moderado (~**2,5 Mbit/s**), audio del vídeo cuando el navegador lo permite — orientado a que modelos multimodales (p. ej. Gemini) sigan entendiendo imagen y sonido.
 
 Implementación: `src/utils/videoCompressForPredict.ts` (canvas + `MediaRecorder`, …). Si la API no está disponible, el resultado no reduce tamaño o falla el proceso, se **envía el vídeo original**.
 

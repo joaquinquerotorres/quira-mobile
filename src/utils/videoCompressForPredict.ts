@@ -16,23 +16,43 @@ export const PREDICT_VIDEO_BITS_PER_SECOND = 2_500_000;
 export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC = 300;
 
 /**
+ * Tamaño **decodificado** del vídeo (bytes del binario) a partir del cual, en **Wi‑Fi** o red **desconocida**,
+ * se considera fichero “grande” y se intenta compresión moderada antes de `/predict`.
+ * ~10 MB en vídeo suele ser ya un clip pesado (alta resolución, bitrate alto o duración media); el JSON
+ * en base64 añade ~33 % de overhead en la subida.
+ */
+export const PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN = 10 * 1024 * 1024;
+
+/**
  * ¿Intentar compresión antes de `/predict`?
- * - **Sí** solo con **datos móviles** (`cellular`) o red **lenta** (`slow_or_unreliable`).
- * - **No** con **Wi‑Fi** ni con estado `unknown`: en Wi‑Fi suele bastar subir el original; no forzamos compresión.
+ * - **Siempre** con **datos móviles** (`cellular`) o red **lenta** (`slow_or_unreliable`).
+ * - Con **Wi‑Fi** o **`unknown`**: solo si el vídeo supera {@link PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN} (fichero grande).
  *
  * La compresión no busca el mínimo tamaño posible, sino aligerar la subida **manteniendo** calidad útil para Gemini
  * (ver constantes de ancho/bitrate arriba).
  */
 export function shouldCompressVideoForUpload(
   hint: VideoUploadConnectionHint,
+  decodedSizeBytes: number,
 ): boolean {
-  return hint === 'cellular' || hint === 'slow_or_unreliable';
+  if (hint === 'cellular' || hint === 'slow_or_unreliable') {
+    return true;
+  }
+  if (hint === 'wifi' || hint === 'unknown') {
+    return decodedSizeBytes >= PREDICT_VIDEO_LARGE_BYTES_WIFI_OR_UNKNOWN;
+  }
+  return false;
 }
 
 function dataUrlByteLength(dataUrl: string): number {
   const base64 = dataUrl.split(',')[1];
   if (!base64) return dataUrl.length;
   return Math.floor((base64.length * 3) / 4);
+}
+
+/** Tamaño aproximado del binario decodificado del data URL del vídeo (para umbral Wi‑Fi / unknown). */
+export function predictVideoPayloadDecodedBytes(dataUrl: string): number {
+  return dataUrlByteLength(dataUrl);
 }
 
 function pickRecorderMime(): string {
@@ -228,7 +248,7 @@ export async function maybeCompressVideoDataUrlForPredict(
   hint: VideoUploadConnectionHint,
 ): Promise<MaybeCompressVideoResult> {
   const originalBytes = dataUrlByteLength(dataUrl);
-  if (!shouldCompressVideoForUpload(hint)) {
+  if (!shouldCompressVideoForUpload(hint, originalBytes)) {
     return {
       dataUrl,
       compressed: false,
