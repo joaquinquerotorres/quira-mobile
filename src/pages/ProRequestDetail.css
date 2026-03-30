@@ -210,6 +210,66 @@
     line-height: 1.2;
 }
 
+/* Columna detalle solicitud (pro): mismo orden y espaciado que vista cliente */
+.pro-request-detail-body-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--request-detail-section-gap, 16px);
+    padding: 0 5px;
+    margin-top: 20px;
+}
+.pro-request-detail-stack-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pro-request-detail-status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pro-request-detail-body-column .pro-detail-title {
+    margin-bottom: 0;
+}
+.pro-request-detail-body-column .description-card {
+    margin: 0;
+}
+.pro-request-detail-body-column .pro-request-detail-actions > .pro-main-btn:first-child {
+    margin-top: 0;
+}
+.pro-request-detail-body-column .pro-detail-range-card {
+    margin-bottom: 0;
+}
+.pro-request-detail-body-column .pro-info-card {
+    margin-bottom: 0;
+}
+.pro-request-detail-body-column .map-container-wrapper {
+    margin-bottom: 0;
+}
+.pro-request-detail-body-column .qa-entry-card {
+    margin-top: 0;
+}
+.pro-request-detail-body-column .my-bid-card {
+    margin-bottom: 0;
+}
+
+.pro-description-problem-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.pro-info-card.pro-info-card--availability {
+    border-color: #e0e7ff;
+    background: #eef2ff;
+}
+.pro-icon-box.pro-icon-box--availability {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
 /* Rango IA (detalle pro) */
 .pro-detail-range-card {
     display: flex;

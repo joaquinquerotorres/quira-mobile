@@ -100,15 +100,9 @@ export const ProRequestDetailMainSection: React.FC<
   };
 
   return (
-    <div style={{ marginTop: '20px', padding: '0 5px' }}>
-      <div
-        style={{
-          marginBottom: '10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
+    <div className="pro-request-detail-body-column">
+      <div className="pro-request-detail-stack-header">
+      <div className="pro-request-detail-status-row">
         <IonBadge
           className={`pro-status-pill ${
             request.status === 'CANCELLED'
@@ -145,26 +139,34 @@ export const ProRequestDetailMainSection: React.FC<
           </IonBadge>
         )}
       </div>
-
       <h1 className="pro-detail-title">{request.title}</h1>
+      </div>
 
-      {/* DETALLES DEL TRABAJO */}
-      <div className="pro-section-header">DETALLES DEL TRABAJO</div>
-      <div className="description-card">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '10px',
-            color: '#4f46e5',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-          }}
-        >
-          <IonIcon icon={calendarOutline} />
-          {request.desiredExecutionTime || 'Lo antes posible'}
+      {getRequestPriceRangeEuros(request) && (
+        <div className="pro-detail-range-card animate__animated animate__fadeIn">
+          <div className="pro-detail-range-icon">
+            <IonIcon icon={cashOutline} />
+          </div>
+          <div className="pro-detail-range-copy">
+            <div className="pro-detail-range-label">Rango estimado (IA)</div>
+            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
+            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
+          </div>
         </div>
+      )}
+
+      <div className="pro-info-card pro-info-card--availability">
+        <div className="pro-icon-box pro-icon-box--availability">
+          <IonIcon icon={calendarOutline} />
+        </div>
+        <div>
+          <div className="pro-label">Disponibilidad preferida</div>
+          <div className="pro-value">{request.desiredExecutionTime || 'Lo antes posible'}</div>
+        </div>
+      </div>
+
+      <div className="description-card">
+        <div className="pro-description-problem-title">Descripción del problema</div>
 
         {request.clientOriginalDescription?.trim() ? (
           <>
@@ -412,25 +414,66 @@ export const ProRequestDetailMainSection: React.FC<
         )}
       </div>
 
-      {getRequestPriceRangeEuros(request) && (
-        <div className="pro-detail-range-card animate__animated animate__fadeIn">
-          <div className="pro-detail-range-icon">
-            <IonIcon icon={cashOutline} />
-          </div>
-          <div className="pro-detail-range-copy">
-            <div className="pro-detail-range-label">Rango estimado (IA)</div>
-            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
-            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
+      {/* UBICACIÓN */}
+      <div className={`pro-info-card ${isWinner ? 'highlight-border' : ''}`}>
+        <div className="pro-icon-box">
+          <IonIcon
+            icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
+            color={isWinner ? 'primary' : 'medium'}
+          />
+        </div>
+        <div>
+          <div className="pro-label">{isWinner || isCompleted ? 'Dirección exacta' : 'Ubicación aproximada'}</div>
+          <div className="pro-value">
+            {isWinner || isCompleted
+              ? request.preciseAddress || request.address
+              : `Zona: ${request.address
+                  .split(',')
+                  .slice(0, 2)
+                  .join(', ')}`}
           </div>
         </div>
+      </div>
+
+      {/* MAPA (GANADOR) */}
+      {isWinner && (
+        <div className="map-container-wrapper animate__animated animate__fadeIn">
+          <iframe
+            title="Mapa de la dirección"
+            width="100%"
+            height="180"
+            style={{ border: 0 }}
+            loading="lazy"
+            src={`https://www.google.com/maps/embed/v1/place?key=${env.googleMapsKey}&q=${encodeURIComponent(
+              request.preciseAddress || request.address,
+            )}`}
+          />
+        </div>
       )}
+
+      {/* Q&A ENTRY */}
+      <div className="qa-entry-card" onClick={onOpenQAModal}>
+        <div className="qa-icon-badge">
+          <IonIcon icon={chatboxEllipsesOutline} />
+        </div>
+        <div className="qa-content-text">
+          <div className="qa-title">Preguntas y dudas</div>
+          <div className="qa-subtitle">
+            {questionsCount === 0
+              ? 'No hay preguntas todavía'
+              : `${questionsCount} pregunta${
+                  questionsCount > 1 ? 's' : ''
+                } resuelta${questionsCount > 1 ? 's' : ''}`}
+          </div>
+        </div>
+        <IonIcon icon={chevronForwardOutline} color="medium" />
+      </div>
 
       {/* INFORMACIÓN DEL CLIENTE */}
       {request.client && (
         <div
           className="pro-client-card animate__animated animate__fadeIn"
           style={{
-            marginBottom: '20px',
             padding: '18px',
             background: 'white',
             borderRadius: '20px',
@@ -567,69 +610,15 @@ export const ProRequestDetailMainSection: React.FC<
         </div>
       )}
 
-      {/* UBICACIÓN */}
-      <div className={`pro-info-card ${isWinner ? 'highlight-border' : ''}`}>
-        <div className="pro-icon-box">
-          <IonIcon
-            icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
-            color={isWinner ? 'primary' : 'medium'}
-          />
-        </div>
-        <div>
-          <div className="pro-label">Ubicación</div>
-          <div className="pro-value">
-            {isWinner || isCompleted
-              ? request.preciseAddress || request.address
-              : `Zona: ${request.address
-                  .split(',')
-                  .slice(0, 2)
-                  .join(', ')}`}
-          </div>
-        </div>
-      </div>
-
-      {/* MAPA (GANADOR) */}
-      {isWinner && (
-        <div className="map-container-wrapper animate__animated animate__fadeIn">
-          <iframe
-            width="100%"
-            height="180"
-            style={{ border: 0 }}
-            loading="lazy"
-            src={`https://www.google.com/maps/embed/v1/place?key=${env.googleMapsKey}&q=${encodeURIComponent(
-              request.preciseAddress || request.address,
-            )}`}
-          ></iframe>
-        </div>
-      )}
-
-      {/* Q&A ENTRY */}
-      <div className="qa-entry-card" onClick={onOpenQAModal}>
-        <div className="qa-icon-badge">
-          <IonIcon icon={chatboxEllipsesOutline} />
-        </div>
-        <div className="qa-content-text">
-          <div className="qa-title">Preguntas y Dudas</div>
-          <div className="qa-subtitle">
-            {questionsCount === 0
-              ? 'No hay preguntas todavía'
-              : `${questionsCount} pregunta${
-                  questionsCount > 1 ? 's' : ''
-                } resuelta${questionsCount > 1 ? 's' : ''}`}
-          </div>
-        </div>
-        <IonIcon icon={chevronForwardOutline} color="medium" />
-      </div>
-
       {/* ESTADO CANCELADA */}
       {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '30px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud fue cancelada por el cliente.</p>
         </div>
       )}
 
-      {/* ACCIONES */}
-      <div style={{ marginTop: '30px', paddingBottom: '40px' }}>
+      {/* ACCIONES (último bloque de acción principal) */}
+      <div className="pro-request-detail-actions" style={{ paddingBottom: '40px' }}>
         {!hasActiveBid && request.status === 'PENDING' && canSubmitBid && (
           <IonButton
             expand="block"

@@ -13,7 +13,7 @@ import {
   lockClosedOutline, informationCircleOutline, checkmarkDoneOutline,
   callOutline,
   chatboxEllipsesOutline, chevronForwardOutline, helpCircleOutline,
-  cameraOutline, videocamOutline, trashOutline, alertCircleOutline,
+  cameraOutline, videocamOutline, trashOutline,
 } from 'ionicons/icons';
 import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -480,29 +480,6 @@ const RequestDetail: React.FC = () => {
               onViewProfessional={(id) => router.push(`/directory/${id}`)}
               visitRequest={request.visitRequests?.[0]}
             />
-
-            {canCancelRequest && (
-              <div className="cancel-request-card">
-                <div className="cancel-request-icon">
-                  <IonIcon icon={alertCircleOutline} />
-                </div>
-                <div className="cancel-request-content">
-                  <h3>Cancelar solicitud</h3>
-                  <p>
-                    Si ya no necesitas este trabajo o te has equivocado al crear la solicitud,
-                    puedes cancelarla. Las ofertas recibidas dejarán de ser válidas.
-                  </p>
-                  <IonButton
-                    expand="block"
-                    color="danger"
-                    className="cancel-request-btn"
-                    onClick={() => setShowCancelAlert(true)}
-                  >
-                    Cancelar solicitud
-                  </IonButton>
-                </div>
-              </div>
-            )}
         </div>
 
         {/* MODAL DIRECCIÓN */}

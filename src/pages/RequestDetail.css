@@ -838,6 +838,78 @@
     border-radius: 12px;
 }
 
+/* Ritmo vertical compartido con detalle pro (ajustable en :root si hace falta) */
+:root {
+    --request-detail-section-gap: 16px;
+}
+
+/* Columna principal del detalle: un solo ritmo entre bloques (sin sumar márgenes sueltos) */
+.request-detail-body-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--request-detail-section-gap);
+    padding: 0 5px;
+    margin-top: 20px;
+}
+.request-detail-stack-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.request-detail-status-row {
+    display: flex;
+    align-items: flex-start;
+}
+.request-detail-body-column .request-detail-stack-header .detail-title {
+    margin: 0;
+}
+.request-detail-body-column .info-card-detail {
+    margin-bottom: 0;
+}
+.request-detail-body-column .description-box {
+    margin: 0;
+}
+.request-detail-body-column .qa-entry-card {
+    margin-top: 0;
+}
+.request-detail-body-column .map-container-wrapper {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.request-detail-body-column .pro-card-assigned {
+    margin-top: 0;
+}
+
+/* Ofertas: espaciado interno homogéneo (el gap de la columna separa este bloque del anterior) */
+.request-detail-bids-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 10px;
+}
+.request-detail-bids-section .section-header-large {
+    margin-bottom: 0;
+}
+.request-detail-bids-section .bids-filters {
+    margin: 0;
+}
+.request-detail-bids-section .empty-bids-state {
+    margin-top: 0;
+}
+.request-detail-bids-section .bid-card {
+    margin-bottom: 0;
+}
+
+/* Mapa embebido bajo dirección exacta (detalle solicitud cliente) */
+.map-container-wrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-top: 12px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
 /* CANCELAR SOLICITUD (bloque al final) */
 .cancel-request-card {
     margin-top: 0;

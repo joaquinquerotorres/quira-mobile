@@ -17,6 +17,7 @@ import {
   chatboxEllipsesOutline,
   chevronForwardOutline,
   timeOutline,
+  alertCircleOutline,
 } from 'ionicons/icons';
 import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
@@ -26,6 +27,7 @@ import {
   formatRequestPriceRangeEuros,
   getRequestPriceRangeEuros,
 } from '../../utils/requestPriceRange';
+import { env } from '../../config/env';
 
 type TierLabel = 'PRO' | 'SOLVER' | 'FREE';
 
@@ -85,6 +87,8 @@ interface AddressDisplay {
   text: string;
   icon: string;
   label: string;
+  /** Dirección exacta (p. ej. con profesional asignado); se muestra mapa embebido. */
+  isReal?: boolean;
 }
 
 interface RequestDetailMainSectionProps {
@@ -135,16 +139,10 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
   const [tierFilter, setTierFilter] = useState<'ALL' | TierLabel>('ALL');
 
   return (
-    <>
-      {/* INFO PRINCIPAL */}
-      <div style={{ marginTop: '20px', padding: '0 5px' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            marginBottom: '10px',
-          }}
-        >
+    <div className="request-detail-body-column">
+      {/* Cabecera: estado + título (un solo bloque; el gap de la columna separa del resto) */}
+      <div className="request-detail-stack-header">
+        <div className="request-detail-status-row">
           <span
             className={`status-badge-detail ${
               request.status === 'COMPLETED'
@@ -169,8 +167,34 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
               : 'Pendiente'}
           </span>
         </div>
-
         <h1 className="detail-title">{request.title}</h1>
+      </div>
+
+        {getRequestPriceRangeEuros(request) && (
+          <div className="info-card-detail orange-border">
+            <div className="icon-box-detail orange">
+              <IonIcon icon={cashOutline} />
+            </div>
+            <div>
+              <div className="info-label-detail">Rango estimado (IA)</div>
+              <div className="info-text-detail info-text-detail-price-range">
+                {formatRequestPriceRangeEuros(request)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="info-card-detail blue-border">
+          <div className="icon-box-detail blue">
+            <IonIcon icon={calendarOutline} />
+          </div>
+          <div>
+            <div className="info-label-detail">Disponibilidad preferida</div>
+            <div className="info-text-detail">
+              {request.desiredExecutionTime || 'Lo antes posible'}
+            </div>
+          </div>
+        </div>
 
         {(request.clientOriginalDescription?.trim() || request.description) && (
           <div className="description-box">
@@ -392,32 +416,20 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
           </div>
         </div>
 
-        <div className="info-card-detail blue-border">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={calendarOutline} />
-          </div>
-          <div>
-            <div className="info-label-detail">Disponibilidad preferida</div>
-            <div className="info-text-detail">
-              {request.desiredExecutionTime || 'Lo antes posible'}
-            </div>
-          </div>
-        </div>
-
-        {getRequestPriceRangeEuros(request) && (
-          <div className="info-card-detail orange-border">
-            <div className="icon-box-detail orange">
-              <IonIcon icon={cashOutline} />
-            </div>
-            <div>
-              <div className="info-label-detail">Rango estimado (IA)</div>
-              <div className="info-text-detail info-text-detail-price-range">
-                {formatRequestPriceRangeEuros(request)}
-              </div>
-            </div>
+        {addressDisplay.isReal && (
+          <div className="map-container-wrapper animate__animated animate__fadeIn">
+            <iframe
+              title="Mapa de la dirección"
+              width="100%"
+              height="180"
+              style={{ border: 0 }}
+              loading="lazy"
+              src={`https://www.google.com/maps/embed/v1/place?key=${env.googleMapsKey}&q=${encodeURIComponent(
+                request.preciseAddress || request.address,
+              )}`}
+            />
           </div>
         )}
-      </div>
 
       {/* Q&A ENTRY CARD */}
       <div className="qa-entry-card" onClick={onOpenQAModal}>
@@ -592,14 +604,14 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
 
       {/* ESTADO CANCELADA */}
       {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '30px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud ha sido cancelada.</p>
         </div>
       )}
 
       {/* LISTADO DE OFERTAS */}
       {request.status === 'PENDING' && (
-        <div style={{ marginTop: '30px', paddingBottom: '10px' }}>
+        <div className="request-detail-bids-section">
           {(() => {
             let visibleBids = dedupePendingBidsByProProfile(request.bids);
 
@@ -764,7 +776,30 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
           })()}
         </div>
       )}
-    </>
+
+      {canCancelRequest && onCancelRequest && (
+        <div className="cancel-request-card">
+          <div className="cancel-request-icon">
+            <IonIcon icon={alertCircleOutline} />
+          </div>
+          <div className="cancel-request-content">
+            <h3>Cancelar solicitud</h3>
+            <p>
+              Si ya no necesitas este trabajo o te has equivocado al crear la solicitud, puedes cancelarla. Las ofertas
+              recibidas dejarán de ser válidas.
+            </p>
+            <IonButton
+              expand="block"
+              color="danger"
+              className="cancel-request-btn"
+              onClick={onCancelRequest}
+            >
+              Cancelar solicitud
+            </IonButton>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

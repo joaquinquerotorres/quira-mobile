@@ -377,20 +377,18 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### RequestDetail (cliente)
 
-- Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
-- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): badge sobre la media principal ("Rango estimado (IA)") y tarjeta de información bajo disponibilidad preferida con el mismo texto (en euros en UI).
+- Orden del contenido principal (tras multimedia): **título** + estado; **Rango estimado (IA)** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos, mostrados en euros); **Disponibilidad preferida**; **Descripción del problema** (texto original, valoración IA, categoría, **adjuntos adicionales** extraPhotoUrls / extraVideoUrls / extraAudioUrls); **ubicación** (aproximada o exacta según estado); **mapa embebido** si la dirección es exacta; **Preguntas y dudas**; bloque **Profesional asignado** u ofertas **PENDING**; **Cancelar solicitud** al final cuando aplique.
+- **Visita de valoración**: el bloque de acción vive **dentro** de la caja de descripción; si hay visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y "LLAMAR AL PROFESIONAL".
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - En el listado de ofertas, el cliente puede filtrar localmente por **“Solo Pros”** (además de ver “Todos”).
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
-- **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
 - Botón **"ACEPTAR PRESUPUESTO"** (aceptar la **oferta de un profesional**, no el rango IA) → modal de dirección y confirmación.
 - En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección.
 
 ### ProRequestDetail (profesional)
 
-- Vista de la solicitud para el profesional: descripción, categoría, **adjuntos adicionales** (fotos/vídeos/audios extra) dentro de "Detalles del trabajo".
-- **Rango IA** en badge sobre la media y tarjeta bajo el título ("Rango estimado (IA)" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
+- Vista alineada con la del cliente en el mismo orden informativo: **título** + estado; **Rango estimado (IA)** (tarjeta con texto de ayuda; el **modal de propuesta** sugiere como importe inicial la media del rango); **Disponibilidad preferida**; **Descripción del problema** (texto del cliente, valoración IA, categoría, **adjuntos adicionales**); **visita de valoración** (flujo PRO / alta dificultad) **dentro** de esa caja; **ubicación** (aproximada o exacta según estado); **mapa** si el trabajo es ganado; **Preguntas y dudas**; bloque **Cliente**; **Tu propuesta**; **acciones** (enviar propuesta, finalizar, valorar, etc.) al final.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
 - Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
