@@ -209,7 +209,7 @@ const MyWork: React.FC = () => {
     const borderClass = isCompleted ? 'mw-card-closed' : 'mw-card-won'; 
     const statusLabel = isCompleted ? 'FINALIZADO' : 'ASIGNADO';
     const badgeClass = isCompleted ? 'mw-status-closed' : 'mw-status-won';
-    const dateToShow = job.scheduledAt ? job.scheduledAt : job.createdAt;
+    const dateToShow = job.createdAt;
     const jobId = getIdFromIri(job);
 
     const catStyle = getCategoryStyle(job.category);

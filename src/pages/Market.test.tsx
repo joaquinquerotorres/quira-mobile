@@ -55,6 +55,27 @@ test('Market renders header', async () => {
   await waitFor(() => expect(api.get).toHaveBeenCalled());
 });
 
+test('Market opportunity card shows desiredExecutionTime from API', async () => {
+  const opp = { ...mockOpportunity, desiredExecutionTime: 'Esta semana' };
+  vi.mocked(api.get).mockImplementation((url: string) => {
+    if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
+      return Promise.resolve({ data: { canBidThisMonth: true } });
+    }
+    return Promise.resolve({
+      data: { 'hydra:member': [opp], member: [opp] },
+    });
+  });
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    roles: ['ROLE_SOLVER'],
+    '@id': '/users/1',
+  }));
+  render(<Market />, { wrapper });
+  await waitFor(() => {
+    expect(screen.getByText('Esta semana')).toBeInTheDocument();
+  });
+});
+
 test('FREE user sees can-bid limit alert when canBidThisMonth is false', async () => {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {

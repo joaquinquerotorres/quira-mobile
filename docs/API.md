@@ -50,6 +50,8 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 
+En las respuestas de **`GET /requests`** (y objetos `ServiceRequest` embebidos), la disponibilidad que muestra la app en listados y mercado es **`desiredExecutionTime`** (string). **No** se usa ningún campo `scheduledAt` en el cliente.
+
 ---
 
 ## Otras rutas

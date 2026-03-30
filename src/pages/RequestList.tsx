@@ -7,7 +7,7 @@ import {
   IonAvatar, IonToast
 } from '@ionic/react';
 import { 
-  locationOutline, calendarOutline, flashOutline, 
+  locationOutline, flashOutline, 
   arrowForwardOutline, star, checkmarkCircleOutline, filterOutline, 
   swapVerticalOutline, checkmarkDoneOutline, 
   playCircleOutline, micOutline, pauseCircleOutline, searchOutline,
@@ -27,6 +27,7 @@ import { SearchText } from '../components/shared/SearchText';
 import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
 import { RequestMediaThumb } from '../components/shared/RequestMediaThumb';
+import { RequestAvailabilityRow } from '../components/shared/RequestAvailabilityRow';
 
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
@@ -197,13 +198,6 @@ const RequestList: React.FC = () => {
   const getStatusColorClass = (status: RequestStatus) => {
       switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'CANCELLED': return 'request-status-cancelled'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
   };
-  const renderScheduleInfo = (isoString?: string | null) => {
-    const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem', fontWeight: 600 };
-    if (!isoString) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>Lo antes posible</span></div>);
-    const date = new Date(isoString);
-    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>{date.toLocaleDateString('es-ES', {day: 'numeric', month: 'long'})}</span></div>);
-  };
-
   return (
     <IonPage>
       <LogoHeader />
@@ -287,7 +281,7 @@ const RequestList: React.FC = () => {
                                             <IonIcon icon={locationOutline} />
                                             <span>{req.address.split(',')[0]}</span>
                                         </div>
-                                        {renderScheduleInfo(req.scheduledAt)}
+                                        <RequestAvailabilityRow request={req} />
                                     </div>
                                     <div className="request-list-card-right">
                                         <div className="request-list-card-price-block">

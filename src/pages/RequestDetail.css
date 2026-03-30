@@ -49,23 +49,43 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
-/* FONDO CURVO SUPERIOR */
+/* FONDO CURVO SUPERIOR (misma línea visual que MainHeader del listado) */
 .request-detail-bg {
     background: var(--ion-color-primary);
-    height: 140px;
     width: 100%;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 0;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.25);
+}
+
+/* Sin foto/vídeo/audio principal: banda compacta, altura mínima similar al bloque azul del listado */
+.request-detail-bg--compact {
+    height: 128px;
+}
+
+/* Con multimedia principal: más alto para que la tarjeta solape la curva (efecto hero) */
+.request-detail-bg--hero-media {
+    height: 252px;
 }
 
 .detail-content-wrapper {
     padding: 10px 16px;
     position: relative;
     z-index: 10;
+}
+
+.detail-content-wrapper--hero-media {
+    padding-top: 8px;
+}
+
+.request-detail-content--hero-media .image-container-rounded {
+    margin-top: -108px;
+    position: relative;
+    z-index: 2;
 }
 
 /* --- IMAGEN/AUDIO/VIDEO PRINCIPAL --- */

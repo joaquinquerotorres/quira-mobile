@@ -429,6 +429,7 @@ const RequestDetail: React.FC = () => {
   const addressDisplay = getAddressDisplay();
   const questionsCount = request.questions?.length || 0;
   const pendingAnswers = request.questions?.filter((q: any) => !q.answerText).length || 0;
+  const hasHeroMedia = Boolean(request.videoUrl || request.photoUrl || request.audioUrl);
 
   return (
     <IonPage>
@@ -451,9 +452,21 @@ const RequestDetail: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-        <div className="request-detail-bg"></div>
-        <div className="detail-content-wrapper animate__animated animate__fadeIn">
+      <IonContent
+        fullscreen
+        className={hasHeroMedia ? 'request-detail-content--hero-media' : 'request-detail-content--compact'}
+        style={{ '--background': '#f8fafc' }}
+      >
+        <div
+          className={`request-detail-bg ${
+            hasHeroMedia ? 'request-detail-bg--hero-media' : 'request-detail-bg--compact'
+          }`}
+        />
+        <div
+          className={`detail-content-wrapper animate__animated animate__fadeIn${
+            hasHeroMedia ? ' detail-content-wrapper--hero-media' : ''
+          }`}
+        >
             {/* MULTIMEDIA */}
             <RequestDetailMedia
               request={request}

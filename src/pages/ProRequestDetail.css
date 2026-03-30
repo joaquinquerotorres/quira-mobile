@@ -41,23 +41,41 @@
 .quira-x-leg-toolbar.white { background: white; transform: translateX(-50%) rotate(45deg); }
 .quira-x-leg-toolbar.coral { background: #ea580c; transform: translateX(-50%) rotate(-45deg); z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
-/* --- FONDO CURVO HERO --- */
+/* --- FONDO CURVO (alineado con listado / detalle cliente) --- */
 .pro-detail-bg-curve {
     background: var(--ion-color-primary);
-    height: 140px;
     width: 100%;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 0;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.25);
+}
+
+.pro-detail-bg-curve--compact {
+    height: 128px;
+}
+
+.pro-detail-bg-curve--hero-media {
+    height: 252px;
 }
 
 .pro-content-wrapper {
     padding: 10px 16px;
     position: relative;
     z-index: 10;
+}
+
+.pro-content-wrapper--hero-media {
+    padding-top: 8px;
+}
+
+.pro-detail-content--hero-media .pro-image-container {
+    margin-top: -108px;
+    position: relative;
+    z-index: 2;
 }
 
 /* --- CONTENEDOR MULTIMEDIA --- */

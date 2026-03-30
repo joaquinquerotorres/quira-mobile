@@ -30,7 +30,6 @@ describe('MarketOpportunityCard', () => {
     category: 'PLUMBING',
     estimatedPriceMin: 7000,
     estimatedPriceMax: 9000,
-    scheduledAt: null,
     client: { fullName: 'Cliente Uno', rating: null, reviewCount: 0 },
   };
 
@@ -49,7 +48,6 @@ describe('MarketOpportunityCard', () => {
         onCardClick={onCardClick}
         onBidClick={vi.fn()}
         serverUrl=""
-        renderScheduleInfo={() => null}
       />,
     );
 
@@ -73,7 +71,6 @@ describe('MarketOpportunityCard', () => {
         onCardClick={onCardClick}
         onBidClick={vi.fn()}
         serverUrl=""
-        renderScheduleInfo={() => null}
       />,
     );
     fireEvent.click(screen.getByTestId('ion-card'));
@@ -97,7 +94,6 @@ describe('MarketOpportunityCard', () => {
         onCardClick={vi.fn()}
         onBidClick={onBidClick}
         serverUrl=""
-        renderScheduleInfo={() => null}
       />,
     );
     expect(screen.getByText('SOLO PRO')).toBeInTheDocument();
@@ -115,7 +111,6 @@ describe('MarketOpportunityCard', () => {
         onCardClick={vi.fn()}
         onBidClick={onBidClick}
         serverUrl=""
-        renderScheduleInfo={() => null}
       />,
     );
     expect(screen.getByText('ME INTERESA')).toBeInTheDocument();

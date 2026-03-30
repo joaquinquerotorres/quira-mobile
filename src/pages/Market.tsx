@@ -9,7 +9,7 @@ import {
 } from '@ionic/react';
 import { 
   hammerOutline, 
-  cashOutline, sendOutline, closeOutline, calendarOutline, flashOutline, 
+  cashOutline, sendOutline, closeOutline,
   checkmarkCircleOutline, star, lockClosedOutline, arrowForwardOutline,
   swapVerticalOutline
 } from 'ionicons/icons';
@@ -280,24 +280,6 @@ const Market: React.FC = () => {
     }
   };
 
-  const renderScheduleInfo = (isoString?: string | null) => {
-      if (!isoString) {
-          return (
-              <div className="info-row" style={{color: '#ea580c', fontWeight: 700}}>
-                  <IonIcon icon={flashOutline} style={{marginRight: '6px'}} />
-                  <span>Urgente: Lo antes posible</span>
-              </div>
-          );
-      }
-      const date = new Date(isoString);
-      return (
-          <div className="info-row" style={{color: 'var(--ion-color-primary)', fontWeight: 700}}>
-              <IonIcon icon={calendarOutline} style={{marginRight: '6px'}} />
-              <span>{date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}</span>
-          </div>
-      );
-  };
-
   return (
     <IonPage>
      <LogoHeader />
@@ -369,7 +351,6 @@ const Market: React.FC = () => {
                       }
                     }}
                     serverUrl={serverUrl}
-                    renderScheduleInfo={renderScheduleInfo}
                   />
                 );
               })

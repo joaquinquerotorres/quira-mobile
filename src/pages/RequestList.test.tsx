@@ -54,6 +54,29 @@ test('RequestList does not crash with professional-only user in localStorage', a
   await waitFor(() => expect(api.get).toHaveBeenCalled());
 });
 
+test('RequestList muestra desiredExecutionTime en la tarjeta', async () => {
+  const req = {
+    id: 2,
+    title: 'Reforma baño',
+    estimatedPriceMin: 10000,
+    estimatedPriceMax: 15000,
+    status: 'PENDING' as const,
+    category: 'PLUMBING' as const,
+    address: 'Calle X, Córdoba',
+    desiredExecutionTime: 'Esta semana',
+    client: { fullName: 'Cliente' },
+  };
+  vi.mocked(api.get).mockResolvedValue({
+    data: { 'hydra:member': [req], 'member': [req] },
+  });
+
+  render(<RequestList />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.getByText('Esta semana')).toBeInTheDocument();
+  });
+});
+
 test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   const cancelledRequest = {
     id: 1,
@@ -63,7 +86,6 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
     status: 'CANCELLED',
     category: 'PLUMBING',
     address: 'Calle Test 1, Madrid',
-    scheduledAt: null,
     client: { fullName: 'Cliente' },
   };
   vi.mocked(api.get).mockResolvedValue({

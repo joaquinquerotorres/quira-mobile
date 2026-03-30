@@ -347,6 +347,7 @@ const ProRequestDetail: React.FC = () => {
   if (!request) return <IonPage><IonContent className="ion-padding">No se encontró el trabajo.</IonContent></IonPage>;
 
   const questionsCount = request.questions?.length || 0;
+  const hasHeroMedia = Boolean(request.videoUrl || request.photoUrl || request.audioUrl);
 
   return (
     <IonPage>
@@ -377,11 +378,22 @@ const ProRequestDetail: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-        
-        <div className="pro-detail-bg-curve"></div>
+      <IonContent
+        fullscreen
+        className={hasHeroMedia ? 'pro-detail-content--hero-media' : 'pro-detail-content--compact'}
+        style={{ '--background': '#f8fafc' }}
+      >
+        <div
+          className={`pro-detail-bg-curve ${
+            hasHeroMedia ? 'pro-detail-bg-curve--hero-media' : 'pro-detail-bg-curve--compact'
+          }`}
+        />
 
-        <div className="pro-content-wrapper animate__animated animate__fadeIn">
+        <div
+          className={`pro-content-wrapper animate__animated animate__fadeIn${
+            hasHeroMedia ? ' pro-content-wrapper--hero-media' : ''
+          }`}
+        >
             
             {/* MULTIMEDIA */}
             <ProRequestDetailMedia

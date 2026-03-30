@@ -1,16 +1,11 @@
 import React from 'react';
 import { IonCard, IonIcon } from '@ionic/react';
-import {
-  locationOutline,
-  calendarOutline,
-  arrowForwardOutline,
-  star,
-  flashOutline,
-} from 'ionicons/icons';
+import { locationOutline, calendarOutline, arrowForwardOutline, star } from 'ionicons/icons';
 import { Bid, ServiceRequest } from '../../types';
 import { RequestMediaThumb } from '../shared/RequestMediaThumb';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
+import { RequestAvailabilityRow } from '../shared/RequestAvailabilityRow';
 
 interface CategoryStyle {
   label: string;
@@ -74,46 +69,7 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
           <IonIcon icon={locationOutline} />
           <span>{request.address.split(',')[0]}</span>
         </div>
-        {request.scheduledAt ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginTop: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: 'var(--ion-color-primary)',
-            }}
-          >
-            <IonIcon
-              icon={calendarOutline}
-              style={{ marginRight: '6px', fontSize: '14px' }}
-            />
-            <span>
-              {new Date(request.scheduledAt).toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-              })}
-            </span>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginTop: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: '#ea580c',
-            }}
-          >
-            <IonIcon
-              icon={flashOutline}
-              style={{ marginRight: '6px', fontSize: '14px' }}
-            />
-            <span>Urgente: Lo antes posible</span>
-          </div>
-        )}
+        <RequestAvailabilityRow request={request} />
       </div>
       <div className="mw-card-right">
         <span className="mw-price">{bid.priceQuote}€</span>

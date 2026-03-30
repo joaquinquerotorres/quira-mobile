@@ -17,6 +17,7 @@ import { RequestMediaThumb } from '../shared/RequestMediaThumb';
 import { getCategoryLabel } from '../../utils/categoryLabels';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
+import { RequestAvailabilityRow } from '../shared/RequestAvailabilityRow';
 
 interface AddressInfo {
   text: string;
@@ -35,7 +36,6 @@ interface MarketOpportunityCardProps {
   onCardClick: () => void;
   onBidClick: (e: React.MouseEvent) => void;
   serverUrl: string;
-  renderScheduleInfo: (isoString?: string | null) => React.ReactNode;
 }
 
 export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
@@ -50,7 +50,6 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
   onCardClick,
   onBidClick,
   serverUrl,
-  renderScheduleInfo,
 }) => {
   return (
     <IonCard
@@ -121,7 +120,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             <span style={{ fontWeight: 700 }}>{addressInfo.text}</span>
           </div>
 
-          {renderScheduleInfo(request.scheduledAt)}
+          <RequestAvailabilityRow request={request} variant="market" />
         </div>
 
         {/* COLUMNA DERECHA (RANGO IA) */}

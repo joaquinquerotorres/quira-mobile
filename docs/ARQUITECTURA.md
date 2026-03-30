@@ -375,8 +375,17 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ## 10. Vistas específicas
 
+### Listado «Mis solicitudes» (`/request-list`)
+
+- En cada tarjeta, la fila de disponibilidad muestra **`desiredExecutionTime`** (mismas opciones que en el alta: «Lo antes posible», «Esta semana», etc.); si viene vacío se muestra «Lo antes posible» por defecto. Componente compartido: `RequestAvailabilityRow` (variante `list`).
+
+### Mercado (`/market`)
+
+- Las tarjetas de oportunidad muestran la misma lógica de disponibilidad con **`desiredExecutionTime`** (`RequestAvailabilityRow`, variante `market`). No hay fecha acordada separada en UI.
+
 ### RequestDetail (cliente)
 
+- La **curva azul** bajo el toolbar con logo: si hay **foto, vídeo o audio principal** (`photoUrl` / `videoUrl` / `audioUrl`), la banda es más alta y la tarjeta multimedia **solapa** la curva (efecto hero); si no hay multimedia principal, la banda es **más baja** (~misma presencia visual que el bloque `MainHeader` del listado). Bordes inferiores redondeados 40px y sombra suave, alineados con el listado.
 - Orden del contenido principal (tras multimedia): **título** + estado; **Rango estimado (IA)** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos, mostrados en euros); **Disponibilidad preferida**; **Descripción del problema** (texto original, valoración IA, categoría, **adjuntos adicionales** extraPhotoUrls / extraVideoUrls / extraAudioUrls); **ubicación** (aproximada o exacta según estado); **mapa embebido** si la dirección es exacta; **Preguntas y dudas**; bloque **Profesional asignado** u ofertas **PENDING**; **Cancelar solicitud** al final cuando aplique.
 - **Visita de valoración**: el bloque de acción vive **dentro** de la caja de descripción; si hay visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y "LLAMAR AL PROFESIONAL".
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
@@ -388,6 +397,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### ProRequestDetail (profesional)
 
+- Misma lógica de **curva azul** bajo el toolbar que en el detalle cliente (alta con multimedia principal vs compacta sin ella).
 - Vista alineada con la del cliente en el mismo orden informativo: **título** + estado; **Rango estimado (IA)** (tarjeta con texto de ayuda; el **modal de propuesta** sugiere como importe inicial la media del rango); **Disponibilidad preferida**; **Descripción del problema** (texto del cliente, valoración IA, categoría, **adjuntos adicionales**); **visita de valoración** (flujo PRO / alta dificultad) **dentro** de esa caja; **ubicación** (aproximada o exacta según estado); **mapa** si el trabajo es ganado; **Preguntas y dudas**; bloque **Cliente**; **Tu propuesta**; **acciones** (enviar propuesta, finalizar, valorar, etc.) al final.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
@@ -400,6 +410,8 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Segmentos: "Propuestas" y "Trabajos".
 - Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
+- En **Propuestas**, la fila de disponibilidad usa **`desiredExecutionTime`** vía `RequestAvailabilityRow` (igual criterio que en «Mis solicitudes»).
+- En **Trabajos** (ganados), la fecha mostrada bajo la dirección es **`createdAt`** de la solicitud (calendario), no un campo de cita aparte.
 - En **listados**, las solicitudes muestran etiqueta **«Rango IA»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
 
 ### NewRequest
