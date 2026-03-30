@@ -273,9 +273,7 @@ const Login: React.FC = () => {
         <div className="login-header">
             <div className="login-logo">
                 <span className="login-logo-text-indigo">Qu</span>
-                <span className="login-logo-text-indigo login-logo-i-wrapper">
-                    i<span className="login-smart-dot-big"></span>
-                </span>
+                <span className="login-logo-text-orange">i</span>
                 <span className="login-logo-text-indigo">r</span>
                 <span className="login-logo-text-orange">a</span>
             </div>

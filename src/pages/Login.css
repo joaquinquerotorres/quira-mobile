@@ -34,23 +34,6 @@
     line-height: 1;
 }
 
-.login-logo-i-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-.login-smart-dot-big {
-    position: absolute;
-    top: 9px;
-    right: 0px;
-    width: 16px;
-    height: 16px;
-    background: #f97316; 
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.5), 
-                0 0 5px rgba(249, 115, 22, 0.8);
-}
-
 .login-slogan {
     font-size: 1.1rem;
     color: #64748b;
