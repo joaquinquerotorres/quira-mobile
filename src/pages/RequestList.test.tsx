@@ -43,6 +43,17 @@ test('RequestList renders header and tabs', async () => {
   await waitFor(() => expect(api.get).toHaveBeenCalled());
 });
 
+test('RequestList does not crash with professional-only user in localStorage', async () => {
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    professionalProfile: { fullName: 'Pro Solver' },
+  }));
+
+  render(<RequestList />, { wrapper });
+
+  expect(screen.getByText('Hola, Pro')).toBeInTheDocument();
+  await waitFor(() => expect(api.get).toHaveBeenCalled());
+});
+
 test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   const cancelledRequest = {
     id: 1,

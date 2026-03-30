@@ -37,6 +37,18 @@ const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
 
 const RequestList: React.FC = () => {
   const history = useHistory();
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
+  })();
+  const headerFirstName =
+    storedUser?.clientProfile?.fullName?.split(' ')[0] ||
+    storedUser?.professionalProfile?.fullName?.split(' ')[0] ||
+    storedUser?.fullName?.split(' ')[0] ||
+    'Cliente';
   
   // --- ESTADO DE VISTA (SEGMENTO) ---
   const [viewMode, setViewMode] = useState<'requests' | 'discovery'>('requests');
@@ -200,8 +212,8 @@ const RequestList: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
-        <MainHeader 
-            title={`Hola, ${JSON.parse(localStorage.getItem('user') || '{}').clientProfile.fullName?.split(' ')[0] || 'Cliente'}`}
+        <MainHeader
+            title={`Hola, ${headerFirstName}`}
             subtitle="Gestiona tus servicios o busca nuevos expertos."
         />
         <SegmentTab 
