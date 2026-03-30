@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { lockClosedOutline } from 'ionicons/icons';
 import { RequestDetailMainSection } from './RequestDetailMainSection';
 import { Bid, ServiceRequest } from '../../types';
 
@@ -20,7 +21,7 @@ const mockRequest: ServiceRequest = {
   bids: [],
 };
 
-const addressDisplay = { text: 'Zona: Madrid', icon: 'lock', label: 'Ubicación' };
+const addressDisplay = { text: 'Zona: Madrid', icon: lockClosedOutline, label: 'Ubicación' };
 const noop = () => {};
 
 const wrapper = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
