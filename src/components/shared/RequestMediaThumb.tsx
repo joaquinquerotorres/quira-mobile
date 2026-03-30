@@ -15,7 +15,7 @@ interface RequestMediaThumbProps {
 }
 
 const DEFAULT_LOGO =
-  'https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_requests.png';
+  'https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_logo.png';
 
 export const RequestMediaThumb: React.FC<RequestMediaThumbProps> = ({
   variant,

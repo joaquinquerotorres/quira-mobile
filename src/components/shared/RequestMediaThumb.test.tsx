@@ -17,7 +17,12 @@ describe('RequestMediaThumb', () => {
         playingAudioId={null}
       />,
     );
-    expect(screen.getByTestId('ion-img')).toBeInTheDocument();
+    const img = screen.getByTestId('ion-img');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute(
+      'src',
+      'https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_logo.png',
+    );
   });
 
   test('renders image when photoSrc is provided', () => {
