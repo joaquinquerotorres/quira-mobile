@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
+import { lockClosedOutline } from 'ionicons/icons';
 import { MarketOpportunityCard } from './MarketOpportunityCard';
 
 vi.mock('@ionic/react', () => ({
@@ -42,7 +43,7 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={true}
         isLocked={true}
-        addressInfo={{ text: 'Zona: Madrid', icon: 'lock' }}
+        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
         playingAudioId={null}
         onToggleAudio={vi.fn()}
         onCardClick={onCardClick}
@@ -66,7 +67,7 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={false}
-        addressInfo={{ text: 'Zona: Madrid', icon: 'lock' }}
+        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
         playingAudioId={null}
         onToggleAudio={vi.fn()}
         onCardClick={onCardClick}
@@ -90,7 +91,7 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={true}
-        addressInfo={{ text: 'Zona: Madrid', icon: 'lock' }}
+        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
         playingAudioId={null}
         onToggleAudio={vi.fn()}
         onCardClick={vi.fn()}
@@ -108,7 +109,7 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={false}
-        addressInfo={{ text: 'Zona: Madrid', icon: 'lock' }}
+        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
         playingAudioId={null}
         onToggleAudio={vi.fn()}
         onCardClick={vi.fn()}

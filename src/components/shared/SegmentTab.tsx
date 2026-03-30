@@ -4,7 +4,7 @@ import './SegmentTab.css';
 
 interface SegmentOption {
   value: string;
-  label: React.ReactNode; 
+  label: React.ReactNode;
   icon?: string;
 }
 
