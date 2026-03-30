@@ -1,31 +1,43 @@
 import type { ServiceRequest } from '../types';
 
-/** Datos mínimos para mostrar u ordenar por rango de precio IA (euros). */
+/**
+ * Datos mínimos para mostrar u ordenar por rango de precio IA.
+ *
+ * Contrato:
+ * - Backend/BD conserva los importes en céntimos (enteros).
+ * - La UI trabaja en euros (con conversión /100).
+ */
 export type RequestPriceRangeInput = Pick<
   ServiceRequest,
   'estimatedPriceMin' | 'estimatedPriceMax' | 'aiDiagnosis'
 >;
 
 /**
- * Obtiene min/max en euros desde la API o, en último recurso, desde `aiDiagnosis` (legacy).
+ * Obtiene min/max en euros (UI) a partir de min/max en céntimos (contrato backend).
+ * Como fallback legacy, usa `aiDiagnosis.min/max` (también en céntimos).
  */
 export function getRequestPriceRangeEuros(r: RequestPriceRangeInput): {
   min: number;
   max: number;
 } | null {
-  let min = r.estimatedPriceMin;
-  let max = r.estimatedPriceMax;
+  let minCents = r.estimatedPriceMin;
+  let maxCents = r.estimatedPriceMax;
   const diag = r.aiDiagnosis as { min?: number; max?: number } | undefined;
-  if (typeof min !== 'number' || !Number.isFinite(min)) {
-    min = typeof diag?.min === 'number' ? diag.min : (NaN as number);
+
+  if (typeof minCents !== 'number' || !Number.isFinite(minCents)) {
+    minCents = typeof diag?.min === 'number' ? diag.min : (NaN as number);
   }
-  if (typeof max !== 'number' || !Number.isFinite(max)) {
-    max = typeof diag?.max === 'number' ? diag.max : (NaN as number);
+  if (typeof maxCents !== 'number' || !Number.isFinite(maxCents)) {
+    maxCents = typeof diag?.max === 'number' ? diag.max : (NaN as number);
   }
-  if (!Number.isFinite(min) || !Number.isFinite(max)) return null;
-  const lo = Math.min(min, max);
-  const hi = Math.max(min, max);
-  return { min: lo, max: hi };
+  if (!Number.isFinite(minCents) || !Number.isFinite(maxCents)) return null;
+
+  const loCents = Math.min(minCents, maxCents);
+  const hiCents = Math.max(minCents, maxCents);
+
+  const minEuros = Math.max(0, Math.round(loCents / 100));
+  const maxEuros = Math.max(minEuros, Math.round(hiCents / 100));
+  return { min: minEuros, max: maxEuros };
 }
 
 /** Texto compacto para UI (listados, badges). */
@@ -35,7 +47,10 @@ export function formatRequestPriceRangeEuros(r: RequestPriceRangeInput): string 
   return `${rng.min}€ - ${rng.max}€`;
 }
 
-/** Valor inicial razonable para el input de propuesta del profesional (punto medio del rango). */
+/**
+ * Valor inicial razonable para el input de propuesta del profesional.
+ * La UI muestra euros, así que devolvemos euros (punto medio del rango en euros).
+ */
 export function suggestedBidPriceEuros(r: RequestPriceRangeInput): number | undefined {
   const rng = getRequestPriceRangeEuros(r);
   if (!rng) return undefined;

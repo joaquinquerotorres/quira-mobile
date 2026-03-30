@@ -47,8 +47,8 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   const cancelledRequest = {
     id: 1,
     title: 'Trabajo cancelado',
-    estimatedPriceMin: 45,
-    estimatedPriceMax: 55,
+    estimatedPriceMin: 4500,
+    estimatedPriceMax: 5500,
     status: 'CANCELLED',
     category: 'PLUMBING',
     address: 'Calle Test 1, Madrid',

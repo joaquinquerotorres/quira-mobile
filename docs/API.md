@@ -41,8 +41,8 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 |--------|------|--------|
 | `title`, `description`, `category`, `address`, `status` | string / enum | `description` = valoración técnica (IA). |
 | `locationPoint` | GeoJSON Point | `coordinates: [lng, lat]`. |
-| **`estimatedPriceMin`**, **`estimatedPriceMax`** | number (euros) | Rango de la estimación IA; obligatorios para el flujo actual. |
-| **`aiDiagnosis`** | `{ min: number, max: number }` | Redundante con min/max; mismo criterio en euros. |
+| **`estimatedPriceMin`**, **`estimatedPriceMax`** | number (céntimos) | Rango de la estimación IA; obligatorios para el flujo actual. |
+| **`aiDiagnosis`** | `{ min: number, max: number }` | Redundante con min/max; mismo criterio en céntimos. |
 | `desiredExecutionTime` | string | Disponibilidad preferida (texto libre predefinido en UI). |
 | `riskLevel` | `LOW` \| `MEDIUM` \| `HIGH` | Opcional; desde `/predict`. |
 | `clientOriginalDescription` | string | Opcional; modo texto + imagen. |

@@ -653,9 +653,9 @@ const NewRequest: React.FC = () => {
       
       const minCentsRaw = Number(aiData.estimated_price_min ?? aiData.estimatedPriceMin ?? 0);
       const maxCentsRaw = Number(aiData.estimated_price_max ?? aiData.estimatedPriceMax ?? 0);
-      const minEuros = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw / 100)) : 0;
-      const maxEuros = Number.isFinite(maxCentsRaw) ? Math.max(minEuros, Math.round(maxCentsRaw / 100)) : minEuros;
-      setAiRange({ min: minEuros, max: maxEuros });
+      const minCents = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw)) : 0;
+      const maxCents = Number.isFinite(maxCentsRaw) ? Math.max(minCents, Math.round(maxCentsRaw)) : minCents;
+      setAiRange({ min: minCents, max: maxCents });
       Sentry.addBreadcrumb({
         category: 'predict',
         level: 'info',
@@ -665,8 +665,8 @@ const NewRequest: React.FC = () => {
           titleFilled: (safeTitle || '').length > 0,
           descriptionFilled: (safeDescription || '').length > 0,
           categoryFilled: (safeCategory || '').length > 0,
-          minEuros,
-          maxEuros,
+          minCents,
+          maxCents,
         },
       });
       

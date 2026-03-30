@@ -9,8 +9,8 @@ describe('requestPriceRange', () => {
   it('formats from estimatedPriceMin/Max', () => {
     expect(
       formatRequestPriceRangeEuros({
-        estimatedPriceMin: 40,
-        estimatedPriceMax: 80,
+        estimatedPriceMin: 4000,
+        estimatedPriceMax: 8000,
         aiDiagnosis: undefined,
       }),
     ).toBe('40€ - 80€');
@@ -18,8 +18,8 @@ describe('requestPriceRange', () => {
 
   it('normalizes inverted min/max', () => {
     const r = getRequestPriceRangeEuros({
-      estimatedPriceMin: 90,
-      estimatedPriceMax: 30,
+      estimatedPriceMin: 9000,
+      estimatedPriceMax: 3000,
       aiDiagnosis: undefined,
     });
     expect(r).toEqual({ min: 30, max: 90 });
@@ -30,7 +30,7 @@ describe('requestPriceRange', () => {
       formatRequestPriceRangeEuros({
         estimatedPriceMin: undefined as unknown as number,
         estimatedPriceMax: undefined as unknown as number,
-        aiDiagnosis: { min: 10, max: 20 },
+        aiDiagnosis: { min: 1000, max: 2000 },
       }),
     ).toBe('10€ - 20€');
   });
@@ -38,8 +38,8 @@ describe('requestPriceRange', () => {
   it('suggested bid is midpoint', () => {
     expect(
       suggestedBidPriceEuros({
-        estimatedPriceMin: 40,
-        estimatedPriceMax: 60,
+        estimatedPriceMin: 4000,
+        estimatedPriceMax: 6000,
         aiDiagnosis: undefined,
       }),
     ).toBe(50);

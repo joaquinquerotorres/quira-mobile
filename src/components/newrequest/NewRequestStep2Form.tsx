@@ -25,6 +25,7 @@ import {
   trashOutline,
 } from 'ionicons/icons';
 import { CATEGORY_LABELS } from '../../utils/categoryLabels';
+import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
 
 type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -351,7 +352,11 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
         {aiRange ? (
           <>
             <div className="step2-price-range-value" aria-live="polite">
-              {aiRange.min}€ - {aiRange.max}€
+              {formatRequestPriceRangeEuros({
+                estimatedPriceMin: aiRange.min,
+                estimatedPriceMax: aiRange.max,
+                aiDiagnosis: undefined,
+              })}
             </div>
             <p className="step2-price-range-hint">
               Estimación orientativa para servicios similares en tu zona; no incluye desplazamiento ni

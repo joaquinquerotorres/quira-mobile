@@ -11,8 +11,8 @@ vi.mock('@ionic/react', () => ({
 describe('ProRequestDetailMedia', () => {
   const baseRequest: any = {
     id: 1,
-    estimatedPriceMin: 45,
-    estimatedPriceMax: 55,
+    estimatedPriceMin: 4500,
+    estimatedPriceMax: 5500,
     photoUrl: null,
     audioUrl: null,
     videoUrl: null,

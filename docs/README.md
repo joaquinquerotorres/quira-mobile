@@ -10,7 +10,7 @@
   - Preguntas (Request Questions)
   - Mercado y oportunidades
   - Suscripción y Stripe
-  - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA; **`estimatedPriceMin` / `estimatedPriceMax`**: rango en euros de la estimación IA, sin `priceAmount`)
+  - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA; **`estimatedPriceMin` / `estimatedPriceMax`**: rango en céntimos de la estimación IA, y el front convierte a euros para mostrar, sin `priceAmount`)
 
 - **[API.md](./API.md)** — `POST /social/login`: cuerpo con **`token`** + **`provider`** (no `firebaseToken`); diagnóstico si falla Google antes o después de la API.
 - **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)** — Verificación de email tras el registro: rutas `/verify-email`, API sin JWT, reenvío con JWT, App Links / Universal Links y tests asociados.

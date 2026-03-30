@@ -27,8 +27,8 @@ describe('MarketOpportunityCard', () => {
     id: 1,
     title: 'Arreglo grifo',
     category: 'PLUMBING',
-    estimatedPriceMin: 70,
-    estimatedPriceMax: 90,
+    estimatedPriceMin: 7000,
+    estimatedPriceMax: 9000,
     scheduledAt: null,
     client: { fullName: 'Cliente Uno', rating: null, reviewCount: 0 },
   };
