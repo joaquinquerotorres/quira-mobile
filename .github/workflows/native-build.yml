@@ -110,9 +110,22 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p android/app
-          # Strip accidental spaces/newlines from pasted base64; printf avoids echo quirks
+          # Robust base64 normalization:
+          # - remove whitespace/newlines
+          # - strip optional surrounding quotes
+          # - remove optional "data:*;base64," prefix
+          # - support URL-safe base64 (-/_)
+          # - auto-pad '=' when padding is missing
           B64="${ANDROID_GOOGLE_SERVICES_JSON_BASE64//[$'\t\r\n ']/}"
-          printf '%s' "$B64" | base64 -d > android/app/google-services.json
+          B64="${B64#\"}"; B64="${B64%\"}"
+          B64="${B64#\'}"; B64="${B64%\'}"
+          B64="${B64#*base64,}"
+          B64="${B64//-/+}"
+          B64="${B64//_//}"
+          pad=$(( (4 - (${#B64} % 4)) % 4 ))
+          while [ "$pad" -gt 0 ]; do B64="${B64}="; pad=$((pad-1)); done
+          echo "Decoding google-services.json base64 (len=${#B64}, mod4=$(( ${#B64} % 4 )))"
+          printf '%s' "$B64" | base64 --decode > android/app/google-services.json
           python3 -m json.tool android/app/google-services.json > /dev/null
           echo "google-services.json restored ($(wc -c < android/app/google-services.json) bytes, valid JSON)"
 
@@ -204,8 +217,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ios/App/App
+          # Robust base64 normalization (same as Android)
           B64="${IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64//[$'\t\r\n ']/}"
-          printf '%s' "$B64" | base64 -d > ios/App/App/GoogleService-Info.plist
+          B64="${B64#\"}"; B64="${B64%\"}"
+          B64="${B64#\'}"; B64="${B64%\'}"
+          B64="${B64#*base64,}"
+          B64="${B64//-/+}"
+          B64="${B64//_//}"
+          pad=$(( (4 - (${#B64} % 4)) % 4 ))
+          while [ "$pad" -gt 0 ]; do B64="${B64}="; pad=$((pad-1)); done
+          echo "Decoding GoogleService-Info.plist base64 (len=${#B64}, mod4=$(( ${#B64} % 4 )))"
+          printf '%s' "$B64" | base64 --decode > ios/App/App/GoogleService-Info.plist
           plutil -lint ios/App/App/GoogleService-Info.plist
           echo "GoogleService-Info.plist restored ($(wc -c < ios/App/App/GoogleService-Info.plist) bytes, valid plist)"
 
