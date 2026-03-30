@@ -59,7 +59,7 @@ describe('RequestDetailMedia', () => {
     expect(onToggleAudio).toHaveBeenCalledWith('/a.mp3');
   });
 
-  test('renders placeholder when no media', () => {
+  test('does not render placeholder image when no media', () => {
     render(
       <RequestDetailMedia
         request={baseRequest}
@@ -68,7 +68,7 @@ describe('RequestDetailMedia', () => {
         onToggleAudio={vi.fn()}
       />,
     );
-    expect(screen.getByTestId('ion-img')).toBeInTheDocument();
+    expect(screen.queryByTestId('ion-img')).not.toBeInTheDocument();
     expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
   });
 

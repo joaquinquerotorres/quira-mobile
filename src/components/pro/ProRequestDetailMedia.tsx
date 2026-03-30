@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonIcon, IonImg } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
 import { playCircleOutline, pauseCircleOutline } from 'ionicons/icons';
 import { ServiceRequest } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
@@ -47,15 +47,7 @@ export const ProRequestDetailMedia: React.FC<ProRequestDetailMediaProps> = ({
               {isPlayingAudio ? 'Reproduciendo...' : 'Escuchar explicación'}
             </div>
           </div>
-        ) : (
-          <div className="pro-detail-placeholder">
-            <IonImg
-              src="https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_requests.png"
-              alt="Quira"
-              style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-            />
-          </div>
-        )}
+        ) : null}
         {getRequestPriceRangeEuros(request) ? (
           <div className="pro-price-badge">
             <span className="pro-price-badge-label">Rango estimado (IA)</span>
