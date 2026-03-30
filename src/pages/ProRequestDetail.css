@@ -1,8 +1,14 @@
 /* src/pages/ProRequestDetail.css */
 
 /* --- HEADER & LOGO --- */
-.pro-detail-header IonToolbar {
+.pro-detail-header ion-toolbar {
     --background: var(--ion-color-primary) !important;
+    --padding-top: max(6px, var(--ion-safe-area-top, 0px));
+    --padding-bottom: 2px;
+    --min-height: 46px;
+}
+.pro-detail-header ion-title {
+    padding-bottom: 0;
 }
 
 .quira-logo-toolbar {

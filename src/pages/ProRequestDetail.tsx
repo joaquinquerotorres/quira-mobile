@@ -351,7 +351,7 @@ const ProRequestDetail: React.FC = () => {
   return (
     <IonPage>
       <IonHeader className="ion-no-border pro-detail-header">
-        <IonToolbar color="primary" style={{ '--padding-top': '10px' }}>
+        <IonToolbar color="primary">
           <IonButtons slot="start">
             <IonButton onClick={() => router.goBack()} style={{color: 'white'}}>
                 <IonIcon icon={chevronBackOutline} style={{fontSize: '24px'}} />
