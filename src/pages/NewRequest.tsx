@@ -81,8 +81,7 @@ const NewRequest: React.FC = () => {
   const [title, setTitle] = useState('');
   const [techDescription, setTechDescription] = useState('');
   const [category, setCategory] = useState('DIY');
-  const [price, setPrice] = useState<number | undefined>(undefined);
-  const [aiRange, setAiRange] = useState<{min: number, max: number} | null>(null);
+  const [aiRange, setAiRange] = useState<{ min: number; max: number } | null>(null);
   const [riskLevel, setRiskLevel] = useState<'LOW' | 'MEDIUM' | 'HIGH' | null>(null);
   const [desiredExecutionTime, setDesiredExecutionTime] = useState<string>('Lo antes posible');
 
@@ -153,7 +152,6 @@ const NewRequest: React.FC = () => {
     setTitle('');
     setTechDescription('');
     setCategory('DIY');
-    setPrice(undefined);
     setAiRange(null);
     setRiskLevel(null);
     setDesiredExecutionTime('Lo antes posible');
@@ -657,7 +655,6 @@ const NewRequest: React.FC = () => {
       const maxCentsRaw = Number(aiData.estimated_price_max ?? aiData.estimatedPriceMax ?? 0);
       const minEuros = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw / 100)) : 0;
       const maxEuros = Number.isFinite(maxCentsRaw) ? Math.max(minEuros, Math.round(maxCentsRaw / 100)) : minEuros;
-      setPrice(minEuros);
       setAiRange({ min: minEuros, max: maxEuros });
       Sentry.addBreadcrumb({
         category: 'predict',
@@ -737,11 +734,12 @@ const NewRequest: React.FC = () => {
       router.push('/profile');
       return;
     }
-    if (!title || !price || !address) { setToast("Faltan datos obligatorios."); return; }
-
-    // Validación: precio no puede ser inferior al mínimo sugerido por la IA
-    if (aiRange && typeof price === 'number' && price < aiRange.min) {
-      setToast(`El precio no puede ser inferior a ${aiRange.min}€.`);
+    if (!title || !address) {
+      setToast('Faltan datos obligatorios.');
+      return;
+    }
+    if (!aiRange || typeof aiRange.min !== 'number' || typeof aiRange.max !== 'number') {
+      setToast('No hay estimación de precio para tu zona. Vuelve al paso anterior y analiza de nuevo.');
       return;
     }
     
@@ -795,12 +793,13 @@ const NewRequest: React.FC = () => {
       const payload: Record<string, unknown> = {
         title,
         description: techDescription,
-        priceAmount: Number(price),
         category,
         address,
         status: 'PENDING',
         locationPoint: { type: 'Point', coordinates: [finalCoords.lng, finalCoords.lat] },
         aiDiagnosis: aiRange,
+        estimatedPriceMin: aiRange.min,
+        estimatedPriceMax: aiRange.max,
         desiredExecutionTime,
       };
       if (clientOriginalDescription.trim()) {
@@ -927,7 +926,6 @@ const NewRequest: React.FC = () => {
                     clientOriginalDescription={clientOriginalDescription}
                     category={category}
                     onCategoryChange={setCategory}
-                    price={price}
                     aiRange={aiRange}
                     riskLevel={riskLevel || undefined}
                     desiredExecutionTime={desiredExecutionTime}
@@ -940,7 +938,6 @@ const NewRequest: React.FC = () => {
                     onRemoveExtraMedia={handleRemoveExtraMedia}
                     onTitleChange={setTitle}
                     onTechDescriptionChange={setTechDescription}
-                    onPriceChange={setPrice}
                     onDesiredExecutionTimeChange={setDesiredExecutionTime}
                     onSubmit={handleSubmit}
                 />

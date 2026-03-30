@@ -11,7 +11,8 @@ vi.mock('@ionic/react', () => ({
 describe('RequestDetailMedia', () => {
   const baseRequest: any = {
     id: 1,
-    priceAmount: 50,
+    estimatedPriceMin: 45,
+    estimatedPriceMax: 55,
     photoUrl: null,
     audioUrl: null,
     videoUrl: null,
@@ -27,6 +28,8 @@ describe('RequestDetailMedia', () => {
       />,
     );
     expect(document.querySelector('video')).toBeInTheDocument();
+    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
+    expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
   });
 
   test('renders photo when photoUrl exists (and no video)', () => {
@@ -66,6 +69,26 @@ describe('RequestDetailMedia', () => {
       />,
     );
     expect(screen.getByTestId('ion-img')).toBeInTheDocument();
+    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
+  });
+
+  test('does not render price badge when range cannot be resolved', () => {
+    render(
+      <RequestDetailMedia
+        request={
+          {
+            ...baseRequest,
+            estimatedPriceMin: undefined,
+            estimatedPriceMax: undefined,
+            aiDiagnosis: {},
+          } as any
+        }
+        serverUrl=""
+        isPlayingAudio={false}
+        onToggleAudio={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('Rango estimado (IA)')).not.toBeInTheDocument();
   });
 });
 

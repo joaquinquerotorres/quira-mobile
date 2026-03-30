@@ -161,11 +161,12 @@ interface RequestQuestion {
 
 ### Filtros
 
-- `title`, `category`, `order[priceAmount]`, `order[createdAt]`.
+- `title`, `category`, `order[estimatedPriceMin]`, `order[createdAt]`.
 
 ### Cards de oportunidad (`MarketOpportunityCard`)
 
-- Muestran título, precio, zona, categoría y media (foto/audio/video).
+- Columna derecha: etiqueta **«Rango IA»** y el texto del rango (p. ej. `40€ - 80€`); si `isBidden`, badge "ENVIADA" en lugar de repetir la etiqueta.
+- Muestran título, zona, categoría y media (foto/audio/video).
 - HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
 - `isBidden`: si el usuario tiene una propuesta **activa** (no retirada) en esa oportunidad.
 - `isLocked`: si no puede pujar (p. ej. HIGH Risk para no-PRO).
@@ -285,7 +286,7 @@ Después del ticket, el frontend hace `PUT` a `signedUrl` y guarda/usa `publicUr
 | POST | `/requests` | Crear |
 | PATCH | `/requests/{id}` | Actualizar (merge-patch) |
 
-Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`, `is_market`, `history`, `my_requests`, `my_jobs`.
+Params: `status`, `category`, `title`, `order[createdAt]`, `order[estimatedPriceMin]`, `is_market`, `history`, `my_requests`, `my_jobs`.
 
 ### Propuestas
 
@@ -333,7 +334,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[priceAmount]`,
 
 ### ServiceRequest
 
-`id`, `@id`, `title`, `description` (valoración técnica devuelta por la IA / editable en paso 2), **`clientOriginalDescription`** (opcional: texto libre que escribió el cliente en modo texto + imagen antes del análisis; requiere columna y grupos API en backend), `priceAmount`, `status`, `riskLevel`, `category`, `address`, `preciseAddress`, `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, `extraVideoUrls`, `extraAudioUrls`, `desiredExecutionTime`, `locationPoint`, `createdAt`, `aiDiagnosis`, `client`, `assignedProfessional` (incluye `phoneNumber` para contacto cuando hay profesional asignado), `visitRequests`, `bids`, `questions`.
+`id`, `@id`, `title`, `description` (valoración técnica devuelta por la IA / editable en paso 2), **`clientOriginalDescription`** (opcional: texto libre que escribió el cliente en modo texto + imagen antes del análisis; requiere columna y grupos API en backend), **`estimatedPriceMin`** y **`estimatedPriceMax`** (rango en euros de la estimación IA para la zona), `status`, `riskLevel`, `category`, `address`, `preciseAddress`, `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, `extraVideoUrls`, `extraAudioUrls`, `desiredExecutionTime`, `locationPoint`, `createdAt`, `aiDiagnosis`, `client`, `assignedProfessional` (incluye `phoneNumber` para contacto cuando hay profesional asignado), `visitRequests`, `bids`, `questions`.
 
 #### Backend: campo `clientOriginalDescription`
 
@@ -377,16 +378,18 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 ### RequestDetail (cliente)
 
 - Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
-- Lista de ofertas ordenadas por tier y precio; cada oferta muestra **rating** y **reviewCount** del profesional.
+- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, euros): badge sobre la media principal ("Rango estimado (IA)") y tarjeta de información bajo disponibilidad preferida con el mismo texto.
+- Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
 - **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
-- Botón "ACEPTAR PRESUPUESTO" → modal de dirección y confirmación.
+- Botón **"ACEPTAR PRESUPUESTO"** (aceptar la **oferta de un profesional**, no el rango IA) → modal de dirección y confirmación.
 - En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección.
 
 ### ProRequestDetail (profesional)
 
 - Vista de la solicitud para el profesional: descripción, categoría, **adjuntos adicionales** (fotos/vídeos/audios extra) dentro de "Detalles del trabajo".
+- **Rango IA** en badge sobre la media y tarjeta bajo el título ("Rango estimado (IA)" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
 - Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
@@ -398,12 +401,13 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Segmentos: "Propuestas" y "Trabajos".
 - Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
+- En **listados**, las solicitudes muestran etiqueta **«Rango IA»** y el rango en euros; en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
 
 ### NewRequest
 
 - En modo **texto** (+ imagen opcional), el texto del usuario **no** se sustituye por el `summary_text` de la IA: se conserva para el paso 2 y se persiste como **`clientOriginalDescription`**. La **`description`** almacenada es la valoración técnica (campo `description` de `/predict`).
 - Paso 1: selección de modo (audio, vídeo, texto) y captura de descripción. Opción de capturar (cámara/micrófono) o elegir desde galería para foto, vídeo y audio.
-- Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, precio y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
+- Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, **rango de precio estimado por la IA en la zona** (solo lectura; se muestra como «Rango estimado en tu zona (IA)») y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Publicar** envía `estimatedPriceMin`, `estimatedPriceMax` y `aiDiagnosis` (objeto con `min`/`max` en euros); **no** se envía `priceAmount`. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
 - Requiere dirección aproximada (Google Places o GPS).
 - Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
 - Antes de llamar a la IA (`/predict`), se envía:

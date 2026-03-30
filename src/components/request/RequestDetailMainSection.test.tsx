@@ -8,7 +8,8 @@ const mockRequest: ServiceRequest = {
   id: 1,
   title: 'Arreglo grifo',
   description: 'Grifo que gotea',
-  priceAmount: 80,
+  estimatedPriceMin: 70,
+  estimatedPriceMax: 90,
   status: 'PENDING',
   riskLevel: 'LOW',
   category: 'PLUMBING',
@@ -41,6 +42,8 @@ test('RequestDetailMainSection renders request title', () => {
     { wrapper }
   );
   expect(screen.getByText('Arreglo grifo')).toBeInTheDocument();
+  expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
+  expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
 });
 
 test('RequestDetailMainSection shows PRO and SOLVER tier badges on bids', () => {

@@ -10,6 +10,7 @@ import {
 import { Bid, ServiceRequest } from '../../types';
 import { RequestMediaThumb } from '../shared/RequestMediaThumb';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
 
 interface CategoryStyle {
   label: string;
@@ -242,7 +243,10 @@ export const MyWorkJobCard: React.FC<MyWorkJobCardProps> = ({
         )}
       </div>
       <div className="mw-card-right">
-        <span className="mw-price success">{job.priceAmount}€</span>
+        <div className="mw-price-block">
+          <span className="mw-price-sublabel">Rango IA</span>
+          <span className="mw-price success">{formatRequestPriceRangeEuros(job)}</span>
+        </div>
         <span className="mw-price-label">GANADO</span>
         <div className="arrow-box">
           <IonIcon icon={arrowForwardOutline} />

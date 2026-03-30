@@ -28,6 +28,7 @@ import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { getApiErrorMessage } from '../utils/apiError';
+import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 
 const serverUrl = env.serverUrl;
 
@@ -102,7 +103,7 @@ const Market: React.FC = () => {
       if (filterCategory) params.append('category', filterCategory);
       
       if (sortPrice) {
-          params.append('order[priceAmount]', sortPrice);
+          params.append('order[estimatedPriceMin]', sortPrice);
       } else {
           params.append('order[createdAt]', 'desc');
       }
@@ -241,7 +242,7 @@ const Market: React.FC = () => {
     }
 
     setSelectedRequest(req);
-    setBidPrice(req.priceAmount);
+    setBidPrice(suggestedBidPriceEuros(req));
     setBidComment('');
     setBidEstimatedExecutionTime('');
     setShowModal(true);
@@ -411,8 +412,8 @@ const Market: React.FC = () => {
                                 <IonIcon icon={cashOutline} style={{ fontSize: '24px', color: 'white' }} />
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Presupuesto del cliente</div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#4f46e5' }}>{selectedRequest.priceAmount}€</div>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Rango estimado (IA)</div>
+                                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#4f46e5', lineHeight: 1.25 }}>{formatRequestPriceRangeEuros(selectedRequest)}</div>
                             </div>
                         </div>
 

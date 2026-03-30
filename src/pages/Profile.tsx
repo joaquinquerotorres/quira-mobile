@@ -24,6 +24,7 @@ import api from '../api/axios';
 import { resendVerificationEmail } from '../api/verifyEmailApi';
 import { uploadAvatarWithTicket } from '../services/uploadService';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import './Profile.css';
 import '../components/layout/LogoHeader.css';
 
@@ -922,7 +923,7 @@ const Profile: React.FC = () => {
                                     {new Date(item.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
-                            <div className="history-price">{item.priceAmount}€</div>
+                            <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
                         </div>
                     ))
                 ) : (
@@ -1021,7 +1022,7 @@ const Profile: React.FC = () => {
                                     {new Date(item.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
-                            <div className="history-price">{item.priceAmount}€</div>
+                            <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
                         </div>
                     ))
                 ) : (

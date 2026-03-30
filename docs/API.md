@@ -33,6 +33,25 @@ Para acotar:
 
 ---
 
+## `POST /requests` (crear solicitud)
+
+Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `title`, `description`, `category`, `address`, `status` | string / enum | `description` = valoración técnica (IA). |
+| `locationPoint` | GeoJSON Point | `coordinates: [lng, lat]`. |
+| **`estimatedPriceMin`**, **`estimatedPriceMax`** | number (euros) | Rango de la estimación IA; obligatorios para el flujo actual. |
+| **`aiDiagnosis`** | `{ min: number, max: number }` | Redundante con min/max; mismo criterio en euros. |
+| `desiredExecutionTime` | string | Disponibilidad preferida (texto libre predefinido en UI). |
+| `riskLevel` | `LOW` \| `MEDIUM` \| `HIGH` | Opcional; desde `/predict`. |
+| `clientOriginalDescription` | string | Opcional; modo texto + imagen. |
+| `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, … | URLs | Tras subida a bucket. |
+
+**No** se envía `priceAmount` (sustituido por el rango anterior).
+
+---
+
 ## Otras rutas
 
 Listado más amplio: **[ARQUITECTURA.md](./ARQUITECTURA.md)**.

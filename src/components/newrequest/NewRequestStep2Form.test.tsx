@@ -12,7 +12,6 @@ test('NewRequestStep2Form muestra el texto original del cliente cuando viene inf
       clientOriginalDescription="  Mi grifo gotea desde ayer  "
       category="PLUMBING"
       onCategoryChange={vi.fn()}
-      price={50}
       aiRange={{ min: 40, max: 80 }}
       riskLevel="LOW"
       desiredExecutionTime="Lo antes posible"
@@ -25,7 +24,6 @@ test('NewRequestStep2Form muestra el texto original del cliente cuando viene inf
       onRemoveExtraMedia={vi.fn()}
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
-      onPriceChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
@@ -42,7 +40,6 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
       techDescription="Desc"
       category="PLUMBING"
       onCategoryChange={vi.fn()}
-      price={50}
       aiRange={{ min: 40, max: 80 }}
       riskLevel="HIGH"
       desiredExecutionTime="Lo antes posible"
@@ -55,7 +52,6 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
       onRemoveExtraMedia={vi.fn()}
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
-      onPriceChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
@@ -64,6 +60,7 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
   expect(screen.getByText('Diagnóstico IA')).toBeInTheDocument();
   expect(screen.getByText(/Revisa los datos/)).toBeInTheDocument();
   expect(screen.getByText('Categoría')).toBeInTheDocument();
+  expect(screen.getByText('Rango estimado en tu zona (IA)')).toBeInTheDocument();
   expect(screen.getByText('40€ - 80€')).toBeInTheDocument();
   expect(screen.getByText(/Dificultad estimada/i)).toBeInTheDocument();
 });
@@ -75,7 +72,6 @@ test('NewRequestStep2Form shows schedule options', () => {
       techDescription=""
       category="DIY"
       onCategoryChange={vi.fn()}
-      price={undefined}
       aiRange={null}
       riskLevel={undefined}
       desiredExecutionTime="Lo antes posible"
@@ -88,7 +84,6 @@ test('NewRequestStep2Form shows schedule options', () => {
       onRemoveExtraMedia={vi.fn()}
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
-      onPriceChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
@@ -106,7 +101,6 @@ test('NewRequestStep2Form calls onSubmit when button clicked', () => {
       techDescription=""
       category="DIY"
       onCategoryChange={vi.fn()}
-      price={50}
       aiRange={{ min: 40, max: 80 }}
       riskLevel={undefined}
       desiredExecutionTime="Lo antes posible"
@@ -119,7 +113,6 @@ test('NewRequestStep2Form calls onSubmit when button clicked', () => {
       onRemoveExtraMedia={vi.fn()}
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
-      onPriceChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={onSubmit}
     />,
@@ -136,7 +129,6 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
       techDescription=""
       category="DIY"
       onCategoryChange={vi.fn()}
-      price={undefined}
       aiRange={null}
       riskLevel={undefined}
       desiredExecutionTime="Lo antes posible"
@@ -149,7 +141,6 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
       onRemoveExtraMedia={vi.fn()}
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
-      onPriceChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
       onSubmit={vi.fn()}
     />,

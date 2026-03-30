@@ -190,15 +190,35 @@
     position: absolute;
     bottom: 15px;
     right: 15px;
+    left: auto;
+    max-width: calc(100% - 30px);
     background: white;
-    color: var(--ion-color-primary);
-    font-weight: 900;
-    font-size: 1.4rem;
-    padding: 8px 16px;
+    padding: 10px 14px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    letter-spacing: -1px;
     z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 2px;
+}
+
+.pro-price-badge-label {
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    line-height: 1.2;
+}
+
+.pro-price-badge-value {
+    color: var(--ion-color-primary);
+    font-weight: 900;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 /* --- BADGES Y TÍTULO --- */
@@ -223,6 +243,61 @@
     color: #1e293b;
     margin: 0 0 20px 0;
     line-height: 1.2;
+}
+
+/* Rango IA (detalle pro) */
+.pro-detail-range-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+    border: 1px solid #ffedd5;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.06);
+}
+
+.pro-detail-range-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #ffedd5;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.pro-detail-range-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.pro-detail-range-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.pro-detail-range-value {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--ion-color-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.pro-detail-range-hint {
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.35;
 }
 
 /* --- TARJETA DE MI PUJA (NUEVO) --- */

@@ -27,3 +27,4 @@ Ver **[API.md](./API.md)** — sección de diagnóstico.
 
 - Stripe / suscripción: **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)**.
 - `/predict` y vídeo: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**.
+- Solicitudes: rango de precio IA (`estimatedPriceMin` / `estimatedPriceMax`); contrato de **`POST /requests`** en **[API.md](./API.md)** y vistas en **[ARQUITECTURA.md](./ARQUITECTURA.md)** (NewRequest, listados, detalle).

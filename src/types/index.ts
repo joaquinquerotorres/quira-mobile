@@ -116,7 +116,9 @@ export interface ServiceRequest {
   description: string;
   /** Texto libre que escribió el cliente (modo texto + imagen), antes de la valoración IA. Opcional; requiere soporte en API. */
   clientOriginalDescription?: string | null;
-  priceAmount: number;
+  /** Rango en euros estimado por la IA para la zona (persistido en backend). */
+  estimatedPriceMin: number;
+  estimatedPriceMax: number;
   status: RequestStatus;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
   category: Category;

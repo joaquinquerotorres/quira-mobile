@@ -9,7 +9,8 @@ const mockRequest: ServiceRequest = {
   id: 1,
   title: 'Reparar grifo',
   description: 'Grifo que gotea',
-  priceAmount: 80,
+  estimatedPriceMin: 70,
+  estimatedPriceMax: 90,
   status: 'PENDING',
   riskLevel: 'LOW',
   category: 'PLUMBING',
@@ -98,7 +99,7 @@ test('MyWorkJobCard renders job and price', () => {
     { wrapper }
   );
   expect(screen.getByText('Reparar grifo')).toBeInTheDocument();
-  expect(screen.getByText('80€')).toBeInTheDocument();
+  expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
   expect(screen.getByText('GANADO')).toBeInTheDocument();
 });
 

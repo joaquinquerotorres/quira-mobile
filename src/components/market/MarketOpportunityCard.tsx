@@ -16,6 +16,7 @@ import { ServiceRequest } from '../../types';
 import { RequestMediaThumb } from '../shared/RequestMediaThumb';
 import { getCategoryLabel } from '../../utils/categoryLabels';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
 
 interface AddressInfo {
   text: string;
@@ -123,17 +124,18 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
           {renderScheduleInfo(request.scheduledAt)}
         </div>
 
-        {/* COLUMNA DERECHA (PRECIO) */}
+        {/* COLUMNA DERECHA (RANGO IA) */}
         <div className="market-card-right" style={{ flexShrink: 0, paddingRight: '15px' }}>
-          <span className="mkt-price">{isBlurry ? '??? €' : `${request.priceAmount}€`}</span>
+          <div className="mkt-price-block">
+            <span className="mkt-price-label">Rango IA</span>
+            <span className="mkt-price">{isBlurry ? '??? €' : formatRequestPriceRangeEuros(request)}</span>
+          </div>
 
           {isBidden ? (
-            <div className="bidden-badge" style={{ marginTop: '4px', fontSize: '0.6rem', padding: '2px 6px' }}>
+            <div className="bidden-badge" style={{ marginTop: '6px', fontSize: '0.6rem', padding: '2px 6px' }}>
               <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: '10px', marginRight: '2px' }} /> ENVIADA
             </div>
-          ) : (
-            <span className="mkt-price-label">PRESUPUESTO</span>
-          )}
+          ) : null}
 
           {!isBlurry && (
             <div className="arrow-box">

@@ -2,6 +2,7 @@ import React from 'react';
 import { IonBadge, IonButton, IonIcon, IonAvatar } from '@ionic/react';
 import {
   calendarOutline,
+  cashOutline,
   navigateOutline,
   lockClosedOutline,
   callOutline,
@@ -19,6 +20,10 @@ import { ServiceRequest, Category, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import type { EffectiveTier } from '../../utils/effectiveTier';
+import {
+  formatRequestPriceRangeEuros,
+  getRequestPriceRangeEuros,
+} from '../../utils/requestPriceRange';
 
 interface ProRequestDetailMainSectionProps {
   request: ServiceRequest;
@@ -142,6 +147,19 @@ export const ProRequestDetailMainSection: React.FC<
       </div>
 
       <h1 className="pro-detail-title">{request.title}</h1>
+
+      {getRequestPriceRangeEuros(request) && (
+        <div className="pro-detail-range-card animate__animated animate__fadeIn">
+          <div className="pro-detail-range-icon">
+            <IonIcon icon={cashOutline} />
+          </div>
+          <div className="pro-detail-range-copy">
+            <div className="pro-detail-range-label">Rango estimado (IA)</div>
+            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
+            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
+          </div>
+        </div>
+      )}
 
       {/* INFORMACIÓN DEL CLIENTE */}
       {request.client && (

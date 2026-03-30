@@ -138,20 +138,40 @@
     background: #f1f5f9;
 }
 
-/* PRECIO FLOTANTE */
+/* RANGO IA (badge sobre media) */
 .price-badge-floating {
     position: absolute;
     bottom: 15px;
     right: 15px;
+    left: auto;
+    max-width: calc(100% - 30px);
     background: white;
-    color: var(--ion-color-primary);
-    font-weight: 900;
-    font-size: 1.4rem;
-    padding: 8px 16px;
+    padding: 10px 14px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    letter-spacing: -1px;
-    z-index: 20; /* Asegurar que quede encima del video */
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 2px;
+}
+
+.price-badge-floating-label {
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    line-height: 1.2;
+}
+
+.price-badge-floating-value {
+    color: var(--ion-color-primary);
+    font-weight: 900;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 /* TÍTULO Y ESTADO */
@@ -218,6 +238,13 @@
     font-weight: 700;
     color: #1e293b;
     line-height: 1.3;
+}
+
+.info-text-detail-price-range {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ion-color-primary);
+    letter-spacing: -0.02em;
 }
 
 /* DESCRIPCIÓN */

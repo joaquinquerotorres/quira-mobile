@@ -47,7 +47,8 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   const cancelledRequest = {
     id: 1,
     title: 'Trabajo cancelado',
-    priceAmount: 50,
+    estimatedPriceMin: 45,
+    estimatedPriceMax: 55,
     status: 'CANCELLED',
     category: 'PLUMBING',
     address: 'Calle Test 1, Madrid',
@@ -63,5 +64,7 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   await waitFor(() => {
     expect(screen.getByText('CANCELADA')).toBeInTheDocument();
     expect(screen.getByText('Trabajo cancelado')).toBeInTheDocument();
+    expect(screen.getByText('Rango IA')).toBeInTheDocument();
+    expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
   });
 });

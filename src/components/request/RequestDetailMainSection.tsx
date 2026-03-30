@@ -7,6 +7,7 @@ import {
 } from '@ionic/react';
 import {
   calendarOutline,
+  cashOutline,
   flashOutline,
   informationCircleOutline,
   checkmarkCircle,
@@ -20,6 +21,10 @@ import {
 import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
+import {
+  formatRequestPriceRangeEuros,
+  getRequestPriceRangeEuros,
+} from '../../utils/requestPriceRange';
 
 type TierLabel = 'PRO' | 'SOLVER' | 'FREE';
 
@@ -185,6 +190,20 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
             </div>
           </div>
         </div>
+
+        {getRequestPriceRangeEuros(request) && (
+          <div className="info-card-detail orange-border">
+            <div className="icon-box-detail orange">
+              <IonIcon icon={cashOutline} />
+            </div>
+            <div>
+              <div className="info-label-detail">Rango estimado (IA)</div>
+              <div className="info-text-detail info-text-detail-price-range">
+                {formatRequestPriceRangeEuros(request)}
+              </div>
+            </div>
+          </div>
+        )}
 
         {(request.clientOriginalDescription?.trim() || request.description) && (
           <div className="description-box">

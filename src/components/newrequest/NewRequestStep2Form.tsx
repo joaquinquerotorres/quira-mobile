@@ -33,7 +33,7 @@ interface NewRequestStep2FormProps {
   techDescription: string;
   /** Texto libre del cliente (modo texto + imagen), sin sobrescribir con la IA. */
   clientOriginalDescription?: string;
-  price: number | undefined;
+  /** Rango estimado por la IA para el servicio en la zona (solo lectura). */
   aiRange: { min: number; max: number } | null;
   /** Nivel de riesgo estimado por la IA (no modificable por el usuario) */
   riskLevel?: RiskLevel;
@@ -50,7 +50,6 @@ interface NewRequestStep2FormProps {
   onCategoryChange: (value: string) => void;
   onTitleChange: (value: string) => void;
   onTechDescriptionChange: (value: string) => void;
-  onPriceChange: (value: number) => void;
   onDesiredExecutionTimeChange: (value: string) => void;
   onSubmit: () => void;
 }
@@ -77,7 +76,6 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   title,
   techDescription,
   clientOriginalDescription = '',
-  price,
   aiRange,
   riskLevel,
   desiredExecutionTime,
@@ -92,7 +90,6 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   onCategoryChange,
   onTitleChange,
   onTechDescriptionChange,
-  onPriceChange,
   onDesiredExecutionTimeChange,
   onSubmit,
 }) => {
@@ -347,69 +344,25 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           </IonSelect>
         </div>
       </div>
-      <div className="price-box-container">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '10px',
-          }}
-        >
-          <span
-            style={{
-              color: '#64748b',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-            }}
-          >
-            PRECIO ESTIMADO
-          </span>
-          <span
-            style={{
-              color: 'var(--ion-color-primary)',
-              fontWeight: 800,
-            }}
-          >
-            {aiRange?.min}€ - {aiRange?.max}€
-          </span>
+      <div className="price-box-container step2-price-range-readonly">
+        <div className="step2-price-range-header">
+          <span className="step2-price-range-label">Rango estimado en tu zona (IA)</span>
         </div>
-        {aiRange && (
-          <p
-            style={{
-              margin: 0,
-              marginBottom: '10px',
-              fontSize: '0.7rem',
-              color: '#64748b',
-              lineHeight: 1.3,
-            }}
-          >
-            El precio no incluye gastos de desplazamiento ni de posibles materiales/piezas.
+        {aiRange ? (
+          <>
+            <div className="step2-price-range-value" aria-live="polite">
+              {aiRange.min}€ - {aiRange.max}€
+            </div>
+            <p className="step2-price-range-hint">
+              Estimación orientativa para servicios similares en tu zona; no incluye desplazamiento ni
+              materiales/piezas. No puedes modificar este rango aquí.
+            </p>
+          </>
+        ) : (
+          <p className="step2-price-range-hint" style={{ marginBottom: 0 }}>
+            No hay rango de precio disponible. Vuelve al paso anterior y vuelve a analizar la solicitud.
           </p>
         )}
-        <div
-          className="input-wrapper"
-          style={{ borderColor: 'var(--ion-color-primary)' }}
-        >
-          <IonInput
-            type="number"
-            min={aiRange?.min}
-            value={price}
-            onIonInput={(e) => {
-              const raw = e.detail.value || '';
-              const num = parseInt(raw, 10);
-              if (Number.isNaN(num)) {
-                onPriceChange(0);
-              } else {
-                onPriceChange(num);
-              }
-            }}
-            style={{
-              fontSize: '1.4rem',
-              fontWeight: 900,
-              color: 'var(--ion-color-primary)',
-            }}
-          />
-        </div>
       </div>
     </div>
 

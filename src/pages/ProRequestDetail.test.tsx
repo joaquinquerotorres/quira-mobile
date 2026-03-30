@@ -43,7 +43,8 @@ const minimalRequest = {
   id: 1,
   title: 'Reparar enchufe',
   description: 'Toma corta',
-  priceAmount: 120,
+  estimatedPriceMin: 100,
+  estimatedPriceMax: 140,
   status: 'PENDING' as const,
   riskLevel: 'LOW' as const,
   category: 'ELECTRICITY' as const,
@@ -88,5 +89,7 @@ test('ProRequestDetail muestra el título del trabajo para un PRO', async () => 
   );
   await waitFor(() => {
     expect(screen.getByText('Reparar enchufe')).toBeInTheDocument();
+    expect(screen.getAllByText('Rango estimado (IA)').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('100€ - 140€').length).toBeGreaterThanOrEqual(1);
   });
 });

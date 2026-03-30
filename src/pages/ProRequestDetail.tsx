@@ -31,6 +31,7 @@ import {
   getMyBidForProUi,
 } from '../utils/bidDisplay';
 import { getApiErrorMessage } from '../utils/apiError';
+import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -303,7 +304,7 @@ const ProRequestDetail: React.FC = () => {
           router.push('/profile');
           return;
       }
-      setBidPrice(request?.priceAmount);
+      setBidPrice(request ? suggestedBidPriceEuros(request) : undefined);
       setBidComment('');
       setBidEstimatedExecutionTime('');
       setShowBidModal(true);
@@ -446,8 +447,8 @@ const ProRequestDetail: React.FC = () => {
                             <IonIcon icon={cashOutline} style={{ fontSize: '24px', color: 'white' }} />
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Presupuesto del cliente</div>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#4f46e5' }}>{request.priceAmount}€</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Rango estimado (IA)</div>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#4f46e5', lineHeight: 1.25 }}>{formatRequestPriceRangeEuros(request)}</div>
                         </div>
                     </div>
 

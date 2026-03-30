@@ -27,7 +27,8 @@ describe('MarketOpportunityCard', () => {
     id: 1,
     title: 'Arreglo grifo',
     category: 'PLUMBING',
-    priceAmount: 80,
+    estimatedPriceMin: 70,
+    estimatedPriceMax: 90,
     scheduledAt: null,
     client: { fullName: 'Cliente Uno', rating: null, reviewCount: 0 },
   };
@@ -76,6 +77,8 @@ describe('MarketOpportunityCard', () => {
     );
     fireEvent.click(screen.getByTestId('ion-card'));
     expect(onCardClick).toHaveBeenCalled();
+    expect(screen.getByText('Rango IA')).toBeInTheDocument();
+    expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
   });
 
   test('shows bid button label depending on lock', () => {

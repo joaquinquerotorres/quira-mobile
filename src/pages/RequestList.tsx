@@ -31,6 +31,7 @@ import { RequestMediaThumb } from '../components/shared/RequestMediaThumb';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 
 const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
 
@@ -130,7 +131,7 @@ const RequestList: React.FC = () => {
       if (filterStatus !== 'ALL') params.append('status', filterStatus);
       if (filterCategory) params.append('category', filterCategory);
       if (sortPrice) {
-          params.append('order[priceAmount]', sortPrice);
+          params.append('order[estimatedPriceMin]', sortPrice);
       } else {
           params.append('order[createdAt]', 'desc');
       }
@@ -277,7 +278,10 @@ const RequestList: React.FC = () => {
                                         {renderScheduleInfo(req.scheduledAt)}
                                     </div>
                                     <div className="request-list-card-right">
-                                        <span className="request-list-card-price">{req.priceAmount}€</span>
+                                        <div className="request-list-card-price-block">
+                                            <span className="request-list-card-price-label">Rango IA</span>
+                                            <span className="request-list-card-price">{formatRequestPriceRangeEuros(req)}</span>
+                                        </div>
                                         <div className="arrow-box"><IonIcon icon={arrowForwardOutline} /></div>
                                     </div>
                                 </div>

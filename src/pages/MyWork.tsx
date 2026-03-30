@@ -133,7 +133,7 @@ const MyWork: React.FC = () => {
         // Filtros para Requests
         if (searchText) params.append('title', searchText);
         if (filterCategory) params.append('category', filterCategory);
-        if (sortPrice) params.append('order[priceAmount]', sortPrice); 
+        if (sortPrice) params.append('order[estimatedPriceMin]', sortPrice); 
         else params.append('order[createdAt]', 'desc');
 
         const response = await api.get(`/requests?${params.toString()}`);

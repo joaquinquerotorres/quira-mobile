@@ -3,6 +3,10 @@ import { IonIcon, IonImg } from '@ionic/react';
 import { playCircleOutline, pauseCircleOutline } from 'ionicons/icons';
 import { ServiceRequest } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import {
+  formatRequestPriceRangeEuros,
+  getRequestPriceRangeEuros,
+} from '../../utils/requestPriceRange';
 
 interface ProRequestDetailMediaProps {
   request: ServiceRequest;
@@ -52,7 +56,12 @@ export const ProRequestDetailMedia: React.FC<ProRequestDetailMediaProps> = ({
             />
           </div>
         )}
-        <div className="pro-price-badge">{request.priceAmount}€</div>
+        {getRequestPriceRangeEuros(request) ? (
+          <div className="pro-price-badge">
+            <span className="pro-price-badge-label">Rango estimado (IA)</span>
+            <span className="pro-price-badge-value">{formatRequestPriceRangeEuros(request)}</span>
+          </div>
+        ) : null}
       </div>
   );
 };
