@@ -380,6 +380,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
 - **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): badge sobre la media principal ("Rango estimado (IA)") y tarjeta de información bajo disponibilidad preferida con el mismo texto (en euros en UI).
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
+- En el listado de ofertas, el cliente puede filtrar localmente por **“Solo Pros”** (además de ver “Todos”).
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
 - **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
