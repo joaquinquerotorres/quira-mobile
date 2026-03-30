@@ -475,6 +475,18 @@
     margin: 14px 0 10px;
 }
 
+/* Override: SegmentTab usa un wrapper global .segment-floater (definido para MyWork con margin negativo).
+   En RequestDetail ese margin hace que el selector se "pise" con el título de OFERTAS. */
+.bids-filters .segment-floater {
+    margin: 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    position: static !important;
+    z-index: auto !important;
+}
+
 .bids-filters-row {
     display: flex;
     align-items: center;
@@ -489,7 +501,7 @@
 }
 
 .bids-tier-segment {
-    margin-top: 10px;
+    margin-top: 6px;
 }
 
 .bids-info-text {
