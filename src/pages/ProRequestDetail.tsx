@@ -386,7 +386,6 @@ const ProRequestDetail: React.FC = () => {
             {/* MULTIMEDIA */}
             <ProRequestDetailMedia
               request={request}
-              serverUrl={serverUrl}
               isPlayingAudio={isPlayingAudio}
               onToggleAudio={toggleAudio}
             />

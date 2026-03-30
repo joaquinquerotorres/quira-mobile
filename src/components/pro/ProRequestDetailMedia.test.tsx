@@ -22,21 +22,17 @@ describe('ProRequestDetailMedia', () => {
     render(
       <ProRequestDetailMedia
         request={{ ...baseRequest, videoUrl: '/v.mp4' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(document.querySelector('video')).toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
-    expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
   });
 
   test('renders photo when photoUrl exists (and no video)', () => {
     render(
       <ProRequestDetailMedia
         request={{ ...baseRequest, photoUrl: '/p.jpg' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
@@ -50,7 +46,6 @@ describe('ProRequestDetailMedia', () => {
     render(
       <ProRequestDetailMedia
         request={{ ...baseRequest, audioUrl: '/a.mp3' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={onToggleAudio}
       />,
@@ -63,32 +58,11 @@ describe('ProRequestDetailMedia', () => {
     render(
       <ProRequestDetailMedia
         request={baseRequest}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(screen.queryByTestId('ion-img')).not.toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
-  });
-
-  test('does not render price badge when range cannot be resolved', () => {
-    render(
-      <ProRequestDetailMedia
-        request={
-          {
-            ...baseRequest,
-            estimatedPriceMin: undefined,
-            estimatedPriceMax: undefined,
-            aiDiagnosis: {},
-          } as any
-        }
-        serverUrl=""
-        isPlayingAudio={false}
-        onToggleAudio={vi.fn()}
-      />,
-    );
     expect(screen.queryByText('Rango estimado (IA)')).not.toBeInTheDocument();
   });
 });
-

@@ -172,42 +172,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
 
         <h1 className="detail-title">{request.title}</h1>
 
-        <div className="info-card-detail">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={addressDisplay.icon} />
-          </div>
-          <div>
-            <div className="info-label-detail">{addressDisplay.label}</div>
-            <div className="info-text-detail">{addressDisplay.text}</div>
-          </div>
-        </div>
-
-        <div className="info-card-detail blue-border">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={calendarOutline} />
-          </div>
-          <div>
-            <div className="info-label-detail">Disponibilidad preferida</div>
-            <div className="info-text-detail">
-              {request.desiredExecutionTime || 'Lo antes posible'}
-            </div>
-          </div>
-        </div>
-
-        {getRequestPriceRangeEuros(request) && (
-          <div className="info-card-detail orange-border">
-            <div className="icon-box-detail orange">
-              <IonIcon icon={cashOutline} />
-            </div>
-            <div>
-              <div className="info-label-detail">Rango estimado (IA)</div>
-              <div className="info-text-detail info-text-detail-price-range">
-                {formatRequestPriceRangeEuros(request)}
-              </div>
-            </div>
-          </div>
-        )}
-
         {(request.clientOriginalDescription?.trim() || request.description) && (
           <div className="description-box">
             <div className="section-header">Descripción del problema</div>
@@ -415,6 +379,42 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        <div className="info-card-detail">
+          <div className="icon-box-detail blue">
+            <IonIcon icon={addressDisplay.icon} />
+          </div>
+          <div>
+            <div className="info-label-detail">{addressDisplay.label}</div>
+            <div className="info-text-detail">{addressDisplay.text}</div>
+          </div>
+        </div>
+
+        <div className="info-card-detail blue-border">
+          <div className="icon-box-detail blue">
+            <IonIcon icon={calendarOutline} />
+          </div>
+          <div>
+            <div className="info-label-detail">Disponibilidad preferida</div>
+            <div className="info-text-detail">
+              {request.desiredExecutionTime || 'Lo antes posible'}
+            </div>
+          </div>
+        </div>
+
+        {getRequestPriceRangeEuros(request) && (
+          <div className="info-card-detail orange-border">
+            <div className="icon-box-detail orange">
+              <IonIcon icon={cashOutline} />
+            </div>
+            <div>
+              <div className="info-label-detail">Rango estimado (IA)</div>
+              <div className="info-text-detail info-text-detail-price-range">
+                {formatRequestPriceRangeEuros(request)}
+              </div>
+            </div>
           </div>
         )}
       </div>

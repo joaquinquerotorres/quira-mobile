@@ -148,197 +148,6 @@ export const ProRequestDetailMainSection: React.FC<
 
       <h1 className="pro-detail-title">{request.title}</h1>
 
-      {getRequestPriceRangeEuros(request) && (
-        <div className="pro-detail-range-card animate__animated animate__fadeIn">
-          <div className="pro-detail-range-icon">
-            <IonIcon icon={cashOutline} />
-          </div>
-          <div className="pro-detail-range-copy">
-            <div className="pro-detail-range-label">Rango estimado (IA)</div>
-            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
-            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
-          </div>
-        </div>
-      )}
-
-      {/* INFORMACIÓN DEL CLIENTE */}
-      {request.client && (
-        <div
-          className="pro-client-card animate__animated animate__fadeIn"
-          style={{
-            marginBottom: '20px',
-            padding: '18px',
-            background: 'white',
-            borderRadius: '20px',
-            border: isWinner || visitRequest?.status === 'ACCEPTED' ? '1px solid #dcfce7' : '1px solid #e2e8f0',
-            boxShadow: isWinner || visitRequest?.status === 'ACCEPTED' ? '0 4px 16px rgba(16, 185, 129, 0.08)' : '0 4px 16px rgba(0, 0, 0, 0.04)',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.7rem',
-              fontWeight: 800,
-              color: '#64748b',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}
-          >
-            Cliente
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <IonAvatar
-              style={{
-                width: '52px',
-                height: '52px',
-                minWidth: '52px',
-                minHeight: '52px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                background: '#f1f5f9',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {request.client.avatar ? (
-                <img
-                  src={resolveMediaUrl(request.client.avatar)}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#64748b' }}>
-                  {request.client.fullName?.charAt(0) || '?'}
-                </span>
-              )}
-            </IonAvatar>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '1rem' }}>
-                {request.client.fullName}
-              </div>
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#64748b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  marginTop: '4px',
-                }}
-              >
-                <IonIcon icon={star} style={{ fontSize: '0.8rem', color: '#fbbf24' }} />
-                <span style={{ fontWeight: 600 }}>
-                  {typeof request.client.rating === 'number' && Number.isFinite(request.client.rating)
-                    ? request.client.rating.toFixed(1)
-                    : '—'}
-                </span>
-                <span style={{ color: '#94a3b8' }}>({request.client.reviewCount ?? 0})</span>
-              </div>
-            </div>
-          </div>
-          {(isWinner || (visitRequest?.status === 'ACCEPTED' && request.client.phoneNumber)) && (
-            <IonButton
-              expand="block"
-              color="success"
-              onClick={onCallClient}
-              style={{ marginTop: '14px', fontWeight: 800, '--border-radius': '12px' }}
-            >
-              <IonIcon slot="start" icon={callOutline} /> LLAMAR AL CLIENTE
-            </IonButton>
-          )}
-        </div>
-      )}
-
-      {/* MI PUJA */}
-      {myBid && (
-        <div className={`my-bid-card animate__animated animate__fadeIn ${myBid.status === 'REJECTED' ? 'my-bid-card-rejected' : ''}`}>
-          <div className="bid-header">
-            <IonIcon icon={walletOutline} /> {myBid.status === 'REJECTED' ? 'PROPUESTA RETIRADA' : 'TU PROPUESTA'}
-          </div>
-          <div className="bid-row">
-            <span>Tu Precio:</span>
-            <strong>{myBid.priceQuote}€</strong>
-          </div>
-          {myBid.estimatedExecutionTime && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.8rem',
-                color: '#065f46',
-                marginBottom: 10,
-              }}
-            >
-              <IonIcon icon={timeOutline} style={{ fontSize: '0.9rem' }} />
-              <span>
-                Disponibilidad: <strong>{myBid.estimatedExecutionTime}</strong>
-              </span>
-            </div>
-          )}
-          {myBid.comment && (
-            <div className="bid-comment-box">
-              <IonIcon icon={chatbubbleEllipsesOutline} /> "{myBid.comment}"
-            </div>
-          )}
-          <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
-              {myBid.status === 'REJECTED' ? 'Retirada el ' : 'Enviada el '}{new Date(myBid.createdAt).toLocaleDateString()}
-            </span>
-            {canCancelBid && onCancelBid && (
-              <IonButton
-                className="cancel-bid-btn"
-                fill="solid"
-                color="danger"
-                size="small"
-                onClick={() => onCancelBid()}
-                disabled={cancellingBid}
-              >
-                {cancellingBid ? 'Cancelando...' : 'Cancelar propuesta'}
-              </IonButton>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* UBICACIÓN */}
-      <div className={`pro-info-card ${isWinner ? 'highlight-border' : ''}`}>
-        <div className="pro-icon-box">
-          <IonIcon
-            icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
-            color={isWinner ? 'primary' : 'medium'}
-          />
-        </div>
-        <div>
-          <div className="pro-label">Ubicación</div>
-          <div className="pro-value">
-            {isWinner || isCompleted
-              ? request.preciseAddress || request.address
-              : `Zona: ${request.address
-                  .split(',')
-                  .slice(0, 2)
-                  .join(', ')}`}
-          </div>
-        </div>
-      </div>
-
-      {/* MAPA (GANADOR) */}
-      {isWinner && (
-        <div className="map-container-wrapper animate__animated animate__fadeIn">
-          <iframe
-            width="100%"
-            height="180"
-            style={{ border: 0 }}
-            loading="lazy"
-            src={`https://www.google.com/maps/embed/v1/place?key=${env.googleMapsKey}&q=${encodeURIComponent(
-              request.preciseAddress || request.address,
-            )}`}
-          ></iframe>
-        </div>
-      )}
-
       {/* DETALLES DEL TRABAJO */}
       <div className="pro-section-header">DETALLES DEL TRABAJO</div>
       <div className="description-card">
@@ -602,6 +411,197 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
         )}
       </div>
+
+      {getRequestPriceRangeEuros(request) && (
+        <div className="pro-detail-range-card animate__animated animate__fadeIn">
+          <div className="pro-detail-range-icon">
+            <IonIcon icon={cashOutline} />
+          </div>
+          <div className="pro-detail-range-copy">
+            <div className="pro-detail-range-label">Rango estimado (IA)</div>
+            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
+            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
+          </div>
+        </div>
+      )}
+
+      {/* INFORMACIÓN DEL CLIENTE */}
+      {request.client && (
+        <div
+          className="pro-client-card animate__animated animate__fadeIn"
+          style={{
+            marginBottom: '20px',
+            padding: '18px',
+            background: 'white',
+            borderRadius: '20px',
+            border: isWinner || visitRequest?.status === 'ACCEPTED' ? '1px solid #dcfce7' : '1px solid #e2e8f0',
+            boxShadow: isWinner || visitRequest?.status === 'ACCEPTED' ? '0 4px 16px rgba(16, 185, 129, 0.08)' : '0 4px 16px rgba(0, 0, 0, 0.04)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              color: '#64748b',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: '12px',
+            }}
+          >
+            Cliente
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <IonAvatar
+              style={{
+                width: '52px',
+                height: '52px',
+                minWidth: '52px',
+                minHeight: '52px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                background: '#f1f5f9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {request.client.avatar ? (
+                <img
+                  src={resolveMediaUrl(request.client.avatar)}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#64748b' }}>
+                  {request.client.fullName?.charAt(0) || '?'}
+                </span>
+              )}
+            </IonAvatar>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '1rem' }}>
+                {request.client.fullName}
+              </div>
+              <div
+                style={{
+                  fontSize: '0.8rem',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  marginTop: '4px',
+                }}
+              >
+                <IonIcon icon={star} style={{ fontSize: '0.8rem', color: '#fbbf24' }} />
+                <span style={{ fontWeight: 600 }}>
+                  {typeof request.client.rating === 'number' && Number.isFinite(request.client.rating)
+                    ? request.client.rating.toFixed(1)
+                    : '—'}
+                </span>
+                <span style={{ color: '#94a3b8' }}>({request.client.reviewCount ?? 0})</span>
+              </div>
+            </div>
+          </div>
+          {(isWinner || (visitRequest?.status === 'ACCEPTED' && request.client.phoneNumber)) && (
+            <IonButton
+              expand="block"
+              color="success"
+              onClick={onCallClient}
+              style={{ marginTop: '14px', fontWeight: 800, '--border-radius': '12px' }}
+            >
+              <IonIcon slot="start" icon={callOutline} /> LLAMAR AL CLIENTE
+            </IonButton>
+          )}
+        </div>
+      )}
+
+      {/* MI PUJA */}
+      {myBid && (
+        <div className={`my-bid-card animate__animated animate__fadeIn ${myBid.status === 'REJECTED' ? 'my-bid-card-rejected' : ''}`}>
+          <div className="bid-header">
+            <IonIcon icon={walletOutline} /> {myBid.status === 'REJECTED' ? 'PROPUESTA RETIRADA' : 'TU PROPUESTA'}
+          </div>
+          <div className="bid-row">
+            <span>Tu Precio:</span>
+            <strong>{myBid.priceQuote}€</strong>
+          </div>
+          {myBid.estimatedExecutionTime && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.8rem',
+                color: '#065f46',
+                marginBottom: 10,
+              }}
+            >
+              <IonIcon icon={timeOutline} style={{ fontSize: '0.9rem' }} />
+              <span>
+                Disponibilidad: <strong>{myBid.estimatedExecutionTime}</strong>
+              </span>
+            </div>
+          )}
+          {myBid.comment && (
+            <div className="bid-comment-box">
+              <IonIcon icon={chatbubbleEllipsesOutline} /> "{myBid.comment}"
+            </div>
+          )}
+          <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
+              {myBid.status === 'REJECTED' ? 'Retirada el ' : 'Enviada el '}{new Date(myBid.createdAt).toLocaleDateString()}
+            </span>
+            {canCancelBid && onCancelBid && (
+              <IonButton
+                className="cancel-bid-btn"
+                fill="solid"
+                color="danger"
+                size="small"
+                onClick={() => onCancelBid()}
+                disabled={cancellingBid}
+              >
+                {cancellingBid ? 'Cancelando...' : 'Cancelar propuesta'}
+              </IonButton>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* UBICACIÓN */}
+      <div className={`pro-info-card ${isWinner ? 'highlight-border' : ''}`}>
+        <div className="pro-icon-box">
+          <IonIcon
+            icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
+            color={isWinner ? 'primary' : 'medium'}
+          />
+        </div>
+        <div>
+          <div className="pro-label">Ubicación</div>
+          <div className="pro-value">
+            {isWinner || isCompleted
+              ? request.preciseAddress || request.address
+              : `Zona: ${request.address
+                  .split(',')
+                  .slice(0, 2)
+                  .join(', ')}`}
+          </div>
+        </div>
+      </div>
+
+      {/* MAPA (GANADOR) */}
+      {isWinner && (
+        <div className="map-container-wrapper animate__animated animate__fadeIn">
+          <iframe
+            width="100%"
+            height="180"
+            style={{ border: 0 }}
+            loading="lazy"
+            src={`https://www.google.com/maps/embed/v1/place?key=${env.googleMapsKey}&q=${encodeURIComponent(
+              request.preciseAddress || request.address,
+            )}`}
+          ></iframe>
+        </div>
+      )}
 
       {/* Q&A ENTRY */}
       <div className="qa-entry-card" onClick={onOpenQAModal}>

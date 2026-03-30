@@ -186,54 +186,6 @@
     letter-spacing: 1px;
 }
 
-.pro-price-badge {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    left: auto;
-    max-width: calc(100% - 30px);
-    background: white;
-    padding: 10px 14px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
-    gap: 2px;
-}
-
-.pro-price-badge-inline {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    background: white;
-    padding: 10px 14px;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-    margin-bottom: 14px;
-}
-
-.pro-price-badge-label {
-    font-size: 0.58rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #94a3b8;
-    line-height: 1.2;
-}
-
-.pro-price-badge-value {
-    color: var(--ion-color-primary);
-    font-weight: 900;
-    font-size: 1.05rem;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-}
-
 /* --- BADGES Y TÍTULO --- */
 .pro-status-pill {
     padding: 6px 14px;

@@ -457,7 +457,6 @@ const RequestDetail: React.FC = () => {
             {/* MULTIMEDIA */}
             <RequestDetailMedia
               request={request}
-              serverUrl={serverUrl}
               isPlayingAudio={isPlayingAudio}
               onToggleAudio={toggleAudio}
             />
