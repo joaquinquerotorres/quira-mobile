@@ -9,16 +9,16 @@ android {
     // ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
     def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
     def keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-    def keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-    def keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+    def keyAliasValue = System.getenv("ANDROID_KEY_ALIAS")
+    def keyPasswordValue = System.getenv("ANDROID_KEY_PASSWORD")
 
     signingConfigs {
         release {
-            if (keystorePath && keystorePassword && keyAlias && keyPassword) {
+            if (keystorePath && keystorePassword && keyAliasValue && keyPasswordValue) {
                 storeFile file(keystorePath)
                 storePassword keystorePassword
-                keyAlias keyAlias
-                keyPassword keyPassword
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
             }
         }
     }
