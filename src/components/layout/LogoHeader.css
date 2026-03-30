@@ -29,28 +29,6 @@
     line-height: 1;
 }
 
-.brand-dot-container {
-    position: relative;
-    display: inline-flex;
-}
-
-.brand-dot-container .brand-text-main {
-    /* La letra "i" (dentro del contenedor del punto) también va en naranja. */
-    color: #f97316;
-}
-
-.brand-smart-dot {
-    position: absolute;
-    top: 3px;
-    right: 0;
-    width: 10px;
-    height: 10px;
-    background-color: #f97316;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
-}
-
-
 .quira-header ion-toolbar {
     --background: #312e81; 
     --padding-top: 14px;

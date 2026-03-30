@@ -711,10 +711,7 @@ const Profile: React.FC = () => {
             <IonTitle className="ion-text-center">
                 <div className="brand-container">
                   <span className="brand-text-main">Qu</span>
-                  <div className="brand-dot-container">
-                    <span className="brand-text-main">i</span>
-                    <div className="brand-smart-dot"></div>
-                  </div>
+                  <span className="brand-text-secondary">i</span>
                   <span className="brand-text-main">r</span>
                   <span className="brand-text-secondary">a</span>
                 </div>
@@ -947,10 +944,7 @@ const Profile: React.FC = () => {
               <IonTitle className="ion-text-center">
                 <div className="brand-container">
                   <span className="brand-text-main">Qu</span>
-                  <div className="brand-dot-container">
-                    <span className="brand-text-main">i</span>
-                    <div className="brand-smart-dot"></div>
-                  </div>
+                  <span className="brand-text-secondary">i</span>
                   <span className="brand-text-main">r</span>
                   <span className="brand-text-secondary">a</span>
                 </div>
@@ -1050,10 +1044,7 @@ const Profile: React.FC = () => {
                     <IonTitle className="ion-text-center">
                         <div className="brand-container">
                             <span className="brand-text-main">Qu</span>
-                            <div className="brand-dot-container">
-                                <span className="brand-text-main">i</span>
-                                <div className="brand-smart-dot"></div>
-                            </div>
+                            <span className="brand-text-secondary">i</span>
                             <span className="brand-text-main">r</span>
                             <span className="brand-text-secondary">a</span>
                         </div>
@@ -1307,10 +1298,7 @@ const Profile: React.FC = () => {
               <IonTitle className="ion-text-center">
                 <div className="brand-container">
                   <span className="brand-text-main">Qu</span>
-                  <div className="brand-dot-container">
-                    <span className="brand-text-main">i</span>
-                    <div className="brand-smart-dot"></div>
-                  </div>
+                  <span className="brand-text-secondary">i</span>
                   <span className="brand-text-main">r</span>
                   <span className="brand-text-secondary">a</span>
                 </div>
