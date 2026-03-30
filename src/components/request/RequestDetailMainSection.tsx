@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IonIcon,
   IonAvatar,
@@ -21,6 +21,7 @@ import {
 import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
+import { SegmentTab } from '../shared/SegmentTab';
 import {
   formatRequestPriceRangeEuros,
   getRequestPriceRangeEuros,
@@ -130,6 +131,8 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
       (request.extraVideoUrls?.length ?? 0) +
       (request.extraAudioUrls?.length ?? 0) >
     0;
+
+  const [tierFilter, setTierFilter] = useState<'ALL' | TierLabel>('ALL');
 
   return (
     <>
@@ -598,17 +601,40 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
       {request.status === 'PENDING' && (
         <div style={{ marginTop: '30px', paddingBottom: '10px' }}>
           {(() => {
-            const visibleBids = dedupePendingBidsByProProfile(request.bids);
+            let visibleBids = dedupePendingBidsByProProfile(request.bids);
+
+            if (tierFilter !== 'ALL') {
+              visibleBids = visibleBids.filter((b) => getBidTier(b) === tierFilter);
+            }
+
+            const visibleBidsCount = visibleBids.length;
             return (
               <>
           <div className="section-header-large">
             OFERTAS{' '}
-            <span className="counter-badge">{visibleBids.length}</span>
+            <span className="counter-badge">{visibleBidsCount}</span>
           </div>
-          {visibleBids.length === 0 ? (
+          
+          <div className="bids-filters">
+            <SegmentTab
+              value={tierFilter}
+              onValueChange={setTierFilter}
+              options={[
+                { value: 'ALL', label: 'Todos' },
+                { value: 'PRO', label: 'Solo Pros' },
+              ]}
+              className="bids-tier-segment"
+            />
+          </div>
+
+          {visibleBidsCount === 0 ? (
                 <div className="empty-bids-state">
                   <IonIcon icon={informationCircleOutline} />
-                  <p>Buscando los mejores profesionales para ti...</p>
+                  <p>
+                    {tierFilter !== 'ALL'
+                      ? 'No hay ofertas que cumplan los filtros.'
+                      : 'Buscando los mejores profesionales para ti...'}
+                  </p>
                 </div>
           ) : (
             sortBidsForClient(visibleBids).map((bid: Bid) => {
