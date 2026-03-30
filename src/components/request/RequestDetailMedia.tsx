@@ -21,6 +21,18 @@ export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
   isPlayingAudio,
   onToggleAudio,
 }) => {
+  const hasMedia = Boolean(request.videoUrl || request.photoUrl || request.audioUrl);
+  const hasRange = Boolean(getRequestPriceRangeEuros(request));
+
+  if (!hasMedia) {
+    return hasRange ? (
+      <div className="price-badge-inline">
+        <span className="price-badge-floating-label">Rango estimado (IA)</span>
+        <span className="price-badge-floating-value">{formatRequestPriceRangeEuros(request)}</span>
+      </div>
+    ) : null;
+  }
+
   return (
     <div className="image-container-rounded">
         {request.videoUrl ? (
@@ -48,7 +60,7 @@ export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
             </div>
           </div>
         ) : null}
-        {getRequestPriceRangeEuros(request) ? (
+        {hasRange ? (
           <div className="price-badge-floating">
             <span className="price-badge-floating-label">Rango estimado (IA)</span>
             <span className="price-badge-floating-value">{formatRequestPriceRangeEuros(request)}</span>

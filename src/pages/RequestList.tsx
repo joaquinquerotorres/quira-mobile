@@ -405,7 +405,7 @@ const RequestList: React.FC = () => {
                                             
                                             <div className="pro-row-cat" style={{color: '#64748b', fontSize: '0.85rem'}}>
                                                 {pro.skills && Array.isArray(pro.skills) && pro.skills.length > 0
-                                                  ? pro.skills.slice(0, 3).map((s) => getCategoryLabel(s)).join(', ')
+                                                  ? pro.skills.map((s) => getCategoryLabel(s)).join(', ')
                                                   : (getCategoryLabel(pro.category) || 'Profesional')}
                                             </div>
 
