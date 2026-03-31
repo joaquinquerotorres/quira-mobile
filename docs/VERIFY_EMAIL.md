@@ -30,7 +30,7 @@ Código cliente: `src/api/verifyEmailApi.ts` (`confirmEmailWithToken`, `resendVe
 La página web de verificación:
 
 - Lee `token` desde query string.
-- Llama a `POST /verify/email` contra la API pública.
+- Llama a `POST /verify/email` contra `https://api.quira.app/api` (endpoint fijo).
 - Muestra resultado de éxito/error directamente en la web.
 
 No intenta abrir la app automáticamente. El objetivo es que `https://quira.app` siga siendo landing pública y que la validación de correo ocurra siempre en web.

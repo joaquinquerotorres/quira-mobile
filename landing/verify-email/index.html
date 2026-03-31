@@ -45,9 +45,9 @@
 <body>
   <div class="card">
     <h1>Verificacion de correo</h1>
-    <p id="copy">Estamos comprobando tu enlace de verificacion...</p>
+    <p id="copy">Estamos comprobando tu enlace de verificacion.</p>
     <p id="status" class="status"></p>
-    <a id="open-app" href="/login">Ir a iniciar sesion</a>
+    <a id="open-app" href="https://quira.app">Ir a Quira</a>
   </div>
   <script>
     (function () {
@@ -64,16 +64,10 @@
           status.textContent = 'Solicita un nuevo correo de verificacion desde tu perfil.';
           status.className = 'status err';
         }
-        if (cta) {
-          cta.textContent = 'Ir a la landing';
-          cta.setAttribute('href', '/');
-        }
         return;
       }
 
-      var apiBase = window.location.hostname.indexOf('localhost') >= 0
-        ? 'http://localhost:8000/api'
-        : 'https://api.quira.app/api';
+      var apiBase = 'https://api.quira.app/api';
 
       fetch(apiBase + '/verify/email', {
         method: 'POST',
@@ -87,14 +81,9 @@
         .then(function (data) {
           var ok = data && (data.success === true || /verificad/i.test(data.message || ''));
           if (ok) {
-            if (copy) copy.textContent = 'Tu correo ha sido verificado correctamente.';
             if (status) {
               status.textContent = data.message || 'Ya puedes iniciar sesion en la app.';
               status.className = 'status ok';
-            }
-            if (cta) {
-              cta.textContent = 'Abrir Quira';
-              cta.setAttribute('href', '/');
             }
             return;
           }
@@ -103,20 +92,12 @@
             status.textContent = data.message || 'El token puede estar caducado o no ser valido.';
             status.className = 'status err';
           }
-          if (cta) {
-            cta.textContent = 'Ir a la landing';
-            cta.setAttribute('href', '/');
-          }
         })
         .catch(function () {
           if (copy) copy.textContent = 'Error de conexion al verificar el correo.';
           if (status) {
             status.textContent = 'Intentalo de nuevo en unos minutos.';
             status.className = 'status err';
-          }
-          if (cta) {
-            cta.textContent = 'Ir a la landing';
-            cta.setAttribute('href', '/');
           }
         });
     })();
