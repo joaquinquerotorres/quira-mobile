@@ -34,6 +34,10 @@ const serverUrl = env.serverUrl;
 
 // LÍMITE DE PROPUESTAS PARA USUARIOS FREE
 const FREE_BID_LIMIT = 3;
+interface CanBidResponse {
+  canBidThisMonth: boolean;
+  remainingBidsThisMonth?: number;
+}
 
 function bidProfessionalUserId(bid: { professional: { id?: number } | string }): number {
   return typeof bid.professional === 'object'
@@ -57,7 +61,6 @@ const Market: React.FC = () => {
   
   // --- GESTIÓN DE ROLES / NIVELES ---
   const [userTier, setUserTier] = useState<EffectiveTier>('FREE');
-  const [myBidsCount, setMyBidsCount] = useState(0); 
 
   // --- LÓGICA DE PROPUESTAS (ANTES PUJAS) ---
   const [showModal, setShowModal] = useState(false);
@@ -71,6 +74,7 @@ const Market: React.FC = () => {
 
   // GET can-bid cuando el tier efectivo es FREE/CLIENT (incluye ex-PRO/SOLVER sin paidThroughAt vigente; el API aplica el límite al plan efectivo).
   const [canBidThisMonth, setCanBidThisMonth] = useState<boolean | null>(null);
+  const [remainingBidsThisMonth, setRemainingBidsThisMonth] = useState<number | null>(null);
   const [showCanBidLimitAlert, setShowCanBidLimitAlert] = useState(false);
 
   // --- FILTROS ---
@@ -91,6 +95,31 @@ const Market: React.FC = () => {
         setUserTier(getEffectiveTier(user));
     }
   }, []);
+
+  const isFreeOrClient = userTier === 'FREE' || userTier === 'CLIENT';
+
+  const refreshCanBidStatus = async (): Promise<CanBidResponse | null> => {
+    if (!isFreeOrClient) {
+      setCanBidThisMonth(null);
+      setRemainingBidsThisMonth(null);
+      return null;
+    }
+    try {
+      const res = await api.get<CanBidResponse>('/professionals/me/can-bid');
+      const canBid = !!res.data?.canBidThisMonth;
+      setCanBidThisMonth(canBid);
+      setRemainingBidsThisMonth(
+        typeof res.data?.remainingBidsThisMonth === 'number'
+          ? Math.max(0, res.data.remainingBidsThisMonth)
+          : null,
+      );
+      return res.data;
+    } catch {
+      setCanBidThisMonth(null);
+      setRemainingBidsThisMonth(null);
+      return null;
+    }
+  };
 
   const fetchOpportunities = async (event?: CustomEvent) => {
     if (!event) setLoading(true);
@@ -113,15 +142,6 @@ const Market: React.FC = () => {
       const list = data['hydra:member'] || data['member'];
       if (list) {
           setOpportunities(list);
-          // Contar propuestas del usuario en la lista actual (para FREE)
-          const userStr = localStorage.getItem('user');
-          const userId = userStr ? JSON.parse(userStr).id : null;
-          if (userId) {
-            const count = list.filter((req: ServiceRequest) =>
-              req.bids?.some((bid: Bid) => isUserActiveBid(bid, userId)),
-            ).length;
-            setMyBidsCount(count);
-          }
       }
 
     } catch (error) {
@@ -138,6 +158,10 @@ const Market: React.FC = () => {
   useEffect(() => {
       fetchOpportunities();
   }, [searchText, filterCategory, sortPrice]);
+
+  useEffect(() => {
+    void refreshCanBidStatus();
+  }, [userTier]);
 
   const handleSearch = (e: CustomEvent) => {
       setSearchText(e.detail.value!);
@@ -226,17 +250,14 @@ const Market: React.FC = () => {
       return;
     }
 
-    if (userTier === 'FREE' || userTier === 'CLIENT') {
-      try {
-        const res = await api.get<{ canBidThisMonth: boolean }>('/professionals/me/can-bid');
-        const { canBidThisMonth: canBid } = res.data;
-        setCanBidThisMonth(canBid);
-        if (canBid === false) {
-          setShowCanBidLimitAlert(true);
-          return;
-        }
-      } catch {
+    if (isFreeOrClient) {
+      const canBidResponse = await refreshCanBidStatus();
+      if (!canBidResponse) {
         setToast('No se pudo verificar tu límite de propuestas. Inténtalo de nuevo.');
+        return;
+      }
+      if (!canBidResponse.canBidThisMonth) {
+        setShowCanBidLimitAlert(true);
         return;
       }
     }
@@ -268,10 +289,9 @@ const Market: React.FC = () => {
         };
         await api.post('/bids', payload);
         
-        setMyBidsCount(prev => prev + 1);
-
         setToast("¡Propuesta enviada con éxito!");
         setShowModal(false);
+        void refreshCanBidStatus();
         fetchOpportunities(); 
     } catch (error: unknown) {
         setToast(getApiErrorMessage(error) || 'Error al enviar la propuesta.');
@@ -310,7 +330,15 @@ const Market: React.FC = () => {
         <MainHeader 
             title="Mercado" 
             subtitle="Encuentra nuevas oportunidades de trabajo."
-            extraInfo={(userTier === 'FREE' || userTier === 'CLIENT') && canBidThisMonth !== false ? `Propuestas gratuitas: ${Math.max(0, FREE_BID_LIMIT - myBidsCount)} restantes` : undefined}
+            extraInfo={
+              isFreeOrClient
+                ? canBidThisMonth === false
+                  ? 'Propuestas gratuitas: 0 restantes'
+                  : typeof remainingBidsThisMonth === 'number'
+                    ? `Propuestas gratuitas: ${remainingBidsThisMonth} restantes`
+                    : 'Propuestas gratuitas disponibles este mes'
+                : undefined
+            }
         />
 
         {/* CONTENEDOR PRINCIPAL CON BUSCADOR FLOTANTE */}

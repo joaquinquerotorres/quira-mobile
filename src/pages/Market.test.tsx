@@ -84,6 +84,7 @@ test('FREE user sees can-bid limit alert when canBidThisMonth is false', async (
     expect(api.get).toHaveBeenCalledWith('/professionals/me/can-bid');
     expect(screen.getByText('Límite de propuestas alcanzado')).toBeInTheDocument();
     expect(screen.getByText(/No puedes enviar más propuestas este mes/i)).toBeInTheDocument();
+    expect(screen.getByText('Propuestas gratuitas: 0 restantes')).toBeInTheDocument();
   });
 });
 
@@ -174,5 +175,6 @@ test('FREE user opens bid modal when canBidThisMonth is true', async () => {
     expect(api.get).toHaveBeenCalledWith('/professionals/me/can-bid');
     expect(screen.getByText('Me Interesa')).toBeInTheDocument();
     expect(screen.getByText('ENVIAR PROPUESTA')).toBeInTheDocument();
+    expect(screen.getByText('Propuestas gratuitas disponibles este mes')).toBeInTheDocument();
   });
 });

@@ -173,7 +173,7 @@ interface RequestQuestion {
 
 ### Botón "ME INTERESA"
 
-- Para **tier efectivo FREE o CLIENT** (incluye ex-PRO / ex-SOLVER sin `paidThroughAt` vigente): antes del modal se llama a `GET /professionals/me/can-bid`. El backend debe aplicar el límite al **plan efectivo**, no solo al rol `ROLE_FREE`. Si `canBidThisMonth === false`, alerta de límite. El conteo debe **excluir** pujas retiradas (`REJECTED`); el texto de “propuestas gratuitas restantes” en `Market` cuenta solo pujas no `REJECTED`.
+- Para **tier efectivo FREE o CLIENT** (incluye ex-PRO / ex-SOLVER sin `paidThroughAt` vigente): antes del modal se llama a `GET /professionals/me/can-bid`. El backend debe aplicar el límite al **plan efectivo**, no solo al rol `ROLE_FREE`. Si `canBidThisMonth === false`, alerta de límite. El texto de “propuestas gratuitas” en `Market` se alimenta de la respuesta de este endpoint (y usa `remainingBidsThisMonth` cuando el backend lo expone).
 - **SOLVER** y **PRO** con suscripción activa abren el modal sin esa llamada.
 - **HIGH Risk** sin tier **PRO** efectivo: candado / no puede pujar (el API también rechaza `POST /bids` con 422; mensaje vía `getApiErrorMessage`, p. ej. código `BID_HIGH_REQUIRES_PAID_SUBSCRIPTION` o `BID_MONTHLY_LIMIT_EXCEEDED`).
 
