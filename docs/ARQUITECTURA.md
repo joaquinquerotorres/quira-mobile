@@ -380,11 +380,13 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - La disponibilidad mostrada en cards se toma de `desiredExecutionTime` (texto directo del backend).
 - Si `desiredExecutionTime` está vacío o no viene informado, la UI cae al fallback "Lo antes posible".
 - El campo `scheduledAt` no se usa en frontend.
+- Cuando una card no tiene media (`photoUrl`/`videoUrl`/`audioUrl`), se muestra placeholder con **icono + fondo por categoría** (no logo genérico).
 
 ### RequestDetail (cliente)
 
-- Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
-- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): badge sobre la media principal ("Rango estimado (IA)") y tarjeta de información bajo disponibilidad preferida con el mismo texto (en euros en UI).
+- Muestra solicitud, multimedia principal; si no hay media principal, el placeholder usa **icono + color por categoría**.
+- Orden principal actual: título + estado, ofertas (si `PENDING`), profesional asignado (si `ACCEPTED`/`COMPLETED`), rango IA, disponibilidad, ubicación, descripción, Q&A y acciones finales.
+- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): tarjeta de información ("Rango estimado (IA)") en euros.
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - En el listado de ofertas se muestran directamente todas las propuestas visibles, ordenadas por tier/precio según la lógica de cliente.
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
@@ -395,8 +397,9 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### ProRequestDetail (profesional)
 
-- Vista de la solicitud para el profesional: descripción, categoría, **adjuntos adicionales** (fotos/vídeos/audios extra) dentro de "Detalles del trabajo".
-- **Rango IA** en badge sobre la media y tarjeta bajo el título ("Rango estimado (IA)" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
+- Vista de la solicitud para el profesional: si no hay media principal, el placeholder usa **icono + color por categoría** (alto compacto); descripción/categoría y **adjuntos adicionales** dentro de "Detalles del trabajo".
+- Orden principal actual: título + estado, bloque cliente, rango IA, ubicación (y mapa si ganador), detalles del trabajo, Q&A, tu propuesta y acciones.
+- **Rango IA** en tarjeta bajo título ("Rango estimado (IA)" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
 - Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
