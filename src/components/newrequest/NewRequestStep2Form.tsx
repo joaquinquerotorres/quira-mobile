@@ -360,7 +360,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
             </div>
             <p className="step2-price-range-hint">
               Estimación orientativa para servicios similares en tu zona; no incluye desplazamiento ni
-              materiales/piezas. No puedes modificar este rango aquí.
+              materiales/piezas.
             </p>
           </>
         ) : (
