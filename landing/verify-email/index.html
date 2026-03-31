@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quira - Verificando correo</title>
+  <title>Quira - Verificacion de correo</title>
   <style>
     body {
       margin: 0;
@@ -17,7 +17,7 @@
     }
     .card {
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
@@ -25,8 +25,11 @@
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       text-align: center;
     }
-    h1 { margin: 0 0 10px; font-size: 1.1rem; }
+    h1 { margin: 0 0 10px; font-size: 1.15rem; }
     p { margin: 0 0 16px; color: #64748b; line-height: 1.45; }
+    .status { font-size: 0.9rem; margin-bottom: 14px; }
+    .status.ok { color: #166534; }
+    .status.err { color: #b91c1c; }
     a {
       display: inline-block;
       background: #4f46e5;
@@ -41,24 +44,81 @@
 </head>
 <body>
   <div class="card">
-    <h1>Abriendo Quira...</h1>
-    <p>Si no se abre automaticamente, pulsa el boton para continuar la verificacion en la app.</p>
-    <a id="open-app" href="#">Abrir Quira</a>
+    <h1>Verificacion de correo</h1>
+    <p id="copy">Estamos comprobando tu enlace de verificacion...</p>
+    <p id="status" class="status"></p>
+    <a id="open-app" href="/login">Ir a iniciar sesion</a>
   </div>
   <script>
     (function () {
       var token = new URLSearchParams(window.location.search).get('token') || '';
-      var appUrl = token
-        ? 'com.quira.app://verify-email?token=' + encodeURIComponent(token)
-        : 'com.quira.app://verify-email';
-
       var cta = document.getElementById('open-app');
-      if (cta) cta.setAttribute('href', appUrl);
+      var copy = document.getElementById('copy');
+      var status = document.getElementById('status');
 
-      window.location.replace(appUrl);
-      window.setTimeout(function () {
-        window.location.replace('/');
-      }, 1800);
+      if (!token) {
+        if (copy) {
+          copy.textContent = 'Falta el token de verificacion en este enlace.';
+        }
+        if (status) {
+          status.textContent = 'Solicita un nuevo correo de verificacion desde tu perfil.';
+          status.className = 'status err';
+        }
+        if (cta) {
+          cta.textContent = 'Ir a la landing';
+          cta.setAttribute('href', '/');
+        }
+        return;
+      }
+
+      var apiBase = window.location.hostname.indexOf('localhost') >= 0
+        ? 'http://localhost:8000/api'
+        : 'https://api.quira.app/api';
+
+      fetch(apiBase + '/verify/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/ld+json'
+        },
+        body: JSON.stringify({ token: token })
+      })
+        .then(function (res) { return res.json().catch(function () { return {}; }); })
+        .then(function (data) {
+          var ok = data && (data.success === true || /verificad/i.test(data.message || ''));
+          if (ok) {
+            if (copy) copy.textContent = 'Tu correo ha sido verificado correctamente.';
+            if (status) {
+              status.textContent = data.message || 'Ya puedes iniciar sesion en la app.';
+              status.className = 'status ok';
+            }
+            if (cta) {
+              cta.textContent = 'Abrir Quira';
+              cta.setAttribute('href', '/');
+            }
+            return;
+          }
+          if (copy) copy.textContent = 'No se ha podido verificar el correo.';
+          if (status) {
+            status.textContent = data.message || 'El token puede estar caducado o no ser valido.';
+            status.className = 'status err';
+          }
+          if (cta) {
+            cta.textContent = 'Ir a la landing';
+            cta.setAttribute('href', '/');
+          }
+        })
+        .catch(function () {
+          if (copy) copy.textContent = 'Error de conexion al verificar el correo.';
+          if (status) {
+            status.textContent = 'Intentalo de nuevo en unos minutos.';
+            status.className = 'status err';
+          }
+          if (cta) {
+            cta.textContent = 'Ir a la landing';
+            cta.setAttribute('href', '/');
+          }
+        });
     })();
   </script>
 </body>
