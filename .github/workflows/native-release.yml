@@ -78,7 +78,7 @@ jobs:
           PY
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -186,7 +186,7 @@ jobs:
           PY
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Select Xcode 16 (Swift 6 for Capacitor SPM)
         uses: maxim-lobanov/setup-xcode@v1
