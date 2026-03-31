@@ -128,7 +128,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         {/* COLUMNA DERECHA (RANGO IA) */}
         <div className="market-card-right" style={{ flexShrink: 0, paddingRight: '15px' }}>
           <div className="mkt-price-block">
-            <span className="mkt-price-label">Rango IA</span>
+            <span className="mkt-price-label">Rango estimado</span>
             <span className="mkt-price">{isBlurry ? '??? €' : formatRequestPriceRangeEuros(request)}</span>
           </div>
 

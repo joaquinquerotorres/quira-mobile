@@ -43,7 +43,7 @@ test('RequestDetailMainSection renders request title', () => {
     { wrapper }
   );
   expect(screen.getByText('Arreglo grifo')).toBeInTheDocument();
-  expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
+  expect(screen.getByText('Rango estimado')).toBeInTheDocument();
   expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
 });
 

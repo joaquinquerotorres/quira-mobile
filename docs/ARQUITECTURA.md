@@ -165,7 +165,7 @@ interface RequestQuestion {
 
 ### Cards de oportunidad (`MarketOpportunityCard`)
 
-- Columna derecha: etiqueta **«Rango IA»** y el texto del rango (p. ej. `40€ - 80€`); si `isBidden`, badge "ENVIADA" en lugar de repetir la etiqueta.
+- Columna derecha: etiqueta **«Rango estimado»** y el texto del rango (p. ej. `40€ - 80€`); si `isBidden`, badge "ENVIADA" en lugar de repetir la etiqueta.
 - Muestran título, zona, categoría y media (foto/audio/video).
 - HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
 - `isBidden`: si el usuario tiene una propuesta **activa** (no retirada) en esa oportunidad.
@@ -386,7 +386,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 - Muestra solicitud, multimedia principal; si no hay media principal, el placeholder usa **icono + color por categoría**.
 - Orden principal actual: título + estado, ofertas (si `PENDING`), profesional asignado (si `ACCEPTED`/`COMPLETED`), rango IA, disponibilidad, ubicación, descripción, Q&A y acciones finales.
-- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): tarjeta de información ("Rango estimado (IA)") en euros.
+- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): tarjeta de información ("Rango estimado") en euros.
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - En el listado de ofertas se muestran directamente todas las propuestas visibles, ordenadas por tier/precio según la lógica de cliente.
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
@@ -399,7 +399,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 - Vista de la solicitud para el profesional: si no hay media principal, el placeholder usa **icono + color por categoría** (alto compacto); descripción/categoría y **adjuntos adicionales** dentro de "Detalles del trabajo".
 - Orden principal actual: título + estado, bloque cliente, rango IA, ubicación (y mapa si ganador), detalles del trabajo, Q&A, tu propuesta y acciones.
-- **Rango IA** en tarjeta bajo título ("Rango estimado (IA)" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
+- **Rango estimado** en tarjeta bajo título ("Rango estimado" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
 - Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
@@ -412,7 +412,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
 - En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
-- En **listados**, las solicitudes muestran etiqueta **«Rango IA»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
+- En **listados**, las solicitudes muestran etiqueta **«Rango estimado»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
 
 ### NewRequest
 

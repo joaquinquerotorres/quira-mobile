@@ -78,7 +78,7 @@ describe('MarketOpportunityCard', () => {
     );
     fireEvent.click(screen.getByTestId('ion-card'));
     expect(onCardClick).toHaveBeenCalled();
-    expect(screen.getByText('Rango IA')).toBeInTheDocument();
+    expect(screen.getByText('Rango estimado')).toBeInTheDocument();
     expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
   });
 

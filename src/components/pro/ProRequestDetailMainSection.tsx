@@ -243,7 +243,7 @@ export const ProRequestDetailMainSection: React.FC<
             <IonIcon icon={cashOutline} />
           </div>
           <div className="pro-detail-range-copy">
-            <div className="pro-detail-range-label">Rango estimado (IA)</div>
+            <div className="pro-detail-range-label">Rango estimado</div>
             <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
             <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
           </div>

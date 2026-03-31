@@ -64,7 +64,7 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
   await waitFor(() => {
     expect(screen.getByText('CANCELADA')).toBeInTheDocument();
     expect(screen.getByText('Trabajo cancelado')).toBeInTheDocument();
-    expect(screen.getByText('Rango IA')).toBeInTheDocument();
+    expect(screen.getByText('Rango estimado')).toBeInTheDocument();
     expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
     expect(screen.getByText('Esta semana')).toBeInTheDocument();
   });

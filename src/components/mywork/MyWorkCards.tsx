@@ -243,7 +243,7 @@ export const MyWorkJobCard: React.FC<MyWorkJobCardProps> = ({
       </div>
       <div className="mw-card-right">
         <div className="mw-price-block">
-          <span className="mw-price-sublabel">Rango IA</span>
+          <span className="mw-price-sublabel">Rango estimado</span>
           <span className="mw-price success">{formatRequestPriceRangeEuros(job)}</span>
         </div>
         <span className="mw-price-label">GANADO</span>

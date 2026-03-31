@@ -444,7 +444,7 @@ const ProRequestDetail: React.FC = () => {
                             <IonIcon icon={cashOutline} style={{ fontSize: '24px', color: 'white' }} />
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Rango estimado (IA)</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Rango estimado</div>
                             <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#4f46e5', lineHeight: 1.25 }}>{formatRequestPriceRangeEuros(request)}</div>
                         </div>
                     </div>

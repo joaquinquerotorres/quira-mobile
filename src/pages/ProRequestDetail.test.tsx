@@ -89,7 +89,7 @@ test('ProRequestDetail muestra el título del trabajo para un PRO', async () => 
   );
   await waitFor(() => {
     expect(screen.getByText('Reparar enchufe')).toBeInTheDocument();
-    expect(screen.getAllByText('Rango estimado (IA)').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Rango estimado').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('100€ - 140€').length).toBeGreaterThanOrEqual(1);
   });
 });

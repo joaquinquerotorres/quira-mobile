@@ -457,7 +457,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
               <IonIcon icon={cashOutline} />
             </div>
             <div>
-              <div className="info-label-detail">Rango estimado (IA)</div>
+              <div className="info-label-detail">Rango estimado</div>
               <div className="info-text-detail info-text-detail-price-range">
                 {formatRequestPriceRangeEuros(request)}
               </div>
