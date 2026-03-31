@@ -3,21 +3,15 @@ import { IonIcon, IonImg } from '@ionic/react';
 import { playCircleOutline, pauseCircleOutline } from 'ionicons/icons';
 import { ServiceRequest } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
-import {
-  formatRequestPriceRangeEuros,
-  getRequestPriceRangeEuros,
-} from '../../utils/requestPriceRange';
 
 interface RequestDetailMediaProps {
   request: ServiceRequest;
-  serverUrl: string;
   isPlayingAudio: boolean;
   onToggleAudio: (url: string) => void;
 }
 
 export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
   request,
-  serverUrl,
   isPlayingAudio,
   onToggleAudio,
 }) => {

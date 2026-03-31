@@ -22,21 +22,17 @@ describe('RequestDetailMedia', () => {
     render(
       <RequestDetailMedia
         request={{ ...baseRequest, videoUrl: '/v.mp4' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(document.querySelector('video')).toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
-    expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
   });
 
   test('renders photo when photoUrl exists (and no video)', () => {
     render(
       <RequestDetailMedia
         request={{ ...baseRequest, photoUrl: '/p.jpg' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
@@ -50,7 +46,6 @@ describe('RequestDetailMedia', () => {
     render(
       <RequestDetailMedia
         request={{ ...baseRequest, audioUrl: '/a.mp3' }}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={onToggleAudio}
       />,
@@ -63,32 +58,23 @@ describe('RequestDetailMedia', () => {
     render(
       <RequestDetailMedia
         request={baseRequest}
-        serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(screen.getByTestId('ion-img')).toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
   });
 
-  test('does not render price badge when range cannot be resolved', () => {
+  test('does not render IA range badge', () => {
     render(
       <RequestDetailMedia
-        request={
-          {
-            ...baseRequest,
-            estimatedPriceMin: undefined,
-            estimatedPriceMax: undefined,
-            aiDiagnosis: {},
-          } as any
-        }
-        serverUrl=""
+        request={baseRequest}
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(screen.queryByText('Rango estimado (IA)')).not.toBeInTheDocument();
+    expect(screen.queryByText('45€ - 55€')).not.toBeInTheDocument();
   });
 });
 
