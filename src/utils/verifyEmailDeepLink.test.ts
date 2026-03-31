@@ -26,6 +26,14 @@ describe('parseVerifyEmailTokenFromUrl', () => {
     ).toBe('dev-token');
   });
 
+  it('acepta custom scheme de la app', () => {
+    expect(
+      parseVerifyEmailTokenFromUrl(
+        'com.quira.app://verify-email?token=mobile-token',
+      ),
+    ).toBe('mobile-token');
+  });
+
   it('devuelve null si falta token o está vacío', () => {
     expect(parseVerifyEmailTokenFromUrl('https://quira.app/verify-email')).toBe(
       null,

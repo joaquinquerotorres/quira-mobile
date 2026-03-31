@@ -6,7 +6,14 @@ export function parseVerifyEmailTokenFromUrl(url: string): string | null {
   try {
     const u = new URL(url);
     const path = u.pathname.replace(/\/$/, '') || '/';
-    if (path !== '/verify-email' && !path.endsWith('/verify-email')) {
+    const isHttpVerifyPath =
+      path === '/verify-email' || path.endsWith('/verify-email');
+    const isCustomSchemeVerifyHost =
+      u.protocol !== 'http:' &&
+      u.protocol !== 'https:' &&
+      u.hostname.toLowerCase() === 'verify-email';
+
+    if (!isHttpVerifyPath && !isCustomSchemeVerifyHost) {
       return null;
     }
     const token = u.searchParams.get('token');

@@ -34,7 +34,11 @@ En **nativo**, el plugin `@capacitor/app` recibe la URL al abrir el enlace desde
 
 El componente `src/components/DeepLinkHandler.tsx` escucha esos eventos y hace **`history.replace('/verify-email?token=...')`** si la ruta es `/verify-email` y hay `token`.
 
-La extracción de `token` desde la URL está en `src/utils/verifyEmailDeepLink.ts` (`parseVerifyEmailTokenFromUrl`), probada para URLs `https` con host `quira.app`, `www.quira.app` o `localhost`.
+La extracción de `token` desde la URL está en `src/utils/verifyEmailDeepLink.ts` (`parseVerifyEmailTokenFromUrl`), probada para URLs `https` (`quira.app`, `www.quira.app`, `localhost`) y también para el esquema nativo `com.quira.app://verify-email?...`.
+
+### Puente web cuando el SO abre navegador
+
+Si por configuración de App Links / Universal Links el enlace se abre en navegador, la web pública sirve `landing/verify-email/index.html`, que redirige a `com.quira.app://verify-email?token=...` para abrir la app y continuar la verificación allí.
 
 ### Android
 
