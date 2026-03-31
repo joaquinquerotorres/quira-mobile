@@ -35,7 +35,7 @@ interface MarketOpportunityCardProps {
   onCardClick: () => void;
   onBidClick: (e: React.MouseEvent) => void;
   serverUrl: string;
-  renderScheduleInfo: (isoString?: string | null) => React.ReactNode;
+  renderScheduleInfo: (desiredExecutionTime?: string | null) => React.ReactNode;
 }
 
 export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
@@ -75,6 +75,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
           <RequestMediaThumb
             variant="market"
             requestId={request.id!}
+            categoryCode={request.category}
             photoSrc={request.photoUrl ? resolveMediaUrl(request.photoUrl) : undefined}
             audioUrl={isBlurry ? undefined : request.audioUrl}
             videoUrl={request.videoUrl}
@@ -121,7 +122,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             <span style={{ fontWeight: 700 }}>{addressInfo.text}</span>
           </div>
 
-          {renderScheduleInfo(request.scheduledAt)}
+          {renderScheduleInfo(request.desiredExecutionTime)}
         </div>
 
         {/* COLUMNA DERECHA (RANGO IA) */}

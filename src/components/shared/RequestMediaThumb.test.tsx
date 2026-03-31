@@ -9,20 +9,28 @@ vi.mock('@ionic/react', () => ({
 }));
 
 describe('RequestMediaThumb', () => {
-  test('renders placeholder logo when no media provided', () => {
+  test('renders category icon placeholder in request list when no media provided', () => {
+    render(
+      <RequestMediaThumb
+        variant="requestList"
+        requestId={1}
+        categoryCode="PLUMBING"
+        playingAudioId={null}
+      />,
+    );
+    expect(screen.getByTestId('ion-icon')).toBeInTheDocument();
+  });
+
+  test('renders category icon placeholder in market when no media provided', () => {
     render(
       <RequestMediaThumb
         variant="market"
         requestId={1}
+        categoryCode="CLEANING"
         playingAudioId={null}
       />,
     );
-    const img = screen.getByTestId('ion-img');
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute(
-      'src',
-      'https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_logo.png',
-    );
+    expect(screen.getByTestId('ion-icon')).toBeInTheDocument();
   });
 
   test('renders image when photoSrc is provided', () => {

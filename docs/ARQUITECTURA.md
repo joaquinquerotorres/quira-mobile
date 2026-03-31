@@ -375,12 +375,18 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ## 10. Vistas específicas
 
+### Listados (`/request-list` y `/market`)
+
+- La disponibilidad mostrada en cards se toma de `desiredExecutionTime` (texto directo del backend).
+- Si `desiredExecutionTime` está vacío o no viene informado, la UI cae al fallback "Lo antes posible".
+- El campo `scheduledAt` no se usa en frontend.
+
 ### RequestDetail (cliente)
 
 - Muestra solicitud, multimedia principal, **adjuntos adicionales** (extraPhotoUrls, extraVideoUrls, extraAudioUrls) dentro de la caja de descripción, y categoría (ej. Manitas para DIY).
 - **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): badge sobre la media principal ("Rango estimado (IA)") y tarjeta de información bajo disponibilidad preferida con el mismo texto (en euros en UI).
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
-- En el listado de ofertas, el cliente puede filtrar localmente por **“Solo Pros”** (además de ver “Todos”).
+- En el listado de ofertas se muestran directamente todas las propuestas visibles, ordenadas por tier/precio según la lógica de cliente.
 - Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
 - **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
@@ -402,6 +408,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Segmentos: "Propuestas" y "Trabajos".
 - Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
+- En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
 - En **listados**, las solicitudes muestran etiqueta **«Rango IA»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
 
 ### NewRequest

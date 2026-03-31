@@ -280,8 +280,9 @@ const Market: React.FC = () => {
     }
   };
 
-  const renderScheduleInfo = (isoString?: string | null) => {
-      if (!isoString) {
+  const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
+      const preference = desiredExecutionTime?.trim();
+      if (!preference) {
           return (
               <div className="info-row" style={{color: '#ea580c', fontWeight: 700}}>
                   <IonIcon icon={flashOutline} style={{marginRight: '6px'}} />
@@ -289,11 +290,10 @@ const Market: React.FC = () => {
               </div>
           );
       }
-      const date = new Date(isoString);
       return (
           <div className="info-row" style={{color: 'var(--ion-color-primary)', fontWeight: 700}}>
               <IonIcon icon={calendarOutline} style={{marginRight: '6px'}} />
-              <span>{date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}</span>
+              <span>{preference}</span>
           </div>
       );
   };

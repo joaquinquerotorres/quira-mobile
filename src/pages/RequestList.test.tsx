@@ -52,7 +52,7 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
     status: 'CANCELLED',
     category: 'PLUMBING',
     address: 'Calle Test 1, Madrid',
-    scheduledAt: null,
+    desiredExecutionTime: 'Esta semana',
     client: { fullName: 'Cliente' },
   };
   vi.mocked(api.get).mockResolvedValue({
@@ -66,5 +66,6 @@ test('RequestList shows CANCELLED request with Cancelada badge', async () => {
     expect(screen.getByText('Trabajo cancelado')).toBeInTheDocument();
     expect(screen.getByText('Rango IA')).toBeInTheDocument();
     expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
+    expect(screen.getByText('Esta semana')).toBeInTheDocument();
   });
 });

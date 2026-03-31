@@ -148,25 +148,12 @@ export const ProRequestDetailMainSection: React.FC<
 
       <h1 className="pro-detail-title">{request.title}</h1>
 
-      {getRequestPriceRangeEuros(request) && (
-        <div className="pro-detail-range-card animate__animated animate__fadeIn">
-          <div className="pro-detail-range-icon">
-            <IonIcon icon={cashOutline} />
-          </div>
-          <div className="pro-detail-range-copy">
-            <div className="pro-detail-range-label">Rango estimado (IA)</div>
-            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
-            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
-          </div>
-        </div>
-      )}
-
       {/* INFORMACIÓN DEL CLIENTE */}
       {request.client && (
         <div
           className="pro-client-card animate__animated animate__fadeIn"
           style={{
-            marginBottom: '20px',
+            marginBottom: '16px',
             padding: '18px',
             background: 'white',
             borderRadius: '20px',
@@ -250,55 +237,15 @@ export const ProRequestDetailMainSection: React.FC<
         </div>
       )}
 
-      {/* MI PUJA */}
-      {myBid && (
-        <div className={`my-bid-card animate__animated animate__fadeIn ${myBid.status === 'REJECTED' ? 'my-bid-card-rejected' : ''}`}>
-          <div className="bid-header">
-            <IonIcon icon={walletOutline} /> {myBid.status === 'REJECTED' ? 'PROPUESTA RETIRADA' : 'TU PROPUESTA'}
+      {getRequestPriceRangeEuros(request) && (
+        <div className="pro-detail-range-card animate__animated animate__fadeIn">
+          <div className="pro-detail-range-icon">
+            <IonIcon icon={cashOutline} />
           </div>
-          <div className="bid-row">
-            <span>Tu Precio:</span>
-            <strong>{myBid.priceQuote}€</strong>
-          </div>
-          {myBid.estimatedExecutionTime && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.8rem',
-                color: '#065f46',
-                marginBottom: 10,
-              }}
-            >
-              <IonIcon icon={timeOutline} style={{ fontSize: '0.9rem' }} />
-              <span>
-                Disponibilidad: <strong>{myBid.estimatedExecutionTime}</strong>
-              </span>
-            </div>
-          )}
-          {myBid.comment && (
-            <div className="bid-comment-box">
-              <IonIcon icon={chatbubbleEllipsesOutline} /> "{myBid.comment}"
-            </div>
-          )}
-          <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
-              {myBid.status === 'REJECTED' ? 'Retirada el ' : 'Enviada el '}{new Date(myBid.createdAt).toLocaleDateString()}
-            </span>
-            {canCancelBid && onCancelBid && (
-              <IonButton
-                className="cancel-bid-btn"
-                fill="solid"
-                color="danger"
-                size="small"
-                onClick={() => onCancelBid()}
-                disabled={cancellingBid}
-              >
-                {cancellingBid ? 'Cancelando...' : 'Cancelar propuesta'}
-              </IonButton>
-            )}
+          <div className="pro-detail-range-copy">
+            <div className="pro-detail-range-label">Rango estimado (IA)</div>
+            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
+            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
           </div>
         </div>
       )}
@@ -604,7 +551,7 @@ export const ProRequestDetailMainSection: React.FC<
       </div>
 
       {/* Q&A ENTRY */}
-      <div className="qa-entry-card" onClick={onOpenQAModal}>
+      <div className="qa-entry-card" style={{ marginTop: '16px' }} onClick={onOpenQAModal}>
         <div className="qa-icon-badge">
           <IonIcon icon={chatboxEllipsesOutline} />
         </div>
@@ -621,15 +568,71 @@ export const ProRequestDetailMainSection: React.FC<
         <IonIcon icon={chevronForwardOutline} color="medium" />
       </div>
 
+      {/* MI PUJA */}
+      {myBid && (
+        <div
+          className={`my-bid-card animate__animated animate__fadeIn ${myBid.status === 'REJECTED' ? 'my-bid-card-rejected' : ''}`}
+          style={{ marginTop: '16px' }}
+        >
+          <div className="bid-header">
+            <IonIcon icon={walletOutline} /> {myBid.status === 'REJECTED' ? 'PROPUESTA RETIRADA' : 'TU PROPUESTA'}
+          </div>
+          <div className="bid-row">
+            <span>Tu Precio:</span>
+            <strong>{myBid.priceQuote}€</strong>
+          </div>
+          {myBid.estimatedExecutionTime && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.8rem',
+                color: '#065f46',
+                marginBottom: 10,
+              }}
+            >
+              <IonIcon icon={timeOutline} style={{ fontSize: '0.9rem' }} />
+              <span>
+                Disponibilidad: <strong>{myBid.estimatedExecutionTime}</strong>
+              </span>
+            </div>
+          )}
+          {myBid.comment && (
+            <div className="bid-comment-box">
+              <IonIcon icon={chatbubbleEllipsesOutline} /> "{myBid.comment}"
+            </div>
+          )}
+          <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
+              {myBid.status === 'REJECTED' ? 'Retirada el ' : 'Enviada el '}{new Date(myBid.createdAt).toLocaleDateString()}
+            </span>
+            {canCancelBid && onCancelBid && (
+              <IonButton
+                className="cancel-bid-btn"
+                fill="solid"
+                color="danger"
+                size="small"
+                onClick={() => onCancelBid()}
+                disabled={cancellingBid}
+              >
+                {cancellingBid ? 'Cancelando...' : 'Cancelar propuesta'}
+              </IonButton>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ESTADO CANCELADA */}
       {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '30px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ marginTop: '16px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud fue cancelada por el cliente.</p>
         </div>
       )}
 
       {/* ACCIONES */}
-      <div style={{ marginTop: '30px', paddingBottom: '40px' }}>
+      <div style={{ marginTop: '16px', paddingBottom: '40px' }}>
         {!hasActiveBid && request.status === 'PENDING' && canSubmitBid && (
           <IonButton
             expand="block"

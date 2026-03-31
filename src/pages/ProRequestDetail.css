@@ -66,6 +66,10 @@
     margin-bottom: 20px;
 }
 
+.pro-image-container--placeholder {
+    height: 105px;
+}
+
 .pro-detail-img {
     width: 100%;
     height: 100%;
@@ -139,7 +143,16 @@
 .pro-detail-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pro-detail-placeholder-icon-wrap {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -186,41 +199,6 @@
     letter-spacing: 1px;
 }
 
-.pro-price-badge {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    left: auto;
-    max-width: calc(100% - 30px);
-    background: white;
-    padding: 10px 14px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
-    gap: 2px;
-}
-
-.pro-price-badge-label {
-    font-size: 0.58rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #94a3b8;
-    line-height: 1.2;
-}
-
-.pro-price-badge-value {
-    color: var(--ion-color-primary);
-    font-weight: 900;
-    font-size: 1.05rem;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-}
-
 /* --- BADGES Y TÍTULO --- */
 .pro-status-pill {
     padding: 6px 14px;
@@ -251,7 +229,7 @@
     align-items: flex-start;
     gap: 14px;
     padding: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
     border: 1px solid #ffedd5;
     border-radius: 18px;
@@ -306,7 +284,7 @@
     border: 1px solid #10b981; /* Borde verde */
     border-radius: 20px;
     padding: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 16px;
     box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
 }
 
@@ -416,7 +394,7 @@
     border-radius: 20px;
     overflow: hidden;
     border: 1px solid #e2e8f0;
-    margin-bottom: 25px;
+    margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
@@ -425,7 +403,7 @@
     font-size: 0.85rem;
     font-weight: 800;
     color: #1e293b;
-    margin: 30px 0 10px 0;
+    margin: 0 0 10px 0;
     text-transform: uppercase;
 }
 

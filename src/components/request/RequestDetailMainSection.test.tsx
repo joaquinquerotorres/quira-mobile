@@ -83,12 +83,12 @@ test('RequestDetailMainSection shows PRO and SOLVER tier badges on bids', () => 
     />,
     { wrapper }
   );
-  // "PRO"/"SOLVER" ahora también aparecen en el filtro de tipo de perfil,
-  // así que permitimos múltiples coincidencias.
   expect(screen.getAllByText('PRO').length).toBeGreaterThanOrEqual(1);
   expect(screen.getAllByText('SOLVER').length).toBeGreaterThanOrEqual(1);
   expect(screen.getByText('Pro User')).toBeInTheDocument();
   expect(screen.getByText('Solver User')).toBeInTheDocument();
+  expect(screen.queryByText('Solo Pros')).not.toBeInTheDocument();
+  expect(screen.queryByText('Todos')).not.toBeInTheDocument();
 });
 
 test('RequestDetailMainSection shows assigned professional tier badge', () => {

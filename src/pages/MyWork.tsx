@@ -12,7 +12,7 @@ import {
   checkmarkCircleOutline,
   starOutline,
   snowOutline,
-  handLeftOutline
+  handLeftOutline,
 } from 'ionicons/icons';
 import api from '../api/axios';
 import { Bid, ServiceRequest } from '../types';
@@ -94,7 +94,7 @@ const MyWork: React.FC = () => {
   const getCategoryStyle = (catCode: string) => {
       const normalized = (catCode || '').toUpperCase();
       switch (normalized) {
-          case 'PLUMBING': return { label: 'Fontanería', icon: waterOutline, color: '#0ea5e9', bg: '#e0f2fe' };
+          case 'PLUMBING': return { label: 'Fontanería', icon: waterOutline, color: '#3b82f6', bg: '#dbeafe' };
           case 'ELECTRICITY': return { label: 'Electricidad', icon: flashOutline, color: '#eab308', bg: '#fef9c3' };
           case 'MASONRY': return { label: 'Reformas', icon: hammerOutline, color: '#ef4444', bg: '#fee2e2' };
           case 'PAINTING': return { label: 'Pintura', icon: brushOutline, color: '#a855f7', bg: '#f3e8ff' };
@@ -209,7 +209,7 @@ const MyWork: React.FC = () => {
     const borderClass = isCompleted ? 'mw-card-closed' : 'mw-card-won'; 
     const statusLabel = isCompleted ? 'FINALIZADO' : 'ASIGNADO';
     const badgeClass = isCompleted ? 'mw-status-closed' : 'mw-status-won';
-    const dateToShow = job.scheduledAt ? job.scheduledAt : job.createdAt;
+    const dateToShow = job.createdAt;
     const jobId = getIdFromIri(job);
 
     const catStyle = getCategoryStyle(job.category);

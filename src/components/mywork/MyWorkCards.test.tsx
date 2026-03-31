@@ -15,6 +15,7 @@ const mockRequest: ServiceRequest = {
   riskLevel: 'LOW',
   category: 'PLUMBING',
   address: 'Calle Mayor 1, Madrid',
+  desiredExecutionTime: 'Esta semana',
   locationPoint: { type: 'Point', coordinates: [0, 0] },
   createdAt: '2024-01-15T10:00:00Z',
   client: { '@id': '/clients/1', id: 1, fullName: 'Juan García', user: { '@id': '/users/1', id: 1, email: 'j@t.com', roles: [] } },
@@ -57,6 +58,7 @@ test('MyWorkBidCard renders request title and bid price', () => {
   expect(screen.getByText('60€')).toBeInTheDocument();
   expect(screen.getByText('TU PROPUESTA')).toBeInTheDocument();
   expect(screen.getByText('Calle Mayor 1')).toBeInTheDocument();
+  expect(screen.getByText('Esta semana')).toBeInTheDocument();
 });
 
 test('MyWorkBidCard calls onClick when card is clicked', () => {

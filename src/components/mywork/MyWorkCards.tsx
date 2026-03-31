@@ -52,6 +52,7 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
         <RequestMediaThumb
           variant="myWork"
           requestId={requestId}
+          categoryCode={request.category}
           photoSrc={request.photoUrl ? resolveMediaUrl(request.photoUrl) : undefined}
           audioUrl={request.audioUrl}
           videoUrl={request.videoUrl}
@@ -74,7 +75,7 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
           <IonIcon icon={locationOutline} />
           <span>{request.address.split(',')[0]}</span>
         </div>
-        {request.scheduledAt ? (
+        {request.desiredExecutionTime?.trim() ? (
           <div
             style={{
               display: 'flex',
@@ -90,10 +91,7 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
               style={{ marginRight: '6px', fontSize: '14px' }}
             />
             <span>
-              {new Date(request.scheduledAt).toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-              })}
+              {request.desiredExecutionTime}
             </span>
           </div>
         ) : (
@@ -196,6 +194,7 @@ export const MyWorkJobCard: React.FC<MyWorkJobCardProps> = ({
         <RequestMediaThumb
           variant="myWork"
           requestId={jobId}
+          categoryCode={job.category}
           photoSrc={job.photoUrl ? resolveMediaUrl(job.photoUrl) : undefined}
           audioUrl={job.audioUrl}
           videoUrl={job.videoUrl}

@@ -14,8 +14,8 @@ import {
   waterOutline, hammerOutline, leafOutline, brushOutline,
   compassOutline, listOutline,
   snowOutline,
-  starOutline,
-  handLeftOutline
+  sparklesOutline,
+  handLeftOutline,
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import api from '../api/axios';
@@ -63,14 +63,14 @@ const RequestList: React.FC = () => {
 
   // Categorías (Discovery)
   const categories = [
-    { code: 'PLUMBING', name: 'Fontanería', icon: waterOutline, color: '#3b82f6' },
-    { code: 'ELECTRICITY', name: 'Electricidad', icon: flashOutline, color: '#eab308' },
-    { code: 'MASONRY', name: 'Reformas', icon: hammerOutline, color: '#ef4444' },
-    { code: 'PAINTING', name: 'Pintura', icon: brushOutline, color: '#a855f7' },
-    { code: 'GARDENING', name: 'Jardinería', icon: leafOutline, color: '#22c55e' },
-    { code: 'CLEANING', name: 'Limpieza', icon: starOutline, color: '#22c55e' },
-    { code: 'HVAC', name: 'Climatización', icon: snowOutline, color: '#64748b' },
-    { code: 'DIY', name: 'Manitas', icon: handLeftOutline, color: '#63d8ce' },
+    { code: 'PLUMBING', name: 'Fontanería', icon: waterOutline, color: '#3b82f6', bg: '#dbeafe' },
+    { code: 'ELECTRICITY', name: 'Electricidad', icon: flashOutline, color: '#eab308', bg: '#fef9c3' },
+    { code: 'MASONRY', name: 'Reformas', icon: hammerOutline, color: '#ef4444', bg: '#fee2e2' },
+    { code: 'PAINTING', name: 'Pintura', icon: brushOutline, color: '#a855f7', bg: '#f3e8ff' },
+    { code: 'GARDENING', name: 'Jardinería', icon: leafOutline, color: '#22c55e', bg: '#dcfce7' },
+    { code: 'CLEANING', name: 'Limpieza', icon: sparklesOutline, color: '#06b6d4', bg: '#cffafe' },
+    { code: 'HVAC', name: 'Climatización', icon: snowOutline, color: '#64748b', bg: '#f1f5f9' },
+    { code: 'DIY', name: 'Manitas', icon: handLeftOutline, color: '#63d8ce', bg: '#f1f5f9' },
   ];
 
   const getTierWeight = (pro: { user?: { roles?: string[] } }) => {
@@ -185,11 +185,12 @@ const RequestList: React.FC = () => {
   const getStatusColorClass = (status: RequestStatus) => {
       switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'CANCELLED': return 'request-status-cancelled'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
   };
-  const renderScheduleInfo = (isoString?: string | null) => {
+  const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
     const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem', fontWeight: 600 };
-    if (!isoString) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>Lo antes posible</span></div>);
-    const date = new Date(isoString);
-    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>{date.toLocaleDateString('es-ES', {day: 'numeric', month: 'long'})}</span></div>);
+    const preference = desiredExecutionTime?.trim();
+    const isUrgent = !preference || preference.toLowerCase() === 'lo antes posible';
+    if (isUrgent) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>Lo antes posible</span></div>);
+    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>{preference}</span></div>);
   };
 
   return (
@@ -258,6 +259,7 @@ const RequestList: React.FC = () => {
                                         <RequestMediaThumb
                                           variant="requestList"
                                           requestId={req.id!}
+                                          categoryCode={req.category}
                                           photoSrc={req.photoUrl ? resolveMediaUrl(req.photoUrl) : undefined}
                                           audioUrl={req.audioUrl}
                                           videoUrl={req.videoUrl}
@@ -275,7 +277,7 @@ const RequestList: React.FC = () => {
                                             <IonIcon icon={locationOutline} />
                                             <span>{req.address.split(',')[0]}</span>
                                         </div>
-                                        {renderScheduleInfo(req.scheduledAt)}
+                                        {renderScheduleInfo(req.desiredExecutionTime)}
                                     </div>
                                     <div className="request-list-card-right">
                                         <div className="request-list-card-price-block">
@@ -325,7 +327,7 @@ const RequestList: React.FC = () => {
                     <div className="categories-grid">
                          {categories.map((cat) => (
                             <div key={cat.code} className="cat-card-item" onClick={() => goToDirectory(cat.code)}>
-                                <div className="cat-icon-large" style={{background: `${cat.color}15`, color: cat.color}}>
+                                <div className="cat-icon-large" style={{background: cat.bg, color: cat.color}}>
                                     <IonIcon icon={cat.icon} />
                                 </div>
                                 <span className="cat-label-large">{cat.name}</span>

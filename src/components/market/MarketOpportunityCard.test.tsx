@@ -30,7 +30,7 @@ describe('MarketOpportunityCard', () => {
     category: 'PLUMBING',
     estimatedPriceMin: 7000,
     estimatedPriceMax: 9000,
-    scheduledAt: null,
+    desiredExecutionTime: 'Esta semana',
     client: { fullName: 'Cliente Uno', rating: null, reviewCount: 0 },
   };
 
@@ -120,5 +120,28 @@ describe('MarketOpportunityCard', () => {
     );
     expect(screen.getByText('ME INTERESA')).toBeInTheDocument();
   });
+
+test('passes desiredExecutionTime to renderScheduleInfo', () => {
+  const renderScheduleInfo = vi.fn(() => <span>DISPONIBILIDAD</span>);
+  render(
+    <MarketOpportunityCard
+      request={baseRequest}
+      isBidden={false}
+      isHigh={false}
+      isBlurry={false}
+      isLocked={false}
+      addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
+      playingAudioId={null}
+      onToggleAudio={vi.fn()}
+      onCardClick={vi.fn()}
+      onBidClick={vi.fn()}
+      serverUrl=""
+      renderScheduleInfo={renderScheduleInfo}
+    />,
+  );
+
+  expect(renderScheduleInfo).toHaveBeenCalledWith('Esta semana');
+  expect(screen.getByText('DISPONIBILIDAD')).toBeInTheDocument();
+});
 });
 

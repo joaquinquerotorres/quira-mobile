@@ -49,6 +49,7 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 | `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, … | URLs | Tras subida a bucket. |
 
 **No** se envía `priceAmount` (sustituido por el rango anterior).
+En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.
 
 ---
 

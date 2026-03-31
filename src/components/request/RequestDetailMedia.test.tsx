@@ -62,7 +62,7 @@ describe('RequestDetailMedia', () => {
         onToggleAudio={vi.fn()}
       />,
     );
-    expect(screen.getByTestId('ion-img')).toBeInTheDocument();
+  expect(screen.getByTestId('ion-icon')).toBeInTheDocument();
   });
 
   test('does not render IA range badge', () => {

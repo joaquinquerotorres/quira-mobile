@@ -74,6 +74,10 @@
     margin-bottom: 20px;
 }
 
+.image-container-rounded--placeholder {
+    height: 105px;
+}
+
 .detail-image-img {
     width: 100%;
     height: 100%;
@@ -135,7 +139,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f1f5f9;
+    background: transparent;
+}
+
+.detail-image-placeholder-icon-wrap {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* TÍTULO Y ESTADO */
@@ -146,6 +159,12 @@
     margin: 8px 0 20px 0;
     line-height: 1.2;
     letter-spacing: -0.5px;
+}
+
+.request-detail-main-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .status-badge-detail {
@@ -175,6 +194,10 @@
 }
 .info-card-detail.blue-border { border-color: #e0e7ff; background: #eef2ff; }
 .info-card-detail.orange-border { border-color: #ffedd5; background: #fff7ed; }
+
+.request-detail-main-sections .info-card-detail {
+    margin-bottom: 0;
+}
 
 .icon-box-detail {
     width: 42px;
@@ -288,7 +311,8 @@
 
 /* PRO CARD ASIGNADO — destaca como bloque principal */
 .pro-card-assigned {
-    margin-top: 24px;
+    margin-top: 16px;
+    margin-bottom: 16px;
     background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #eef2ff 100%);
     border-radius: 20px;
     padding: 20px;
@@ -370,6 +394,10 @@
     margin-bottom: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     border: 1px solid #f1f5f9;
+}
+
+.request-detail-offers-block .bid-card:last-child {
+    margin-bottom: 0;
 }
 .bid-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .bid-pro-info { display: flex; align-items: center; gap: 12px; }
@@ -589,7 +617,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-top: 20px;
+    margin-top: 16px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s;
@@ -828,7 +856,7 @@
 
 /* CANCELAR SOLICITUD (bloque al final) */
 .cancel-request-card {
-    margin-top: 0;
+    margin-top: 16px;
     margin-bottom: 32px;
     display: flex;
     align-items: flex-start;

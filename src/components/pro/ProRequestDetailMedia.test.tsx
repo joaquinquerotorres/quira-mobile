@@ -5,7 +5,6 @@ import { ProRequestDetailMedia } from './ProRequestDetailMedia';
 
 vi.mock('@ionic/react', () => ({
   IonIcon: ({ icon }: any) => <span data-testid="ion-icon">{String(icon?.name ?? icon ?? '')}</span>,
-  IonImg: (props: any) => <img data-testid="ion-img" {...props} />,
 }));
 
 describe('ProRequestDetailMedia', () => {
@@ -28,8 +27,6 @@ describe('ProRequestDetailMedia', () => {
       />,
     );
     expect(document.querySelector('video')).toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
-    expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
   });
 
   test('renders photo when photoUrl exists (and no video)', () => {
@@ -68,27 +65,20 @@ describe('ProRequestDetailMedia', () => {
         onToggleAudio={vi.fn()}
       />,
     );
-    expect(screen.getByTestId('ion-img')).toBeInTheDocument();
-    expect(screen.getByText('Rango estimado (IA)')).toBeInTheDocument();
+    expect(screen.getByTestId('ion-icon')).toBeInTheDocument();
   });
 
-  test('does not render price badge when range cannot be resolved', () => {
+  test('does not render IA range badge', () => {
     render(
       <ProRequestDetailMedia
-        request={
-          {
-            ...baseRequest,
-            estimatedPriceMin: undefined,
-            estimatedPriceMax: undefined,
-            aiDiagnosis: {},
-          } as any
-        }
+        request={baseRequest}
         serverUrl=""
         isPlayingAudio={false}
         onToggleAudio={vi.fn()}
       />,
     );
     expect(screen.queryByText('Rango estimado (IA)')).not.toBeInTheDocument();
+    expect(screen.queryByText('45€ - 55€')).not.toBeInTheDocument();
   });
 });
 

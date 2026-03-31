@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   IonIcon,
   IonAvatar,
@@ -21,7 +21,6 @@ import {
 import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
-import { SegmentTab } from '../shared/SegmentTab';
 import {
   formatRequestPriceRangeEuros,
   getRequestPriceRangeEuros,
@@ -132,8 +131,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
       (request.extraAudioUrls?.length ?? 0) >
     0;
 
-  const [tierFilter, setTierFilter] = useState<'ALL' | TierLabel>('ALL');
-
   return (
     <>
       {/* INFO PRINCIPAL */}
@@ -172,27 +169,287 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
 
         <h1 className="detail-title">{request.title}</h1>
 
-        <div className="info-card-detail">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={addressDisplay.icon} />
-          </div>
-          <div>
-            <div className="info-label-detail">{addressDisplay.label}</div>
-            <div className="info-text-detail">{addressDisplay.text}</div>
-          </div>
-        </div>
-
-        <div className="info-card-detail blue-border">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={calendarOutline} />
-          </div>
-          <div>
-            <div className="info-label-detail">Disponibilidad preferida</div>
-            <div className="info-text-detail">
-              {request.desiredExecutionTime || 'Lo antes posible'}
+        {/* PRO ASIGNADO */}
+        {(request.status === 'ACCEPTED' || request.status === 'COMPLETED') &&
+          request.assignedProfessional && (
+            <div className="pro-card-assigned animate__animated animate__fadeInUp">
+              <div className="pro-header">
+                <div
+                  className="pro-card-label"
+                  style={{ marginBottom: 10 }}
+                >
+                  {request.status === 'COMPLETED'
+                    ? 'Servicio finalizado'
+                    : 'Profesional asignado'}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ position: 'relative' }}>
+                    <IonAvatar className="bid-avatar">
+                      {request.assignedProfessional.avatar ? (
+                        <img
+                          src={resolveMediaUrl(request.assignedProfessional.avatar)}
+                          alt="avatar"
+                        />
+                      ) : (
+                        <span>
+                          {request.assignedProfessional.fullName
+                            ? request.assignedProfessional.fullName.charAt(0)
+                            : '?'}
+                        </span>
+                      )}
+                    </IonAvatar>
+                    {(() => {
+                      const ap = request.assignedProfessional as { user?: { roles?: string[] } };
+                      const roles = getRolesFromObj(ap);
+                      const tier = getTierFromRoles(roles);
+                      const tierStyle = TIER_STYLES[tier];
+                      return (
+                        <span
+                          className="bid-tier-badge"
+                          style={{
+                            position: 'absolute',
+                            top: '-4px',
+                            left: '-4px',
+                            background: tierStyle.bg,
+                            color: tierStyle.color,
+                            fontSize: '0.55rem',
+                            fontWeight: 800,
+                            padding: '2px 5px',
+                            borderRadius: '999px',
+                            boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
+                          }}
+                        >
+                          {tier}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      className="bid-pro-name"
+                      style={{
+                        fontWeight: 800,
+                        color: '#1e293b',
+                        fontSize: '0.95rem',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {request.assignedProfessional.fullName}
+                    </div>
+                    {(() => {
+                      const apAny = request.assignedProfessional as any;
+                      const hasRatingData = apAny?.rating != null || apAny?.reviewCount != null;
+                      if (!hasRatingData) return null;
+                      const numeric =
+                        typeof apAny.rating === 'number'
+                          ? apAny.rating
+                          : typeof apAny.rating === 'string'
+                            ? Number.parseFloat(apAny.rating)
+                            : NaN;
+                      const display = Number.isFinite(numeric) ? numeric.toFixed(1) : '—';
+                      const count = apAny.reviewCount ?? 0;
+                      return (
+                        <div
+                          className="bid-rating"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            fontSize: '0.8rem',
+                            color: '#64748b',
+                            marginTop: 4,
+                          }}
+                        >
+                          <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.9rem' }} />
+                          <span style={{ fontWeight: 600 }}>{display}</span>
+                          <span style={{ color: '#94a3b8' }}>({count})</span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+              <div className="pro-body">
+                {request.status !== 'COMPLETED' ? (
+                  <IonButton
+                    expand="block"
+                    className="quira-main-btn"
+                    onClick={onCallProfessional}
+                  >
+                    <IonIcon slot="start" icon={callOutline} /> CONTACTAR
+                  </IonButton>
+                ) : !hasReviewed ? (
+                  <IonButton
+                    expand="block"
+                    color="secondary"
+                    className="quira-main-btn"
+                    onClick={onOpenReviewModal}
+                  >
+                    <IonIcon slot="start" icon={star} /> VALORAR TRABAJO
+                  </IonButton>
+                ) : (
+                  <div className="reviewed-badge">
+                    <IonIcon icon={checkmarkDoneOutline} /> ¡Valoración enviada!
+                  </div>
+                )}
+              </div>
             </div>
+          )}
+
+        <div className="request-detail-main-sections">
+        {/* LISTADO DE OFERTAS */}
+        {request.status === 'PENDING' && (
+          <div className="request-detail-offers-block">
+            {(() => {
+              const visibleBids = dedupePendingBidsByProProfile(request.bids);
+              const visibleBidsCount = visibleBids.length;
+              return (
+                <>
+                  <div className="section-header-large">
+                    OFERTAS <span className="counter-badge">{visibleBidsCount}</span>
+                  </div>
+
+                  {visibleBidsCount === 0 ? (
+                    <div className="empty-bids-state">
+                      <IonIcon icon={informationCircleOutline} />
+                      <p>Buscando los mejores profesionales para ti...</p>
+                    </div>
+                  ) : (
+                    sortBidsForClient(visibleBids).map((bid: Bid) => {
+                      const proProfile = bid.professional?.professionalProfile as ProfessionalProfile | undefined;
+                      const proId = proProfile?.id ?? (proProfile?.['@id'] ? parseInt(String(proProfile['@id']).split('/').pop() || '0', 10) : 0);
+                      const hasRating = proProfile?.rating != null || proProfile?.reviewCount != null;
+                      const numericRating =
+                        typeof proProfile?.rating === 'number'
+                          ? proProfile.rating
+                          : typeof proProfile?.rating === 'string'
+                            ? Number.parseFloat(proProfile.rating)
+                            : NaN;
+                      const displayRating = Number.isFinite(numericRating)
+                        ? numericRating.toFixed(1)
+                        : '—';
+                      const handleViewPro = () => proId && onViewProfessional?.(proId);
+                      const tier = getBidTier(bid);
+                      const tierStyle = TIER_STYLES[tier];
+                      return (
+                        <div
+                          key={bid.id}
+                          className="bid-card animate__animated animate__fadeInUp"
+                        >
+                          <div className="bid-card-header">
+                            <div
+                              className={`bid-pro-info${onViewProfessional && proId ? ' bid-pro-info--clickable' : ''}`}
+                              role={onViewProfessional && proId ? 'button' : undefined}
+                              tabIndex={onViewProfessional && proId ? 0 : undefined}
+                              onClick={handleViewPro}
+                              onKeyDown={e => (e.key === 'Enter' && handleViewPro())}
+                            >
+                              <div style={{ position: 'relative' }}>
+                                <IonAvatar className="bid-avatar">
+                                  {proProfile?.avatar ? (
+                                    <img
+                                      src={resolveMediaUrl(proProfile.avatar)}
+                                      alt="avatar"
+                                    />
+                                  ) : (
+                                    <span>
+                                      {proProfile?.fullName
+                                        ? proProfile.fullName.charAt(0)
+                                        : '?'}
+                                    </span>
+                                  )}
+                                </IonAvatar>
+                                <span
+                                  className="bid-tier-badge"
+                                  style={{
+                                    position: 'absolute',
+                                    top: '-4px',
+                                    left: '-4px',
+                                    background: tierStyle.bg,
+                                    color: tierStyle.color,
+                                    fontSize: '0.55rem',
+                                    fontWeight: 800,
+                                    padding: '2px 5px',
+                                    borderRadius: '999px',
+                                    boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
+                                  }}
+                                >
+                                  {tier}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="bid-pro-name">
+                                  <span>{proProfile?.fullName || 'Profesional'}</span>
+                                </div>
+                                {hasRating && (
+                                  <div
+                                    className="bid-rating"
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 4,
+                                      fontSize: '0.8rem',
+                                      color: '#64748b',
+                                      marginTop: 6,
+                                    }}
+                                  >
+                                    <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.85rem' }} />
+                                    <span style={{ fontWeight: 600 }}>{displayRating}</span>
+                                    {proProfile?.reviewCount != null && (
+                                      <span style={{ color: '#94a3b8' }}>({proProfile.reviewCount})</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right', minWidth: '72px' }}>
+                              <div className="bid-price">{bid.priceQuote}€</div>
+                            </div>
+                          </div>
+                          {bid.comment && (
+                            <div className="bid-comment">"{bid.comment}"</div>
+                          )}
+                          {bid.estimatedExecutionTime && (
+                            <div
+                              style={{
+                                marginBottom: 10,
+                                fontSize: '0.8rem',
+                                color: '#64748b',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                              }}
+                            >
+                              <IonIcon icon={timeOutline} style={{ fontSize: '0.85rem' }} />
+                              <span>
+                                Disponibilidad: <strong>{bid.estimatedExecutionTime}</strong>
+                              </span>
+                            </div>
+                          )}
+                          <IonButton
+                            expand="block"
+                            className="accept-bid-btn"
+                            onClick={() => onOpenAcceptModal(bid.id)}
+                          >
+                            ACEPTAR PRESUPUESTO
+                          </IonButton>
+                        </div>
+                      );
+                    })
+                  )}
+                </>
+              );
+            })()}
           </div>
-        </div>
+        )}
 
         {getRequestPriceRangeEuros(request) && (
           <div className="info-card-detail orange-border">
@@ -207,6 +464,28 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
             </div>
           </div>
         )}
+
+        <div className="info-card-detail blue-border">
+          <div className="icon-box-detail blue">
+            <IonIcon icon={calendarOutline} />
+          </div>
+          <div>
+            <div className="info-label-detail">Disponibilidad preferida</div>
+            <div className="info-text-detail">
+              {request.desiredExecutionTime || 'Lo antes posible'}
+            </div>
+          </div>
+        </div>
+
+        <div className="info-card-detail">
+          <div className="icon-box-detail blue">
+            <IonIcon icon={addressDisplay.icon} />
+          </div>
+          <div>
+            <div className="info-label-detail">{addressDisplay.label}</div>
+            <div className="info-text-detail">{addressDisplay.text}</div>
+          </div>
+        </div>
 
         {(request.clientOriginalDescription?.trim() || request.description) && (
           <div className="description-box">
@@ -417,6 +696,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
             )}
           </div>
         )}
+        </div>
       </div>
 
       {/* Q&A ENTRY CARD */}
@@ -455,315 +735,13 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
         <IonIcon icon={chevronForwardOutline} color="medium" />
       </div>
 
-      {/* PRO ASIGNADO — una sola caja que destaca, botón pegado al contenido */}
-      {(request.status === 'ACCEPTED' || request.status === 'COMPLETED') &&
-        request.assignedProfessional && (
-          <div className="pro-card-assigned animate__animated animate__fadeInUp">
-            <div className="pro-header">
-              <div
-                className="pro-card-label"
-                style={{ marginBottom: 10 }}
-              >
-                {request.status === 'COMPLETED'
-                  ? 'Servicio finalizado'
-                  : 'Profesional asignado'}
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
-                <div style={{ position: 'relative' }}>
-                  <IonAvatar className="bid-avatar">
-                    {request.assignedProfessional.avatar ? (
-                      <img
-                        src={resolveMediaUrl(request.assignedProfessional.avatar)}
-                        alt="avatar"
-                      />
-                    ) : (
-                      <span>
-                        {request.assignedProfessional.fullName
-                          ? request.assignedProfessional.fullName.charAt(0)
-                          : '?'}
-                      </span>
-                    )}
-                  </IonAvatar>
-                  {(() => {
-                    const ap = request.assignedProfessional as { user?: { roles?: string[] } };
-                    const roles = getRolesFromObj(ap);
-                    const tier = getTierFromRoles(roles);
-                    const tierStyle = TIER_STYLES[tier];
-                    return (
-                      <span
-                        className="bid-tier-badge"
-                        style={{
-                          position: 'absolute',
-                          top: '-4px',
-                          left: '-4px',
-                          background: tierStyle.bg,
-                          color: tierStyle.color,
-                          fontSize: '0.55rem',
-                          fontWeight: 800,
-                          padding: '2px 5px',
-                          borderRadius: '999px',
-                          boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
-                        }}
-                      >
-                        {tier}
-                      </span>
-                    );
-                  })()}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div
-                    className="bid-pro-name"
-                    style={{
-                      fontWeight: 800,
-                      color: '#1e293b',
-                      fontSize: '0.95rem',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {request.assignedProfessional.fullName}
-                  </div>
-                  {(() => {
-                    const apAny = request.assignedProfessional as any;
-                    const hasRatingData = apAny?.rating != null || apAny?.reviewCount != null;
-                    if (!hasRatingData) return null;
-                    const numeric =
-                      typeof apAny.rating === 'number'
-                        ? apAny.rating
-                        : typeof apAny.rating === 'string'
-                          ? Number.parseFloat(apAny.rating)
-                          : NaN;
-                    const display = Number.isFinite(numeric) ? numeric.toFixed(1) : '—';
-                    const count = apAny.reviewCount ?? 0;
-                    return (
-                      <div
-                        className="bid-rating"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: '0.8rem',
-                          color: '#64748b',
-                          marginTop: 4,
-                        }}
-                      >
-                        <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.9rem' }} />
-                        <span style={{ fontWeight: 600 }}>{display}</span>
-                        <span style={{ color: '#94a3b8' }}>({count})</span>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            </div>
-            <div className="pro-body">
-              {request.status !== 'COMPLETED' ? (
-                <IonButton
-                  expand="block"
-                  className="quira-main-btn"
-                  onClick={onCallProfessional}
-                >
-                  <IonIcon slot="start" icon={callOutline} /> CONTACTAR
-                </IonButton>
-              ) : !hasReviewed ? (
-                <IonButton
-                  expand="block"
-                  color="secondary"
-                  className="quira-main-btn"
-                  onClick={onOpenReviewModal}
-                >
-                  <IonIcon slot="start" icon={star} /> VALORAR TRABAJO
-                </IonButton>
-              ) : (
-                <div className="reviewed-badge">
-                  <IonIcon icon={checkmarkDoneOutline} /> ¡Valoración enviada!
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
       {/* ESTADO CANCELADA */}
       {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '30px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ marginTop: '16px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud ha sido cancelada.</p>
         </div>
       )}
 
-      {/* LISTADO DE OFERTAS */}
-      {request.status === 'PENDING' && (
-        <div style={{ marginTop: '30px', paddingBottom: '10px' }}>
-          {(() => {
-            let visibleBids = dedupePendingBidsByProProfile(request.bids);
-
-            if (tierFilter !== 'ALL') {
-              visibleBids = visibleBids.filter((b) => getBidTier(b) === tierFilter);
-            }
-
-            const visibleBidsCount = visibleBids.length;
-            return (
-              <>
-          <div className="section-header-large">
-            OFERTAS{' '}
-            <span className="counter-badge">{visibleBidsCount}</span>
-          </div>
-          
-          <div className="bids-filters">
-            <SegmentTab
-              value={tierFilter}
-              onValueChange={setTierFilter}
-              options={[
-                { value: 'ALL', label: 'Todos' },
-                { value: 'PRO', label: 'Solo Pros' },
-              ]}
-              className="bids-tier-segment"
-            />
-          </div>
-
-          {visibleBidsCount === 0 ? (
-                <div className="empty-bids-state">
-                  <IonIcon icon={informationCircleOutline} />
-                  <p>
-                    {tierFilter !== 'ALL'
-                      ? 'No hay ofertas que cumplan los filtros.'
-                      : 'Buscando los mejores profesionales para ti...'}
-                  </p>
-                </div>
-          ) : (
-            sortBidsForClient(visibleBids).map((bid: Bid) => {
-              const proProfile = bid.professional?.professionalProfile as ProfessionalProfile | undefined;
-              const proId = proProfile?.id ?? (proProfile?.['@id'] ? parseInt(String(proProfile['@id']).split('/').pop() || '0', 10) : 0);
-              const hasRating = proProfile?.rating != null || proProfile?.reviewCount != null;
-              const numericRating =
-                typeof proProfile?.rating === 'number'
-                  ? proProfile.rating
-                  : typeof proProfile?.rating === 'string'
-                    ? Number.parseFloat(proProfile.rating)
-                    : NaN;
-              const displayRating = Number.isFinite(numericRating)
-                ? numericRating.toFixed(1)
-                : '—';
-              const handleViewPro = () => proId && onViewProfessional?.(proId);
-              const tier = getBidTier(bid);
-              const tierStyle = TIER_STYLES[tier];
-              return (
-                <div
-                  key={bid.id}
-                  className="bid-card animate__animated animate__fadeInUp"
-                >
-                  <div className="bid-card-header">
-                    <div
-                      className={`bid-pro-info${onViewProfessional && proId ? ' bid-pro-info--clickable' : ''}`}
-                      role={onViewProfessional && proId ? 'button' : undefined}
-                      tabIndex={onViewProfessional && proId ? 0 : undefined}
-                      onClick={handleViewPro}
-                      onKeyDown={e => (e.key === 'Enter' && handleViewPro())}
-                    >
-                      <div style={{ position: 'relative' }}>
-                        <IonAvatar className="bid-avatar">
-                          {proProfile?.avatar ? (
-                            <img
-                              src={resolveMediaUrl(proProfile.avatar)}
-                              alt="avatar"
-                            />
-                          ) : (
-                            <span>
-                              {proProfile?.fullName
-                                ? proProfile.fullName.charAt(0)
-                                : '?'}
-                            </span>
-                          )}
-                        </IonAvatar>
-                        <span
-                          className="bid-tier-badge"
-                          style={{
-                            position: 'absolute',
-                            top: '-4px',
-                            left: '-4px',
-                            background: tierStyle.bg,
-                            color: tierStyle.color,
-                            fontSize: '0.55rem',
-                            fontWeight: 800,
-                            padding: '2px 5px',
-                            borderRadius: '999px',
-                            boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
-                          }}
-                        >
-                          {tier}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="bid-pro-name">
-                          <span>{proProfile?.fullName || 'Profesional'}</span>
-                        </div>
-                        {hasRating && (
-                          <div
-                            className="bid-rating"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4,
-                              fontSize: '0.8rem',
-                              color: '#64748b',
-                              marginTop: 6,
-                            }}
-                          >
-                            <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.85rem' }} />
-                            <span style={{ fontWeight: 600 }}>{displayRating}</span>
-                            {proProfile?.reviewCount != null && (
-                              <span style={{ color: '#94a3b8' }}>({proProfile.reviewCount})</span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right', minWidth: '72px' }}>
-                      <div className="bid-price">{bid.priceQuote}€</div>
-                    </div>
-                  </div>
-                  {bid.comment && (
-                    <div className="bid-comment">"{bid.comment}"</div>
-                  )}
-                  {bid.estimatedExecutionTime && (
-                    <div
-                      style={{
-                        marginBottom: 10,
-                        fontSize: '0.8rem',
-                        color: '#64748b',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <IonIcon icon={timeOutline} style={{ fontSize: '0.85rem' }} />
-                      <span>
-                        Disponibilidad: <strong>{bid.estimatedExecutionTime}</strong>
-                      </span>
-                    </div>
-                  )}
-                  <IonButton
-                    expand="block"
-                    className="accept-bid-btn"
-                    onClick={() => onOpenAcceptModal(bid.id)}
-                  >
-                    ACEPTAR PRESUPUESTO
-                  </IonButton>
-                </div>
-              );
-            })
-          )}
-              </>
-            );
-          })()}
-        </div>
-      )}
     </>
   );
 };
