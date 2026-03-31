@@ -142,7 +142,6 @@ export const DirectoryProCard: React.FC<DirectoryProCardProps> = ({
       >
         {pro.skills && Array.isArray(pro.skills) && pro.skills.length > 0
           ? pro.skills
-              .slice(0, 2)
               .map((s) => getCategoryLabel(s))
               .join(' • ')
           : getCategoryLabel(pro.category) || 'Especialista'}

@@ -50,18 +50,12 @@ export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
         ) : (
           <div className="detail-image-placeholder">
             <IonImg
-              src="https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_requests.png"
+              src="https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_logo.png"
               alt="Quira"
               style={{ objectFit: 'contain', width: '100%', height: '100%' }}
             />
           </div>
         )}
-        {getRequestPriceRangeEuros(request) ? (
-          <div className="price-badge-floating">
-            <span className="price-badge-floating-label">Rango estimado (IA)</span>
-            <span className="price-badge-floating-value">{formatRequestPriceRangeEuros(request)}</span>
-          </div>
-        ) : null}
       </div>
   );
 };

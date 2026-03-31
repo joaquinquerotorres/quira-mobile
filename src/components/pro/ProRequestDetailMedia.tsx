@@ -50,7 +50,7 @@ export const ProRequestDetailMedia: React.FC<ProRequestDetailMediaProps> = ({
         ) : (
           <div className="pro-detail-placeholder">
             <IonImg
-              src="https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_requests.png"
+              src="https://jeofdevvotlovkjfbizv.supabase.co/storage/v1/object/public/quira/quira_logo.png"
               alt="Quira"
               style={{ objectFit: 'contain', width: '100%', height: '100%' }}
             />
