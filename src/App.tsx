@@ -39,6 +39,7 @@ import DirectoryDetail from './pages/DirectoryDetail';
 import NotificationSettings from './pages/NotificationSettings';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { initAnalytics, logEvent } from './services/analytics';
+import { syncPushTokenForCurrentUser } from './services/pushNotifications';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -206,6 +207,8 @@ const App: React.FC = () => {
   useEffect(() => {
     // Inicializamos Analytics (solo nativo) y registramos un evento simple de arranque.
     initAnalytics().then(() => logEvent('app_start')).catch(() => {});
+    // Registro de push: pide permisos, obtiene FCM y lo guarda en User.fcmToken.
+    syncPushTokenForCurrentUser().catch(() => {});
   }, []);
 
   return (

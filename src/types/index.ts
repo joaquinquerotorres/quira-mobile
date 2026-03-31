@@ -67,6 +67,7 @@ export interface User {
   id: number;
   email: string;
   roles: string[];
+  fcmToken?: string | null;
   verifiedEmail?: boolean;
   verifiedPhone?: boolean;
   paidThroughAt?: string | null;

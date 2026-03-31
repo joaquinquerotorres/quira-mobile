@@ -56,3 +56,22 @@ En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibi
 ## Otras rutas
 
 Listado más amplio: **[ARQUITECTURA.md](./ARQUITECTURA.md)**.
+
+---
+
+## `PATCH /users/{id}` (sincronización de `fcmToken`)
+
+La app nativa (Android/iOS) pide permisos de push, obtiene token FCM y lo sincroniza en el usuario autenticado.
+
+### Cuerpo JSON (merge-patch)
+
+```json
+{ "fcmToken": "<token_fcm>" }
+```
+
+### Cuándo se envía
+
+- En arranque de app con sesión iniciada (`localStorage.user.id` disponible).
+- Solo en nativo (`Capacitor.isNativePlatform()`).
+- Solo si permisos push concedidos.
+- Solo si el token cambia respecto al último guardado localmente.

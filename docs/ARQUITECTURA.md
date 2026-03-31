@@ -357,7 +357,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### User
 
-`id`, `@id`, `email`, `roles`, `verifiedEmail`, `professionalProfile`, `clientProfile`, `paidThroughAt`, `subscriptionCancelAtPeriodEnd`.
+`id`, `@id`, `email`, `roles`, `fcmToken`, `verifiedEmail`, `professionalProfile`, `clientProfile`, `paidThroughAt`, `subscriptionCancelAtPeriodEnd`.
 
 ### ProfessionalProfile
 
@@ -454,6 +454,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
   - Botón "Cancelar suscripción" → llama a `/stripe/cancel-subscription` y pasa a mostrar "Reactivar suscripción" mientras la cancelación es efectiva a fin de periodo.
 - Sección **Preferencias**:
   - Enlace a **Configuración de notificaciones** (`/profile/notifications`), donde se pueden activar/desactivar notificaciones por tipo (solicitudes, ofertas, reseñas) tanto para cliente como para profesional.
+  - En app nativa, al arrancar con sesión activa, se solicita permiso de push y se sincroniza `fcmToken` en `PATCH /users/{id}` cuando hay token nuevo/cambiado.
 
 ---
 
