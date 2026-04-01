@@ -35,7 +35,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 beforeEach(() => {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
-      return Promise.resolve({ data: { canBidThisMonth: true } });
+      return Promise.resolve({ data: { canBidThisMonth: true, remainingBidsThisMonth: 3 } });
     }
     return Promise.resolve({
       data: { 'hydra:member': [mockOpportunity], 'member': [mockOpportunity] },
@@ -58,7 +58,7 @@ test('Market renders header', async () => {
 test('FREE user sees can-bid limit alert when canBidThisMonth is false', async () => {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
-      return Promise.resolve({ data: { canBidThisMonth: false } });
+      return Promise.resolve({ data: { canBidThisMonth: false, remainingBidsThisMonth: 0 } });
     }
     return Promise.resolve({
       data: { 'hydra:member': [mockOpportunity], 'member': [mockOpportunity] },
@@ -175,6 +175,6 @@ test('FREE user opens bid modal when canBidThisMonth is true', async () => {
     expect(api.get).toHaveBeenCalledWith('/professionals/me/can-bid');
     expect(screen.getByText('Me Interesa')).toBeInTheDocument();
     expect(screen.getByText('ENVIAR PROPUESTA')).toBeInTheDocument();
-    expect(screen.getByText('Propuestas gratuitas disponibles este mes')).toBeInTheDocument();
+    expect(screen.getByText('Propuestas gratuitas: 3 restantes')).toBeInTheDocument();
   });
 });

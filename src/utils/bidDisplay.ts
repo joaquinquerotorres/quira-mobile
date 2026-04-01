@@ -29,16 +29,8 @@ export function getMyActiveBid(myBids: Bid[]): Bid | undefined {
   return myBids.find((b) => b.status === 'PENDING');
 }
 
-/**
- * Tarjeta / estado en detalle pro: prioriza la propuesta activa; si no hay, la retirada más reciente.
- */
 export function getMyBidForProUi(myBids: Bid[]): Bid | undefined {
-  const active = getMyActiveBid(myBids);
-  if (active) return active;
-  const rejected = myBids
-    .filter((b) => b.status === 'REJECTED')
-    .sort((a, b) => b.id - a.id);
-  return rejected[0];
+  return getMyActiveBid(myBids);
 }
 
 function professionalKeyFromBid(bid: Bid): number {
@@ -89,12 +81,11 @@ export function getRequestIdFromBid(bid: Bid): number | null {
 
 function bidRankForMyWork(b: Bid): number {
   if (b.status === 'PENDING') return 2;
-  if (b.status === 'REJECTED') return 0;
   return 1;
 }
 
 /**
- * Una fila por solicitud: prioriza PENDING; si solo hay retiradas, muestra la más reciente.
+ * Una fila por solicitud: prioriza PENDING; en empate, la más reciente.
  */
 export function dedupeBidsByRequestForMyWork(bids: Bid[]): Bid[] {
   const byReq = new Map<number, Bid[]>();

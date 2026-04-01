@@ -35,7 +35,7 @@ interface ProRequestDetailMainSectionProps {
   questionsCount: number;
   userTier: EffectiveTier;
   canSubmitBid: boolean;
-  /** Hay una propuesta PENDING; si no, puede volver a enviar aunque existan retiradas anteriores. */
+  /** Hay una propuesta PENDING activa para este profesional. */
   hasActiveBid: boolean;
   isFinishing: boolean;
   hasReviewed: boolean;
@@ -113,8 +113,6 @@ export const ProRequestDetailMainSection: React.FC<
           className={`pro-status-pill ${
             request.status === 'CANCELLED'
               ? 'cancelled'
-              : myBid?.status === 'REJECTED'
-              ? 'rejected'
               : isCompleted
               ? 'completed'
               : isWinner
@@ -126,8 +124,6 @@ export const ProRequestDetailMainSection: React.FC<
         >
           {request.status === 'CANCELLED'
             ? 'Cancelada'
-            : myBid?.status === 'REJECTED'
-            ? 'Propuesta Retirada'
             : isCompleted
             ? 'Finalizado'
             : isWinner
@@ -571,11 +567,11 @@ export const ProRequestDetailMainSection: React.FC<
       {/* MI PUJA */}
       {myBid && (
         <div
-          className={`my-bid-card animate__animated animate__fadeIn ${myBid.status === 'REJECTED' ? 'my-bid-card-rejected' : ''}`}
+          className="my-bid-card animate__animated animate__fadeIn"
           style={{ marginTop: '16px' }}
         >
           <div className="bid-header">
-            <IonIcon icon={walletOutline} /> {myBid.status === 'REJECTED' ? 'PROPUESTA RETIRADA' : 'TU PROPUESTA'}
+            <IonIcon icon={walletOutline} /> TU PROPUESTA
           </div>
           <div className="bid-row">
             <span>Tu Precio:</span>
@@ -606,7 +602,7 @@ export const ProRequestDetailMainSection: React.FC<
           <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <span style={{ display: 'flex', alignItems: 'center' }}>
               <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
-              {myBid.status === 'REJECTED' ? 'Retirada el ' : 'Enviada el '}{new Date(myBid.createdAt).toLocaleDateString()}
+              Enviada el {new Date(myBid.createdAt).toLocaleDateString()}
             </span>
             {canCancelBid && onCancelBid && (
               <IonButton
@@ -617,7 +613,7 @@ export const ProRequestDetailMainSection: React.FC<
                 onClick={() => onCancelBid()}
                 disabled={cancellingBid}
               >
-                {cancellingBid ? 'Cancelando...' : 'Cancelar propuesta'}
+                {cancellingBid ? 'Retirando...' : 'Retirar propuesta'}
               </IonButton>
             )}
           </div>

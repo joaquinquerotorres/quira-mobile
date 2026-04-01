@@ -213,7 +213,6 @@
 .pro-status-pill.bid { --background: #eff6ff; --color: #3b82f6; }
 .pro-status-pill.pending { --background: #fff7ed; --color: #ea580c; }
 .pro-status-pill.cancelled { --background: #f1f5f9; --color: #64748b; }
-.pro-status-pill.rejected { --background: #fef2f2; --color: #991b1b; }
 
 .pro-detail-title {
     font-size: 1.6rem;
@@ -287,18 +286,6 @@
     margin-bottom: 16px;
     box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
 }
-
-.my-bid-card.my-bid-card-rejected {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-}
-
-.my-bid-card-rejected .bid-header { color: #64748b; }
-.my-bid-card-rejected .bid-row { color: #475569; }
-.my-bid-card-rejected .bid-row strong { color: #64748b; }
-.my-bid-card-rejected .bid-comment-box { color: #64748b; border-color: #e2e8f0; }
-.my-bid-card-rejected .bid-footer { color: #94a3b8; }
 
 .bid-header {
     font-size: 0.8rem;

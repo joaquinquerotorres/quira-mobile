@@ -118,6 +118,53 @@ test('RequestDetailMainSection shows assigned professional tier badge', () => {
   expect(screen.getByText('PRO')).toBeInTheDocument();
 });
 
+test('RequestDetailMainSection marks non-selected offers when request already accepted', () => {
+  const proBid: Bid = {
+    id: 1,
+    '@id': '/bids/1',
+    priceQuote: 60,
+    status: 'PENDING',
+    createdAt: '2024-01-01',
+    professional: { roles: ['ROLE_PRO'], professionalProfile: { id: 1, fullName: 'Pro Ganador', '@id': '/pro/1' } } as any,
+    request: mockRequest,
+  };
+  const solverBid: Bid = {
+    id: 2,
+    '@id': '/bids/2',
+    priceQuote: 70,
+    status: 'PENDING',
+    createdAt: '2024-01-01',
+    professional: { roles: ['ROLE_SOLVER'], professionalProfile: { id: 2, fullName: 'Solver Perdedor', '@id': '/pro/2' } } as any,
+    request: mockRequest,
+  };
+  const acceptedRequest = {
+    ...mockRequest,
+    status: 'ACCEPTED' as const,
+    assignedProfessional: { id: 1, fullName: 'Pro Ganador', user: { roles: ['ROLE_PRO'] } } as any,
+    bids: [proBid, solverBid],
+  };
+
+  render(
+    <RequestDetailMainSection
+      request={acceptedRequest}
+      addressDisplay={addressDisplay}
+      serverUrl=""
+      questionsCount={0}
+      pendingAnswers={0}
+      hasReviewed={false}
+      onCallProfessional={noop}
+      onOpenReviewModal={noop}
+      onOpenQAModal={noop}
+      onOpenAcceptModal={noop}
+    />,
+    { wrapper }
+  );
+
+  expect(screen.queryByText('ACEPTAR PRESUPUESTO')).not.toBeInTheDocument();
+  expect(screen.getByText('Oferta aceptada')).toBeInTheDocument();
+  expect(screen.getByText('Oferta no seleccionada')).toBeInTheDocument();
+});
+
 test('RequestDetailMainSection shows rating and reviewCount for assigned professional', () => {
   const requestWithAssigned = {
     ...mockRequest,

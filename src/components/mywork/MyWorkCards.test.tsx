@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import { waterOutline } from 'ionicons/icons';
 import { MyWorkBidCard, MyWorkJobCard } from './MyWorkCards';
 import { Bid, ServiceRequest } from '../../types';
@@ -105,16 +106,16 @@ test('MyWorkJobCard renders job and price', () => {
   expect(screen.getByText('GANADO')).toBeInTheDocument();
 });
 
-test('MyWorkBidCard renders REJECTED bid with RETIRADA badge', () => {
-  const rejectedBid = { ...mockBid, status: 'REJECTED' as const };
+test('MyWorkBidCard renders accepted bid with custom badge', () => {
+  const acceptedBid = { ...mockBid, status: 'ACCEPTED' as const };
   render(
     <MyWorkBidCard
-      bid={rejectedBid}
+      bid={acceptedBid}
       request={mockRequest}
       requestId={1}
       borderClass="mw-card-closed"
-      statusLabel="RETIRADA"
-      badgeClass="mw-status-rejected"
+      statusLabel="CERRADA"
+      badgeClass="mw-status-closed"
       catStyle={catStyle}
       serverUrl="http://api.test"
       playingAudioId={null}
@@ -125,5 +126,5 @@ test('MyWorkBidCard renders REJECTED bid with RETIRADA badge', () => {
   );
   expect(screen.getByText('Reparar grifo')).toBeInTheDocument();
   expect(screen.getByText('60€')).toBeInTheDocument();
-  expect(screen.getByText('RETIRADA')).toBeInTheDocument();
+  expect(screen.getByText('CERRADA')).toBeInTheDocument();
 });

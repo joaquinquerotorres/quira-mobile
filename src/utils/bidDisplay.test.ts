@@ -31,28 +31,21 @@ function makeBid(partial: Partial<Bid> & Pick<Bid, 'id' | 'status' | 'priceQuote
 }
 
 describe('bidDisplay', () => {
-  it('getMyBidForProUi prefers PENDING over REJECTED', () => {
+  it('getMyBidForProUi returns active PENDING bid', () => {
     const pending = makeBid({
       id: 2,
       status: 'PENDING',
       priceQuote: 100,
       createdAt: '2025-01-02',
     });
-    const rejected = makeBid({
-      id: 1,
-      status: 'REJECTED',
-      priceQuote: 50,
-      createdAt: '2025-01-01',
-    });
-    expect(getMyBidForProUi([rejected, pending])).toBe(pending);
-    expect(getMyActiveBid([rejected, pending])).toBe(pending);
+    expect(getMyBidForProUi([pending])).toBe(pending);
+    expect(getMyActiveBid([pending])).toBe(pending);
   });
 
-  it('getMyBidForProUi falls back to latest REJECTED', () => {
-    const a = makeBid({ id: 1, status: 'REJECTED', priceQuote: 1, createdAt: '2025-01-01' });
-    const b = makeBid({ id: 3, status: 'REJECTED', priceQuote: 2, createdAt: '2025-01-03' });
-    expect(getMyBidForProUi([a, b]).id).toBe(3);
-    expect(getMyActiveBid([a, b])).toBeUndefined();
+  it('getMyBidForProUi returns undefined when no pending bids', () => {
+    const accepted = makeBid({ id: 3, status: 'ACCEPTED', priceQuote: 2, createdAt: '2025-01-03' });
+    expect(getMyBidForProUi([accepted])).toBeUndefined();
+    expect(getMyActiveBid([accepted])).toBeUndefined();
   });
 
   it('dedupePendingBidsByProProfile keeps newest PENDING per professional profile', () => {
@@ -95,9 +88,9 @@ describe('bidDisplay', () => {
 
   it('dedupeBidsByRequestForMyWork prefers PENDING for same request', () => {
     const req = minimalRequest(99);
-    const rej = makeBid({
+    const accepted = makeBid({
       id: 1,
-      status: 'REJECTED',
+      status: 'ACCEPTED',
       priceQuote: 1,
       createdAt: '2025-01-01',
       request: req,
@@ -109,6 +102,6 @@ describe('bidDisplay', () => {
       createdAt: '2025-01-02',
       request: req,
     });
-    expect(dedupeBidsByRequestForMyWork([rej, pend])).toEqual([pend]);
+    expect(dedupeBidsByRequestForMyWork([accepted, pend])).toEqual([pend]);
   });
 });

@@ -82,17 +82,16 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 |--------|-------------|
 | `PENDING` | Activa, visible para el cliente |
 | `ACCEPTED` | Propuesta aceptada (trabajo ganado) |
-| `REJECTED` | Retirada por el profesional |
 
 ### Flujo de propuestas
 
 - **Crear**: `POST /bids` con `request` (IRI), `priceQuote`, `comment`, `status: 'PENDING'`.
-- **Retirar**: `PATCH /bids/{id}` con `status: 'REJECTED'` (solo si la request está PENDING y la propuesta PENDING).
+- **Retirar**: `DELETE /bids/{id}/withdraw` sin body (solo si la request está PENDING y la propuesta PENDING).
 - **Aceptar**: `PATCH /bids/{id}/accept` cuando el cliente confirma la contratación.
 
 ### Quién puede hacer propuestas
 
-- **FREE**: Máximo 3 propuestas al mes. Límite consultado vía `GET /professionals/me/can-bid` (`canBidThisMonth`). El conteo mensual en backend **no debe incluir** propuestas retiradas (`Bid.status === 'REJECTED'`); solo cuentan propuestas activas (p. ej. `PENDING` y, si aplica, `ACCEPTED`).
+- **FREE**: Máximo 3 propuestas al mes. Límite consultado vía `GET /professionals/me/can-bid` (`canBidThisMonth`). El conteo mensual en backend excluye propuestas retiradas porque la retirada las elimina.
 - **SOLVER**: Propuestas ilimitadas en LOW y MED Risk.
 - **PRO**: Propuestas ilimitadas, incluido HIGH Risk.
 
@@ -110,7 +109,7 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 2. Dentro de cada tier: por precio ascendente.
 3. Desempate: por rating descendente.
 
-Las propuestas con estado `REJECTED` no se muestran al cliente.
+Las propuestas retiradas no se muestran al cliente porque desaparecen del listado.
 
 En la lista de ofertas (RequestDetail) y en el bloque de profesional asignado se muestran `rating` y `reviewCount` del profesional (campos que vienen del backend en `ProfessionalProfile` / en el objeto del bid).
 
@@ -168,7 +167,7 @@ interface RequestQuestion {
 - Columna derecha: etiqueta **«Rango estimado»** y el texto del rango (p. ej. `40€ - 80€`); si `isBidden`, badge "ENVIADA" en lugar de repetir la etiqueta.
 - Muestran título, zona, categoría y media (foto/audio/video).
 - HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
-- `isBidden`: si el usuario tiene una propuesta **activa** (no retirada) en esa oportunidad.
+- `isBidden`: si el usuario tiene una propuesta `PENDING` en esa oportunidad.
 - `isLocked`: si no puede pujar (p. ej. HIGH Risk para no-PRO).
 
 ### Botón "ME INTERESA"
@@ -264,7 +263,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 | PATCH | `/professional_profiles/{id}` | Actualizar perfil profesional (CIF, bio, skills, zona) |
 | GET | `/professional_profiles?itemsPerPage=30` | Listado de pros |
 | GET | `/professional_profiles/{id}` | Detalle de un pro |
-| GET | `/professionals/me/can-bid` | ¿Puede pujar este mes según **plan efectivo** (FREE / ex-PRO sin pago, etc.)? `canBidThisMonth` debe basarse en el conteo del mes **excluyendo** retiradas (`REJECTED`). |
+| GET | `/professionals/me/can-bid` | ¿Puede pujar este mes según **plan efectivo** (FREE / ex-PRO sin pago, etc.)? `canBidThisMonth` se calcula excluyendo propuestas retiradas (se eliminan al retirar). |
 
 ### Subida de ficheros (tickets + signed URL)
 
@@ -294,7 +293,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[estimatedPrice
 |--------|----------|-----------|
 | GET | `/bids?my_bids=true&...` | Mis propuestas |
 | POST | `/bids` | Crear propuesta |
-| PATCH | `/bids/{id}` | Actualizar (p. ej. retirar) |
+| DELETE | `/bids/{id}/withdraw` | Retirar propuesta |
 | PATCH | `/bids/{id}/accept` | Aceptar propuesta |
 
 ### Visitas de valoración
@@ -385,7 +384,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 ### RequestDetail (cliente)
 
 - Muestra solicitud, multimedia principal; si no hay media principal, el placeholder usa **icono + color por categoría**.
-- Orden principal actual: título + estado, ofertas (si `PENDING`), profesional asignado (si `ACCEPTED`/`COMPLETED`), rango IA, disponibilidad, ubicación, descripción, Q&A y acciones finales.
+- Orden principal actual: título + estado, ofertas (si `PENDING` o `ACCEPTED`), profesional asignado (si `ACCEPTED`/`COMPLETED`), rango IA, disponibilidad, ubicación, descripción, Q&A y acciones finales.
 - **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): tarjeta de información ("Rango estimado") en euros.
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - En el listado de ofertas se muestran directamente todas las propuestas visibles, ordenadas por tier/precio según la lógica de cliente.
@@ -402,14 +401,14 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - **Rango estimado** en tarjeta bajo título ("Rango estimado" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
 - **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
-- Si tiene propuesta: muestra su propuesta con opción de retirarla (si PENDING).
+- Si tiene propuesta `PENDING`: muestra su propuesta con opción de retirarla.
 - Si es HIGH Risk y el tier efectivo no es PRO: bloqueo para pujar; el API valida igualmente.
 - Si está degradado pero tiene relación con la solicitud (puja activa o ganador): puede ver el detalle pese a HIGH.
 
 ### MyWork
 
 - Segmentos: "Propuestas" y "Trabajos".
-- Estados de propuestas: PENDIENTE, GANADA, RETIRADA, CANCELADA, CERRADA.
+- Estados de propuestas: PENDIENTE, GANADA, CANCELADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
 - En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
 - En **listados**, las solicitudes muestran etiqueta **«Rango estimado»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).

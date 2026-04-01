@@ -172,7 +172,6 @@ const MyWork: React.FC = () => {
     const isWon = req.status === 'ACCEPTED' && assignedIri === myIri;
     const isClosed = req.status === 'COMPLETED' || (req.status === 'ACCEPTED' && !isWon);
     const isCancelled = req.status === 'CANCELLED';
-    const isBidRejected = bid.status === 'REJECTED';
 
     // Clases CSS aisladas (mw-)
     let borderClass = 'mw-card-pending';
@@ -180,7 +179,6 @@ const MyWork: React.FC = () => {
     let badgeClass = 'mw-status-pending';
 
     if (isWon) { borderClass = 'mw-card-won'; statusLabel = 'GANADA'; badgeClass = 'mw-status-won'; }
-    else if (isBidRejected) { borderClass = 'mw-card-closed'; statusLabel = 'RETIRADA'; badgeClass = 'mw-status-rejected'; }
     else if (isCancelled) { borderClass = 'mw-card-closed'; statusLabel = 'CANCELADA'; badgeClass = 'mw-status-cancelled'; }
     else if (isClosed) { borderClass = 'mw-card-closed'; statusLabel = 'CERRADA'; badgeClass = 'mw-status-closed'; }
 

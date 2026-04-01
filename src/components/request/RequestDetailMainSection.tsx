@@ -43,6 +43,16 @@ function getBidTier(bid: Bid): TierLabel {
   return getTierFromRoles(getRolesFromObj(bid.professional as any));
 }
 
+function getResourceId(resource: { id?: number; '@id'?: string } | string | undefined): number {
+  if (!resource) return 0;
+  if (typeof resource === 'string') {
+    return parseInt(resource.split('/').pop() || '0', 10);
+  }
+  if (typeof resource.id === 'number') return resource.id;
+  if (resource['@id']) return parseInt(String(resource['@id']).split('/').pop() || '0', 10);
+  return 0;
+}
+
 const CATEGORY_LABELS: Record<Category, string> = {
   DIY: 'Manitas',
   PLUMBING: 'Fontanería',
@@ -306,11 +316,13 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
 
         <div className="request-detail-main-sections">
         {/* LISTADO DE OFERTAS */}
-        {request.status === 'PENDING' && (
+        {(request.status === 'PENDING' || request.status === 'ACCEPTED') && (
           <div className="request-detail-offers-block">
             {(() => {
               const visibleBids = dedupePendingBidsByProProfile(request.bids);
               const visibleBidsCount = visibleBids.length;
+              const assignedProfessionalId = getResourceId(request.assignedProfessional as any);
+              const requestAlreadyAssigned = request.status === 'ACCEPTED';
               return (
                 <>
                   <div className="section-header-large">
@@ -326,6 +338,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                     sortBidsForClient(visibleBids).map((bid: Bid) => {
                       const proProfile = bid.professional?.professionalProfile as ProfessionalProfile | undefined;
                       const proId = proProfile?.id ?? (proProfile?.['@id'] ? parseInt(String(proProfile['@id']).split('/').pop() || '0', 10) : 0);
+                      const isAssignedBid = requestAlreadyAssigned && proId === assignedProfessionalId;
                       const hasRating = proProfile?.rating != null || proProfile?.reviewCount != null;
                       const numericRating =
                         typeof proProfile?.rating === 'number'
@@ -434,13 +447,51 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                               </span>
                             </div>
                           )}
-                          <IonButton
-                            expand="block"
-                            className="accept-bid-btn"
-                            onClick={() => onOpenAcceptModal(bid.id)}
-                          >
-                            ACEPTAR PRESUPUESTO
-                          </IonButton>
+                          {!requestAlreadyAssigned && (
+                            <IonButton
+                              expand="block"
+                              className="accept-bid-btn"
+                              onClick={() => onOpenAcceptModal(bid.id)}
+                            >
+                              ACEPTAR PRESUPUESTO
+                            </IonButton>
+                          )}
+
+                          {requestAlreadyAssigned && isAssignedBid && (
+                            <div
+                              style={{
+                                marginTop: 8,
+                                padding: '9px 12px',
+                                borderRadius: 10,
+                                background: '#ecfdf5',
+                                color: '#065f46',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
+                                border: '1px solid #bbf7d0',
+                                textAlign: 'center',
+                              }}
+                            >
+                              Oferta aceptada
+                            </div>
+                          )}
+
+                          {requestAlreadyAssigned && !isAssignedBid && (
+                            <div
+                              style={{
+                                marginTop: 8,
+                                padding: '9px 12px',
+                                borderRadius: 10,
+                                background: '#f8fafc',
+                                color: '#475569',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
+                                border: '1px solid #e2e8f0',
+                                textAlign: 'center',
+                              }}
+                            >
+                              Oferta no seleccionada
+                            </div>
+                          )}
                         </div>
                       );
                     })

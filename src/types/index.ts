@@ -13,7 +13,7 @@ export interface HydraCollection<T> {
 
 export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED' | 'PENDING_APPROVAL';
 
-export type BidStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+export type BidStatus = 'PENDING' | 'ACCEPTED';
 
 export type VisitStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 

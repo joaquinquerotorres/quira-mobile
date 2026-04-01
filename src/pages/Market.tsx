@@ -45,10 +45,8 @@ function bidProfessionalUserId(bid: { professional: { id?: number } | string }):
     : parseInt(String(bid.professional).split('/').pop() || '0', 10);
 }
 
-/** Pujas que cuentan para el límite FREE y para "ya has enviado propuesta": no retiradas (REJECTED). */
 function isUserActiveBid(bid: Bid, userId: number): boolean {
-  if (bid.status === 'REJECTED') return false;
-  return bidProfessionalUserId(bid) === userId;
+  return bid.status === 'PENDING' && bidProfessionalUserId(bid) === userId;
 }
 
 const Market: React.FC = () => {
@@ -153,7 +151,10 @@ const Market: React.FC = () => {
     }
   };
 
-  useIonViewWillEnter(() => { fetchOpportunities(); });
+  useIonViewWillEnter(() => {
+    fetchOpportunities();
+    void refreshCanBidStatus();
+  });
 
   useEffect(() => {
       fetchOpportunities();
@@ -332,11 +333,7 @@ const Market: React.FC = () => {
             subtitle="Encuentra nuevas oportunidades de trabajo."
             extraInfo={
               isFreeOrClient
-                ? canBidThisMonth === false
-                  ? 'Propuestas gratuitas: 0 restantes'
-                  : typeof remainingBidsThisMonth === 'number'
-                    ? `Propuestas gratuitas: ${remainingBidsThisMonth} restantes`
-                    : 'Propuestas gratuitas disponibles este mes'
+                ? `Propuestas gratuitas: ${Math.max(0, remainingBidsThisMonth ?? 0)} restantes`
                 : undefined
             }
         />

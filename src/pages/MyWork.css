@@ -187,7 +187,6 @@
 .mw-status-badge.mw-status-pending { background: #fff7ed; color: #ea580c; }
 .mw-status-badge.mw-status-closed { background: #f1f5f9; color: #64748b; }
 .mw-status-badge.mw-status-cancelled { background: #f1f5f9; color: #64748b; }
-.mw-status-badge.mw-status-rejected { background: #fef2f2; color: #991b1b; }
 
 .mw-title {
     font-size: 1rem;

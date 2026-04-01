@@ -269,11 +269,18 @@ const ProRequestDetail: React.FC = () => {
     setCancellingBid(true);
     setShowCancelBidAlert(false);
     try {
-      await api.patch(`/bids/${myActiveBid.id}`, { status: 'REJECTED' }, { headers: { 'Content-Type': 'application/merge-patch+json' } });
-      setToast('Propuesta cancelada.');
+      await api.delete(`/bids/${myActiveBid.id}/withdraw`);
+      // Recalcula el contador FREE en backend tras retirar la propuesta.
+      void api.get('/professionals/me/can-bid').catch(() => undefined);
+      setRequest((prev) =>
+        prev
+          ? { ...prev, bids: prev.bids.filter((bid) => bid.id !== myActiveBid.id) }
+          : prev,
+      );
+      setToast('Propuesta retirada.');
       fetchDetail();
     } catch (error) {
-      setToast('Error al cancelar la propuesta.');
+      setToast('Error al retirar la propuesta.');
     } finally {
       setCancellingBid(false);
     }
@@ -620,11 +627,11 @@ const ProRequestDetail: React.FC = () => {
         <IonAlert
           isOpen={showCancelBidAlert}
           onDidDismiss={() => setShowCancelBidAlert(false)}
-          header="Cancelar propuesta"
+          header="Retirar propuesta"
           message="¿Estás seguro? Se retirará tu propuesta y el cliente ya no la verá."
           buttons={[
             { text: 'No, mantener', role: 'cancel', handler: () => setShowCancelBidAlert(false) },
-            { text: 'Sí, cancelar', role: 'destructive', handler: handleCancelBid },
+            { text: 'Sí, retirar', role: 'destructive', handler: handleCancelBid },
           ]}
         />
 
