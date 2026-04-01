@@ -39,31 +39,31 @@ test('RequestList renders header and tabs', async () => {
   render(<RequestList />, { wrapper });
   expect(screen.getByText('Mis solicitudes')).toBeInTheDocument();
   expect(screen.getByText('Todas')).toBeInTheDocument();
-  expect(screen.getByText('Canceladas')).toBeInTheDocument();
+  expect(screen.getByText('Finalizadas')).toBeInTheDocument();
   await waitFor(() => expect(api.get).toHaveBeenCalled());
 });
 
-test('RequestList shows CANCELLED request with Cancelada badge', async () => {
-  const cancelledRequest = {
+test('RequestList shows COMPLETED request with Finalizado badge', async () => {
+  const completedRequest = {
     id: 1,
-    title: 'Trabajo cancelado',
+    title: 'Trabajo finalizado',
     estimatedPriceMin: 4500,
     estimatedPriceMax: 5500,
-    status: 'CANCELLED',
+    status: 'COMPLETED',
     category: 'PLUMBING',
     address: 'Calle Test 1, Madrid',
     desiredExecutionTime: 'Esta semana',
     client: { fullName: 'Cliente' },
   };
   vi.mocked(api.get).mockResolvedValue({
-    data: { 'hydra:member': [cancelledRequest], 'member': [cancelledRequest] },
+    data: { 'hydra:member': [completedRequest], 'member': [completedRequest] },
   });
 
   render(<RequestList />, { wrapper });
 
   await waitFor(() => {
-    expect(screen.getByText('CANCELADA')).toBeInTheDocument();
-    expect(screen.getByText('Trabajo cancelado')).toBeInTheDocument();
+    expect(screen.getByText('FINALIZADO')).toBeInTheDocument();
+    expect(screen.getByText('Trabajo finalizado')).toBeInTheDocument();
     expect(screen.getByText('Rango estimado')).toBeInTheDocument();
     expect(screen.getByText('45€ - 55€')).toBeInTheDocument();
     expect(screen.getByText('Esta semana')).toBeInTheDocument();

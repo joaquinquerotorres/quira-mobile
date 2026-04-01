@@ -11,7 +11,7 @@ export interface HydraCollection<T> {
   'hydra:totalItems'?: number;
 }
 
-export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED' | 'PENDING_APPROVAL';
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'PENDING_APPROVAL';
 
 export type BidStatus = 'PENDING' | 'ACCEPTED';
 

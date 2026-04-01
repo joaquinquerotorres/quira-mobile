@@ -32,6 +32,7 @@ import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
+import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 
 const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
 
@@ -155,6 +156,13 @@ const RequestList: React.FC = () => {
   });
 
   useEffect(() => { fetchRequests(); }, [filterStatus, filterCategory, sortPrice]);
+  useEffect(() => {
+    const onInvalidated = () => {
+      fetchRequests();
+    };
+    window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+    return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+  }, [searchText, filterStatus, filterCategory, sortPrice]);
 
   // --- HANDLERS ---
   const resetModalFilters = () => { setFilterCategory(''); setSortPrice(''); };
@@ -180,10 +188,10 @@ const RequestList: React.FC = () => {
 
   // --- HELPERS VISUALES ---
   const getStatusLabel = (status: RequestStatus) => {
-    switch (status) { case 'COMPLETED': return 'FINALIZADO'; case 'ACCEPTED': return 'ASIGNADO'; case 'CANCELLED': return 'CANCELADA'; case 'PENDING_APPROVAL': return 'EN REVISIÓN'; default: return 'PENDIENTE'; }
+    switch (status) { case 'COMPLETED': return 'FINALIZADO'; case 'ACCEPTED': return 'ASIGNADO'; case 'PENDING_APPROVAL': return 'EN REVISIÓN'; default: return 'PENDIENTE'; }
   };
   const getStatusColorClass = (status: RequestStatus) => {
-      switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'CANCELLED': return 'request-status-cancelled'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
+      switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
   };
   const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
     const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem', fontWeight: 600 };
@@ -232,7 +240,6 @@ const RequestList: React.FC = () => {
                         <IonChip className={filterStatus === 'PENDING' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('PENDING')}><IonLabel>Pendientes</IonLabel></IonChip>
                         <IonChip className={filterStatus === 'ACCEPTED' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('ACCEPTED')}><IonLabel>Asignadas</IonLabel></IonChip>
                         <IonChip className={filterStatus === 'COMPLETED' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('COMPLETED')}><IonLabel>Finalizadas</IonLabel></IonChip>
-                        <IonChip className={filterStatus === 'CANCELLED' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('CANCELLED')}><IonLabel>Canceladas</IonLabel></IonChip>
                         <IonChip className={filterStatus === 'PENDING_APPROVAL' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('PENDING_APPROVAL')}><IonLabel>Validándose</IonLabel></IonChip>
                     </div>
 
@@ -251,7 +258,7 @@ const RequestList: React.FC = () => {
                     ))}
 
                     {!loading && requests.map((req) => {
-                        const borderClass = req.status === 'COMPLETED' ? 'card-status-completed' : req.status === 'ACCEPTED' ? 'card-status-accepted' : req.status === 'CANCELLED' ? 'card-status-cancelled' : 'card-status-pending';
+                        const borderClass = req.status === 'COMPLETED' ? 'card-status-completed' : req.status === 'ACCEPTED' ? 'card-status-accepted' : 'card-status-pending';
                         return (
                             <IonCard key={req.id} routerLink={`/request/${req.id}`} button className={`request-list-card ${borderClass}`}>
                                 <div className="request-list-card-body">

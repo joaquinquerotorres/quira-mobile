@@ -44,6 +44,7 @@ const ProRequestDetail: React.FC = () => {
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
+  const [requestUnavailable, setRequestUnavailable] = useState(false);
   const [myProfileId, setMyProfileId] = useState<number | null>(null);
   const [myUserId, setMyUserId] = useState<number | null>(null);
   const [userTier, setUserTier] = useState<EffectiveTier>('FREE'); 
@@ -90,6 +91,7 @@ const ProRequestDetail: React.FC = () => {
 
   const fetchDetail = async () => {
     try {
+      setRequestUnavailable(false);
       const response = await api.get(`/requests/${id}`);
       const data = response.data;
       setRequest(data);
@@ -108,7 +110,13 @@ const ProRequestDetail: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-      setToast("Error al cargar el trabajo.");
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        setRequest(null);
+        setRequestUnavailable(true);
+      } else {
+        setToast("Error al cargar el trabajo.");
+      }
     } finally {
       setLoading(false);
     }
@@ -318,6 +326,15 @@ const ProRequestDetail: React.FC = () => {
   };
 
   if (loading) return <IonLoading isOpen={true} />;
+  if (requestUnavailable) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          Esta solicitud ya no está disponible.
+        </IonContent>
+      </IonPage>
+    );
+  }
   
   // PROTECCIÓN: Si es High Risk (alta dificultad) y es FREE, bloqueamos solo si NO tiene relación con el trabajo.
   // Si pujó o ganó el trabajo, puede ver todo (cliente, teléfono, ubicación) para poder ejecutarlo.

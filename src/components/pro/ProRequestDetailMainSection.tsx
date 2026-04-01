@@ -111,9 +111,7 @@ export const ProRequestDetailMainSection: React.FC<
       >
         <IonBadge
           className={`pro-status-pill ${
-            request.status === 'CANCELLED'
-              ? 'cancelled'
-              : isCompleted
+            isCompleted
               ? 'completed'
               : isWinner
               ? 'winner'
@@ -122,9 +120,7 @@ export const ProRequestDetailMainSection: React.FC<
               : 'pending'
           }`}
         >
-          {request.status === 'CANCELLED'
-            ? 'Cancelada'
-            : isCompleted
+          {isCompleted
             ? 'Finalizado'
             : isWinner
             ? 'Trabajo Ganado'
@@ -617,13 +613,6 @@ export const ProRequestDetailMainSection: React.FC<
               </IonButton>
             )}
           </div>
-        </div>
-      )}
-
-      {/* ESTADO CANCELADA */}
-      {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '16px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-          <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud fue cancelada por el cliente.</p>
         </div>
       )}
 

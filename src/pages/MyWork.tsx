@@ -28,6 +28,7 @@ import { env } from '../config/env';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { dedupeBidsByRequestForMyWork } from '../utils/bidDisplay';
+import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 
 const serverUrl = env.serverUrl;
 
@@ -66,6 +67,14 @@ const MyWork: React.FC = () => {
   useEffect(() => {
     fetchData(segment);
   }, [segment]);
+  useEffect(() => {
+    const onInvalidated = () => {
+      fetchData('bids');
+      fetchData('jobs');
+    };
+    window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+    return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+  }, [searchText, filterCategory, sortPrice, segment]);
 
   const getIdFromIri = (resource: any): number => {
     if (!resource) return 0;
@@ -171,7 +180,6 @@ const MyWork: React.FC = () => {
     const myIri = bid.professional?.professionalProfile?.['@id'];
     const isWon = req.status === 'ACCEPTED' && assignedIri === myIri;
     const isClosed = req.status === 'COMPLETED' || (req.status === 'ACCEPTED' && !isWon);
-    const isCancelled = req.status === 'CANCELLED';
 
     // Clases CSS aisladas (mw-)
     let borderClass = 'mw-card-pending';
@@ -179,7 +187,6 @@ const MyWork: React.FC = () => {
     let badgeClass = 'mw-status-pending';
 
     if (isWon) { borderClass = 'mw-card-won'; statusLabel = 'GANADA'; badgeClass = 'mw-status-won'; }
-    else if (isCancelled) { borderClass = 'mw-card-closed'; statusLabel = 'CANCELADA'; badgeClass = 'mw-status-cancelled'; }
     else if (isClosed) { borderClass = 'mw-card-closed'; statusLabel = 'CERRADA'; badgeClass = 'mw-status-closed'; }
 
     const catStyle = getCategoryStyle(req.category);

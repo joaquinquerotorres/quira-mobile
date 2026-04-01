@@ -27,6 +27,8 @@ import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
+import { getApiErrorMessage } from '../utils/apiError';
+import { notifyRequestsInvalidated } from '../utils/requestEvents';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -69,6 +71,7 @@ const RequestDetail: React.FC = () => {
   const [qLoading, setQLoading] = useState(false);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [requestUnavailable, setRequestUnavailable] = useState(false);
 
   const fileToDataUrl = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -92,6 +95,7 @@ const RequestDetail: React.FC = () => {
 
   const fetchDetail = async () => {
     try {
+      setRequestUnavailable(false);
       const response = await api.get(`/requests/${id}`);
       const data = response.data;
       setRequest(data);
@@ -110,6 +114,12 @@ const RequestDetail: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        setRequest(null);
+        setRequestUnavailable(true);
+        return;
+      }
       setToast("Error cargando el detalle.");
     } finally {
       setLoading(false);
@@ -399,13 +409,14 @@ const RequestDetail: React.FC = () => {
     if (!id || !canCancelRequest) return;
     setCancelling(true);
     try {
-      await api.patch(`/requests/${id}`, { status: 'CANCELLED' }, { headers: { 'Content-Type': 'application/merge-patch+json' } });
+      await api.delete(`/requests/${id}/cancel`);
+      setRequest(null);
       setToast('Solicitud cancelada.');
       setShowCancelAlert(false);
-      fetchDetail();
+      notifyRequestsInvalidated();
       router.push('/request-list');
-    } catch (error) {
-      setToast('Error al cancelar la solicitud.');
+    } catch (error: unknown) {
+      setToast(getApiErrorMessage(error) || 'Error al cancelar la solicitud.');
     } finally {
       setCancelling(false);
     }
@@ -424,6 +435,15 @@ const RequestDetail: React.FC = () => {
   };
 
   if (loading) return <IonLoading isOpen={true} />;
+  if (requestUnavailable) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          Esta solicitud ya no está disponible.
+        </IonContent>
+      </IonPage>
+    );
+  }
   if (!request) return <IonPage><IonContent className="ion-padding">Error cargando solicitud</IonContent></IonPage>;
 
   const addressDisplay = getAddressDisplay();

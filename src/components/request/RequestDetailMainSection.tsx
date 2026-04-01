@@ -158,8 +158,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                 ? 'completed'
                 : request.status === 'ACCEPTED'
                 ? 'accepted'
-                : request.status === 'CANCELLED'
-                ? 'cancelled'
                 : request.status === 'PENDING_APPROVAL'
                 ? 'pending-approval'
                 : 'pending'
@@ -169,8 +167,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
               ? 'Finalizado'
               : request.status === 'ACCEPTED'
               ? 'Asignado'
-              : request.status === 'CANCELLED'
-              ? 'Cancelada'
               : request.status === 'PENDING_APPROVAL'
               ? 'En revisión'
               : 'Pendiente'}
@@ -785,13 +781,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
         </div>
         <IonIcon icon={chevronForwardOutline} color="medium" />
       </div>
-
-      {/* ESTADO CANCELADA */}
-      {request.status === 'CANCELLED' && (
-        <div style={{ marginTop: '16px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-          <p style={{ margin: 0, color: '#64748b', fontWeight: 600 }}>Esta solicitud ha sido cancelada.</p>
-        </div>
-      )}
 
     </>
   );

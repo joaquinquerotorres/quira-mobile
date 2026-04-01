@@ -63,11 +63,10 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 | `PENDING_APPROVAL` | En revisión | En validación |
 | `ACCEPTED` | Asignado | Profesional contratado, trabajo en curso |
 | `COMPLETED` | Finalizado | Trabajo completado |
-| `CANCELLED` | Cancelada | Cancelada por el cliente |
 
 ### Transiciones
 
-- **Cliente cancela**: Solo si `status === 'PENDING'` y no hay `assignedProfessional`. Se hace `PATCH /requests/{id}` con `status: 'CANCELLED'`.
+- **Cliente cancela**: Solo si `status === 'PENDING'` y no hay `assignedProfessional`. Se hace `DELETE /requests/{id}/cancel`; la solicitud se elimina físicamente.
 - **Cliente acepta propuesta**: `PATCH /requests/{id}` con `status: 'ACCEPTED'`, `assignedProfessional` y `preciseAddress`; además `PATCH /bids/{id}/accept`.
 - **Pro finaliza trabajo**: `PATCH /requests/{id}` con `status: 'COMPLETED'`.
 - **Creación**: Al publicar, la solicitud empieza en `PENDING`.
@@ -284,6 +283,7 @@ Después del ticket, el frontend hace `PUT` a `signedUrl` y guarda/usa `publicUr
 | GET | `/requests/{id}` | Detalle |
 | POST | `/requests` | Crear |
 | PATCH | `/requests/{id}` | Actualizar (merge-patch) |
+| DELETE | `/requests/{id}/cancel` | Cancelar y eliminar solicitud |
 
 Params: `status`, `category`, `title`, `order[createdAt]`, `order[estimatedPriceMin]`, `is_market`, `history`, `my_requests`, `my_jobs`.
 
@@ -408,7 +408,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 ### MyWork
 
 - Segmentos: "Propuestas" y "Trabajos".
-- Estados de propuestas: PENDIENTE, GANADA, CANCELADA, CERRADA.
+- Estados de propuestas: PENDIENTE, GANADA, CERRADA.
 - Estados de trabajos: ASIGNADO, FINALIZADO.
 - En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
 - En **listados**, las solicitudes muestran etiqueta **«Rango estimado»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).

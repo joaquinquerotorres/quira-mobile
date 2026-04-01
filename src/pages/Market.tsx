@@ -29,6 +29,7 @@ import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
+import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 
 const serverUrl = env.serverUrl;
 
@@ -163,6 +164,14 @@ const Market: React.FC = () => {
   useEffect(() => {
     void refreshCanBidStatus();
   }, [userTier]);
+  useEffect(() => {
+    const onInvalidated = () => {
+      fetchOpportunities();
+      void refreshCanBidStatus();
+    };
+    window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+    return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
+  }, [searchText, filterCategory, sortPrice, userTier]);
 
   const handleSearch = (e: CustomEvent) => {
       setSearchText(e.detail.value!);
