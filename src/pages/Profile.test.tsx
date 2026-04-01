@@ -10,6 +10,13 @@ vi.mock('../api/axios', () => ({
   default: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
 }));
 
+vi.mock('react-google-places-autocomplete', () => ({
+  __esModule: true,
+  default: () => <div data-testid="google-places-autocomplete" />,
+  geocodeByAddress: vi.fn(),
+  getLatLng: vi.fn(),
+}));
+
 vi.mock('@ionic/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ionic/react')>();
   const ionRouterStub = {
@@ -41,6 +48,9 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 beforeEach(() => {
+  (api.get as ReturnType<typeof vi.fn>).mockReset();
+  (api.patch as ReturnType<typeof vi.fn>).mockReset();
+  (api.post as ReturnType<typeof vi.fn>).mockReset();
   (localStorage as any).setItem?.('user', JSON.stringify({
     id: 1,
     email: 'test@test.com',
@@ -311,6 +321,110 @@ test.skip('Profile shows validation error when saving pro profile without requir
   await waitFor(() => {
     expect(screen.getByText('La biografía es obligatoria para perfil profesional.')).toBeInTheDocument();
     expect(api.patch).not.toHaveBeenCalled();
+  });
+});
+
+test('Profile auto-verifies client phone when matching an already verified professional phone', async () => {
+  const futureDate = new Date();
+  futureDate.setFullYear(futureDate.getFullYear() + 1);
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    email: 'pro@test.com',
+    roles: ['ROLE_SOLVER'],
+    clientProfile: {
+      id: 101,
+      fullName: 'Cliente',
+      phoneNumber: '611 111 111',
+      verifiedPhone: false,
+      '@id': '/client_profiles/101',
+    },
+    professionalProfile: {
+      id: 202,
+      fullName: 'Profesional',
+      phoneNumber: '+34 600 999 888',
+      verifiedPhone: true,
+      bio: 'Bio pro',
+      address: 'Córdoba',
+      skills: ['PLUMBING'],
+      taxId: '',
+      serviceRadiusKm: 30,
+      '@id': '/professional_profiles/202',
+    },
+    paidThroughAt: futureDate.toISOString(),
+  }));
+  (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: JSON.parse((localStorage as any).getItem('user')) });
+  (api.patch as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} });
+
+  render(<Profile />, { wrapper });
+  fireEvent.click(screen.getByText('Datos Personales'));
+
+  await waitFor(() => expect(screen.getByText('GUARDAR CAMBIOS')).toBeInTheDocument());
+  const phoneInputs = screen.getAllByPlaceholderText('600 000 000');
+  fireEvent(phoneInputs[0], new CustomEvent('ionInput', { detail: { value: '600999888' } }));
+  fireEvent.click(screen.getByText('GUARDAR CAMBIOS'));
+
+  await waitFor(() => {
+    expect(api.patch).toHaveBeenCalledWith(
+      '/client_profiles/101',
+      expect.objectContaining({
+        phoneNumber: '600999888',
+        verifiedPhone: true,
+      }),
+      expect.any(Object),
+    );
+  });
+});
+
+test('Profile auto-verifies professional phone when matching an already verified client phone', async () => {
+  const futureDate = new Date();
+  futureDate.setFullYear(futureDate.getFullYear() + 1);
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    email: 'pro@test.com',
+    roles: ['ROLE_SOLVER'],
+    clientProfile: {
+      id: 101,
+      fullName: 'Cliente',
+      phoneNumber: '+34 600 111 222',
+      verifiedPhone: true,
+      '@id': '/client_profiles/101',
+    },
+    professionalProfile: {
+      id: 202,
+      fullName: 'Profesional',
+      phoneNumber: '622 222 222',
+      verifiedPhone: false,
+      bio: 'Bio pro',
+      address: 'Córdoba',
+      skills: ['PLUMBING'],
+      taxId: '',
+      serviceRadiusKm: 30,
+      '@id': '/professional_profiles/202',
+    },
+    paidThroughAt: futureDate.toISOString(),
+  }));
+  (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: JSON.parse((localStorage as any).getItem('user')) });
+  (api.patch as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} });
+
+  render(<Profile />, { wrapper });
+  fireEvent.click(screen.getByText('Datos Personales'));
+
+  await waitFor(() => expect(screen.getByText('GUARDAR CAMBIOS')).toBeInTheDocument());
+  const phoneInputs = screen.getAllByPlaceholderText('600 000 000');
+  phoneInputs.forEach((input) => {
+    fireEvent(input, new CustomEvent('ionInput', { detail: { value: '600111222' } }));
+  });
+  fireEvent.click(screen.getByText('GUARDAR CAMBIOS'));
+
+  await waitFor(() => {
+    expect(api.patch).toHaveBeenCalledWith(
+      '/professional_profiles/202',
+      expect.objectContaining({
+        phoneNumber: '600111222',
+        verifiedPhone: true,
+      }),
+      expect.any(Object),
+    );
   });
 });
 

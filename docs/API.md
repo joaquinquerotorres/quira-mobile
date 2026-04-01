@@ -78,6 +78,8 @@ Contrato mínimo esperado por el flujo actual de `become-pro` y edición de perf
 
 Respuesta: debe devolver el `ProfessionalProfile` persistido incluyendo `address`, `serviceRadiusKm` y `locationPoint`.
 
+Regla esperada de negocio (servidor): al editar cliente/profesional, si el nuevo `phoneNumber` coincide (normalizado) con el teléfono del otro perfil del mismo usuario y ese otro ya estaba verificado, el backend debe persistir también `verifiedPhone=true` en el perfil editado.
+
 ---
 
 ## `PATCH /users/{id}` (sincronización de `fcmToken`)

@@ -444,6 +444,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
     - Teléfonos:
       - Si existe `clientProfile`: "Teléfono (como cliente) *" + botón "Verificar teléfono" si no está verificado.
       - Si existe `professionalProfile`: "Teléfono (como profesional) *" + botón "Verificar teléfono" si no está verificado.
+      - Auto-verificación cruzada al guardar: si se edita uno de los teléfonos y coincide (normalizado) con el teléfono del otro perfil que ya estaba verificado, se guarda también como verificado en el perfil editado.
     - Para perfiles profesionales:
       - **Biografía\***, **Dirección base\***, **Especialidades\*** siempre obligatorias.
       - **CIF/NIF\*** obligatorio solo para tier PRO.

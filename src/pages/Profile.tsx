@@ -54,6 +54,11 @@ const SKILL_OPTIONS = [
     { value: 'GARDENING', label: 'Jardinería' }
 ];
 
+function comparablePhone(raw: string | undefined | null): string {
+  const digits = String(raw || '').replace(/\D/g, '');
+  return digits.length >= 9 ? digits.slice(-9) : digits;
+}
+
 const Profile: React.FC = () => {
   const router = useIonRouter();
   const [user, setUser] = useState<any>(null);
@@ -616,26 +621,45 @@ const Profile: React.FC = () => {
           if (user!.clientProfile) {
               const clientId = typeof user!.clientProfile === 'object' ? user!.clientProfile.id : (user!.clientProfile as string).split('/').pop();
               const prevClientPhone = user!.clientProfile.phoneNumber || '';
-              const payloadClient = { fullName, phoneNumber: clientPhoneNumber.trim() };
+              const nextClientPhone = clientPhoneNumber.trim();
+              const clientPhoneChanged = nextClientPhone !== prevClientPhone;
+              const shouldAutoVerifyClientPhone =
+                clientPhoneChanged &&
+                Boolean(user!.professionalProfile?.verifiedPhone) &&
+                comparablePhone(nextClientPhone).length > 0 &&
+                comparablePhone(nextClientPhone) === comparablePhone(user!.professionalProfile?.phoneNumber);
+              const payloadClient = {
+                fullName,
+                phoneNumber: nextClientPhone,
+                ...(shouldAutoVerifyClientPhone ? { verifiedPhone: true } : {}),
+              };
               await api.patch(`/client_profiles/${clientId}`, payloadClient, { headers: { 'Content-Type': 'application/merge-patch+json' } });
               updatedUser.clientProfile = { ...updatedUser.clientProfile!, ...payloadClient };
-              if (clientPhoneNumber.trim() !== prevClientPhone) {
-                  updatedUser.clientProfile.verifiedPhone = false;
+              if (clientPhoneChanged) {
+                  updatedUser.clientProfile.verifiedPhone = shouldAutoVerifyClientPhone;
               }
           }
 
           if (user!.professionalProfile) {
               const proId = typeof user!.professionalProfile === 'object' ? user!.professionalProfile.id : (user!.professionalProfile as string).split('/').pop();
               const prevProPhone = user!.professionalProfile.phoneNumber || '';
+              const nextProfessionalPhone = professionalPhoneNumber.trim();
+              const professionalPhoneChanged = nextProfessionalPhone !== prevProPhone;
+              const shouldAutoVerifyProfessionalPhone =
+                professionalPhoneChanged &&
+                Boolean(user!.clientProfile?.verifiedPhone) &&
+                comparablePhone(nextProfessionalPhone).length > 0 &&
+                comparablePhone(nextProfessionalPhone) === comparablePhone(user!.clientProfile?.phoneNumber);
               const payloadPro = {
-                  fullName, taxId, bio, skills, phoneNumber: professionalPhoneNumber.trim(), address,
+                  fullName, taxId, bio, skills, phoneNumber: nextProfessionalPhone, address,
                   serviceRadiusKm: Number(serviceRadiusKm),
-                  locationPoint: coords ? { type: 'Point', coordinates: [coords.lng, coords.lat] } : null
+                  locationPoint: coords ? { type: 'Point', coordinates: [coords.lng, coords.lat] } : null,
+                  ...(shouldAutoVerifyProfessionalPhone ? { verifiedPhone: true } : {}),
               };
               await api.patch(`/professional_profiles/${proId}`, payloadPro, { headers: { 'Content-Type': 'application/merge-patch+json' } });
               updatedUser.professionalProfile = { ...updatedUser.professionalProfile!, ...payloadPro };
-              if (professionalPhoneNumber.trim() !== prevProPhone) {
-                  updatedUser.professionalProfile.verifiedPhone = false;
+              if (professionalPhoneChanged) {
+                  updatedUser.professionalProfile.verifiedPhone = shouldAutoVerifyProfessionalPhone;
               }
           }
 
