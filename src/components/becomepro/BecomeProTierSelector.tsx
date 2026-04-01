@@ -24,7 +24,7 @@ const TIERS = [
     price: '4,99€/mes',
     trial: '3 Meses Gratis',
     icon: flashOutline,
-    features: ['Propuestas ILIMITADAS', 'Acceso a trabajos de dificultad baja y media', 'Alertas PUSH (Rápido)'],
+    features: ['Propuestas ILIMITADAS', 'Acceso a trabajos de dificultad baja y media', 'Alertas push en tiempo real'],
     color: 'tertiary',
     recommended: true,
   },
@@ -34,7 +34,7 @@ const TIERS = [
     price: '11,99€/mes',
     trial: '3 Meses Gratis',
     icon: shieldCheckmarkOutline,
-    features: ['Acceso TOTAL (incluye trabajos de alta dificultad)', 'Prioridad en listados', 'Alertas push en tiempo real'],
+    features: ['Propuestas ILIMITADAS', 'Acceso TOTAL (incluye trabajos de alta dificultad)', 'Prioridad en listados', 'Alertas push en tiempo real'],
     color: 'secondary',
   },
 ];

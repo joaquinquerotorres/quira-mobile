@@ -6,6 +6,7 @@ import { BecomeProForm, type BecomeProFormData } from './BecomeProForm';
 const defaultFormData: BecomeProFormData = {
   fullName: '',
   phoneNumber: '',
+  address: '',
   taxId: '',
   bio: '',
   selectedSkills: [],
@@ -15,6 +16,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <IonApp>{children}</IonApp>
 );
 
+const baseProps = {
+  onAddressSelect: vi.fn(),
+  onUseCurrentLocation: vi.fn(),
+  mapRef: React.createRef<HTMLDivElement>(),
+  googleAutocompleteStyles: {},
+  googleApiKey: '',
+};
+
 test('BecomeProForm renders all fields', () => {
   render(
     <BecomeProForm
@@ -23,6 +32,7 @@ test('BecomeProForm renders all fields', () => {
       onFormChange={vi.fn()}
       onToggleSkill={vi.fn()}
       onSubmit={vi.fn()}
+      {...baseProps}
       loading={false}
       isUpgrading={false}
     />,
@@ -30,6 +40,8 @@ test('BecomeProForm renders all fields', () => {
   );
   expect(screen.getByPlaceholderText('Ej. Reformas García')).toBeInTheDocument();
   expect(screen.getByPlaceholderText('600 000 000')).toBeInTheDocument();
+  expect(screen.getByText('Dirección base *')).toBeInTheDocument();
+  expect(screen.getByTestId('google-places-autocomplete')).toBeInTheDocument();
   expect(screen.getByPlaceholderText('B12345678')).toBeInTheDocument();
   expect(screen.getByPlaceholderText('Cuéntanos tu experiencia...')).toBeInTheDocument();
   expect(screen.getByText('Habilidades')).toBeInTheDocument();
@@ -44,6 +56,7 @@ test('BecomeProForm shows CIF required error when PRO tier and no taxId', () => 
       onFormChange={vi.fn()}
       onToggleSkill={vi.fn()}
       onSubmit={vi.fn()}
+      {...baseProps}
       loading={false}
       isUpgrading={false}
     />,
@@ -61,6 +74,7 @@ test('BecomeProForm calls onToggleSkill when skill chip is clicked', () => {
       onFormChange={vi.fn()}
       onToggleSkill={onToggleSkill}
       onSubmit={vi.fn()}
+      {...baseProps}
       loading={false}
       isUpgrading={false}
     />,
@@ -78,6 +92,7 @@ test('BecomeProForm has submit button', () => {
       onFormChange={vi.fn()}
       onToggleSkill={vi.fn()}
       onSubmit={vi.fn()}
+      {...baseProps}
       loading={false}
       isUpgrading={false}
     />,

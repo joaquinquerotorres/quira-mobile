@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonPage,
@@ -14,7 +14,10 @@ import {
 import { chevronBackOutline } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
+import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
+import { Geolocation } from '@capacitor/geolocation';
 import api from '../api/axios';
+import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
@@ -23,6 +26,22 @@ import '../components/layout/LogoHeader.css';
 import './BecomePro.css';
 
 const PAID_TIERS = ['SOLVER', 'PRO'];
+const GOOGLE_API_KEY = env.googleMapsKey;
+
+function comparablePhone(raw: string | undefined | null): string {
+  const digits = String(raw || '').replace(/\D/g, '');
+  return digits.length >= 9 ? digits.slice(-9) : digits;
+}
+
+function shouldAutoVerifyProfessionalPhone(
+  user: { clientProfile?: { phoneNumber?: string; verifiedPhone?: boolean } } | null,
+  professionalPhone: string,
+): boolean {
+  if (!user?.clientProfile?.verifiedPhone) return false;
+  const clientPhone = comparablePhone(user.clientProfile.phoneNumber);
+  const proPhone = comparablePhone(professionalPhone);
+  return clientPhone.length > 0 && clientPhone === proPhone;
+}
 
 const BecomePro: React.FC = () => {
   const router = useIonRouter();
@@ -34,10 +53,16 @@ const BecomePro: React.FC = () => {
   const [formData, setFormData] = useState<BecomeProFormData>({
     fullName: '',
     phoneNumber: '',
+    address: '',
+    serviceRadiusKm: 30,
     taxId: '',
     bio: '',
     selectedSkills: [],
   });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const googleMap = useRef<google.maps.Map | null>(null);
+  const serviceCircle = useRef<google.maps.Circle | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -90,10 +115,15 @@ const BecomePro: React.FC = () => {
         setFormData({
           fullName: pro.fullName || '',
           phoneNumber: pro.phoneNumber || user.clientProfile?.phoneNumber || '',
+          address: pro.address || '',
+          serviceRadiusKm: pro.serviceRadiusKm || 30,
           taxId: pro.taxId || '',
           bio: pro.bio || '',
           selectedSkills: pro.skills || [],
         });
+        if (pro.locationPoint?.coordinates) {
+          setCoords({ lat: pro.locationPoint.coordinates[1], lng: pro.locationPoint.coordinates[0] });
+        }
 
         if (user.roles.includes('ROLE_SOLVER')) {
           setSelectedTier('PRO');
@@ -103,10 +133,127 @@ const BecomePro: React.FC = () => {
           ...prev,
           fullName: user.clientProfile.fullName || '',
           phoneNumber: user.clientProfile.phoneNumber || '',
+          address: user.clientProfile.address || '',
         }));
       }
     }
   }, []);
+
+  const getZoomForRadius = (radius: number) => {
+    if (radius <= 5) return 13;
+    if (radius <= 10) return 12;
+    if (radius <= 15) return 11;
+    if (radius <= 25) return 10;
+    if (radius <= 50) return 9;
+    if (radius <= 80) return 9;
+    if (radius <= 100) return 8;
+    return 8;
+  };
+
+  useEffect(() => {
+    if (step !== 2 || !mapRef.current) return;
+    if (typeof google === 'undefined' || !google.maps) return;
+
+    const initialPos = coords || { lat: 37.888, lng: -4.779 };
+    if (!googleMap.current) {
+      googleMap.current = new google.maps.Map(mapRef.current, {
+        center: initialPos,
+        zoom: getZoomForRadius(formData.serviceRadiusKm),
+        disableDefaultUI: true,
+        gestureHandling: 'none',
+        styles: [],
+      });
+      serviceCircle.current = new google.maps.Circle({
+        strokeColor: '#4f46e5',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#4f46e5',
+        fillOpacity: 0.2,
+        map: googleMap.current,
+        center: initialPos,
+        radius: formData.serviceRadiusKm * 1000,
+      });
+      return;
+    }
+
+    google.maps.event.trigger(googleMap.current, 'resize');
+    googleMap.current.setCenter(initialPos);
+    googleMap.current.setZoom(getZoomForRadius(formData.serviceRadiusKm));
+    if (serviceCircle.current) {
+      serviceCircle.current.setCenter(initialPos);
+      serviceCircle.current.setRadius(formData.serviceRadiusKm * 1000);
+    }
+  }, [step, coords, formData.serviceRadiusKm]);
+
+  const handleAddressSelect = async (value: any) => {
+    if (!value) {
+      setFormData((prev) => ({ ...prev, address: '' }));
+      setCoords(null);
+      return;
+    }
+    setFormData((prev) => ({ ...prev, address: value.label }));
+    try {
+      const results = await geocodeByAddress(value.label);
+      const result = results[0];
+      const comps = (result as any).address_components;
+      const get = (type: string) =>
+        comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
+      const province = get('administrative_area_level_2') || get('administrative_area_level_1');
+      const country = get('country');
+      const isSpain = country === 'España' || country === 'Spain';
+      const isCordoba = province === 'Córdoba' || province === 'Cordoba';
+      if (!(isSpain && isCordoba)) {
+        setToast('Por ahora solo aceptamos direcciones en Córdoba (Andalucía).');
+        setFormData((prev) => ({ ...prev, address: '' }));
+        setCoords(null);
+        return;
+      }
+      const { lat, lng } = await getLatLng(result);
+      setCoords({ lat, lng });
+    } catch {
+      // noop: si falla geocoding, dejamos solo texto
+    }
+  };
+
+  const getCurrentLocation = async () => {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 20000,
+        maximumAge: 60000,
+      });
+      const { latitude, longitude } = coordinates.coords;
+      setCoords({ lat: latitude, lng: longitude });
+
+      if (GOOGLE_API_KEY) {
+        const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
+        const data = await res.json();
+        if (data.results?.[0]) {
+          const result = data.results[0];
+          const comps = result.address_components;
+          const get = (type: string) =>
+            comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
+          const province = get('administrative_area_level_2') || get('administrative_area_level_1');
+          const country = get('country');
+          const isSpain = country === 'España' || country === 'Spain';
+          const isCordoba = province === 'Córdoba' || province === 'Cordoba';
+          if (!(isSpain && isCordoba)) {
+            setToast('Por ahora solo aceptamos direcciones en Córdoba (Andalucía).');
+            setFormData((prev) => ({ ...prev, address: '' }));
+            setCoords(null);
+            return;
+          }
+          setFormData((prev) => ({ ...prev, address: result.formatted_address.replace(', España', '') }));
+          return;
+        }
+      }
+
+      const fallback = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+      setFormData((prev) => ({ ...prev, address: fallback }));
+    } catch {
+      setToast('Error al obtener ubicación.');
+    }
+  };
 
   const handleFormChange = (data: Partial<BecomeProFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -123,9 +270,9 @@ const BecomePro: React.FC = () => {
 
   const handleBecomePro = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { fullName, phoneNumber, taxId, bio, selectedSkills } = formData;
+    const { fullName, phoneNumber, address, taxId, bio, selectedSkills } = formData;
 
-    if (!fullName || !phoneNumber || !bio || selectedSkills.length === 0) {
+    if (!fullName || !phoneNumber || !address || !bio || selectedSkills.length === 0) {
       setToast('Por favor, completa los campos obligatorios.');
       return;
     }
@@ -137,13 +284,28 @@ const BecomePro: React.FC = () => {
 
     setLoading(true);
     try {
+      const currentUser = (() => {
+        const raw = localStorage.getItem('user');
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return null;
+        }
+      })();
+      const autoVerifyProfessionalPhone = shouldAutoVerifyProfessionalPhone(currentUser, phoneNumber);
+
       const payload = {
         fullName,
         phoneNumber,
+        address,
         taxId: taxId || null,
         bio,
         skills: selectedSkills,
+        serviceRadiusKm: Number(formData.serviceRadiusKm),
+        locationPoint: coords ? { type: 'Point', coordinates: [coords.lng, coords.lat] } : null,
         tierRequested: selectedTier,
+        ...(autoVerifyProfessionalPhone ? { verifiedPhone: true } : {}),
       };
 
       const response = isUpgrading && existingProId
@@ -159,6 +321,9 @@ const BecomePro: React.FC = () => {
       if (userStr) {
         const user = JSON.parse(userStr);
         user.professionalProfile = proProfile;
+        if (autoVerifyProfessionalPhone && user.professionalProfile && typeof user.professionalProfile === 'object') {
+          user.professionalProfile.verifiedPhone = true;
+        }
         if (!user.roles.includes('ROLE_PROFESSIONAL')) user.roles.push('ROLE_PROFESSIONAL');
         user.roles = user.roles.filter((r: string) => r !== 'ROLE_FREE' && r !== 'ROLE_SOLVER' && r !== 'ROLE_PRO');
         if (selectedTier === 'PRO') user.roles.push('ROLE_PRO');
@@ -244,6 +409,11 @@ const BecomePro: React.FC = () => {
                 onFormChange={handleFormChange}
                 onToggleSkill={toggleSkill}
                 onSubmit={handleBecomePro}
+                onAddressSelect={handleAddressSelect}
+                onUseCurrentLocation={getCurrentLocation}
+                mapRef={mapRef}
+                googleAutocompleteStyles={googleAutocompleteStyles}
+                googleApiKey={GOOGLE_API_KEY}
                 loading={loading}
                 isUpgrading={isUpgrading}
               />
@@ -269,3 +439,24 @@ const BecomePro: React.FC = () => {
 };
 
 export default BecomePro;
+
+const googleAutocompleteStyles = {
+  container: (provided: any) => ({ ...provided, width: '100%', zIndex: 10001 }),
+  control: (provided: any) => ({
+    ...provided,
+    border: 'none',
+    boxShadow: 'none',
+    minHeight: '52px',
+    backgroundColor: 'transparent',
+  }),
+  input: (provided: any) => ({ ...provided, color: '#1e293b', fontWeight: 600, paddingLeft: '10px' }),
+  placeholder: (provided: any) => ({ ...provided, color: '#94a3b8', paddingLeft: '10px' }),
+  indicatorSeparator: () => ({ display: 'none' }),
+  dropdownIndicator: () => ({ display: 'none' }),
+  menu: (provided: any) => ({
+    ...provided,
+    zIndex: 10002,
+    borderRadius: '16px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+  }),
+};

@@ -1,9 +1,11 @@
 import React from 'react';
 import {
+  IonBadge,
   IonButton,
   IonIcon,
   IonInput,
   IonLabel,
+  IonRange,
   IonTextarea,
 } from '@ionic/react';
 import {
@@ -12,7 +14,12 @@ import {
   hammerOutline,
   checkmarkCircle,
   logoWhatsapp,
+  navigateOutline,
+  optionsOutline,
+  trendingUpOutline,
+  informationCircleOutline,
 } from 'ionicons/icons';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import './BecomeProForm.css';
 
 const SKILL_OPTIONS = [
@@ -29,6 +36,8 @@ const SKILL_OPTIONS = [
 export interface BecomeProFormData {
   fullName: string;
   phoneNumber: string;
+  address: string;
+  serviceRadiusKm: number;
   taxId: string;
   bio: string;
   selectedSkills: string[];
@@ -40,6 +49,11 @@ interface BecomeProFormProps {
   onFormChange: (data: Partial<BecomeProFormData>) => void;
   onToggleSkill: (skillValue: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  onAddressSelect: (value: any) => void;
+  onUseCurrentLocation: () => void;
+  mapRef: React.RefObject<HTMLDivElement>;
+  googleAutocompleteStyles: any;
+  googleApiKey: string;
   loading: boolean;
   isUpgrading: boolean;
 }
@@ -50,6 +64,11 @@ export const BecomeProForm: React.FC<BecomeProFormProps> = ({
   onFormChange,
   onToggleSkill,
   onSubmit,
+  onAddressSelect,
+  onUseCurrentLocation,
+  mapRef,
+  googleAutocompleteStyles,
+  googleApiKey,
   loading,
   isUpgrading,
 }) => (
@@ -106,6 +125,57 @@ export const BecomeProForm: React.FC<BecomeProFormProps> = ({
           placeholder="Cuéntanos tu experiencia..."
           onIonInput={(e) => onFormChange({ bio: e.detail.value! })}
         />
+      </div>
+    </div>
+
+    <IonLabel className="become-pro-coverage-title">Zona de Cobertura</IonLabel>
+    <div className="become-pro-input-group">
+      <IonLabel>Dirección base *</IonLabel>
+      <div className="become-pro-address-row">
+        <div className="become-pro-input-wrapper become-pro-autocomplete-wrapper">
+          <GooglePlacesAutocomplete
+            apiKey={googleApiKey}
+            selectProps={{
+              value: formData.address ? { label: formData.address, value: formData.address } : null,
+              onChange: onAddressSelect,
+              placeholder: 'Buscar dirección...',
+              styles: googleAutocompleteStyles,
+            }}
+            autocompletionRequest={{ componentRestrictions: { country: ['es'] } }}
+          />
+        </div>
+        <IonButton className="become-pro-gps-btn" onClick={onUseCurrentLocation} aria-label="Usar mi ubicación actual">
+          <IonIcon slot="icon-only" icon={navigateOutline} />
+        </IonButton>
+      </div>
+    </div>
+
+    <div className="become-pro-service-zone-card">
+      <div className="become-pro-map-wrapper">
+        <div ref={mapRef} style={{ width: '100%', height: '230px' }} />
+      </div>
+      <div className="become-pro-radius-control-box">
+        <div className="become-pro-radius-header">
+          <IonLabel>
+            Radio de servicio: <strong>{formData.serviceRadiusKm} km</strong>
+          </IonLabel>
+          <IonBadge color="primary" mode="ios">{formData.serviceRadiusKm} km</IonBadge>
+        </div>
+        <IonRange
+          min={5}
+          max={100}
+          step={5}
+          value={formData.serviceRadiusKm}
+          onIonChange={(e) => onFormChange({ serviceRadiusKm: Number(e.detail.value) })}
+          className="become-pro-custom-range"
+        >
+          <IonIcon slot="start" icon={optionsOutline} />
+          <IonIcon slot="end" icon={trendingUpOutline} />
+        </IonRange>
+      </div>
+      <div className="become-pro-privacy-note">
+        <IonIcon icon={informationCircleOutline} />
+        <p>Tu ubicación no es pública, solo se usa para calcular el rango de servicio.</p>
       </div>
     </div>
 

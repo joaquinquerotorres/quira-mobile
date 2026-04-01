@@ -59,6 +59,27 @@ Listado más amplio: **[ARQUITECTURA.md](./ARQUITECTURA.md)**.
 
 ---
 
+## `POST /professional_profiles` y `PATCH /professional_profiles/{id}`
+
+Contrato mínimo esperado por el flujo actual de `become-pro` y edición de perfil profesional:
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `fullName` | string | Obligatorio. |
+| `phoneNumber` | string | Obligatorio. |
+| `bio` | string | Obligatorio. |
+| `skills` | string[] | Obligatorio (al menos una). |
+| `address` | string | Obligatorio (dirección base de cobertura). |
+| `serviceRadiusKm` | number | Obligatorio en front; rango UI: 5..100. |
+| `locationPoint` | GeoJSON Point \| `null` | `{ type: "Point", coordinates: [lng, lat] }`. |
+| `taxId` | string \| `null` | Obligatorio para tier PRO (regla de negocio). |
+| `tierRequested` | `FREE` \| `SOLVER` \| `PRO` | En `become-pro` para decidir checkout/capacidades. |
+| `verifiedPhone` | boolean (opcional) | Puede venir `true` cuando aplica auto-verificación por coincidencia con teléfono cliente ya verificado. |
+
+Respuesta: debe devolver el `ProfessionalProfile` persistido incluyendo `address`, `serviceRadiusKm` y `locationPoint`.
+
+---
+
 ## `PATCH /users/{id}` (sincronización de `fcmToken`)
 
 La app nativa (Android/iOS) pide permisos de push, obtiene token FCM y lo sincroniza en el usuario autenticado.

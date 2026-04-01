@@ -107,3 +107,40 @@ test('BecomePro handles return from Stripe with canceled=1 and clears URL', asyn
   });
   replaceStateSpy.mockRestore();
 });
+
+test('BecomePro sends verifiedPhone=true when professional phone matches verified client phone', async () => {
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 10,
+    roles: ['ROLE_FREE'],
+    clientProfile: {
+      fullName: 'Cliente Verificado',
+      phoneNumber: '+34 600 111 222',
+      address: 'Córdoba',
+      verifiedPhone: true,
+    },
+  }));
+  (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+    data: { id: 123, fullName: 'Cliente Verificado', phoneNumber: '600111222' },
+  });
+
+  render(<BecomePro />, { wrapper });
+  fireEvent.click(screen.getByText('Starter'));
+  fireEvent.click(screen.getByText(/CONTINUAR COMO FREE/));
+
+  fireEvent(
+    screen.getByPlaceholderText('Cuéntanos tu experiencia...'),
+    new CustomEvent('ionInput', { detail: { value: '10 años de experiencia' } }),
+  );
+  fireEvent.click(screen.getByText('Fontanería'));
+  fireEvent.submit(document.querySelector('form')!);
+
+  await waitFor(() => {
+    expect(api.post).toHaveBeenCalledWith(
+      '/professional_profiles',
+      expect.objectContaining({
+        phoneNumber: '+34 600 111 222',
+        verifiedPhone: true,
+      }),
+    );
+  });
+});

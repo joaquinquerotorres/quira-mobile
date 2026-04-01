@@ -670,25 +670,32 @@
     flex: 1;
 }
 
-.profile-edit-skills {
-    display: flex;
-    flex-wrap: wrap;
+.profile-edit-skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
-.profile-edit-skill {
-    margin: 0;
-    font-size: 0.8rem;
-    font-weight: 700;
-    height: 38px;
-    --border-radius: 12px;
+.profile-edit-skill-chip {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
 }
-.profile-edit-skill.active {
-    --background: var(--ion-color-primary);
-    --color: white;
+.profile-edit-skill-chip.chip-selected {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
 }
-.profile-edit-skill:not(.active) {
-    --background: #f8fafc;
-    --color: #64748b;
+.profile-edit-skill-chip.chip-selected ion-icon {
+    color: #10b981;
 }
 
 .profile-edit-footer {

@@ -45,6 +45,12 @@
   color: #1e293b;
   font-weight: 600;
 }
+.become-pro-input-wrapper.become-pro-autocomplete-wrapper {
+  background: white;
+  padding: 0;
+  overflow: visible;
+  z-index: 10001;
+}
 
 .become-pro-field-error {
   color: #ef4444;
@@ -67,6 +73,88 @@
   color: #94a3b8;
   font-weight: 500;
   margin-top: 2px;
+}
+
+.become-pro-coverage-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.become-pro-address-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.become-pro-address-row .become-pro-input-wrapper {
+  flex: 1;
+}
+
+.become-pro-gps-btn {
+  --background: #f1f5f9;
+  --color: #4f46e5;
+  --border-radius: 16px;
+  height: 56px;
+  width: 56px;
+  margin: 0;
+}
+
+.become-pro-service-zone-card {
+  background: white;
+  border: 2px solid #eef2ff;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.become-pro-map-wrapper {
+  background: #f1f5f9;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 15px;
+}
+
+.become-pro-radius-control-box {
+  margin-top: 8px;
+}
+
+.become-pro-radius-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.become-pro-custom-range {
+  --bar-height: 6px;
+  --knob-size: 20px;
+  --bar-background-active: var(--ion-color-primary);
+}
+
+.become-pro-privacy-note {
+  display: flex;
+  gap: 10px;
+  background: #fffbeb;
+  padding: 12px;
+  border-radius: 16px;
+  margin-top: 15px;
+  border: 1px solid #fde68a;
+}
+
+.become-pro-privacy-note p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #92400e;
+  line-height: 1.4;
+  font-weight: 600;
 }
 
 .become-pro-skills-grid {

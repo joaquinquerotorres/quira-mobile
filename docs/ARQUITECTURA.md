@@ -182,7 +182,7 @@ interface RequestQuestion {
 ### Flujo en la app
 
 1. El usuario elige tier (FREE, SOLVER o PRO).
-2. Rellena formulario: nombre, teléfono, CIF (obligatorio para PRO), bio, skills.
+2. Rellena formulario: nombre, teléfono, CIF (obligatorio para PRO), bio, zona de cobertura (dirección base + radio + punto geográfico) y skills.
 3. Si SOLVER o PRO → se llama a `createCheckoutSession()` y se redirige a Stripe Checkout.
 4. Retorno: `?success=1` o `?canceled=1`.
 5. Si `success=1`: `POST /stripe/sync-subscription` (JWT) y acto seguido `GET /users/{id}` para refrescar `localStorage` con `paidThroughAt` y `subscriptionCancelAtPeriodEnd` aunque el webhook llegue tarde (ver `docs/STRIPE_BACKEND.md`).
@@ -360,7 +360,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### ProfessionalProfile
 
-`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `taxId`, `bio`, `skills`, `isVerified`, `rating`, `reviewCount`, `user`, `paidThroughAt` (opcional; fin de suscripción si el API lo expone aquí además de en `User`).
+`id`, `@id`, `fullName`, `phoneNumber`, `verifiedPhone`, `avatar`, `taxId`, `bio`, `skills`, `address`, `serviceRadiusKm`, `locationPoint`, `isVerified`, `rating`, `reviewCount`, `user`, `paidThroughAt` (opcional; fin de suscripción si el API lo expone aquí además de en `User`).
 
 ### ClientProfile
 

@@ -3,7 +3,7 @@ import {
   IonContent, IonPage, IonIcon, IonItem, IonLabel, IonToggle, 
   IonButton, useIonViewWillEnter, IonList, IonModal,
   IonHeader, IonToolbar, IonTitle, IonButtons, IonInput, IonTextarea, 
-  IonSelect, IonSelectOption, IonSpinner, IonToast, useIonRouter, IonChip,
+  IonSelect, IonSelectOption, IonSpinner, IonToast, useIonRouter,
   IonBadge, IonRange
 } from '@ionic/react';
 import { 
@@ -1261,16 +1261,20 @@ const Profile: React.FC = () => {
 
                             <div className="profile-edit-section">
                                 <IonLabel className="profile-edit-label">Especialidades *</IonLabel>
-                                <div className="profile-edit-skills">
-                                    {SKILL_OPTIONS.map(opt => (
-                                        <IonChip
-                                            key={opt.value}
-                                            onClick={() => toggleSkill(opt.value)}
-                                            className={skills.includes(opt.value) ? 'profile-edit-skill active' : 'profile-edit-skill'}
+                                <div className="profile-edit-skills-grid">
+                                    {SKILL_OPTIONS.map((opt) => {
+                                      const isSelected = skills.includes(opt.value);
+                                      return (
+                                        <div
+                                          key={opt.value}
+                                          className={`profile-edit-skill-chip ${isSelected ? 'chip-selected' : ''}`}
+                                          onClick={() => toggleSkill(opt.value)}
                                         >
-                                            <IonLabel>{opt.label}</IonLabel>
-                                        </IonChip>
-                                    ))}
+                                          <IonIcon icon={isSelected ? checkmarkCircle : hammerOutline} />
+                                          <span>{opt.label}</span>
+                                        </div>
+                                      );
+                                    })}
                                 </div>
                             </div>
                         </>
