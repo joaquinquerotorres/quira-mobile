@@ -51,7 +51,7 @@ interface BecomeProFormProps {
   onSubmit: (e: React.FormEvent) => void;
   onAddressSelect: (value: any) => void;
   onUseCurrentLocation: () => void;
-  mapRef: React.RefObject<HTMLDivElement>;
+  mapRef: React.RefObject<HTMLDivElement | null>;
   googleAutocompleteStyles: any;
   googleApiKey: string;
   loading: boolean;
