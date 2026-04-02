@@ -30,6 +30,7 @@ import { resolveMediaUrl } from '../utils/mediaUrl';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 
 const serverUrl = env.serverUrl;
 
@@ -97,8 +98,9 @@ const Market: React.FC = () => {
 
   const isFreeOrClient = userTier === 'FREE' || userTier === 'CLIENT';
 
-  const refreshCanBidStatus = async (): Promise<CanBidResponse | null> => {
-    if (!isFreeOrClient) {
+  const refreshCanBidStatus = async (tierOverride?: EffectiveTier): Promise<CanBidResponse | null> => {
+    const tier = tierOverride ?? userTier;
+    if (!(tier === 'FREE' || tier === 'CLIENT')) {
       setCanBidThisMonth(null);
       setRemainingBidsThisMonth(null);
       return null;
@@ -153,8 +155,24 @@ const Market: React.FC = () => {
   };
 
   useIonViewWillEnter(() => {
-    fetchOpportunities();
-    void refreshCanBidStatus();
+    void (async () => {
+      // Asegura que si `paidThroughAt` caducó en backend (ex PRO → FREE),
+      // el cálculo de blur para HIGH usa el tier efectivo correcto.
+      await refreshCurrentUserInStorage();
+
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const freshUser = JSON.parse(userStr);
+        setCurrentUserId(freshUser.id);
+        const nextTier = getEffectiveTier(freshUser);
+        setUserTier(nextTier);
+        void refreshCanBidStatus(nextTier);
+      } else {
+        void refreshCanBidStatus();
+      }
+
+      fetchOpportunities();
+    })();
   });
 
   useEffect(() => {

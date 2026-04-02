@@ -7,6 +7,10 @@ import Market from './Market';
 
 import api from '../api/axios';
 
+vi.mock('../utils/refreshCurrentUser', () => ({
+  refreshCurrentUserInStorage: vi.fn().mockResolvedValue(false),
+}));
+
 const mockOpportunity = {
   id: 1,
   title: 'Arreglo grifo',
@@ -36,6 +40,10 @@ beforeEach(() => {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
       return Promise.resolve({ data: { canBidThisMonth: true, remainingBidsThisMonth: 3 } });
+    }
+    if (typeof url === 'string' && url.includes('/users/')) {
+      // Si el test no mockea refreshCurrentUserInStorage, devolvemos data mínima compatible.
+      return Promise.resolve({ data: { id: 1 } });
     }
     return Promise.resolve({
       data: { 'hydra:member': [mockOpportunity], 'member': [mockOpportunity] },
@@ -131,6 +139,49 @@ test('FREE user sees HIGH job clearly when they already have a bid (ex PRO)', as
     expect(screen.getByText('Reforma integral alta')).toBeInTheDocument();
   });
   expect(screen.queryByText('Oportunidad Reservada')).not.toBeInTheDocument();
+});
+
+test('ex-PRO effective FREE without bid sees HIGH job blurred', async () => {
+  const highWithoutBid = {
+    ...mockOpportunity,
+    id: 77,
+    title: 'Reforma integral alta',
+    riskLevel: 'HIGH',
+    bids: [],
+  };
+
+  vi.mocked(api.get).mockImplementation((url: string) => {
+    if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
+      return Promise.resolve({ data: { canBidThisMonth: true, remainingBidsThisMonth: 3 } });
+    }
+    if (typeof url === 'string' && url.includes('/users/')) {
+      return Promise.resolve({ data: { id: 1 } });
+    }
+    return Promise.resolve({
+      data: { 'hydra:member': [highWithoutBid], member: [highWithoutBid] },
+    });
+  });
+
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    roles: ['ROLE_PRO'],
+    paidThroughAt: null,
+    '@id': '/users/1',
+    professionalProfile: {
+      id: 1,
+      phoneNumber: '+34600000000',
+      verifiedPhone: true,
+      fullName: 'Ex Pro',
+      '@id': '/professionals/1',
+    },
+  }));
+
+  render(<Market />, { wrapper });
+
+  // Si está blur, el título se reemplaza por el overlay
+  await waitFor(() => {
+    expect(screen.getByText('Oportunidad Reservada')).toBeInTheDocument();
+  });
 });
 
 test('ex-PRO effective FREE (paidThroughAt null) calls can-bid like ROLE_FREE', async () => {
