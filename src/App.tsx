@@ -27,7 +27,6 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailPending from './pages/VerifyEmailPending';
-import DeepLinkHandler from './components/DeepLinkHandler';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import BecomePro from './pages/BecomePro';
@@ -93,7 +92,6 @@ const MainTabs: React.FC = () => {
 
   return (
     <>
-      <DeepLinkHandler />
       <IonTabs>
       <DowngradeBanner />
       <IonRouterOutlet>

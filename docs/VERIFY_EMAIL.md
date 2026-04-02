@@ -44,12 +44,11 @@ En **Perfil → Datos personales**, si el email no está verificado, el botón *
 | Archivo | Qué cubre |
 |---------|-----------|
 | `src/api/verifyEmailApi.test.ts` | Rutas axios, `skipAuthHeader` / `skipAuthRedirect`, normalización de `{ success, message }`. |
-| `src/utils/verifyEmailDeepLink.test.ts` | Parseo de `token` desde URLs de verificación. |
 | `src/pages/VerifyEmail.test.tsx` | Estados sin token, éxito, `success: false`, errores HTTP, sesión + refresh. |
 | `src/pages/VerifyEmailPending.test.tsx` | Reenvío con/sin JWT (toast vía `ion-toast`). |
 
 Ejecutar solo estos tests:
 
 ```bash
-npm run test -- --run src/api/verifyEmailApi.test.ts src/utils/verifyEmailDeepLink.test.ts src/pages/VerifyEmail.test.tsx src/pages/VerifyEmailPending.test.tsx
+npm run test -- --run src/api/verifyEmailApi.test.ts src/pages/VerifyEmail.test.tsx src/pages/VerifyEmailPending.test.tsx
 ```
