@@ -29,6 +29,7 @@ import { resolveMediaUrl } from '../utils/mediaUrl';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
 import { getApiErrorMessage } from '../utils/apiError';
 import { notifyRequestsInvalidated } from '../utils/requestEvents';
+import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -330,8 +331,7 @@ const RequestDetail: React.FC = () => {
             setResetKey(prev => prev + 1);
             return;
           }
-          const shortAddress = fullAddress.split(',')[0].trim();
-          setGoogleAddress(shortAddress);
+          setGoogleAddress(streetLineFromGeocode(fullAddress, result as any));
           setTimeout(() => setResetKey(prev => prev + 1), 50);
           return getLatLng(result);
         })
@@ -546,6 +546,8 @@ const RequestDetail: React.FC = () => {
                                 onInputChange: (v, m) => m.action === 'input-change' && setGoogleAddress(v),
                                 onChange: handleGoogleSelect,
                                 placeholder: 'Buscar calle...',
+                                menuPortalTarget: typeof document !== 'undefined' ? document.body : undefined,
+                                menuPosition: 'fixed',
                                 styles: {
                                     container: (base: any) => ({ ...base, width: '100%' }),
                                     control: (base: any) => ({
@@ -557,7 +559,8 @@ const RequestDetail: React.FC = () => {
                                         paddingLeft: 8,
                                         borderRadius: 16,
                                     }),
-                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 200000 }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 200000 }),
                                 },
                             }}
                         />

@@ -783,6 +783,61 @@
     margin-top: 4px;
 }
 
+.profile-phone-save-verify-hint {
+    margin: 6px 4px 0;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: #64748b;
+}
+
+.profile-phone-verify-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.profile-phone-resend-sms {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+    padding: 14px 18px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #4338ca;
+    background: linear-gradient(180deg, #fafaff 0%, #f1f0ff 100%);
+    border: 1.5px solid rgba(79, 70, 229, 0.28);
+    border-radius: 16px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 4px 14px rgba(79, 70, 229, 0.08);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+}
+
+.profile-phone-resend-sms__icon {
+    font-size: 1.15rem;
+    color: #4f46e5;
+    flex-shrink: 0;
+}
+
+.profile-phone-resend-sms:hover {
+    background: linear-gradient(180deg, #f5f3ff 0%, #e8e6ff 100%);
+    border-color: rgba(79, 70, 229, 0.45);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 6px 18px rgba(79, 70, 229, 0.12);
+}
+
+.profile-phone-resend-sms:active {
+    transform: scale(0.985);
+}
+
+.profile-phone-resend-sms:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+}
+
 .profile-verification-link-btn--inline {
     margin-top: 0;
     margin-bottom: 0;

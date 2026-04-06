@@ -256,7 +256,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 | POST | `/users/forgot-password` | Solicitar email de recuperación |
 | POST | `/users/reset-password` | Establecer nueva contraseña con token |
 | POST | `/verify/email` | Verificar email (por token) o reenviar verificación |
-| POST | `/verify/phone/send` | Enviar SMS de verificación de teléfono (`profile: 'client' \| 'professional'`) |
+| POST | `/verify/phone/send` | Enviar SMS de verificación de teléfono (`profile: 'client' \| 'professional'`). En Perfil se llama tras **Guardar cambios** si aplica, o desde **Reenviar SMS** en el modal de código. |
 | POST | `/verify/phone/confirm` | Confirmar SMS (`code`, `profile`) |
 | POST | `/professional_profiles` | Crear perfil profesional |
 | PATCH | `/professional_profiles/{id}` | Actualizar perfil profesional (CIF, bio, skills, zona) |
@@ -393,6 +393,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
 - Botón **"ACEPTAR PRESUPUESTO"** (aceptar la **oferta de un profesional**, no el rango IA) → modal de dirección y confirmación.
 - En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección.
+- En el modal **Dirección exacta**, la calle guardada incluye **número** cuando la geocodificación lo aporta (`streetLineFromGeocode`); el desplegable de sugerencias de Places se renderiza en `document.body` (`menuPortalTarget`) para no quedar tapado por el campo de detalles (piso/puerta).
 
 ### ProRequestDetail (profesional)
 
@@ -442,9 +443,11 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
   - "Datos Personales" → modal con:
     - Datos básicos: nombre, email de acceso (editar email pone `verifiedEmail = false` y muestra botón para reenviar verificación).
     - Teléfonos:
-      - Si existe `clientProfile`: "Teléfono (como cliente) *" + botón "Verificar teléfono" si no está verificado.
-      - Si existe `professionalProfile`: "Teléfono (como profesional) *" + botón "Verificar teléfono" si no está verificado.
-      - Auto-verificación cruzada al guardar: si se edita uno de los teléfonos y coincide (normalizado) con el teléfono del otro perfil que ya estaba verificado, se guarda también como verificado en el perfil editado.
+      - Si existe `clientProfile`: "Teléfono (como cliente) *"; si no está verificado, texto de ayuda: al **Guardar cambios** se puede enviar SMS si hace falta verificación.
+      - Si existe `professionalProfile`: "Teléfono (como profesional) *"; misma lógica de verificación integrada en **Guardar cambios** (no hay botón separado "Verificar teléfono").
+      - Tras guardar, si el número requiere verificación por SMS (no aplica la auto-verificación siguiente), la app llama a `POST /verify/phone/send` y abre el modal de código; el modal incluye **Reenviar SMS** (vuelve a llamar a `send`).
+      - Auto-verificación cruzada al guardar: si se edita uno de los teléfonos y coincide (normalizado) con el teléfono del otro perfil que ya estaba verificado, se guarda también como verificado en el perfil editado **sin** SMS.
+    - Dirección base (profesional): al elegir una sugerencia de Google Places, la línea guardada usa **calle + número** según componentes de geocodificación (`utils/streetLineFromGeocode`), no solo el primer fragmento antes de la coma.
     - Para perfiles profesionales:
       - **Biografía\***, **Dirección base\***, **Especialidades\*** siempre obligatorias.
       - **CIF/NIF\*** obligatorio solo para tier PRO.
@@ -463,7 +466,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 Para minimizar regresiones antes de publicar:
 
 - **Vitest (unit/integration)**:
-  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `getApiErrorMessage`) y flujos sensibles (subidas por ticket en `uploadService`).
+  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `getApiErrorMessage`, `streetLineFromGeocode`) y flujos sensibles (subidas por ticket en `uploadService`).
   - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaThumb`, `MarketOpportunityCard`).
   - Robustez ante crashes con `ErrorBoundary`.
 - **Ionic en tests**:

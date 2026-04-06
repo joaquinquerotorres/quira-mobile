@@ -428,3 +428,44 @@ test('Profile auto-verifies professional phone when matching an already verified
   });
 });
 
+test('Profile calls verify/phone/send after save when client phone changes and SMS is required', async () => {
+  const futureDate = new Date();
+  futureDate.setFullYear(futureDate.getFullYear() + 1);
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    email: 'client@test.com',
+    roles: ['ROLE_CLIENT'],
+    clientProfile: {
+      id: 101,
+      fullName: 'Cliente Solo',
+      phoneNumber: '600000001',
+      verifiedPhone: false,
+      '@id': '/client_profiles/101',
+    },
+    paidThroughAt: futureDate.toISOString(),
+  }));
+  (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: JSON.parse((localStorage as any).getItem('user')) });
+  (api.patch as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} });
+  (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { success: true } });
+
+  render(<Profile />, { wrapper });
+  fireEvent.click(screen.getByText('Datos Personales'));
+
+  await waitFor(() => expect(screen.getByText('GUARDAR CAMBIOS')).toBeInTheDocument());
+  const phoneInputs = screen.getAllByPlaceholderText('600 000 000');
+  fireEvent(phoneInputs[0], new CustomEvent('ionInput', { detail: { value: '600999777' } }));
+  fireEvent.click(screen.getByText('GUARDAR CAMBIOS'));
+
+  await waitFor(() => {
+    expect(api.post).toHaveBeenCalledWith(
+      '/verify/phone/send',
+      { profile: 'client' },
+      expect.any(Object),
+    );
+  });
+
+  await waitFor(() => {
+    expect(screen.getByText('Reenviar SMS')).toBeInTheDocument();
+  });
+});
+

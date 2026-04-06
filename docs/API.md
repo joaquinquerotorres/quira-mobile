@@ -82,6 +82,16 @@ Regla esperada de negocio (servidor): al editar cliente/profesional, si el nuevo
 
 ---
 
+## `POST /verify/phone/send` y `POST /verify/phone/confirm`
+
+Uso en la app (`Profile.tsx`):
+
+- **`/verify/phone/send`**: cuerpo `{ profile: 'client' | 'professional' }`. El backend usa el teléfono ya persistido del perfil indicado.
+- Tras **Guardar cambios** en el modal de datos personales, si el número editado sigue sin estar verificado y no aplica la auto-verificación cruzada (ver tabla anterior), el cliente llama a `send` y abre el modal para introducir el código SMS. El botón **Reenviar SMS** en ese modal vuelve a llamar a `send`.
+- **`/verify/phone/confirm`**: cuerpo `{ code: string, profile: 'client' | 'professional' }`. Si el usuario tiene **cliente + profesional** y ambos números requieren verificación en la misma sesión, primero se completa el código del cliente y luego se puede enviar el SMS del profesional en cadena.
+
+---
+
 ## `PATCH /users/{id}` (sincronización de `fcmToken`)
 
 La app nativa (Android/iOS) pide permisos de push, obtiene token FCM y lo sincroniza en el usuario autenticado.

@@ -20,6 +20,7 @@ import api from '../api/axios';
 import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
+import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
 import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
 import { BecomeProHero, BecomeProTierSelector, BecomeProForm, type BecomeProFormData } from '../components/becomepro';
 import '../components/layout/LogoHeader.css';
@@ -191,7 +192,6 @@ const BecomePro: React.FC = () => {
       setCoords(null);
       return;
     }
-    setFormData((prev) => ({ ...prev, address: value.label }));
     try {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
@@ -208,10 +208,14 @@ const BecomePro: React.FC = () => {
         setCoords(null);
         return;
       }
+      setFormData((prev) => ({
+        ...prev,
+        address: streetLineFromGeocode(value.label, result as any),
+      }));
       const { lat, lng } = await getLatLng(result);
       setCoords({ lat, lng });
     } catch {
-      // noop: si falla geocoding, dejamos solo texto
+      setFormData((prev) => ({ ...prev, address: value.label }));
     }
   };
 
@@ -243,7 +247,10 @@ const BecomePro: React.FC = () => {
             setCoords(null);
             return;
           }
-          setFormData((prev) => ({ ...prev, address: result.formatted_address.replace(', España', '') }));
+          setFormData((prev) => ({
+            ...prev,
+            address: streetLineFromGeocode(result.formatted_address, result),
+          }));
           return;
         }
       }

@@ -121,41 +121,59 @@
       letter-spacing: 0.3px;
     }
     .input-wrap {
-      position: relative;
-    }
-    .input-wrap svg {
-      position: absolute; left: 14px; top: 50%;
-      transform: translateY(-50%);
-      width: 18px; height: 18px;
-      color: var(--soft); pointer-events: none;
-    }
-    input[type="password"] {
+      display: flex;
+      align-items: center;
       width: 100%;
-      padding: 13px 44px 13px 42px;
+      min-height: 48px;
       border: 1.5px solid rgba(79,70,229,0.2);
       border-radius: 12px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem; font-weight: 600;
-      color: var(--dark);
       background: var(--cream);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
-    input[type="password"]:focus {
+    .input-wrap:focus-within {
       border-color: var(--indigo);
       box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
       background: #fff;
     }
-    input[type="password"].error {
+    .input-wrap:has(input.error) {
       border-color: #ef4444;
       box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
     }
+    .input-wrap > svg:first-of-type {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      margin-left: 14px;
+      margin-right: 8px;
+      color: var(--soft); pointer-events: none;
+    }
+    .input-wrap input {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 1%;
+      padding: 13px 8px 13px 0;
+      border: none;
+      border-radius: 0;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark);
+      background: transparent;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .input-wrap input.error {
+      box-shadow: none;
+    }
     .toggle-pw {
-      position: absolute; right: 14px; top: 50%;
-      transform: translateY(-50%);
+      flex-shrink: 0;
+      align-self: stretch;
+      display: flex; align-items: center; justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      margin: 2px 6px 2px 0;
       background: none; border: none; cursor: pointer;
-      color: var(--soft); padding: 2px;
-      display: flex; align-items: center;
+      color: var(--soft); padding: 0;
       transition: color 0.2s;
     }
     .toggle-pw:hover { color: var(--indigo); }

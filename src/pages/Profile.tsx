@@ -16,7 +16,8 @@ import {
   lockClosedOutline,
   eyeOutline,
   eyeOffOutline,
-  mailOutline
+  mailOutline,
+  refreshOutline,
 } from 'ionicons/icons';
 import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import { Geolocation } from '@capacitor/geolocation';
@@ -25,6 +26,7 @@ import { resendVerificationEmail } from '../api/verifyEmailApi';
 import { uploadAvatarWithTicket } from '../services/uploadService';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
+import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
 import './Profile.css';
 import '../components/layout/LogoHeader.css';
 
@@ -117,6 +119,8 @@ const Profile: React.FC = () => {
   const [phoneVerifyProfile, setPhoneVerifyProfile] = useState<'client' | 'professional'>('client');
   const [phoneCode, setPhoneCode] = useState('');
   const [phoneVerifyLoading, setPhoneVerifyLoading] = useState(false);
+  /** Solo cuenta cliente: evita reenviar SMS en cada guardado si el número no cambió (una vez por apertura del editor). */
+  const soloClientSmsSentRef = useRef(false);
 
   // Suscripción cancelada (mostrar hasta fin de periodo + opción reactivar)
   const [subscriptionCancelRequested, setSubscriptionCancelRequested] = useState(false);
@@ -125,6 +129,12 @@ const Profile: React.FC = () => {
     loadUserFromStorage();
     refreshUserFromApi();
   });
+
+  useEffect(() => {
+    if (showEditModal) {
+      soloClientSmsSentRef.current = false;
+    }
+  }, [showEditModal]);
 
   const loadUserFromStorage = () => {
     const userStr = localStorage.getItem('user');
@@ -278,6 +288,51 @@ const Profile: React.FC = () => {
     }
   };
 
+  const sendPhoneVerificationSms = async (
+    profile: 'client' | 'professional',
+    stateUser: typeof user = user
+  ) => {
+    if (!stateUser) return;
+    const phone =
+      profile === 'client'
+        ? stateUser.clientProfile?.phoneNumber
+        : stateUser.professionalProfile?.phoneNumber;
+
+    if (!phone?.trim()) {
+      setToast('Añade primero el teléfono en Datos Personales.');
+      return;
+    }
+
+    try {
+      const res = await api.post(
+        '/verify/phone/send',
+        { profile },
+        { skipAuthRedirect: true }
+      );
+      const data = res?.data as { success?: boolean; skipped?: boolean; reason?: string; message?: string } | undefined;
+
+      if (data?.success && data.skipped && data.reason === 'same_number_already_verified') {
+        const nextUser = { ...stateUser };
+        if (profile === 'client' && nextUser.clientProfile) {
+          nextUser.clientProfile = { ...nextUser.clientProfile, verifiedPhone: true };
+        } else if (profile === 'professional' && nextUser.professionalProfile) {
+          nextUser.professionalProfile = { ...nextUser.professionalProfile, verifiedPhone: true };
+        }
+        setUser(nextUser);
+        localStorage.setItem('user', JSON.stringify(nextUser));
+        setToast(data.message || 'Teléfono ya verificado.');
+        return;
+      }
+
+      setPhoneVerifyProfile(profile);
+      setToast('Te hemos enviado un SMS con un código de verificación (si tu número es válido).');
+      setPhoneCode('');
+      setShowPhoneVerifyModal(true);
+    } catch {
+      setToast('No se pudo iniciar la verificación del teléfono. Inténtalo más tarde.');
+    }
+  };
+
   const handleConfirmPhoneCode = async () => {
     const trimmed = phoneCode.trim();
     if (!trimmed) {
@@ -308,6 +363,15 @@ const Profile: React.FC = () => {
 
       setToast('Teléfono verificado correctamente.');
       setShowPhoneVerifyModal(false);
+
+      if (
+        phoneVerifyProfile === 'client' &&
+        updatedUser.professionalProfile &&
+        !updatedUser.professionalProfile.verifiedPhone &&
+        comparablePhone(updatedUser.professionalProfile.phoneNumber || '').length > 0
+      ) {
+        void sendPhoneVerificationSms('professional', updatedUser);
+      }
     } catch {
       setToast('Código incorrecto o expirado. Inténtalo de nuevo.');
     } finally {
@@ -331,48 +395,6 @@ const Profile: React.FC = () => {
       );
     } catch {
       setToast('No se pudo enviar el correo de verificación. Inténtalo de nuevo más tarde.');
-    }
-  };
-
-  const handleStartPhoneVerification = async (profile: 'client' | 'professional') => {
-    const phone = profile === 'client'
-      ? user?.clientProfile?.phoneNumber
-      : user?.professionalProfile?.phoneNumber;
-
-    if (!phone) {
-      setToast('Añade primero el teléfono en Datos Personales.');
-      return;
-    }
-
-    try {
-      const res = await api.post(
-        '/verify/phone/send',
-        { profile },
-        { skipAuthRedirect: true }
-      );
-      const data = res?.data as { success?: boolean; skipped?: boolean; reason?: string; message?: string } | undefined;
-
-      // Si el backend indica que se ha saltado el envío porque ya estaba verificado (same number),
-      // marcamos directamente como verificado y no mostramos el modal de código.
-      if (data?.success && data.skipped && data.reason === 'same_number_already_verified') {
-        const updatedUser = { ...user! };
-        if (profile === 'client' && updatedUser.clientProfile) {
-          updatedUser.clientProfile = { ...updatedUser.clientProfile, verifiedPhone: true };
-        } else if (profile === 'professional' && updatedUser.professionalProfile) {
-          updatedUser.professionalProfile = { ...updatedUser.professionalProfile, verifiedPhone: true };
-        }
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        setToast(data.message || 'Teléfono ya verificado.');
-        return;
-      }
-
-      setPhoneVerifyProfile(profile);
-      setToast('Te hemos enviado un SMS con un código de verificación (si tu número es válido).');
-      setPhoneCode('');
-      setShowPhoneVerifyModal(true);
-    } catch {
-      setToast('No se pudo iniciar la verificación del teléfono. Inténtalo más tarde.');
     }
   };
 
@@ -533,7 +555,7 @@ const Profile: React.FC = () => {
                  setCoords(null);
                  return;
                }
-               setAddress(result.formatted_address.replace(', España', ''));
+               setAddress(streetLineFromGeocode(result.formatted_address, result));
             }
         } else {
           const fallback = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
@@ -551,7 +573,6 @@ const Profile: React.FC = () => {
 
   const handleAddressSelect = async (value: any) => {
     if (!value) { setAddress(''); setCoords(null); return; }
-    setAddress(value.label);
     try {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
@@ -572,9 +593,13 @@ const Profile: React.FC = () => {
         setCoords(null);
         return;
       }
+      setAddress(streetLineFromGeocode(value.label, result as any));
       const { lat, lng } = await getLatLng(result);
       setCoords({ lat, lng });
-    } catch (error) { console.error("Geocode error", error); }
+    } catch (error) {
+      console.error("Geocode error", error);
+      setAddress(value.label);
+    }
   };
 
   const saveProfile = async () => {
@@ -608,6 +633,23 @@ const Profile: React.FC = () => {
           const emailChanged = trimmedEmail.toLowerCase() !== (user!.email || '').trim().toLowerCase();
           const userId = updatedUser.id;
 
+          const nextClientPhone = clientPhoneNumber.trim();
+          const nextProfessionalPhone = professionalPhoneNumber.trim();
+          const prevClientPhone = user!.clientProfile ? user!.clientProfile.phoneNumber || '' : '';
+          const prevProPhone = user!.professionalProfile ? user!.professionalProfile.phoneNumber || '' : '';
+          const clientPhoneChanged = nextClientPhone !== prevClientPhone;
+          const professionalPhoneChanged = nextProfessionalPhone !== prevProPhone;
+          const shouldAutoVerifyClientPhone =
+            clientPhoneChanged &&
+            Boolean(user!.professionalProfile?.verifiedPhone) &&
+            comparablePhone(nextClientPhone).length > 0 &&
+            comparablePhone(nextClientPhone) === comparablePhone(user!.professionalProfile?.phoneNumber);
+          const shouldAutoVerifyProfessionalPhone =
+            professionalPhoneChanged &&
+            Boolean(user!.clientProfile?.verifiedPhone) &&
+            comparablePhone(nextProfessionalPhone).length > 0 &&
+            comparablePhone(nextProfessionalPhone) === comparablePhone(user!.clientProfile?.phoneNumber);
+
           if (emailChanged) {
             await api.patch(
               `/users/${userId}`,
@@ -620,14 +662,6 @@ const Profile: React.FC = () => {
 
           if (user!.clientProfile) {
               const clientId = typeof user!.clientProfile === 'object' ? user!.clientProfile.id : (user!.clientProfile as string).split('/').pop();
-              const prevClientPhone = user!.clientProfile.phoneNumber || '';
-              const nextClientPhone = clientPhoneNumber.trim();
-              const clientPhoneChanged = nextClientPhone !== prevClientPhone;
-              const shouldAutoVerifyClientPhone =
-                clientPhoneChanged &&
-                Boolean(user!.professionalProfile?.verifiedPhone) &&
-                comparablePhone(nextClientPhone).length > 0 &&
-                comparablePhone(nextClientPhone) === comparablePhone(user!.professionalProfile?.phoneNumber);
               const payloadClient = {
                 fullName,
                 phoneNumber: nextClientPhone,
@@ -642,14 +676,6 @@ const Profile: React.FC = () => {
 
           if (user!.professionalProfile) {
               const proId = typeof user!.professionalProfile === 'object' ? user!.professionalProfile.id : (user!.professionalProfile as string).split('/').pop();
-              const prevProPhone = user!.professionalProfile.phoneNumber || '';
-              const nextProfessionalPhone = professionalPhoneNumber.trim();
-              const professionalPhoneChanged = nextProfessionalPhone !== prevProPhone;
-              const shouldAutoVerifyProfessionalPhone =
-                professionalPhoneChanged &&
-                Boolean(user!.clientProfile?.verifiedPhone) &&
-                comparablePhone(nextProfessionalPhone).length > 0 &&
-                comparablePhone(nextProfessionalPhone) === comparablePhone(user!.clientProfile?.phoneNumber);
               const payloadPro = {
                   fullName, taxId, bio, skills, phoneNumber: nextProfessionalPhone, address,
                   serviceRadiusKm: Number(serviceRadiusKm),
@@ -669,6 +695,33 @@ const Profile: React.FC = () => {
           setShowEditModal(false);
           setModalReady(false);
           googleMap.current = null;
+
+          const clientNeedsSms =
+            !!user!.clientProfile &&
+            !!updatedUser.clientProfile &&
+            !updatedUser.clientProfile.verifiedPhone &&
+            comparablePhone(nextClientPhone).length > 0 &&
+            (
+              (clientPhoneChanged && !shouldAutoVerifyClientPhone) ||
+              (!user!.professionalProfile && !clientPhoneChanged && !soloClientSmsSentRef.current)
+            );
+
+          const proNeedsSms =
+            !!user!.professionalProfile &&
+            !!updatedUser.professionalProfile &&
+            !updatedUser.professionalProfile.verifiedPhone &&
+            comparablePhone(nextProfessionalPhone).length > 0 &&
+            professionalPhoneChanged &&
+            !shouldAutoVerifyProfessionalPhone;
+
+          if (clientNeedsSms) {
+            await sendPhoneVerificationSms('client', updatedUser);
+            if (!user!.professionalProfile && !clientPhoneChanged) {
+              soloClientSmsSentRef.current = true;
+            }
+          } else if (proNeedsSms) {
+            await sendPhoneVerificationSms('professional', updatedUser);
+          }
       } catch (error) {
           const anyErr = error as any;
           const violations = anyErr?.response?.data?.violations as Array<{ propertyPath?: string; message?: string }> | undefined;
@@ -1002,7 +1055,15 @@ const Profile: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="profile-edit-footer">
+              <div className="profile-edit-footer profile-phone-verify-footer">
+                <button
+                  type="button"
+                  className="profile-phone-resend-sms"
+                  onClick={() => sendPhoneVerificationSms(phoneVerifyProfile)}
+                >
+                  <IonIcon icon={refreshOutline} className="profile-phone-resend-sms__icon" aria-hidden />
+                  Reenviar SMS
+                </button>
                 <IonButton
                   className="quira-main-btn profile-edit-save"
                   onClick={handleConfirmPhoneCode}
@@ -1165,15 +1226,9 @@ const Profile: React.FC = () => {
                                     />
                                 </div>
                                 {!user.clientProfile.verifiedPhone && (
-                                  <div className="profile-phone-verify-row">
-                                    <button
-                                      type="button"
-                                      className="profile-verification-link-btn profile-verification-link-btn--inline"
-                                      onClick={() => handleStartPhoneVerification('client')}
-                                    >
-                                      Verificar teléfono
-                                    </button>
-                                  </div>
+                                  <p className="profile-phone-save-verify-hint">
+                                    Al guardar te enviaremos un SMS para verificar el número (si aplica).
+                                  </p>
                                 )}
                             </div>
                         )}
@@ -1198,15 +1253,9 @@ const Profile: React.FC = () => {
                                     />
                                 </div>
                                 {!user.professionalProfile.verifiedPhone && (
-                                  <div className="profile-phone-verify-row">
-                                    <button
-                                      type="button"
-                                      className="profile-verification-link-btn profile-verification-link-btn--inline"
-                                      onClick={() => handleStartPhoneVerification('professional')}
-                                    >
-                                      Verificar teléfono
-                                    </button>
-                                  </div>
+                                  <p className="profile-phone-save-verify-hint">
+                                    Al guardar te enviaremos un SMS para verificar el número (si aplica).
+                                  </p>
                                 )}
                             </div>
                         )}
