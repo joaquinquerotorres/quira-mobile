@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet, useIonViewWillLeave,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import { colorWandOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
@@ -47,6 +48,31 @@ import {
 } from '../utils/videoCompressForPredict';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
+
+const NEW_REQUEST_DRAFT_KEY = 'quira_new_request_draft_v1';
+
+type NewRequestDraftSnapshotV1 = {
+  v: 1;
+  step: 1 | 2;
+  inputMode: 'AUDIO' | 'VIDEO' | 'TEXT';
+  userDescription: string;
+  clientOriginalDescription: string;
+  photoBase64: string | null;
+  audioBase64: string | null;
+  audioDuration: number;
+  videoBase64: string | null;
+  title: string;
+  techDescription: string;
+  category: string;
+  aiRange: { min: number; max: number } | null;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null;
+  desiredExecutionTime: string;
+  address: string;
+  locationLabel: string;
+  coords: { lat: number; lng: number } | null;
+  extraMedia: Array<{ type: 'photo' | 'video' | 'audio'; data: string }>;
+  videoUploadNetworkHint: VideoUploadConnectionHint | null;
+};
 
 const NewRequest: React.FC = () => {
   const router = useIonRouter();
@@ -161,6 +187,75 @@ const NewRequest: React.FC = () => {
     setExtraMedia([]);
     setVideoUploadNetworkHint(null);
   };
+
+  const persistDraftSnapshot = () => {
+    const snapshot: NewRequestDraftSnapshotV1 = {
+      v: 1,
+      step,
+      inputMode,
+      userDescription,
+      clientOriginalDescription,
+      photoBase64,
+      audioBase64,
+      audioDuration,
+      videoBase64,
+      title,
+      techDescription,
+      category,
+      aiRange,
+      riskLevel,
+      desiredExecutionTime,
+      address,
+      locationLabel,
+      coords,
+      extraMedia,
+      videoUploadNetworkHint,
+    };
+    try {
+      sessionStorage.setItem(NEW_REQUEST_DRAFT_KEY, JSON.stringify(snapshot));
+    } catch (e) {
+      if (
+        e instanceof DOMException &&
+        (e.name === 'QuotaExceededError' || e.code === 22)
+      ) {
+        setToast(
+          'No se pudo guardar el borrador automáticamente (demasiado pesado). Si vas a Perfil, podrías perder el borrador.',
+        );
+      }
+    }
+  };
+
+  useIonViewWillEnter(() => {
+    const raw = sessionStorage.getItem(NEW_REQUEST_DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw) as NewRequestDraftSnapshotV1;
+      if (d.v !== 1) return;
+      sessionStorage.removeItem(NEW_REQUEST_DRAFT_KEY);
+      setStep(d.step);
+      setInputMode(d.inputMode);
+      setUserDescription(d.userDescription);
+      setClientOriginalDescription(d.clientOriginalDescription);
+      setPhotoBase64(d.photoBase64);
+      setAudioBase64(d.audioBase64);
+      setAudioDuration(d.audioDuration);
+      setVideoBase64(d.videoBase64);
+      setMediaPickerType(null);
+      setTitle(d.title);
+      setTechDescription(d.techDescription);
+      setCategory(d.category);
+      setAiRange(d.aiRange);
+      setRiskLevel(d.riskLevel);
+      setDesiredExecutionTime(d.desiredExecutionTime);
+      setAddress(d.address);
+      setLocationLabel(d.locationLabel);
+      setCoords(d.coords);
+      setExtraMedia(d.extraMedia);
+      setVideoUploadNetworkHint(d.videoUploadNetworkHint);
+    } catch {
+      sessionStorage.removeItem(NEW_REQUEST_DRAFT_KEY);
+    }
+  });
 
   // Si el usuario abandona la pantalla (tabs, back, navegación), limpiamos el borrador.
   useIonViewWillLeave(() => {
@@ -508,6 +603,20 @@ const NewRequest: React.FC = () => {
         return;
     }
 
+    const verification = getVerificationStatus();
+    if (!verification?.canCreateRequest) {
+      if (!verification?.hasClientPhone) {
+        setToast(
+          'Debes añadir y verificar tu número de teléfono en tu perfil antes de publicar una solicitud.',
+        );
+      } else {
+        setToast(
+          'Debes verificar tu número de teléfono en tu perfil antes de publicar una solicitud.',
+        );
+      }
+      return;
+    }
+
     setLoading(true);
     setLoadingMessage(
       inputMode === 'VIDEO'
@@ -731,6 +840,7 @@ const NewRequest: React.FC = () => {
       } else {
         setToast("Debes verificar tu número de teléfono en tu perfil antes de publicar una solicitud.");
       }
+      persistDraftSnapshot();
       router.push('/profile');
       return;
     }
@@ -817,6 +927,11 @@ const NewRequest: React.FC = () => {
       if (extraVideoUrls.length) payload.extraVideoUrls = extraVideoUrls;
 
       await api.post('/requests', payload);
+      try {
+        sessionStorage.removeItem(NEW_REQUEST_DRAFT_KEY);
+      } catch {
+        /* ignorar */
+      }
       setToast("¡Publicado correctamente!");
       // Navegamos al listado de solicitudes del cliente tras publicar
       setTimeout(() => router.push('/request-list'), 800); 
@@ -825,6 +940,16 @@ const NewRequest: React.FC = () => {
         const msg = (data.violations as Array<{ message?: string }>)?.[0]?.message ?? (data['hydra:description'] as string) ?? (data.detail as string);
         setToast(msg || "Error al guardar.");
     } finally { setLoading(false); }
+  };
+
+  const verificationStatus = getVerificationStatus();
+  const showPhoneVerificationGate = Boolean(
+    verificationStatus && !verificationStatus.canCreateRequest,
+  );
+
+  const goToProfileForPhone = () => {
+    persistDraftSnapshot();
+    router.push('/profile');
   };
 
   return (
@@ -853,6 +978,29 @@ const NewRequest: React.FC = () => {
             {step === 1 && (
                 <div className="animate__animated animate__fadeIn">
                     <NewRequestModeSelector value={inputMode} onChange={handleModeChange} />
+
+                    {showPhoneVerificationGate && (
+                      <div
+                        className="new-request-phone-gate"
+                        role="status"
+                        aria-label="Verificación de teléfono requerida para publicar"
+                      >
+                        <p>
+                          {verificationStatus?.hasClientPhone
+                            ? 'Para publicar solicitudes necesitas verificar tu número de teléfono en Perfil.'
+                            : 'Para publicar solicitudes añade y verifica tu número de teléfono en Perfil.'}
+                        </p>
+                        <IonButton
+                          fill="outline"
+                          size="small"
+                          expand="block"
+                          className="new-request-phone-gate__cta"
+                          onClick={goToProfileForPhone}
+                        >
+                          Ir a Perfil
+                        </IonButton>
+                      </div>
+                    )}
                     
                     {inputMode === 'AUDIO' && (
                         <NewRequestInputAudio

@@ -48,7 +48,7 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 - `getVerificationStatus()` en `hooks/useUserVerification.ts` devuelve:
   - **Cliente**: `hasClientPhone`, `verifiedClientPhone`, `canCreateRequest`.
   - **Profesional**: `hasProPhone`, `verifiedProPhone`, `canBid`.
-- En `NewRequest`: si `!canCreateRequest`, pantalla de bloqueo hasta verificar el teléfono del cliente.
+- En `NewRequest`: si `!canCreateRequest`, se muestra un **aviso en el paso 1** (enlace a Perfil) y **no** se llama a `POST /predict` hasta que el cliente tenga teléfono verificado; al **publicar** en el paso 2 se vuelve a comprobar y, si falta verificación, se guarda un **borrador en `sessionStorage`** antes de ir a Perfil para poder restaurarlo al volver a la pestaña (límite de cuota del navegador si el borrador es muy pesado).
 - En **Mercado** / **ProRequestDetail**: si `!canBid`, se redirige o avisa para completar/verificar el teléfono profesional en perfil.
 
 ---
@@ -430,7 +430,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.
-  - Si el teléfono del cliente no está verificado, se muestra una pantalla de bloqueo que invita a ir a Perfil para verificarlo (no deja crear solicitudes).
+  - Si el teléfono del cliente no está verificado: **banner en el paso 1**, comprobación **antes** de `POST /predict` (no se avanza al paso 2) y comprobación al **publicar** en el paso 2; al ir a Perfil desde esos flujos se intenta **persistir el borrador** en `sessionStorage` y restaurarlo al volver a la vista.
 
 ### Directorio y detalle de profesional
 
@@ -468,6 +468,7 @@ Para minimizar regresiones antes de publicar:
 - **Vitest (unit/integration)**:
   - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `getApiErrorMessage`, `streetLineFromGeocode`) y flujos sensibles (subidas por ticket en `uploadService`).
   - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaThumb`, `MarketOpportunityCard`).
+  - `NewRequest.test.tsx`: verificación de teléfono (banner paso 1, ausencia de `POST /predict` cuando no se puede publicar con datos mínimos rellenos) y avisos de red en modo vídeo; el mock de `react-google-places-autocomplete` en ese archivo sustituye al stub global de `setupTests.ts` para poder simular dirección en Córdoba.
   - Robustez ante crashes con `ErrorBoundary`.
 - **Ionic en tests**:
   - En ciertos tests se stubbean componentes (p. ej. `IonAlert`) o se evita envolver con `IonApp` cuando no es necesario para reducir flakiness y evitar timers internos que pueden causar errores al teardown en `jsdom`.
