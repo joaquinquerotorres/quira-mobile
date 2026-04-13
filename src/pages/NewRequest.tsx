@@ -65,6 +65,7 @@ type NewRequestDraftSnapshotV1 = {
   techDescription: string;
   category: string;
   aiRange: { min: number; max: number } | null;
+  aiDiagnosis: Record<string, unknown> | null;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null;
   desiredExecutionTime: string;
   address: string;
@@ -108,6 +109,7 @@ const NewRequest: React.FC = () => {
   const [techDescription, setTechDescription] = useState('');
   const [category, setCategory] = useState('DIY');
   const [aiRange, setAiRange] = useState<{ min: number; max: number } | null>(null);
+  const [aiDiagnosis, setAiDiagnosis] = useState<Record<string, unknown> | null>(null);
   const [riskLevel, setRiskLevel] = useState<'LOW' | 'MEDIUM' | 'HIGH' | null>(null);
   const [desiredExecutionTime, setDesiredExecutionTime] = useState<string>('Lo antes posible');
 
@@ -179,6 +181,7 @@ const NewRequest: React.FC = () => {
     setTechDescription('');
     setCategory('DIY');
     setAiRange(null);
+    setAiDiagnosis(null);
     setRiskLevel(null);
     setDesiredExecutionTime('Lo antes posible');
     setAddress('');
@@ -203,6 +206,7 @@ const NewRequest: React.FC = () => {
       techDescription,
       category,
       aiRange,
+      aiDiagnosis,
       riskLevel,
       desiredExecutionTime,
       address,
@@ -245,6 +249,7 @@ const NewRequest: React.FC = () => {
       setTechDescription(d.techDescription);
       setCategory(d.category);
       setAiRange(d.aiRange);
+      setAiDiagnosis(d.aiDiagnosis ?? null);
       setRiskLevel(d.riskLevel);
       setDesiredExecutionTime(d.desiredExecutionTime);
       setAddress(d.address);
@@ -739,6 +744,14 @@ const NewRequest: React.FC = () => {
       const safeTitle = String(aiData.title ?? '').trim();
       const safeDescription = String(aiData.description ?? '').trim();
       const safeCategory = String(aiData.category ?? '').trim().toUpperCase();
+      const safeFlagRaw = aiData.safe ?? aiData.is_safe;
+      const isSafe = typeof safeFlagRaw === 'boolean'
+        ? safeFlagRaw
+        : String(safeFlagRaw ?? '').toLowerCase() === 'true';
+      const safetyReasonRaw = aiData.safety_reason ?? aiData.reason ?? null;
+      const safetyReason = typeof safetyReasonRaw === 'string' && safetyReasonRaw.trim() !== ''
+        ? safetyReasonRaw.trim()
+        : null;
       const textSnapshot = inputMode === 'TEXT' ? userDescription.trim() : '';
 
       // Normalizamos para que el formulario siempre quede relleno aunque Gemini devuelva
@@ -765,12 +778,21 @@ const NewRequest: React.FC = () => {
       const minCents = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw)) : 0;
       const maxCents = Number.isFinite(maxCentsRaw) ? Math.max(minCents, Math.round(maxCentsRaw)) : minCents;
       setAiRange({ min: minCents, max: maxCents });
+      setAiDiagnosis({
+        ...aiData,
+        safe: isSafe,
+        safety_reason: safetyReason,
+        estimated_price_min: minCents,
+        estimated_price_max: maxCents,
+      });
       Sentry.addBreadcrumb({
         category: 'predict',
         level: 'info',
         message: 'predict:parsed_ok',
         data: {
           requestId: predictRequestId,
+          safe: isSafe,
+          safetyReason,
           titleFilled: (safeTitle || '').length > 0,
           descriptionFilled: (safeDescription || '').length > 0,
           categoryFilled: (safeCategory || '').length > 0,
@@ -907,7 +929,14 @@ const NewRequest: React.FC = () => {
         address,
         status: 'PENDING',
         locationPoint: { type: 'Point', coordinates: [finalCoords.lng, finalCoords.lat] },
-        aiDiagnosis: aiRange,
+        aiDiagnosis: aiDiagnosis ?? {
+          safe: true,
+          safety_reason: null,
+          estimated_price_min: aiRange.min,
+          estimated_price_max: aiRange.max,
+          min: aiRange.min,
+          max: aiRange.max,
+        },
         estimatedPriceMin: aiRange.min,
         estimatedPriceMax: aiRange.max,
         desiredExecutionTime,
