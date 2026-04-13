@@ -198,7 +198,7 @@ test('NewRequestStep2Form renders clarifying questions and updates answers', () 
   );
 
   expect(screen.getByText('Preguntas de la IA (obligatorias)')).toBeInTheDocument();
-  const input = screen.getByPlaceholderText('Tu respuesta...');
+  const input = screen.getByPlaceholderText('Escribe tu respuesta...');
   fireEvent(input, new CustomEvent('ionInput', { detail: { value: '20 m²' } }));
   expect(onClarifyingAnswerChange).toHaveBeenCalledWith(0, '20 m²');
 });

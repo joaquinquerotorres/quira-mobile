@@ -349,6 +349,9 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                       const handleViewPro = () => proId && onViewProfessional?.(proId);
                       const tier = getBidTier(bid);
                       const tierStyle = TIER_STYLES[tier];
+                      const isRangeBid = bid.pricingType === 'RANGE';
+                      const rangeMin = Number(bid.priceQuoteMin ?? bid.priceQuote ?? 0);
+                      const rangeMax = Number(bid.priceQuoteMax ?? bid.priceQuote ?? rangeMin);
                       return (
                         <div
                           key={bid.id}
@@ -421,7 +424,15 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                               </div>
                             </div>
                             <div style={{ textAlign: 'right', minWidth: '72px' }}>
-                              <div className="bid-price">{bidPriceLabel(bid)}</div>
+                              {isRangeBid && Number.isFinite(rangeMin) && Number.isFinite(rangeMax) ? (
+                                <div className="bid-price bid-price-range">
+                                  <span className="bid-price-range-value">{rangeMin}€</span>
+                                  <span className="bid-price-range-separator">-</span>
+                                  <span className="bid-price-range-value">{rangeMax}€</span>
+                                </div>
+                              ) : (
+                                <div className="bid-price">{bidPriceLabel(bid)}</div>
+                              )}
                             </div>
                           </div>
                           {bid.comment && (

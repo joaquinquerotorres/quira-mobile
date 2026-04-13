@@ -36,6 +36,8 @@ interface NewRequestStep2FormProps {
   clientOriginalDescription?: string;
   /** Rango estimado por la IA para el servicio en la zona (solo lectura). */
   aiRange: { min: number; max: number } | null;
+  /** Diagnóstico IA completo (para reglas de visualización como VISIT_REQUIRED). */
+  aiDiagnosis?: Record<string, unknown> | null;
   /** Nivel de riesgo estimado por la IA (no modificable por el usuario) */
   riskLevel?: RiskLevel;
   /** Disponibilidad preferida para realizar el trabajo (sin fecha exacta) */
@@ -81,6 +83,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   techDescription,
   clientOriginalDescription = '',
   aiRange,
+  aiDiagnosis = null,
   riskLevel,
   desiredExecutionTime,
   photoBase64,
@@ -102,6 +105,10 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
 }) => {
   const [pickerType, setPickerType] = useState<'photo' | 'video' | 'audio' | null>(null);
   const [isRecordingExtraAudio, setIsRecordingExtraAudio] = useState(false);
+  const pricingType = String(
+    aiDiagnosis?.pricing_type ?? aiDiagnosis?.pricingType ?? '',
+  ).toUpperCase();
+  const isVisitRequiredPricing = pricingType === 'VISIT_REQUIRED';
 
   const RISK_LABELS: Record<RiskLevel, { label: string; bg: string; color: string }> = {
     LOW: { label: 'Bajo', bg: '#ecfdf5', color: '#166534' },
@@ -361,13 +368,15 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
               {formatRequestPriceRangeEuros({
                 estimatedPriceMin: aiRange.min,
                 estimatedPriceMax: aiRange.max,
-                aiDiagnosis: undefined,
+                aiDiagnosis: aiDiagnosis ?? undefined,
               })}
             </div>
-            <p className="step2-price-range-hint">
-              Estimación orientativa para servicios similares en tu zona; no incluye desplazamiento ni
-              materiales/piezas.
-            </p>
+            {!isVisitRequiredPricing && (
+              <p className="step2-price-range-hint">
+                Estimación orientativa para servicios similares en tu zona; no incluye desplazamiento ni
+                materiales/piezas.
+              </p>
+            )}
           </>
         ) : (
           <p className="step2-price-range-hint" style={{ marginBottom: 0 }}>
@@ -377,30 +386,32 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       </div>
 
       {clarifyingQuestions.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <IonLabel className="section-label">Preguntas de la IA (obligatorias)</IonLabel>
-          <p
-            style={{
-              marginTop: 8,
-              marginBottom: 12,
-              fontSize: '0.86rem',
-              color: '#475569',
-              lineHeight: 1.4,
-            }}
-          >
+        <div className="clarifying-block">
+          <div className="clarifying-block-header">
+            <IonLabel className="section-label clarifying-title">Preguntas de la IA (obligatorias)</IonLabel>
+            <span className="clarifying-count">
+              {clarifyingAnswers.filter((a) => a.trim() !== '').length}/{clarifyingQuestions.length}
+            </span>
+          </div>
+          <p className="clarifying-subtitle">
             Para mejorar el diagnóstico y el precio, responde todas antes de publicar.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="clarifying-list">
             {clarifyingQuestions.map((question, index) => (
-              <div key={`${index}-${question}`} className="input-wrapper textarea-wrapper">
-                <div style={{ marginBottom: 6, fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
-                  {question}
+              <div key={`${index}-${question}`} className="clarifying-item">
+                <div className="clarifying-question-row">
+                  <span className="clarifying-question-index">{index + 1}</span>
+                  <div className="clarifying-question-text">
+                    {question}
+                  </div>
                 </div>
-                <IonInput
-                  value={clarifyingAnswers[index] ?? ''}
-                  placeholder="Tu respuesta..."
-                  onIonInput={(e) => onClarifyingAnswerChange(index, e.detail.value ?? '')}
-                />
+                <div className="input-wrapper clarifying-input-wrap">
+                  <IonInput
+                    value={clarifyingAnswers[index] ?? ''}
+                    placeholder="Escribe tu respuesta..."
+                    onIonInput={(e) => onClarifyingAnswerChange(index, e.detail.value ?? '')}
+                  />
+                </div>
               </div>
             ))}
           </div>

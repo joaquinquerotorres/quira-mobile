@@ -1149,6 +1149,7 @@ const NewRequest: React.FC = () => {
                     category={category}
                     onCategoryChange={setCategory}
                     aiRange={aiRange}
+                    aiDiagnosis={aiDiagnosis}
                     riskLevel={riskLevel || undefined}
                     desiredExecutionTime={desiredExecutionTime}
                     photoBase64={photoBase64}

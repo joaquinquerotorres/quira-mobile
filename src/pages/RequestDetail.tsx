@@ -428,8 +428,7 @@ const RequestDetail: React.FC = () => {
       if (isAssigned) {
           return { text: request.preciseAddress || request.address, icon: navigateOutline, isReal: true, label: 'Dirección Exacta' };
       } else {
-          const parts = request.address.split(',');
-          const approx = parts.length > 1 ? parts.slice(1).join(',').trim() : "Zona de servicio";
+          const approx = request.address?.trim() || 'Zona de servicio';
           return { text: `Zona: ${approx}`, icon: lockClosedOutline, isReal: false, label: 'Ubicación Aproximada' };
       }
   };

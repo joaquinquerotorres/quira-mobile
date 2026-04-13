@@ -9,8 +9,14 @@ import type { ServiceRequest } from '../types';
  */
 export type RequestPriceRangeInput = Pick<
   ServiceRequest,
-  'estimatedPriceMin' | 'estimatedPriceMax' | 'aiDiagnosis'
+  'estimatedPriceMin' | 'estimatedPriceMax' | 'aiDiagnosis' | 'pricingType'
 >;
+
+function resolvePricingType(r: RequestPriceRangeInput): string {
+  const diag = r.aiDiagnosis as { pricing_type?: string; pricingType?: string } | undefined;
+  const raw = r.pricingType ?? diag?.pricing_type ?? diag?.pricingType ?? '';
+  return String(raw).toUpperCase();
+}
 
 /**
  * Obtiene min/max en euros (UI) a partir de min/max en céntimos (contrato backend).
@@ -42,6 +48,10 @@ export function getRequestPriceRangeEuros(r: RequestPriceRangeInput): {
 
 /** Texto compacto para UI (listados, badges). */
 export function formatRequestPriceRangeEuros(r: RequestPriceRangeInput): string {
+  if (resolvePricingType(r) === 'VISIT_REQUIRED') {
+    return 'Requiere visita de valoración';
+  }
+
   const rng = getRequestPriceRangeEuros(r);
   if (!rng) return '—';
   return `${rng.min}€ - ${rng.max}€`;

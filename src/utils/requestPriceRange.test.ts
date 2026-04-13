@@ -44,4 +44,15 @@ describe('requestPriceRange', () => {
       }),
     ).toBe(50);
   });
+
+  it('shows visit message when pricing requires visit', () => {
+    expect(
+      formatRequestPriceRangeEuros({
+        estimatedPriceMin: 0,
+        estimatedPriceMax: 0,
+        pricingType: 'VISIT_REQUIRED',
+        aiDiagnosis: undefined,
+      }),
+    ).toBe('Requiere visita de valoración');
+  });
 });

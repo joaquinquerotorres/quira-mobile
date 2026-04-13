@@ -516,51 +516,76 @@ const ProRequestDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <IonLabel className="section-label">Tipo de propuesta</IonLabel>
-                    <div className="input-wrapper">
-                      <IonSelect
-                        interface="action-sheet"
-                        value={bidPricingType}
-                        onIonChange={(e) => setBidPricingType(e.detail.value as 'FIXED' | 'RANGE')}
-                      >
-                        {allowedBidPricingTypes.includes('FIXED') && (
-                          <IonSelectOption value="FIXED">Precio fijo</IonSelectOption>
-                        )}
-                        {allowedBidPricingTypes.includes('RANGE') && (
-                          <IonSelectOption value="RANGE">Rango de precio</IonSelectOption>
-                        )}
-                      </IonSelect>
-                    </div>
+                    {allowedBidPricingTypes.length > 1 && (
+                      <>
+                        <IonLabel className="section-label">Tipo de propuesta</IonLabel>
+                        <div className="input-wrapper">
+                          <IonSelect
+                            interface="action-sheet"
+                            value={bidPricingType}
+                            onIonChange={(e) => setBidPricingType(e.detail.value as 'FIXED' | 'RANGE')}
+                          >
+                            {allowedBidPricingTypes.includes('FIXED') && (
+                              <IonSelectOption value="FIXED">Precio fijo</IonSelectOption>
+                            )}
+                            {allowedBidPricingTypes.includes('RANGE') && (
+                              <IonSelectOption value="RANGE">Rango de precio</IonSelectOption>
+                            )}
+                          </IonSelect>
+                        </div>
+                      </>
+                    )}
 
                     {bidPricingType === 'FIXED' ? (
                       <>
                         <IonLabel className="section-label">Tu Oferta Económica (€)</IonLabel>
-                        <div className="input-wrapper">
-                          <IonInput
-                            type="number"
-                            value={bidPrice}
-                            onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))}
-                          />
+                        <div className="price-fixed-card">
+                          <div className="price-fixed-hint">Indica el precio cerrado que ofreces por el trabajo.</div>
+                          <div className="price-fixed-field">
+                            <div className="price-fixed-label">Precio fijo</div>
+                            <div className="price-fixed-input-wrap">
+                              <span className="price-fixed-currency">€</span>
+                              <IonInput
+                                type="number"
+                                value={bidPrice}
+                                placeholder="100"
+                                onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </>
                     ) : (
                       <>
                         <IonLabel className="section-label">Rango de precio (€)</IonLabel>
-                        <div className="input-wrapper" style={{ marginBottom: 8 }}>
-                          <IonInput
-                            type="number"
-                            value={bidPriceMin}
-                            placeholder="Mínimo"
-                            onIonInput={e => setBidPriceMin(parseInt(e.detail.value!, 10))}
-                          />
-                        </div>
-                        <div className="input-wrapper">
-                          <IonInput
-                            type="number"
-                            value={bidPriceMax}
-                            placeholder="Máximo"
-                            onIonInput={e => setBidPriceMax(parseInt(e.detail.value!, 10))}
-                          />
+                        <div className="price-range-card">
+                          <div className="price-range-hint">Define una horquilla realista para el cliente.</div>
+                          <div className="price-range-grid">
+                            <div className="price-range-field">
+                              <div className="price-range-label">Precio mínimo</div>
+                              <div className="price-range-input-wrap">
+                                <span className="price-range-currency">€</span>
+                                <IonInput
+                                  type="number"
+                                  value={bidPriceMin}
+                                  placeholder="80"
+                                  onIonInput={e => setBidPriceMin(parseInt(e.detail.value!, 10))}
+                                />
+                              </div>
+                            </div>
+                            <div className="price-range-field">
+                              <div className="price-range-label">Precio máximo</div>
+                              <div className="price-range-input-wrap">
+                                <span className="price-range-currency">€</span>
+                                <IonInput
+                                  type="number"
+                                  value={bidPriceMax}
+                                  placeholder="120"
+                                  onIonInput={e => setBidPriceMax(parseInt(e.detail.value!, 10))}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </>
                     )}
