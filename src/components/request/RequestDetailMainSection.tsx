@@ -20,6 +20,7 @@ import {
 } from 'ionicons/icons';
 import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { bidPriceLabel } from '../../utils/bidPriceLabel';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
 import {
   formatRequestPriceRangeEuros,
@@ -420,7 +421,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                               </div>
                             </div>
                             <div style={{ textAlign: 'right', minWidth: '72px' }}>
-                              <div className="bid-price">{bid.priceQuote}€</div>
+                              <div className="bid-price">{bidPriceLabel(bid)}</div>
                             </div>
                           </div>
                           {bid.comment && (

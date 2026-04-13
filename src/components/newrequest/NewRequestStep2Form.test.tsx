@@ -25,6 +25,9 @@ test('NewRequestStep2Form muestra el texto original del cliente cuando viene inf
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={[]}
+      clarifyingAnswers={[]}
+      onClarifyingAnswerChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper },
@@ -53,6 +56,9 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={[]}
+      clarifyingAnswers={[]}
+      onClarifyingAnswerChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper }
@@ -85,6 +91,9 @@ test('NewRequestStep2Form shows schedule options', () => {
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={[]}
+      clarifyingAnswers={[]}
+      onClarifyingAnswerChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper }
@@ -114,6 +123,9 @@ test('NewRequestStep2Form calls onSubmit when button clicked', () => {
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={[]}
+      clarifyingAnswers={[]}
+      onClarifyingAnswerChange={vi.fn()}
       onSubmit={onSubmit}
     />,
     { wrapper }
@@ -142,6 +154,9 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
       onTitleChange={vi.fn()}
       onTechDescriptionChange={vi.fn()}
       onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={[]}
+      clarifyingAnswers={[]}
+      onClarifyingAnswerChange={vi.fn()}
       onSubmit={vi.fn()}
     />,
     { wrapper }
@@ -151,4 +166,39 @@ test('NewRequestStep2Form shows optional media section with helper text', () => 
   expect(screen.getByText('Foto')).toBeInTheDocument();
   expect(screen.getByText('Vídeo')).toBeInTheDocument();
   expect(screen.getByText('Audio')).toBeInTheDocument();
+});
+
+test('NewRequestStep2Form renders clarifying questions and updates answers', () => {
+  const onClarifyingAnswerChange = vi.fn();
+  render(
+    <NewRequestStep2Form
+      title=""
+      techDescription=""
+      category="DIY"
+      onCategoryChange={vi.fn()}
+      aiRange={{ min: 1000, max: 2000 }}
+      riskLevel={undefined}
+      desiredExecutionTime="Lo antes posible"
+      photoBase64={null}
+      audioBase64={null}
+      videoBase64={null}
+      extraMedia={[]}
+      maxExtraMedia={3}
+      onAddExtraMedia={vi.fn()}
+      onRemoveExtraMedia={vi.fn()}
+      onTitleChange={vi.fn()}
+      onTechDescriptionChange={vi.fn()}
+      onDesiredExecutionTimeChange={vi.fn()}
+      clarifyingQuestions={['¿De cuántos m² hablamos?']}
+      clarifyingAnswers={['']}
+      onClarifyingAnswerChange={onClarifyingAnswerChange}
+      onSubmit={vi.fn()}
+    />,
+    { wrapper }
+  );
+
+  expect(screen.getByText('Preguntas de la IA (obligatorias)')).toBeInTheDocument();
+  const input = screen.getByPlaceholderText('Tu respuesta...');
+  fireEvent(input, new CustomEvent('ionInput', { detail: { value: '20 m²' } }));
+  expect(onClarifyingAnswerChange).toHaveBeenCalledWith(0, '20 m²');
 });

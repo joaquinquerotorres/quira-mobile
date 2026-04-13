@@ -52,6 +52,9 @@ interface NewRequestStep2FormProps {
   onTitleChange: (value: string) => void;
   onTechDescriptionChange: (value: string) => void;
   onDesiredExecutionTimeChange: (value: string) => void;
+  clarifyingQuestions: string[];
+  clarifyingAnswers: string[];
+  onClarifyingAnswerChange: (index: number, value: string) => void;
   onSubmit: () => void;
 }
 
@@ -92,6 +95,9 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   onTitleChange,
   onTechDescriptionChange,
   onDesiredExecutionTimeChange,
+  clarifyingQuestions,
+  clarifyingAnswers,
+  onClarifyingAnswerChange,
   onSubmit,
 }) => {
   const [pickerType, setPickerType] = useState<'photo' | 'video' | 'audio' | null>(null);
@@ -369,6 +375,37 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           </p>
         )}
       </div>
+
+      {clarifyingQuestions.length > 0 && (
+        <div style={{ marginBottom: '20px' }}>
+          <IonLabel className="section-label">Preguntas de la IA (obligatorias)</IonLabel>
+          <p
+            style={{
+              marginTop: 8,
+              marginBottom: 12,
+              fontSize: '0.86rem',
+              color: '#475569',
+              lineHeight: 1.4,
+            }}
+          >
+            Para mejorar el diagnóstico y el precio, responde todas antes de publicar.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {clarifyingQuestions.map((question, index) => (
+              <div key={`${index}-${question}`} className="input-wrapper textarea-wrapper">
+                <div style={{ marginBottom: 6, fontWeight: 600, color: '#0f172a', fontSize: '0.9rem' }}>
+                  {question}
+                </div>
+                <IonInput
+                  value={clarifyingAnswers[index] ?? ''}
+                  placeholder="Tu respuesta..."
+                  onIonInput={(e) => onClarifyingAnswerChange(index, e.detail.value ?? '')}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
 
     <div className="schedule-card">

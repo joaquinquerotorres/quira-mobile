@@ -80,7 +80,10 @@ export interface User {
 export interface Bid {
   '@id': string;
   id: number;
+  pricingType?: 'FIXED' | 'RANGE';
   priceQuote: number;
+  priceQuoteMin?: number | null;
+  priceQuoteMax?: number | null;
   comment?: string;
   /** Texto libre del backend para cuándo se estima realizar el trabajo */
   estimatedExecutionTime?: string | null;
@@ -137,6 +140,7 @@ export interface ServiceRequest {
   locationPoint: LocationPoint;
   createdAt: string;
   aiDiagnosis?: Record<string, any>; 
+  pricingType?: 'FIXED' | 'RANGE' | 'VISIT_REQUIRED' | null;
   client: ClientProfile;
   /** Profesional asignado; el teléfono de contacto viene en assignedProfessional.phoneNumber */
   assignedProfessional?: ProfessionalProfile;

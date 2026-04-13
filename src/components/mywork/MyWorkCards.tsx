@@ -11,6 +11,7 @@ import { Bid, ServiceRequest } from '../../types';
 import { RequestMediaThumb } from '../shared/RequestMediaThumb';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
+import { bidPriceLabel } from '../../utils/bidPriceLabel';
 
 interface CategoryStyle {
   label: string;
@@ -114,7 +115,7 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
         )}
       </div>
       <div className="mw-card-right">
-        <span className="mw-price">{bid.priceQuote}€</span>
+        <span className="mw-price">{bidPriceLabel(bid)}</span>
         <span className="mw-price-label">TU PROPUESTA</span>
         <div className="arrow-box">
           <IonIcon icon={arrowForwardOutline} />

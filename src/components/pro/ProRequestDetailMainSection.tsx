@@ -24,6 +24,7 @@ import {
   formatRequestPriceRangeEuros,
   getRequestPriceRangeEuros,
 } from '../../utils/requestPriceRange';
+import { bidPriceLabel } from '../../utils/bidPriceLabel';
 
 interface ProRequestDetailMainSectionProps {
   request: ServiceRequest;
@@ -55,6 +56,7 @@ interface ProRequestDetailMainSectionProps {
   visitRequest?: VisitRequest;
   onRequestVisit?: () => void;
   isRequestingVisit?: boolean;
+  canRequestVisitByPricing?: boolean;
 }
 
 export const ProRequestDetailMainSection: React.FC<
@@ -88,6 +90,7 @@ export const ProRequestDetailMainSection: React.FC<
   visitRequest,
   onRequestVisit,
   isRequestingVisit,
+  canRequestVisitByPricing = false,
 }) => {
   const CATEGORY_LABELS: Record<Category, string> = {
     DIY: 'Manitas',
@@ -397,8 +400,8 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
         )}
 
-      {/* VISITA DE VALORACIÓN: solo HIGH + PENDING; userTier PRO implica suscripción vigente (paidThroughAt futuro), alineado con API */}
-      {userTier === 'PRO' && isHighRisk && request.status === 'PENDING' && (
+      {/* VISITA DE VALORACIÓN: disponible cuando el diagnóstico marca pricing_type=VISIT_REQUIRED */}
+      {canRequestVisitByPricing && request.status === 'PENDING' && (
           <div
             style={{
               marginTop: '14px',
@@ -571,7 +574,7 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
           <div className="bid-row">
             <span>Tu Precio:</span>
-            <strong>{myBid.priceQuote}€</strong>
+            <strong>{bidPriceLabel(myBid)}</strong>
           </div>
           {myBid.estimatedExecutionTime && (
             <div

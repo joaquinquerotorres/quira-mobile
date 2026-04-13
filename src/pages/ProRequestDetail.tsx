@@ -58,7 +58,10 @@ const ProRequestDetail: React.FC = () => {
 
   // --- ESTADOS PUJA ---
   const [showBidModal, setShowBidModal] = useState(false);
+  const [bidPricingType, setBidPricingType] = useState<'FIXED' | 'RANGE'>('FIXED');
   const [bidPrice, setBidPrice] = useState<number | undefined>(undefined);
+  const [bidPriceMin, setBidPriceMin] = useState<number | undefined>(undefined);
+  const [bidPriceMax, setBidPriceMax] = useState<number | undefined>(undefined);
   const [bidComment, setBidComment] = useState('');
   const [bidEstimatedExecutionTime, setBidEstimatedExecutionTime] = useState<string>('');
   const [submittingBid, setSubmittingBid] = useState(false);
@@ -178,6 +181,22 @@ const ProRequestDetail: React.FC = () => {
   const isWinner = (request?.status === 'ACCEPTED' || request?.status === 'COMPLETED') && myProfileId !== null && assignedProId === myProfileId;
   const isCompleted = request?.status === 'COMPLETED';
   const isHighRisk = request?.riskLevel === 'HIGH';
+  const requestPricingType = String(
+    request?.pricingType ??
+    request?.aiDiagnosis?.pricing_type ??
+    request?.aiDiagnosis?.pricingType ??
+    ''
+  ).toUpperCase();
+  const allowedBidPricingTypes: Array<'FIXED' | 'RANGE'> =
+    requestPricingType === 'FIXED'
+      ? ['FIXED']
+      : requestPricingType === 'RANGE'
+        ? ['RANGE']
+        : ['FIXED', 'RANGE'];
+  const pricingType = String(
+    request?.aiDiagnosis?.pricing_type ?? request?.aiDiagnosis?.pricingType ?? ''
+  ).toUpperCase();
+  const canRequestVisitByPricing = pricingType === 'VISIT_REQUIRED';
   
   // REGLA: Si es High Risk (alta dificultad), SOLO los PRO pueden enviar propuestas.
   // Los Solver y Free pueden ver (si llegan aquí), pero no ofertar.
@@ -244,9 +263,20 @@ const ProRequestDetail: React.FC = () => {
   };
 
   const submitBid = async () => {
-      if (!bidPrice) {
-          setToast("Debes indicar un precio.");
-          return;
+      if (bidPricingType === 'FIXED') {
+        if (!bidPrice || bidPrice <= 0) {
+            setToast("Debes indicar un precio fijo.");
+            return;
+        }
+      } else {
+        if (!bidPriceMin || !bidPriceMax || bidPriceMin <= 0 || bidPriceMax <= 0) {
+            setToast('Debes indicar un rango válido (mínimo y máximo).');
+            return;
+        }
+        if (bidPriceMax < bidPriceMin) {
+            setToast('El máximo debe ser mayor o igual que el mínimo.');
+            return;
+        }
       }
       if (!bidEstimatedExecutionTime) {
           setToast("Debes indicar cuándo estimas poder realizar el trabajo.");
@@ -254,13 +284,20 @@ const ProRequestDetail: React.FC = () => {
       }
       setSubmittingBid(true);
       try {
-          const payload = {
+          const payload: Record<string, unknown> = {
               request: request?.['@id'] || `/api/requests/${id}`,
-              priceQuote: Number(bidPrice),
+              pricingType: bidPricingType,
               comment: bidComment,
               estimatedExecutionTime: bidEstimatedExecutionTime,
               status: 'PENDING'
           };
+          if (bidPricingType === 'FIXED') {
+            payload.priceQuote = Number(bidPrice);
+          } else {
+            payload.priceQuoteMin = Number(bidPriceMin);
+            payload.priceQuoteMax = Number(bidPriceMax);
+            payload.priceQuote = Number(bidPriceMin);
+          }
           await api.post('/bids', payload);
           setToast("¡Oferta enviada con éxito!");
           setShowBidModal(false);
@@ -319,7 +356,12 @@ const ProRequestDetail: React.FC = () => {
           router.push('/profile');
           return;
       }
-      setBidPrice(request ? suggestedBidPriceEuros(request) : undefined);
+      const defaultType = allowedBidPricingTypes[0] ?? 'FIXED';
+      const suggested = request ? suggestedBidPriceEuros(request) : undefined;
+      setBidPricingType(defaultType);
+      setBidPrice(suggested);
+      setBidPriceMin(suggested);
+      setBidPriceMax(suggested);
       setBidComment('');
       setBidEstimatedExecutionTime('');
       setShowBidModal(true);
@@ -431,6 +473,7 @@ const ProRequestDetail: React.FC = () => {
               newQuestion={newQuestion}
               visitRequest={request.visitRequests?.[0]}
               isRequestingVisit={visitLoading}
+              canRequestVisitByPricing={canRequestVisitByPricing}
               hasActiveBid={!!myActiveBid}
               canCancelBid={
                 !!myActiveBid &&
@@ -473,14 +516,54 @@ const ProRequestDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <IonLabel className="section-label">Tu Oferta Económica (€)</IonLabel>
+                    <IonLabel className="section-label">Tipo de propuesta</IonLabel>
                     <div className="input-wrapper">
-                        <IonInput 
-                            type="number" 
-                            value={bidPrice} 
-                            onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))} 
-                        />
+                      <IonSelect
+                        interface="action-sheet"
+                        value={bidPricingType}
+                        onIonChange={(e) => setBidPricingType(e.detail.value as 'FIXED' | 'RANGE')}
+                      >
+                        {allowedBidPricingTypes.includes('FIXED') && (
+                          <IonSelectOption value="FIXED">Precio fijo</IonSelectOption>
+                        )}
+                        {allowedBidPricingTypes.includes('RANGE') && (
+                          <IonSelectOption value="RANGE">Rango de precio</IonSelectOption>
+                        )}
+                      </IonSelect>
                     </div>
+
+                    {bidPricingType === 'FIXED' ? (
+                      <>
+                        <IonLabel className="section-label">Tu Oferta Económica (€)</IonLabel>
+                        <div className="input-wrapper">
+                          <IonInput
+                            type="number"
+                            value={bidPrice}
+                            onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <IonLabel className="section-label">Rango de precio (€)</IonLabel>
+                        <div className="input-wrapper" style={{ marginBottom: 8 }}>
+                          <IonInput
+                            type="number"
+                            value={bidPriceMin}
+                            placeholder="Mínimo"
+                            onIonInput={e => setBidPriceMin(parseInt(e.detail.value!, 10))}
+                          />
+                        </div>
+                        <div className="input-wrapper">
+                          <IonInput
+                            type="number"
+                            value={bidPriceMax}
+                            placeholder="Máximo"
+                            onIonInput={e => setBidPriceMax(parseInt(e.detail.value!, 10))}
+                          />
+                        </div>
+                      </>
+                    )}
 
                     <IonLabel className="section-label" style={{marginTop:'15px'}}>Cuándo podrías realizar el trabajo</IonLabel>
                     <div className="input-wrapper">

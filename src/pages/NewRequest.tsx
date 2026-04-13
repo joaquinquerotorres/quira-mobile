@@ -66,6 +66,8 @@ type NewRequestDraftSnapshotV1 = {
   category: string;
   aiRange: { min: number; max: number } | null;
   aiDiagnosis: Record<string, unknown> | null;
+  clarifyingQuestions: string[];
+  clarifyingAnswers: string[];
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null;
   desiredExecutionTime: string;
   address: string;
@@ -110,6 +112,8 @@ const NewRequest: React.FC = () => {
   const [category, setCategory] = useState('DIY');
   const [aiRange, setAiRange] = useState<{ min: number; max: number } | null>(null);
   const [aiDiagnosis, setAiDiagnosis] = useState<Record<string, unknown> | null>(null);
+  const [clarifyingQuestions, setClarifyingQuestions] = useState<string[]>([]);
+  const [clarifyingAnswers, setClarifyingAnswers] = useState<string[]>([]);
   const [riskLevel, setRiskLevel] = useState<'LOW' | 'MEDIUM' | 'HIGH' | null>(null);
   const [desiredExecutionTime, setDesiredExecutionTime] = useState<string>('Lo antes posible');
 
@@ -182,6 +186,8 @@ const NewRequest: React.FC = () => {
     setCategory('DIY');
     setAiRange(null);
     setAiDiagnosis(null);
+    setClarifyingQuestions([]);
+    setClarifyingAnswers([]);
     setRiskLevel(null);
     setDesiredExecutionTime('Lo antes posible');
     setAddress('');
@@ -207,6 +213,8 @@ const NewRequest: React.FC = () => {
       category,
       aiRange,
       aiDiagnosis,
+      clarifyingQuestions,
+      clarifyingAnswers,
       riskLevel,
       desiredExecutionTime,
       address,
@@ -250,6 +258,8 @@ const NewRequest: React.FC = () => {
       setCategory(d.category);
       setAiRange(d.aiRange);
       setAiDiagnosis(d.aiDiagnosis ?? null);
+      setClarifyingQuestions(Array.isArray(d.clarifyingQuestions) ? d.clarifyingQuestions : []);
+      setClarifyingAnswers(Array.isArray(d.clarifyingAnswers) ? d.clarifyingAnswers : []);
       setRiskLevel(d.riskLevel);
       setDesiredExecutionTime(d.desiredExecutionTime);
       setAddress(d.address);
@@ -777,6 +787,12 @@ const NewRequest: React.FC = () => {
       const maxCentsRaw = Number(aiData.estimated_price_max ?? aiData.estimatedPriceMax ?? 0);
       const minCents = Number.isFinite(minCentsRaw) ? Math.max(0, Math.round(minCentsRaw)) : 0;
       const maxCents = Number.isFinite(maxCentsRaw) ? Math.max(minCents, Math.round(maxCentsRaw)) : minCents;
+      const aiClarifyingQuestions = Array.isArray(aiData.clarifying_questions)
+        ? aiData.clarifying_questions
+            .filter((q): q is string => typeof q === 'string' && q.trim() !== '')
+            .map((q) => q.trim())
+            .slice(0, 3)
+        : [];
       setAiRange({ min: minCents, max: maxCents });
       setAiDiagnosis({
         ...aiData,
@@ -784,7 +800,10 @@ const NewRequest: React.FC = () => {
         safety_reason: safetyReason,
         estimated_price_min: minCents,
         estimated_price_max: maxCents,
+        clarifying_questions: aiClarifyingQuestions,
       });
+      setClarifyingQuestions(aiClarifyingQuestions);
+      setClarifyingAnswers(aiClarifyingQuestions.map(() => ''));
       Sentry.addBreadcrumb({
         category: 'predict',
         level: 'info',
@@ -798,6 +817,7 @@ const NewRequest: React.FC = () => {
           categoryFilled: (safeCategory || '').length > 0,
           minCents,
           maxCents,
+          clarifyingQuestionsCount: aiClarifyingQuestions.length,
         },
       });
       
@@ -874,6 +894,16 @@ const NewRequest: React.FC = () => {
       setToast('No hay estimación de precio para tu zona. Vuelve al paso anterior y analiza de nuevo.');
       return;
     }
+    if (clarifyingQuestions.length > 0) {
+      const hasMissingAnswer = clarifyingQuestions.some((_, idx) => {
+        const answer = clarifyingAnswers[idx] ?? '';
+        return answer.trim() === '';
+      });
+      if (hasMissingAnswer) {
+        setToast('Responde todas las preguntas de la IA antes de publicar.');
+        return;
+      }
+    }
     
     let finalCoords: { lat: number; lng: number };
     if (!coords && address) {
@@ -922,9 +952,22 @@ const NewRequest: React.FC = () => {
         }
       }
 
+      const descriptionWithClarifications = (() => {
+        if (clarifyingQuestions.length === 0) {
+          return techDescription;
+        }
+
+        const lines = clarifyingQuestions.map((question, idx) => {
+          const answer = (clarifyingAnswers[idx] ?? '').trim();
+          return `- ${question}: ${answer}`;
+        });
+
+        return `${techDescription}\n\nAclaraciones del cliente:\n${lines.join('\n')}`;
+      })();
+
       const payload: Record<string, unknown> = {
         title,
-        description: techDescription,
+        description: descriptionWithClarifications,
         category,
         address,
         status: 'PENDING',
@@ -934,6 +977,7 @@ const NewRequest: React.FC = () => {
           safety_reason: null,
           estimated_price_min: aiRange.min,
           estimated_price_max: aiRange.max,
+          clarifying_questions: clarifyingQuestions,
           min: aiRange.min,
           max: aiRange.max,
         },
@@ -947,6 +991,10 @@ const NewRequest: React.FC = () => {
       if (riskLevel) {
         // El backend persiste este campo como risk_level en base de datos
         (payload as any).riskLevel = riskLevel;
+      }
+      if (clarifyingQuestions.length > 0) {
+        (payload.aiDiagnosis as Record<string, unknown>).clarifying_questions = clarifyingQuestions;
+        (payload.aiDiagnosis as Record<string, unknown>).clarifying_answers = clarifyingAnswers.map((a) => a.trim());
       }
       if (photoUrl) payload.photoUrl = photoUrl;
       if (audioUrl) payload.audioUrl = audioUrl;
@@ -1113,6 +1161,15 @@ const NewRequest: React.FC = () => {
                     onTitleChange={setTitle}
                     onTechDescriptionChange={setTechDescription}
                     onDesiredExecutionTimeChange={setDesiredExecutionTime}
+                    clarifyingQuestions={clarifyingQuestions}
+                    clarifyingAnswers={clarifyingAnswers}
+                    onClarifyingAnswerChange={(index, value) => {
+                      setClarifyingAnswers((prev) => {
+                        const next = [...prev];
+                        next[index] = value;
+                        return next;
+                      });
+                    }}
                     onSubmit={handleSubmit}
                 />
             )}
