@@ -431,7 +431,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                                   <span className="bid-price-range-value">{rangeMax}€</span>
                                 </div>
                               ) : (
-                                <div className="bid-price">{bidPriceLabel(bid)}</div>
+                                <div className="bid-price bid-price-fixed-pill">{bidPriceLabel(bid)}</div>
                               )}
                             </div>
                           </div>

@@ -219,6 +219,22 @@ export const ProRequestDetailMainSection: React.FC<
               </div>
             </div>
           </div>
+          {visitRequest?.status === 'ACCEPTED' && (
+            <div
+              style={{
+                marginTop: '10px',
+                padding: '8px 10px',
+                borderRadius: '10px',
+                background: '#ecfdf5',
+                border: '1px solid #bbf7d0',
+                color: '#065f46',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+              }}
+            >
+              Visita aceptada: ya puedes contactar por teléfono.
+            </div>
+          )}
           {(isWinner || (visitRequest?.status === 'ACCEPTED' && request.client.phoneNumber)) && (
             <IonButton
               expand="block"
@@ -502,7 +518,7 @@ export const ProRequestDetailMainSection: React.FC<
                 >
                   <div style={{ fontWeight: 700, marginBottom: 2 }}>Visita de valoración aceptada</div>
                   <div>
-                    El cliente ha aceptado tu visita. Ya puedes ponerte en contacto con él y usar la dirección exacta mostrada en el detalle.
+                    El cliente ha aceptado tu visita. Ya puedes ponerte en contacto con él.
                   </div>
                 </div>
                 <div
