@@ -445,14 +445,14 @@
     </div>
     <div id="steps-client" class="steps-grid">
       <div class="step-card"><div class="step-num">01</div><div class="step-icon">🎙️</div><div class="step-title">Describe tu problema</div><div class="step-desc">Manda un audio, graba un vídeo o escribe un texto. Sin formularios. Sin tecnicismos. Tú explica, la IA lo entiende.</div></div>
-      <div class="step-card"><div class="step-num">02</div><div class="step-icon">✨</div><div class="step-title">La IA genera tu anuncio</div><div class="step-desc">Quira crea automáticamente el título, descripción, categoría, precio estimado y dificultad. Solo indica tu zona aproximada, tu dirección real queda privada.</div></div>
-      <div class="step-card"><div class="step-num">03</div><div class="step-icon">📬</div><div class="step-title">Recibe propuestas</div><div class="step-desc">Los profesionales de tu zona aceptan tu precio o te hacen una contraoferta. Pueden preguntarte dudas antes de comprometerse.</div></div>
+      <div class="step-card"><div class="step-num">02</div><div class="step-icon">✨</div><div class="step-title">La IA genera tu anuncio</div><div class="step-desc">Quira crea automáticamente el título, descripción, categoría, tipo de precio (fijo o rango) y dificultad. Solo indica tu zona aproximada, tu dirección real queda privada.</div></div>
+      <div class="step-card"><div class="step-num">03</div><div class="step-icon">📬</div><div class="step-title">Recibe propuestas</div><div class="step-desc">Los profesionales de tu zona aceptan tu precio o te hacen una contraoferta. Pueden preguntarte dudas y, si está habilitado por el sistema, solicitar visita antes de comprometerse.</div></div>
       <div class="step-card"><div class="step-num">04</div><div class="step-icon">🏠</div><div class="step-title">Acepta y comparte tu dirección</div><div class="step-desc">Una vez aceptada la propuesta, compartes tu dirección exacta con el profesional. Valora el trabajo al finalizar con estrellas y opinión.</div></div>
     </div>
     <div id="steps-pro" class="steps-grid" style="display:none;">
       <div class="step-card"><div class="step-num">01</div><div class="step-icon">📲</div><div class="step-title">Activa tu perfil</div><div class="step-desc">Regístrate, elige tu plan, indica tu zona y especialidades. Tu perfil muestra tu bio, foto, trabajos realizados y reviews de clientes.</div></div>
       <div class="step-card"><div class="step-num">02</div><div class="step-icon">🔔</div><div class="step-title">Recibe solicitudes</div><div class="step-desc">Te llegan notificaciones de solicitudes en tu zona y categoría. Por correo en el plan Free; notificaciones push en tiempo real en Solver y Pro.</div></div>
-      <div class="step-card"><div class="step-num">03</div><div class="step-icon">💬</div><div class="step-title">Pregunta, acepta o contraoferta</div><div class="step-desc">Resuelve dudas con el cliente antes de comprometerte. Acepta el precio, propón el tuyo, o pide una visita previa si el trabajo es de alta dificultad.</div></div>
+      <div class="step-card"><div class="step-num">03</div><div class="step-icon">💬</div><div class="step-title">Pregunta, acepta o contraoferta</div><div class="step-desc">Resuelve dudas con el cliente antes de comprometerte. Acepta el precio, propón el tuyo, o solicita visita cuando esté habilitada por el sistema.</div></div>
       <div class="step-card"><div class="step-num">04</div><div class="step-icon">⭐</div><div class="step-title">Finaliza y crece</div><div class="step-desc">Completa el trabajo, recibe la valoración del cliente y, como profesional, también puedes dejar tu opinión sobre el cliente.</div></div>
     </div>
   </div>
@@ -464,7 +464,7 @@
   <h2 class="section-title">Todo lo que necesitas,<br>sin complicaciones</h2>
   <p class="section-desc">Diseñado para que cliente y profesional tengan la mejor experiencia desde el minuto uno.</p>
   <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon icon-indigo">🤖</div><div class="feature-title">Anuncios generados por IA</div><div class="feature-desc">Habla, graba o escribe. Quira genera el título, descripción, categoría y rango de precio. La dificultad también la determina la IA para asignar al profesional adecuado.</div></div>
+    <div class="feature-card"><div class="feature-icon icon-indigo">🤖</div><div class="feature-title">Anuncios generados por IA</div><div class="feature-desc">Habla, graba o escribe. Quira genera el título, descripción, categoría y tipo de precio (fijo o rango). La dificultad también la determina la IA para asignar al profesional adecuado.</div></div>
     <div class="feature-card"><div class="feature-icon icon-orange">🔒</div><div class="feature-title">Tu dirección, siempre privada</div><div class="feature-desc">Solo indicas tu zona aproximada al publicar. Tu dirección exacta solo se comparte una vez que el trabajo es aceptado, nunca antes.</div></div>
     <div class="feature-card"><div class="feature-icon icon-dark">💬</div><div class="feature-title">Preguntas antes de comprometerse</div><div class="feature-desc">Como en los mejores marketplaces, los profesionales pueden resolver dudas con el cliente antes de aceptar o hacer una contraoferta. Sin prisas, sin malentendidos.</div></div>
     <div class="feature-card"><div class="feature-icon icon-indigo">📋</div><div class="feature-title">Solicitudes bien estructuradas</div><div class="feature-desc">Cada anuncio tiene título, descripción, categoría, precio y dificultad. La dificultad determina qué tipo de profesional puede verlo y responder.</div></div>
@@ -499,7 +499,7 @@
         </div>
         <div class="field-row">
           <div class="field-icon">💶</div>
-          <div><div class="field-name">Precio</div><div class="field-desc">La IA estima un rango habitual. Tú eliges el precio final dentro de ese rango.</div></div>
+          <div><div class="field-name">Precio</div><div class="field-desc">Según el tipo de trabajo y la configuración activa, puede mostrarse como precio fijo o como rango estimado.</div></div>
         </div>
         <div class="field-row">
           <div class="field-icon">🎯</div>
@@ -527,7 +527,7 @@
         <div class="diff-card diff-high">
           <div class="diff-info">
             <div class="diff-label">🔴 Alta</div>
-            <div class="diff-desc">Solo profesionales Pro pueden verlos y responder. Para trabajos de alta dificultad, el profesional puede solicitar una visita previa sin coste antes de aceptar o contraofertar.</div>
+            <div class="diff-desc">Solo profesionales Pro pueden verlos y responder. Además, cuando esté habilitado por el backend, se podrá solicitar visita previa antes de aceptar o contraofertar.</div>
           </div>
         </div>
       </div>
@@ -639,7 +639,7 @@
         <li class="pricing-feature">Notificaciones push en tiempo real</li>
         <li class="pricing-feature">Contraofertas ilimitadas</li>
         <li class="pricing-feature">Solicitudes de dificultad baja y media</li>
-        <li class="pricing-feature">Ver solicitudes de alta dificultad</li>
+        <li class="pricing-feature">Ver solicitudes de alta dificultad pero sin poder dar una contraoferta</li>
         <li class="pricing-feature">Prioridad en los listados por encima de los Free</li>
         <li class="pricing-feature">Perfil público con bio y reviews</li>
         <li class="pricing-feature">Dejar reviews sobre los clientes</li>
@@ -658,7 +658,6 @@
         <li class="pricing-feature">Notificaciones push en tiempo real</li>
         <li class="pricing-feature">Contraofertas ilimitadas</li>
         <li class="pricing-feature">Acceso a solicitudes de alta dificultad</li>
-        <li class="pricing-feature">Visita previa gratuita en trabajos difíciles</li>
         <li class="pricing-feature">Prioridad en los listados por encima de los Solver y Free</li>
         <li class="pricing-feature">Perfil Pro verificado con CIF</li>
         <li class="pricing-feature">Perfil público con bio y reviews</li>
