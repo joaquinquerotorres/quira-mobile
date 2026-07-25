@@ -19,6 +19,9 @@ import { ServiceRequest } from '../types';
 import './ProRequestDetail.css'; 
 import { ProRequestDetailMedia } from '../components/pro/ProRequestDetailMedia';
 import { ProRequestDetailMainSection } from '../components/pro/ProRequestDetailMainSection';
+import CalendarEventFormModal from '../components/calendar/CalendarEventFormModal';
+import type { CalendarEvent } from '../types';
+import { getCalendarEventForRequest } from '../api/calendarEventsApi';
 
 import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
@@ -77,6 +80,10 @@ const ProRequestDetail: React.FC = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [visitLoading, setVisitLoading] = useState(false);
+  const [calendarEvent, setCalendarEvent] = useState<CalendarEvent | null>(null);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [calendarFormMode, setCalendarFormMode] = useState<'create' | 'edit'>('create');
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -179,6 +186,28 @@ const ProRequestDetail: React.FC = () => {
   const targetId = extractId(request?.client?.user); 
 
   const isWinner = (request?.status === 'ACCEPTED' || request?.status === 'COMPLETED') && myProfileId !== null && assignedProId === myProfileId;
+
+  useEffect(() => {
+    if (!isWinner || !request?.id) {
+      setCalendarEvent(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setCalendarLoading(true);
+      try {
+        const ev = await getCalendarEventForRequest(request.id);
+        if (!cancelled) setCalendarEvent(ev);
+      } catch {
+        if (!cancelled) setCalendarEvent(null);
+      } finally {
+        if (!cancelled) setCalendarLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isWinner, request?.id]);
   const isCompleted = request?.status === 'COMPLETED';
   const isHighRisk = request?.riskLevel === 'HIGH';
   const requestPricingType = String(
@@ -491,8 +520,35 @@ const ProRequestDetail: React.FC = () => {
               onAskQuestion={handleAskQuestion}
               onChangeQuestion={(value) => setNewQuestion(value)}
               onRequestVisit={handleRequestVisit}
+              calendarEventId={calendarEvent?.id ?? null}
+              calendarLoading={calendarLoading}
+              onAddToCalendar={() => {
+                setCalendarFormMode('create');
+                setShowCalendarModal(true);
+              }}
+              onEditCalendar={() => {
+                setCalendarFormMode('edit');
+                setShowCalendarModal(true);
+              }}
             />
         </div>
+
+        <CalendarEventFormModal
+          isOpen={showCalendarModal}
+          onDidDismiss={() => setShowCalendarModal(false)}
+          mode={calendarFormMode}
+          lockedRequest={request}
+          event={calendarEvent}
+          onSaved={(ev) => {
+            setCalendarEvent(ev);
+            setToast(
+              calendarFormMode === 'edit'
+                ? 'Calendario actualizado.'
+                : 'Trabajo añadido al calendario.',
+            );
+          }}
+          onError={(msg) => setToast(msg)}
+        />
 
         {/* MODAL BID */}
         <IonModal isOpen={showBidModal} onDidDismiss={() => setShowBidModal(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]} className="bid-modal-content">

@@ -347,6 +347,25 @@ ion-datetime::part(time-button active) {
     box-sizing: border-box;
 }
 
+.quira-tabbar--hidden {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.quira-tabbar ion-tab-button.quira-tab-hidden {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden;
+    pointer-events: none;
+}
+
 .plt-android .quira-tabbar {
     min-height: 56px;
 }

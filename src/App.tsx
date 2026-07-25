@@ -16,7 +16,8 @@ import {
   hammerOutline, 
   personOutline, 
   briefcaseOutline, 
-  addCircleOutline 
+  addCircleOutline,
+  calendarOutline,
 } from 'ionicons/icons';
 
 import RequestList from './pages/RequestList';
@@ -33,12 +34,19 @@ import BecomePro from './pages/BecomePro';
 import NewRequest from './pages/NewRequest';
 import RequestDetail from './pages/RequestDetail';
 import ProRequestDetail from './pages/ProRequestDetail';
+import ProCalendar from './pages/ProCalendar';
+import ChooseMode from './pages/ChooseMode';
 import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
 import NotificationSettings from './pages/NotificationSettings';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { initAnalytics, logEvent } from './services/analytics';
 import { syncPushTokenForCurrentUser } from './services/pushNotifications';
+import {
+  getEffectiveActiveMode,
+  hasProfessionalProfile,
+  readStoredUser,
+} from './utils/activeMode';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -56,6 +64,15 @@ import './theme/inputs.css';
 
 setupIonicReact();
 
+function isProShellPath(pathname: string): boolean {
+  return (
+    pathname === '/my-work' ||
+    pathname === '/market' ||
+    pathname === '/pro/calendar' ||
+    pathname.startsWith('/pro/')
+  );
+}
+
 const MainTabs: React.FC = () => {
   
   const location = useLocation();
@@ -68,6 +85,7 @@ const MainTabs: React.FC = () => {
     '/reset-password',
     '/register', 
     '/become-pro', 
+    '/choose-mode',
     '/profile/notifications',
     '/' // En la raíz para evitar flash antes del redirect
   ];
@@ -78,17 +96,13 @@ const MainTabs: React.FC = () => {
     hideTabBarPaths.includes(location.pathname) || 
     location.pathname.startsWith('/directory/'); // Oculta tabs en el detalle del pro
 
-  const userStr = localStorage.getItem('user');
-  let isPro = false;
-  
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      isPro = user.roles?.includes('ROLE_PRO') || !!user.professionalProfile; 
-    } catch (e) {
-      console.error("Error parsing user", e);
-    }
-  }
+  const user = readStoredUser();
+  const activeMode = getEffectiveActiveMode();
+  // Tabs pro si el modo es pro, o si la ruta actual es del shell profesional
+  // (evita tab bar vacía cuando la URL no coincide con ningún botón visible).
+  const showProTabs =
+    hasProfessionalProfile(user) &&
+    (activeMode === 'pro' || isProShellPath(location.pathname));
 
   return (
     <>
@@ -112,6 +126,9 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/register">
           <Register />
+        </Route>
+        <Route exact path="/choose-mode">
+          <ChooseMode />
         </Route>
         <Route exact path="/new-request">
           <NewRequest />
@@ -149,52 +166,67 @@ const MainTabs: React.FC = () => {
         <Route exact path="/my-work">
           <MyWork />
         </Route>
+        <Route exact path="/pro/calendar">
+          <ProCalendar />
+        </Route>
         <Route exact path="/">
           <Redirect to="/login" />
         </Route>
       </IonRouterOutlet>
 
-      {/* 4. Renderizado Condicional de la Barra */}
-      {/* Solo mostramos IonTabBar si NO estamos en las páginas de login/registro/detalle */}
-      {!shouldHideTabBar && (
-        <IonTabBar slot="bottom" className="quira-tabbar">
-          
-          {/* TAB 1: INICIO */}
-          <IonTabButton tab="requestList" href="/request-list">
-            <IonIcon aria-hidden="true" icon={homeOutline} />
-            <IonLabel>Inicio</IonLabel>
-          </IonTabButton>
+      {/* Mantener IonTabBar siempre montado: desmontarlo rompe Ionic en el navegador.
+          Los botones de ambos modos existen; se ocultan con CSS según el modo. */}
+      <IonTabBar
+        slot="bottom"
+        className={`quira-tabbar${shouldHideTabBar ? ' quira-tabbar--hidden' : ''}`}
+      >
+        <IonTabButton
+          tab="requestList"
+          href="/request-list"
+          className={showProTabs ? 'quira-tab-hidden' : undefined}
+        >
+          <IonIcon aria-hidden="true" icon={homeOutline} />
+          <IonLabel>Inicio</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="new-request"
+          href="/new-request"
+          className={showProTabs ? 'quira-tab-hidden quira-tab-pedir' : 'quira-tab-pedir'}
+        >
+          <IonIcon aria-hidden="true" icon={addCircleOutline} />
+          <IonLabel>Pedir</IonLabel>
+        </IonTabButton>
 
-          {/* TAB 2: MERCADO (Solo PRO) */}
-          {isPro && (
-            <IonTabButton tab="market" href="/market">
-              <IonIcon aria-hidden="true" icon={hammerOutline} />
-              <IonLabel>Mercado</IonLabel>
-            </IonTabButton>
-          )}
+        <IonTabButton
+          tab="my-work"
+          href="/my-work"
+          className={showProTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={briefcaseOutline} />
+          <IonLabel>Gestión</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="market"
+          href="/market"
+          className={showProTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={hammerOutline} />
+          <IonLabel>Mercado</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="pro-calendar"
+          href="/pro/calendar"
+          className={showProTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={calendarOutline} />
+          <IonLabel>Calendario</IonLabel>
+        </IonTabButton>
 
-          {/* BOTÓN CENTRAL: PEDIR (icono grande pero sin margin extra: evita recortar la etiqueta) */}
-          <IonTabButton tab="new-request" href="/new-request" className="quira-tab-pedir">
-            <IonIcon aria-hidden="true" icon={addCircleOutline} />
-            <IonLabel>Pedir</IonLabel>
-          </IonTabButton>
-
-          {/* TAB 4: GESTIÓN (Solo PRO) */}
-          {isPro && (
-            <IonTabButton tab="my-work" href="/my-work">
-              <IonIcon aria-hidden="true" icon={briefcaseOutline} />
-              <IonLabel>Gestión</IonLabel>
-            </IonTabButton>
-          )}
-
-          {/* TAB 3: PERFIL */}
-          <IonTabButton tab="profile" href="/profile">
-            <IonIcon aria-hidden="true" icon={personOutline} />
-            <IonLabel>Perfil</IonLabel>
-          </IonTabButton>
-
-        </IonTabBar>
-      )}
+        <IonTabButton tab="profile" href="/profile">
+          <IonIcon aria-hidden="true" icon={personOutline} />
+          <IonLabel>Perfil</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
     </IonTabs>
     </>
   );

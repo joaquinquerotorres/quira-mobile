@@ -27,7 +27,9 @@ import { uploadAvatarWithTicket } from '../services/uploadService';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
+import { getEffectiveActiveMode, hasProfessionalProfile } from '../utils/activeMode';
 import './Profile.css';
+import { LogoHeader } from '../components/layout/LogoHeader';
 import '../components/layout/LogoHeader.css';
 
 import { env } from '../config/env';
@@ -142,9 +144,10 @@ const Profile: React.FC = () => {
         const parsedUser = JSON.parse(userStr);
         setUser(parsedUser);
         const tier = getEffectiveTier(parsedUser);
-        const isProfessional = Boolean(parsedUser.professionalProfile);
-        setCurrentTier(tier);
-        setIsPro(isProfessional);
+        const viewingAsPro =
+          getEffectiveActiveMode() === 'pro' && hasProfessionalProfile(parsedUser);
+        setCurrentTier(viewingAsPro ? tier : 'CLIENT');
+        setIsPro(viewingAsPro);
         const paidIso = resolvePaidThroughAt(parsedUser);
         const paidThrough = paidIso ? new Date(paidIso) : null;
         const periodExpired = paidThrough != null && paidThrough <= new Date();
@@ -605,8 +608,8 @@ const Profile: React.FC = () => {
   const saveProfile = async () => {
       if (!fullName.trim()) { setToast("El nombre es obligatorio"); return; }
       if (!email.trim()) { setToast("El email es obligatorio."); return; }
-      if (user?.clientProfile && !clientPhoneNumber.trim()) { setToast("El teléfono de cliente es obligatorio."); return; }
-      if (user?.professionalProfile && !professionalPhoneNumber.trim()) { setToast("El teléfono de profesional es obligatorio."); return; }
+      if (!isPro && user?.clientProfile && !clientPhoneNumber.trim()) { setToast("El teléfono de cliente es obligatorio."); return; }
+      if (isPro && user?.professionalProfile && !professionalPhoneNumber.trim()) { setToast("El teléfono de profesional es obligatorio."); return; }
       if (isPro && user?.professionalProfile) {
         if (!bio.trim()) {
           setToast("La biografía es obligatoria para perfil profesional.");
@@ -660,7 +663,7 @@ const Profile: React.FC = () => {
             updatedUser.verifiedEmail = false;
           }
 
-          if (user!.clientProfile) {
+          if (!isPro && user!.clientProfile) {
               const clientId = typeof user!.clientProfile === 'object' ? user!.clientProfile.id : (user!.clientProfile as string).split('/').pop();
               const payloadClient = {
                 fullName,
@@ -674,7 +677,7 @@ const Profile: React.FC = () => {
               }
           }
 
-          if (user!.professionalProfile) {
+          if (isPro && user!.professionalProfile) {
               const proId = typeof user!.professionalProfile === 'object' ? user!.professionalProfile.id : (user!.professionalProfile as string).split('/').pop();
               const payloadPro = {
                   fullName, taxId, bio, skills, phoneNumber: nextProfessionalPhone, address,
@@ -697,6 +700,7 @@ const Profile: React.FC = () => {
           googleMap.current = null;
 
           const clientNeedsSms =
+            !isPro &&
             !!user!.clientProfile &&
             !!updatedUser.clientProfile &&
             !updatedUser.clientProfile.verifiedPhone &&
@@ -707,6 +711,7 @@ const Profile: React.FC = () => {
             );
 
           const proNeedsSms =
+            isPro &&
             !!user!.professionalProfile &&
             !!updatedUser.professionalProfile &&
             !updatedUser.professionalProfile.verifiedPhone &&
@@ -776,25 +781,15 @@ const Profile: React.FC = () => {
 
   const subscriptionEndIso = user ? resolvePaidThroughAt(user) : null;
   const showTrialExpiredBanner = Boolean(
-    user &&
+    isPro &&
+      user &&
       ((subscriptionEndIso != null && new Date(subscriptionEndIso) < new Date()) ||
         isDowngradedDueToExpiredPayment(user)),
   );
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border profile-header-toolbar">
-        <IonToolbar color="primary" style={{ '--padding-top': '10px' }}>
-            <IonTitle className="ion-text-center">
-                <div className="brand-container">
-                  <span className="brand-text-main">Qu</span>
-                  <span className="brand-text-secondary">i</span>
-                  <span className="brand-text-main">r</span>
-                  <span className="brand-text-secondary">a</span>
-                </div>
-            </IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <LogoHeader />
 
       <IonContent fullscreen style={{'--background': '#f8fafc'}}>
         
@@ -842,19 +837,11 @@ const Profile: React.FC = () => {
         <div className="profile-section-title">Tu Actividad</div>
         <div className="profile-menu-card">
             {isPro ? (
-              <>
-                <IonItem lines="none" detail={false} button onClick={openHistoryPro} className="menu-item">
-                    <div slot="start" className="icon-box icon-blue"><IonIcon icon={hammerOutline} /></div>
-                    <IonLabel className="item-label">Trabajos que he completado</IonLabel>
-                    <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
-                </IonItem>
-                <div className="menu-separator"></div>
-                <IonItem lines="none" detail={false} button onClick={openHistoryAsClient} className="menu-item">
-                    <div slot="start" className="icon-box icon-blue"><IonIcon icon={receiptOutline} /></div>
-                    <IonLabel className="item-label">Trabajos que me han hecho</IonLabel>
-                    <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
-                </IonItem>
-              </>
+              <IonItem lines="none" detail={false} button onClick={openHistoryPro} className="menu-item">
+                  <div slot="start" className="icon-box icon-blue"><IonIcon icon={hammerOutline} /></div>
+                  <IonLabel className="item-label">Trabajos que he completado</IonLabel>
+                  <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
+              </IonItem>
             ) : (
               <IonItem lines="none" detail={false} button onClick={openHistoryAsClient} className="menu-item">
                   <div slot="start" className="icon-box icon-blue"><IonIcon icon={receiptOutline} /></div>
@@ -960,7 +947,7 @@ const Profile: React.FC = () => {
                 <IonLabel className="item-label">Privacidad y datos (RGPD)</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
             </IonItem>
-            {!isPro && (
+            {!isPro && !hasProfessionalProfile(user) && (
                 <>
                     <div className="menu-separator"></div>
                     <IonItem lines="none" detail={false} button routerLink="/become-pro" className="menu-item">
@@ -1140,7 +1127,7 @@ const Profile: React.FC = () => {
             <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
                 <div className="profile-edit-hero animate__animated animate__fadeIn">
                     <h2>Editar Perfil</h2>
-                    <p>Tus datos personales y profesionales</p>
+                    <p>Tus datos</p>
                 </div>
 
                 <div className="profile-edit-content profile-edit-content-main">
@@ -1205,10 +1192,10 @@ const Profile: React.FC = () => {
                             )}
                         </div>
 
-                        {user?.clientProfile && (
+                        {!isPro && user?.clientProfile && (
                             <div className="profile-edit-section">
                                 <IonLabel className="profile-edit-label">
-                                    {user?.professionalProfile ? 'Teléfono (como cliente) *' : 'Teléfono de contacto *'}
+                                    Teléfono de contacto *
                                     {user.clientProfile.verifiedPhone && (
                                       <IonIcon
                                         icon={checkmarkCircle}
@@ -1232,10 +1219,10 @@ const Profile: React.FC = () => {
                                 )}
                             </div>
                         )}
-                        {user?.professionalProfile && (
+                        {isPro && user?.professionalProfile && (
                             <div className="profile-edit-section">
                                 <IonLabel className="profile-edit-label">
-                                    {user?.clientProfile ? 'Teléfono (como profesional) *' : 'Teléfono de contacto *'}
+                                    Teléfono de contacto *
                                     {user.professionalProfile.verifiedPhone && (
                                       <IonIcon
                                         icon={checkmarkCircle}

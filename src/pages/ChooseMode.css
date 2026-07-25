@@ -1,0 +1,115 @@
+.choose-mode-content {
+  --background: linear-gradient(165deg, #1e1b4b 0%, #312e81 45%, #1e293b 100%);
+}
+
+.choose-mode-wrap {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 24px 48px;
+  box-sizing: border-box;
+}
+
+.choose-mode-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-bottom: 28px;
+}
+
+.choose-mode-brand-main {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.choose-mode-brand-accent {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #f97316;
+  letter-spacing: -0.5px;
+}
+
+.choose-mode-title {
+  margin: 0 0 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.choose-mode-subtitle {
+  margin: 0 0 28px;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  max-width: 28rem;
+}
+
+.choose-mode-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.choose-mode-card:active {
+  transform: scale(0.98);
+}
+
+.choose-mode-card--client:hover,
+.choose-mode-card--pro:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.choose-mode-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(249, 115, 22, 0.2);
+  color: #fdba74;
+}
+
+.choose-mode-card--client .choose-mode-card-icon {
+  background: rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+}
+
+.choose-mode-card-icon ion-icon {
+  font-size: 1.45rem;
+}
+
+.choose-mode-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.choose-mode-card-text strong {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.choose-mode-card-text span {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}

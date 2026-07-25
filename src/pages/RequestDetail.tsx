@@ -354,13 +354,10 @@ const RequestDetail: React.FC = () => {
 
       setActionLoading(true);
       try {
-          const bid = request?.bids.find(b => b.id === selectedBidId);
-          const proIri = bid?.professional?.professionalProfile?.['@id'];
-
-          const payload: any = {
+          // 1) Guardar dirección exacta manteniendo la request PENDING.
+          // 2) Aceptar la oferta ( BidAcceptanceProcessor pasa a ACCEPTED y asigna al pro ).
+          const payload: Record<string, unknown> = {
               preciseAddress: finalPreciseAddress,
-              status: 'ACCEPTED',
-              assignedProfessional: proIri
           };
 
           if (newCoords) {
@@ -373,8 +370,14 @@ const RequestDetail: React.FC = () => {
           setToast("¡Profesional contratado!");
           setShowAddressModal(false);
           fetchDetail();
-      } catch (error) {
-          setToast("Error al procesar la contratación.");
+      } catch (error: any) {
+          const msg =
+            error?.response?.data?.['hydra:description'] ||
+            error?.response?.data?.detail ||
+            error?.response?.data?.message ||
+            error?.response?.data?.violations?.[0]?.message ||
+            'Error al procesar la contratación.';
+          setToast(msg);
       } finally {
           setActionLoading(false);
       }

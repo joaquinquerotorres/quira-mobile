@@ -198,3 +198,72 @@ test('RequestDetail cancels request with DELETE /requests/{id}/cancel', async ()
     expect(api.delete).toHaveBeenCalledWith('/requests/1/cancel');
   });
 });
+
+test('RequestDetail hire confirms address first then accepts bid without setting ACCEPTED early', async () => {
+  const pendingWithBid = {
+    id: 1,
+    title: 'Arreglo grifo',
+    status: 'PENDING',
+    assignedProfessional: null,
+    address: 'Calle Test 1, Córdoba',
+    bids: [
+      {
+        id: 7,
+        status: 'PENDING',
+        priceQuote: 8000,
+        professional: {
+          '@id': '/api/users/2',
+          professionalProfile: {
+            id: 3,
+            '@id': '/api/professional_profiles/3',
+            fullName: 'Pro Test',
+          },
+        },
+      },
+    ],
+    client: { fullName: 'Cliente' },
+    estimatedPriceMin: 7000,
+    estimatedPriceMax: 9000,
+    description: 'Grifo que gotea',
+    riskLevel: 'LOW',
+    category: 'PLUMBING',
+    locationPoint: { type: 'Point', coordinates: [-4.77, 37.88] },
+    createdAt: '2024-01-01',
+    questions: [],
+  };
+  vi.mocked(api.get).mockResolvedValue({ data: pendingWithBid });
+  vi.mocked(api.patch).mockResolvedValue({ data: {} });
+
+  render(<Route path="/request/:id" component={RequestDetail} />, {
+    wrapper: ({ children }) => (
+      <MemoryRouter initialEntries={['/request/1']}>
+        <IonApp>{children}</IonApp>
+      </MemoryRouter>
+    ),
+  });
+
+  await waitFor(() => {
+    expect(screen.getByText('ACEPTAR PRESUPUESTO')).toBeInTheDocument();
+  });
+
+  fireEvent.click(screen.getByText('ACEPTAR PRESUPUESTO'));
+
+  await waitFor(() => {
+    expect(screen.getByText('CONFIRMAR Y CONTRATAR')).toBeInTheDocument();
+  });
+
+  fireEvent.click(screen.getByText('CONFIRMAR Y CONTRATAR'));
+
+  await waitFor(() => {
+    expect(api.patch).toHaveBeenCalled();
+  });
+
+  const patchCalls = vi.mocked(api.patch).mock.calls;
+  expect(patchCalls[0][0]).toBe('/requests/1');
+  expect(patchCalls[0][1]).toEqual(
+    expect.objectContaining({ preciseAddress: expect.any(String) }),
+  );
+  expect(patchCalls[0][1]).not.toHaveProperty('status');
+  expect(patchCalls[0][1]).not.toHaveProperty('assignedProfessional');
+  expect(patchCalls[1][0]).toBe('/bids/7/accept');
+});

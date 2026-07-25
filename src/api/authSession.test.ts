@@ -24,11 +24,13 @@ describe('clearStoredAuthAndRedirectToLogin', () => {
     });
   });
 
-  it('elimina quira_token y user de localStorage', () => {
+  it('elimina quira_token, user y quira_active_mode de localStorage', () => {
+    localStorage.setItem('quira_active_mode', 'pro');
     clearStoredAuthAndRedirectToLogin();
 
     expect(localStorage.getItem('quira_token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
+    expect(localStorage.getItem('quira_active_mode')).toBeNull();
   });
 
   it('asigna /login a location.href', () => {

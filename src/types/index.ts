@@ -13,9 +13,23 @@ export interface HydraCollection<T> {
 
 export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'PENDING_APPROVAL';
 
-export type BidStatus = 'PENDING' | 'ACCEPTED';
+export type BidStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
 
 export type VisitStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export interface CalendarEvent {
+  '@id'?: string;
+  id: number;
+  /** Fecha y hora de comienzo (ISO datetime). Sin hora de fin. */
+  startsAt: string;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  request: Pick<ServiceRequest, 'id' | 'title' | 'status'> & {
+    '@id'?: string;
+  };
+  professional?: ProfessionalProfile;
+}
 
 export type Category = 
   | 'DIY' 

@@ -51,15 +51,21 @@ beforeEach(() => {
   (api.get as ReturnType<typeof vi.fn>).mockReset();
   (api.patch as ReturnType<typeof vi.fn>).mockReset();
   (api.post as ReturnType<typeof vi.fn>).mockReset();
+  (localStorage as any).clear?.();
   (localStorage as any).setItem?.('user', JSON.stringify({
     id: 1,
     email: 'test@test.com',
     roles: ['ROLE_CLIENT'],
     clientProfile: { id: 1, fullName: 'Test User', '@id': '/clients/1' },
   }));
+  (localStorage as any).setItem?.('quira_active_mode', 'client');
   (sessionStorage as any).clear?.();
 });
 
+function setProUser(user: Record<string, unknown>) {
+  (localStorage as any).setItem?.('user', JSON.stringify(user));
+  (localStorage as any).setItem?.('quira_active_mode', 'pro');
+}
 test('Profile renders menu sections', () => {
   render(<Profile />, { wrapper });
   expect(screen.getByText('Datos Personales')).toBeInTheDocument();
@@ -73,13 +79,13 @@ test('Profile does not show paid-through-expired banner when paidThroughAt is nu
 });
 
 test('Profile shows paid-through-expired banner when ROLE_PRO and paidThroughAt is null', async () => {
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'pro@test.com',
     roles: ['ROLE_PRO'],
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: null,
-  }));
+  });
   render(<Profile />, { wrapper });
   expect(await screen.findByText('Tu plan ha caducado')).toBeInTheDocument();
   expect(screen.queryByText('Mejorar mi plan')).not.toBeInTheDocument();
@@ -102,19 +108,19 @@ test('Profile does not show paid-through-expired banner when paidThroughAt is in
 test('Profile shows Mejorar mi plan for SOLVER with suscripción activa (no caducada)', () => {
   const futureDate = new Date();
   futureDate.setFullYear(futureDate.getFullYear() + 1);
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'solver@test.com',
     roles: ['ROLE_SOLVER'],
     professionalProfile: { id: 10, fullName: 'Solver User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
-  }));
+  });
   render(<Profile />, { wrapper });
   expect(screen.getByText('Mejorar mi plan')).toBeInTheDocument();
   expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();
 });
 
-test('Profile shows paid-through-expired banner when paidThroughAt is in the past', async () => {
+test('Profile does not show paid-through-expired banner for CLIENT mode even with past paidThroughAt', () => {
   const pastDate = new Date();
   pastDate.setFullYear(pastDate.getFullYear() - 1);
   (localStorage as any).setItem?.('user', JSON.stringify({
@@ -124,6 +130,21 @@ test('Profile shows paid-through-expired banner when paidThroughAt is in the pas
     clientProfile: { id: 1, fullName: 'Test User', '@id': '/clients/1' },
     paidThroughAt: pastDate.toISOString(),
   }));
+  (localStorage as any).setItem?.('quira_active_mode', 'client');
+  render(<Profile />, { wrapper });
+  expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();
+});
+
+test('Profile shows paid-through-expired banner in pro mode when paidThroughAt is in the past', async () => {
+  const pastDate = new Date();
+  pastDate.setFullYear(pastDate.getFullYear() - 1);
+  setProUser({
+    id: 1,
+    email: 'pro@test.com',
+    roles: ['ROLE_PRO'],
+    professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
+    paidThroughAt: pastDate.toISOString(),
+  });
   render(<Profile />, { wrapper });
   expect(await screen.findByText('Tu plan ha caducado')).toBeInTheDocument();
   expect(screen.getByText(/Renueva tu suscripción para mantener tu perfil profesional/i)).toBeInTheDocument();
@@ -168,13 +189,13 @@ test('Profile password modal has all form fields', async () => {
 test('Profile shows subscription section for PRO with future paidThroughAt and no cancellation', () => {
   const futureDate = new Date();
   futureDate.setFullYear(futureDate.getFullYear() + 1);
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'pro@test.com',
     roles: ['ROLE_PRO'],
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
-  }));
+  });
 
   render(<Profile />, { wrapper });
 
@@ -189,13 +210,13 @@ test('Profile shows subscription section for PRO with future paidThroughAt and n
 test('Profile shows cancelled subscription state and Reactivar button when cancellation requested', async () => {
   const futureDate = new Date();
   futureDate.setFullYear(futureDate.getFullYear() + 1);
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'pro@test.com',
     roles: ['ROLE_PRO'],
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
-  }));
+  });
 
   render(<Profile />, { wrapper });
 
@@ -211,13 +232,13 @@ test('Profile shows cancelled subscription state and Reactivar button when cance
 test('Profile still shows Reactivar suscripción after clicking it and returning without renewing', () => {
   const futureDate = new Date();
   futureDate.setFullYear(futureDate.getFullYear() + 1);
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'pro@test.com',
     roles: ['ROLE_PRO'],
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
-  }));
+  });
   (sessionStorage as any).setItem?.('quira_subscription_cancel_requested', '1');
 
   const { unmount } = render(<Profile />, { wrapper });
@@ -230,7 +251,6 @@ test('Profile still shows Reactivar suscripción after clicking it and returning
   expect(screen.getByText('Reactivar suscripción')).toBeInTheDocument();
   expect(screen.queryByText('Cancelar suscripción')).not.toBeInTheDocument();
 });
-
 test('Profile calls GET /users/{id} on enter to refresh user data', async () => {
   (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 1, email: 'test@test.com', roles: ['ROLE_CLIENT'], clientProfile: { id: 1, fullName: 'Test User', '@id': '/clients/1' } } });
   render(<Profile />, { wrapper });
@@ -249,7 +269,7 @@ test('Profile shows Reactivar when refetch returns subscriptionCancelAtPeriodEnd
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
   };
-  (localStorage as any).setItem?.('user', JSON.stringify(proUser));
+  setProUser(proUser);
   (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({
     data: { ...proUser, subscriptionCancelAtPeriodEnd: true },
   });
@@ -270,7 +290,7 @@ test('Profile updates localStorage with subscriptionCancelAtPeriodEnd after succ
     professionalProfile: { id: 10, fullName: 'Pro User', '@id': '/professional_profiles/10' },
     paidThroughAt: futureDate.toISOString(),
   };
-  (localStorage as any).setItem?.('user', JSON.stringify(proUser));
+  setProUser(proUser);
   (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: proUser });
   (api.post as ReturnType<typeof vi.fn>).mockResolvedValue({});
   render(<Profile />, { wrapper });
@@ -378,7 +398,7 @@ test('Profile auto-verifies client phone when matching an already verified profe
 test('Profile auto-verifies professional phone when matching an already verified client phone', async () => {
   const futureDate = new Date();
   futureDate.setFullYear(futureDate.getFullYear() + 1);
-  (localStorage as any).setItem?.('user', JSON.stringify({
+  setProUser({
     id: 1,
     email: 'pro@test.com',
     roles: ['ROLE_SOLVER'],
@@ -402,7 +422,7 @@ test('Profile auto-verifies professional phone when matching an already verified
       '@id': '/professional_profiles/202',
     },
     paidThroughAt: futureDate.toISOString(),
-  }));
+  });
   (api.get as ReturnType<typeof vi.fn>).mockResolvedValue({ data: JSON.parse((localStorage as any).getItem('user')) });
   (api.patch as ReturnType<typeof vi.fn>).mockResolvedValue({ data: {} });
 

@@ -22,6 +22,7 @@ import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
 import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
+import { setActiveMode } from '../utils/activeMode';
 import { BecomeProHero, BecomeProTierSelector, BecomeProForm, type BecomeProFormData } from '../components/becomepro';
 import '../components/layout/LogoHeader.css';
 import './BecomePro.css';
@@ -85,7 +86,8 @@ const BecomePro: React.FC = () => {
         setToast('¡Pago completado! Tu suscripción está activa.');
         setTimeout(() => {
           window.history.replaceState({}, '', '/become-pro');
-          window.location.href = '/market';
+          setActiveMode('pro');
+          window.location.href = '/my-work';
         }, 2000);
       })();
     } else if (params.get('canceled') === '1') {
@@ -349,7 +351,10 @@ const BecomePro: React.FC = () => {
       }
 
       setToast(isUpgrading ? `¡Plan actualizado a ${selectedTier}!` : `¡Bienvenido al plan ${selectedTier}!`);
-      setTimeout(() => { window.location.href = '/market'; }, 1500);
+      setTimeout(() => {
+        setActiveMode('pro');
+        window.location.href = '/my-work';
+      }, 1500);
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { 'hydra:description'?: string; message?: string } } })?.response?.data?.['hydra:description']
         || (error as { response?: { data?: { message?: string } } })?.response?.data?.message

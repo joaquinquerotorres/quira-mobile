@@ -57,6 +57,11 @@ interface ProRequestDetailMainSectionProps {
   onRequestVisit?: () => void;
   isRequestingVisit?: boolean;
   canRequestVisitByPricing?: boolean;
+  /** Evento de calendario existente para este trabajo (si lo hay). */
+  calendarEventId?: number | null;
+  calendarLoading?: boolean;
+  onAddToCalendar?: () => void;
+  onEditCalendar?: () => void;
 }
 
 export const ProRequestDetailMainSection: React.FC<
@@ -91,6 +96,10 @@ export const ProRequestDetailMainSection: React.FC<
   onRequestVisit,
   isRequestingVisit,
   canRequestVisitByPricing = false,
+  calendarEventId = null,
+  calendarLoading = false,
+  onAddToCalendar,
+  onEditCalendar,
 }) => {
   const CATEGORY_LABELS: Record<Category, string> = {
     DIY: 'Manitas',
@@ -691,6 +700,27 @@ export const ProRequestDetailMainSection: React.FC<
               ACTUALIZAR A PRO
             </IonButton>
           </div>
+        )}
+
+        {isWinner && (
+          <IonButton
+            expand="block"
+            fill="outline"
+            color="primary"
+            className="pro-main-btn"
+            style={{ marginBottom: 10 }}
+            disabled={calendarLoading}
+            onClick={() => {
+              if (calendarEventId && onEditCalendar) {
+                onEditCalendar();
+                return;
+              }
+              onAddToCalendar?.();
+            }}
+          >
+            <IonIcon slot="start" icon={calendarOutline} />
+            {calendarEventId ? 'EDITAR EN CALENDARIO' : 'AÑADIR AL CALENDARIO'}
+          </IonButton>
         )}
 
         {isWinner && !isCompleted && (

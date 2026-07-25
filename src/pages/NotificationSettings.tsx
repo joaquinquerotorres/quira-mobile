@@ -19,6 +19,7 @@ import { chevronBackOutline } from 'ionicons/icons';
 import api from '../api/axios';
 import { ClientProfile, ProfessionalProfile } from '../types';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
+import { getEffectiveActiveMode } from '../utils/activeMode';
 import './Profile.css';
 import './NotificationSettings.css';
 
@@ -187,6 +188,9 @@ const NotificationSettings: React.FC = () => {
 
   const hasClient = Boolean(user.clientProfile);
   const hasPro = Boolean(user.professionalProfile);
+  const activeMode = getEffectiveActiveMode();
+  const showClientPrefs = hasClient && (activeMode === 'client' || !hasPro);
+  const showProPrefs = hasPro && (activeMode === 'pro' || !hasClient);
 
   return (
     <IonPage>
@@ -205,20 +209,20 @@ const NotificationSettings: React.FC = () => {
         className="notification-settings-content"
         style={{ '--background': '#f8fafc' }}
       >
-        {hasClient && (
+        {showClientPrefs && (
           <NotificationSection
             profile={user.clientProfile}
             labels={CLIENT_LABELS}
             endpoint="client_profiles"
-            sectionTitle="Como cliente"
+            sectionTitle="Notificaciones"
           />
         )}
-        {hasPro && (
+        {showProPrefs && (
           <NotificationSection
             profile={user.professionalProfile}
             labels={PRO_LABELS}
             endpoint="professional_profiles"
-            sectionTitle="Como profesional"
+            sectionTitle="Notificaciones"
           />
         )}
       </IonContent>

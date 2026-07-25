@@ -18,6 +18,7 @@ import {
   axiosErrorUserHint,
   getBackendErrorMessage,
 } from '../api/axiosErrorDebug';
+import { resolvePostLoginPath } from '../utils/activeMode';
 import './Login.css';
 
 /** Sign in with Apple solo aplica en la app nativa iOS (no en Android). */
@@ -174,8 +175,7 @@ const Login: React.FC = () => {
         localStorage.setItem('quira_token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
-        // Forzamos recarga o usamos router para limpiar estados
-        window.location.href = '/request-list';
+        window.location.href = resolvePostLoginPath(user);
 
     } catch (err: unknown) {
         console.error("Error Social Login:", err);
@@ -256,7 +256,7 @@ const Login: React.FC = () => {
           if (members && members.length > 0) {
               const userData = members[0];
               localStorage.setItem('user', JSON.stringify(userData));
-              window.location.href = '/request-list';
+              window.location.href = resolvePostLoginPath(userData);
           } else {
               throw new Error("Perfil no encontrado");
           }

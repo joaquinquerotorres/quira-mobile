@@ -7,6 +7,7 @@ import { clearDowngradeBannerDismissKeys } from '../components/DowngradeBanner';
 export function clearStoredAuthAndRedirectToLogin(): void {
   localStorage.removeItem('quira_token');
   localStorage.removeItem('user');
+  localStorage.removeItem('quira_active_mode');
   clearDowngradeBannerDismissKeys();
   window.location.href = '/login';
 }
