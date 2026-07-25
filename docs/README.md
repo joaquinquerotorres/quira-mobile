@@ -2,6 +2,7 @@
 
 ## Contenido
 
+- **[GUIA_PRODUCTO.md](./GUIA_PRODUCTO.md)** — Guía de producto para **marketing / product managers** (flujos, planes, precio, privacidad, mensajes; sin detalle técnico).
 - **[ARQUITECTURA.md](./ARQUITECTURA.md)** — Documentación funcional de la aplicación:
   - Tipos de usuario y tiers (CLIENTE, FREE, SOLVER, PRO)
   - Sesión, 401, cliente HTTP (`skipAuthHeader` / `skipAuthRedirect`, mensajes de error del API) y banner de cuota caducada (`DowngradeBanner`: rutas de login, `localStorage` por usuario)

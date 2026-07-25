@@ -261,6 +261,8 @@ const Login: React.FC = () => {
               throw new Error("Perfil no encontrado");
           }
       } catch (e) {
+          localStorage.removeItem('quira_token');
+          localStorage.removeItem('user');
           setError("Error recuperando perfil de usuario");
           setLoading(false);
       }

@@ -193,10 +193,7 @@ const ProRequestDetail: React.FC = () => {
       : requestPricingType === 'RANGE'
         ? ['RANGE']
         : ['FIXED', 'RANGE'];
-  const pricingType = String(
-    request?.aiDiagnosis?.pricing_type ?? request?.aiDiagnosis?.pricingType ?? ''
-  ).toUpperCase();
-  const canRequestVisitByPricing = pricingType === 'VISIT_REQUIRED';
+  const canRequestVisitByPricing = requestPricingType === 'VISIT_REQUIRED';
   
   // REGLA: Si es High Risk (alta dificultad), SOLO los PRO pueden enviar propuestas.
   // Los Solver y Free pueden ver (si llegan aquí), pero no ofertar.
@@ -205,6 +202,9 @@ const ProRequestDetail: React.FC = () => {
   const myBids = getMyBidsFromRequest(request?.bids, myUserId, myProfileId);
   const myActiveBid = getMyActiveBid(myBids);
   const myBid = getMyBidForProUi(myBids);
+  const myVisitRequest = request?.visitRequests?.find(
+    (v) => extractId(v.professional) === myProfileId,
+  );
 
   const openGPS = () => {
     if (!request) return;
@@ -471,7 +471,7 @@ const ProRequestDetail: React.FC = () => {
               hasReviewed={hasReviewed}
               qLoading={qLoading}
               newQuestion={newQuestion}
-              visitRequest={request.visitRequests?.[0]}
+              visitRequest={myVisitRequest}
               isRequestingVisit={visitLoading}
               canRequestVisitByPricing={canRequestVisitByPricing}
               hasActiveBid={!!myActiveBid}
