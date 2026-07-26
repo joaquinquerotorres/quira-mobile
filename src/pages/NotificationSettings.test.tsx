@@ -77,7 +77,7 @@ test('NotificationSettings renders client section when user has clientProfile', 
   await waitFor(() => {
     expect(screen.getByText('Configuración de notificaciones')).toBeInTheDocument();
   });
-  expect(screen.getByText('Como cliente')).toBeInTheDocument();
+  expect(screen.getByText('Notificaciones')).toBeInTheDocument();
   expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
   expect(screen.getByText('Nuevas ofertas en mis solicitudes')).toBeInTheDocument();
   expect(screen.getByText('Nuevas valoraciones recibidas')).toBeInTheDocument();
@@ -88,7 +88,7 @@ test('NotificationSettings renders professional section when user has profession
   (localStorage as any).setItem?.('user', JSON.stringify(proUser));
   render(<NotificationSettings />, { wrapper });
   await waitFor(() => {
-    expect(screen.getByText('Como profesional')).toBeInTheDocument();
+    expect(screen.getByText('Notificaciones')).toBeInTheDocument();
   });
   expect(screen.getByText('Nuevas solicitudes y respuestas a mis preguntas')).toBeInTheDocument();
   expect(screen.getByText('Cuando aceptan mis ofertas')).toBeInTheDocument();
