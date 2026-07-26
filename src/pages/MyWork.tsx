@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   IonContent, IonPage,
   IonLabel, IonIcon, IonRefresher, IonRefresherContent, 
@@ -24,13 +24,9 @@ import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
 import { MyWorkBidCard, MyWorkJobCard } from '../components/mywork/MyWorkCards';
 
-import { env } from '../config/env';
 import { getCategoryLabel } from '../utils/categoryLabels';
-import { resolveMediaUrl } from '../utils/mediaUrl';
 import { dedupeBidsByRequestForMyWork } from '../utils/bidDisplay';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
-
-const serverUrl = env.serverUrl;
 
 const MyWork: React.FC = () => {
   const router = useIonRouter();
@@ -46,10 +42,6 @@ const MyWork: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [sortPrice, setSortPrice] = useState<string>(''); 
   const [showFilterModal, setShowFilterModal] = useState(false);
-  
-  // --- AUDIO PLAYER ---
-  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Carga inicial: precargamos ambos segmentos para que los contadores sean correctos
   useIonViewWillEnter(() => {
@@ -156,20 +148,6 @@ const MyWork: React.FC = () => {
     }
   };
 
-  const toggleListAudio = (e: React.MouseEvent, reqId: number, audioUrl: string) => {
-      e.stopPropagation(); e.preventDefault();
-      if (playingAudioId === reqId) {
-          audioRef.current?.pause(); setPlayingAudioId(null);
-      } else {
-          if (audioRef.current) audioRef.current.pause();
-          const audio = new Audio(resolveMediaUrl(audioUrl));
-          audio.onended = () => setPlayingAudioId(null);
-          audioRef.current = audio;
-          audio.play().catch(err => console.error("Error audio:", err));
-          setPlayingAudioId(reqId);
-      }
-  };
-
   // --- RENDER DE TARJETA DE PROPUESTA (BID) ---
   const renderBid = (bid: Bid) => {
     if (!bid?.request || typeof bid.request === 'string') return null;
@@ -195,14 +173,10 @@ const MyWork: React.FC = () => {
       <MyWorkBidCard
         bid={bid}
         request={req}
-        requestId={requestId}
         borderClass={borderClass}
         statusLabel={statusLabel}
         badgeClass={badgeClass}
         catStyle={catStyle}
-        serverUrl={serverUrl}
-        playingAudioId={playingAudioId}
-        onToggleAudio={toggleListAudio}
         onClick={() => router.push(`/pro/request/${requestId}`)}
       />
     );
@@ -222,15 +196,11 @@ const MyWork: React.FC = () => {
     return (
       <MyWorkJobCard
         job={job}
-        jobId={jobId}
         borderClass={borderClass}
         statusLabel={statusLabel}
         badgeClass={badgeClass}
         catStyle={catStyle}
-        serverUrl={serverUrl}
         dateToShow={dateToShow}
-        playingAudioId={playingAudioId}
-        onToggleAudio={toggleListAudio}
         onClick={() => router.push(`/pro/request/${jobId}`)}
       />
     );

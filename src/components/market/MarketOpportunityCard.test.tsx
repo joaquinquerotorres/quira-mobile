@@ -19,8 +19,11 @@ vi.mock('@ionic/react', () => ({
   IonIcon: () => <span data-testid="ion-icon" />,
 }));
 
-vi.mock('../shared/RequestMediaThumb', () => ({
-  RequestMediaThumb: () => <div data-testid="thumb" />,
+vi.mock('../shared/RequestMediaModal', () => ({
+  RequestMediaChip: ({ photoUrl, videoUrl, audioUrl }: any) =>
+    photoUrl || videoUrl || audioUrl ? (
+      <button type="button">Media</button>
+    ) : null,
 }));
 
 describe('MarketOpportunityCard', () => {
@@ -34,6 +37,11 @@ describe('MarketOpportunityCard', () => {
     client: { fullName: 'Cliente Uno', rating: null, reviewCount: 0 },
   };
 
+  const commonProps = {
+    addressInfo: { text: 'Zona: Madrid', icon: lockClosedOutline },
+    renderScheduleInfo: () => null as React.ReactNode,
+  };
+
   test('shows reserved title and disables card click when blurry', () => {
     const onCardClick = vi.fn();
     render(
@@ -43,13 +51,9 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={true}
         isLocked={true}
-        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
-        playingAudioId={null}
-        onToggleAudio={vi.fn()}
         onCardClick={onCardClick}
         onBidClick={vi.fn()}
-        serverUrl=""
-        renderScheduleInfo={() => null}
+        {...commonProps}
       />,
     );
 
@@ -67,13 +71,9 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={false}
-        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
-        playingAudioId={null}
-        onToggleAudio={vi.fn()}
         onCardClick={onCardClick}
         onBidClick={vi.fn()}
-        serverUrl=""
-        renderScheduleInfo={() => null}
+        {...commonProps}
       />,
     );
     fireEvent.click(screen.getByTestId('ion-card'));
@@ -91,13 +91,9 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={true}
-        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
-        playingAudioId={null}
-        onToggleAudio={vi.fn()}
         onCardClick={vi.fn()}
         onBidClick={onBidClick}
-        serverUrl=""
-        renderScheduleInfo={() => null}
+        {...commonProps}
       />,
     );
     expect(screen.getByText('SOLO PRO')).toBeInTheDocument();
@@ -109,39 +105,61 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={false}
-        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
-        playingAudioId={null}
-        onToggleAudio={vi.fn()}
         onCardClick={vi.fn()}
         onBidClick={onBidClick}
-        serverUrl=""
-        renderScheduleInfo={() => null}
+        {...commonProps}
       />,
     );
     expect(screen.getByText('ME INTERESA')).toBeInTheDocument();
   });
 
-test('passes desiredExecutionTime to renderScheduleInfo', () => {
-  const renderScheduleInfo = vi.fn(() => <span>DISPONIBILIDAD</span>);
-  render(
-    <MarketOpportunityCard
-      request={baseRequest}
-      isBidden={false}
-      isHigh={false}
-      isBlurry={false}
-      isLocked={false}
-      addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
-      playingAudioId={null}
-      onToggleAudio={vi.fn()}
-      onCardClick={vi.fn()}
-      onBidClick={vi.fn()}
-      serverUrl=""
-      renderScheduleInfo={renderScheduleInfo}
-    />,
-  );
+  test('passes desiredExecutionTime to renderScheduleInfo', () => {
+    const renderScheduleInfo = vi.fn(() => <span>DISPONIBILIDAD</span>);
+    render(
+      <MarketOpportunityCard
+        request={baseRequest}
+        isBidden={false}
+        isHigh={false}
+        isBlurry={false}
+        isLocked={false}
+        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
+        onCardClick={vi.fn()}
+        onBidClick={vi.fn()}
+        renderScheduleInfo={renderScheduleInfo}
+      />,
+    );
 
-  expect(renderScheduleInfo).toHaveBeenCalledWith('Esta semana');
-  expect(screen.getByText('DISPONIBILIDAD')).toBeInTheDocument();
-});
-});
+    expect(renderScheduleInfo).toHaveBeenCalledWith('Esta semana');
+    expect(screen.getByText('DISPONIBILIDAD')).toBeInTheDocument();
+  });
 
+  test('shows Media chip only when request has media', () => {
+    const { rerender } = render(
+      <MarketOpportunityCard
+        request={baseRequest}
+        isBidden={false}
+        isHigh={false}
+        isBlurry={false}
+        isLocked={false}
+        onCardClick={vi.fn()}
+        onBidClick={vi.fn()}
+        {...commonProps}
+      />,
+    );
+    expect(screen.queryByText('Media')).not.toBeInTheDocument();
+
+    rerender(
+      <MarketOpportunityCard
+        request={{ ...baseRequest, photoUrl: '/p.jpg' }}
+        isBidden={false}
+        isHigh={false}
+        isBlurry={false}
+        isLocked={false}
+        onCardClick={vi.fn()}
+        onBidClick={vi.fn()}
+        {...commonProps}
+      />,
+    );
+    expect(screen.getByText('Media')).toBeInTheDocument();
+  });
+});

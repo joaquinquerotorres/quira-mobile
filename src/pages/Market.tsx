@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonCard, IonCardContent, IonRefresher, IonRefresherContent,
@@ -22,17 +22,13 @@ import { SearchText } from '../components/shared/SearchText';
 import { FilterModal } from '../components/shared/FilterModal';
 import { MarketOpportunityCard } from '../components/market/MarketOpportunityCard';
 
-import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
-import { resolveMediaUrl } from '../utils/mediaUrl';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
-
-const serverUrl = env.serverUrl;
 
 // LÍMITE DE PROPUESTAS PARA USUARIOS FREE
 const FREE_BID_LIMIT = 3;
@@ -82,10 +78,6 @@ const Market: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [sortPrice, setSortPrice] = useState<string>(''); 
   const [showFilterModal, setShowFilterModal] = useState(false);
-
-  // --- AUDIO PREVIEW ---
-  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -198,23 +190,6 @@ const Market: React.FC = () => {
   const resetFilters = () => {
       setFilterCategory('');
       setSortPrice('');
-  };
-
-  const toggleListAudio = (e: React.MouseEvent, reqId: number, audioUrl: string) => {
-      e.stopPropagation();
-      e.preventDefault();
-
-      if (playingAudioId === reqId) {
-          audioRef.current?.pause();
-          setPlayingAudioId(null);
-      } else {
-          if (audioRef.current) audioRef.current.pause();
-          const audio = new Audio(resolveMediaUrl(audioUrl));
-          audio.onended = () => setPlayingAudioId(null);
-          audioRef.current = audio;
-          audio.play();
-          setPlayingAudioId(reqId);
-      }
   };
 
   const hasUserBid = (req: ServiceRequest) => {
@@ -332,15 +307,15 @@ const Market: React.FC = () => {
       const preference = desiredExecutionTime?.trim();
       if (!preference) {
           return (
-              <div className="info-row" style={{color: '#ea580c', fontWeight: 700}}>
-                  <IonIcon icon={flashOutline} style={{marginRight: '6px'}} />
+              <div className="info-row" style={{color: '#ea580c', fontWeight: 700, fontSize: '0.85rem'}}>
+                  <IonIcon icon={flashOutline} style={{marginRight: '6px', fontSize: '15px'}} />
                   <span>Urgente: Lo antes posible</span>
               </div>
           );
       }
       return (
-          <div className="info-row" style={{color: 'var(--ion-color-primary)', fontWeight: 700}}>
-              <IonIcon icon={calendarOutline} style={{marginRight: '6px'}} />
+          <div className="info-row" style={{color: 'var(--ion-color-primary)', fontWeight: 700, fontSize: '0.85rem'}}>
+              <IonIcon icon={calendarOutline} style={{marginRight: '6px', fontSize: '15px'}} />
               <span>{preference}</span>
           </div>
       );
@@ -409,8 +384,6 @@ const Market: React.FC = () => {
                     isBlurry={isBlurry}
                     isLocked={isLocked}
                     addressInfo={addressInfo}
-                    playingAudioId={playingAudioId}
-                    onToggleAudio={toggleListAudio}
                     onCardClick={() => router.push(`/pro/request/${req.id}`)}
                     onBidClick={(e) => {
                       if (isLocked) {
@@ -420,7 +393,6 @@ const Market: React.FC = () => {
                         openBidModal(e, req);
                       }
                     }}
-                    serverUrl={serverUrl}
                     renderScheduleInfo={renderScheduleInfo}
                   />
                 );

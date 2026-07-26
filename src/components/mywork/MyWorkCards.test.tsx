@@ -5,6 +5,13 @@ import { waterOutline } from 'ionicons/icons';
 import { MyWorkBidCard, MyWorkJobCard } from './MyWorkCards';
 import { Bid, ServiceRequest } from '../../types';
 
+vi.mock('../shared/RequestMediaModal', () => ({
+  RequestMediaChip: ({ photoUrl, videoUrl, audioUrl }: any) =>
+    photoUrl || videoUrl || audioUrl ? (
+      <button type="button">Media</button>
+    ) : null,
+}));
+
 const mockRequest: ServiceRequest = {
   '@id': '/requests/1',
   id: 1,
@@ -43,14 +50,10 @@ test('MyWorkBidCard renders request title and bid price', () => {
     <MyWorkBidCard
       bid={mockBid}
       request={mockRequest}
-      requestId={1}
       borderClass=""
       statusLabel="Pendiente"
       badgeClass=""
       catStyle={catStyle}
-      serverUrl="http://api.test"
-      playingAudioId={null}
-      onToggleAudio={vi.fn()}
       onClick={vi.fn()}
     />,
     { wrapper }
@@ -68,14 +71,10 @@ test('MyWorkBidCard calls onClick when card is clicked', () => {
     <MyWorkBidCard
       bid={mockBid}
       request={mockRequest}
-      requestId={1}
       borderClass=""
       statusLabel="Pendiente"
       badgeClass=""
       catStyle={catStyle}
-      serverUrl=""
-      playingAudioId={null}
-      onToggleAudio={vi.fn()}
       onClick={onClick}
     />,
     { wrapper }
@@ -88,15 +87,11 @@ test('MyWorkJobCard renders job and price', () => {
   render(
     <MyWorkJobCard
       job={{ ...mockRequest, status: 'COMPLETED' }}
-      jobId={1}
       borderClass=""
       statusLabel="Completado"
       badgeClass=""
       catStyle={catStyle}
-      serverUrl=""
       dateToShow="2024-01-20"
-      playingAudioId={null}
-      onToggleAudio={vi.fn()}
       onClick={vi.fn()}
     />,
     { wrapper }
@@ -112,14 +107,10 @@ test('MyWorkBidCard renders accepted bid with custom badge', () => {
     <MyWorkBidCard
       bid={acceptedBid}
       request={mockRequest}
-      requestId={1}
       borderClass="mw-card-closed"
       statusLabel="CERRADA"
       badgeClass="mw-status-closed"
       catStyle={catStyle}
-      serverUrl="http://api.test"
-      playingAudioId={null}
-      onToggleAudio={vi.fn()}
       onClick={vi.fn()}
     />,
     { wrapper }
@@ -127,4 +118,20 @@ test('MyWorkBidCard renders accepted bid with custom badge', () => {
   expect(screen.getByText('Reparar grifo')).toBeInTheDocument();
   expect(screen.getByText('60€')).toBeInTheDocument();
   expect(screen.getByText('CERRADA')).toBeInTheDocument();
+});
+
+test('MyWorkBidCard shows Media chip when request has media', () => {
+  render(
+    <MyWorkBidCard
+      bid={mockBid}
+      request={{ ...mockRequest, audioUrl: '/a.mp3' }}
+      borderClass=""
+      statusLabel="Pendiente"
+      badgeClass=""
+      catStyle={catStyle}
+      onClick={vi.fn()}
+    />,
+    { wrapper }
+  );
+  expect(screen.getByText('Media')).toBeInTheDocument();
 });

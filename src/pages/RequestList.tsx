@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent, IonPage,
   IonCard, IonCardContent, IonIcon, IonRefresher, IonRefresherContent,
@@ -10,7 +10,7 @@ import {
   locationOutline, calendarOutline, flashOutline, 
   arrowForwardOutline, star, checkmarkCircleOutline, filterOutline, 
   swapVerticalOutline, checkmarkDoneOutline, 
-  playCircleOutline, micOutline, pauseCircleOutline, searchOutline,
+  searchOutline,
   waterOutline, hammerOutline, leafOutline, brushOutline,
   compassOutline, listOutline,
   snowOutline,
@@ -26,7 +26,7 @@ import MainHeader from '../components/shared/MainHeader';
 import { SearchText } from '../components/shared/SearchText';
 import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
-import { RequestMediaThumb } from '../components/shared/RequestMediaThumb';
+import { RequestMediaChip } from '../components/shared/RequestMediaModal';
 
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
@@ -57,10 +57,6 @@ const RequestList: React.FC = () => {
 
   // --- TOAST ---
   const [toast, setToast] = useState<string | null>(null);
-
-  // --- AUDIO ---
-  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Categorías (Discovery)
   const categories = [
@@ -172,20 +168,6 @@ const RequestList: React.FC = () => {
     history.push(url);
   };
 
-  // --- AUDIO LOGIC ---
-  const toggleListAudio = (e: React.MouseEvent, reqId: number, audioUrl: string) => {
-      e.stopPropagation(); e.preventDefault();
-      if (playingAudioId === reqId) {
-          audioRef.current?.pause(); setPlayingAudioId(null);
-      } else {
-          if (audioRef.current) audioRef.current.pause();
-          const audio = new Audio(resolveMediaUrl(audioUrl));
-          audio.onended = () => setPlayingAudioId(null);
-          audioRef.current = audio;
-          audio.play(); setPlayingAudioId(reqId);
-      }
-  };
-
   // --- HELPERS VISUALES ---
   const getStatusLabel = (status: RequestStatus) => {
     switch (status) { case 'COMPLETED': return 'FINALIZADO'; case 'ACCEPTED': return 'ASIGNADO'; case 'PENDING_APPROVAL': return 'EN REVISIÓN'; default: return 'PENDIENTE'; }
@@ -194,11 +176,11 @@ const RequestList: React.FC = () => {
       switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
   };
   const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
-    const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem', fontWeight: 600 };
+    const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '8px', fontSize: '0.85rem', fontWeight: 700 };
     const preference = desiredExecutionTime?.trim();
     const isUrgent = !preference || preference.toLowerCase() === 'lo antes posible';
-    if (isUrgent) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>Lo antes posible</span></div>);
-    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '4px', fontSize: '14px'}} /><span>{preference}</span></div>);
+    if (isUrgent) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '6px', fontSize: '15px'}} /><span>Lo antes posible</span></div>);
+    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '6px', fontSize: '15px'}} /><span>{preference}</span></div>);
   };
 
   return (
@@ -244,15 +226,11 @@ const RequestList: React.FC = () => {
                     </div>
 
                     {loading && [1, 2, 3].map(i => (
-                        <IonCard key={i} className="request-list-card" style={{height: '160px'}}>
+                        <IonCard key={i} className="request-list-card" style={{height: '140px'}}>
                             <IonCardContent>
-                                <div style={{ display: 'flex' }}>
-                                    <IonSkeletonText animated style={{ width: '100px', height: '100px', borderRadius: '16px', marginRight: '15px' }} />
-                                    <div style={{ width: '100%' }}>
-                                        <IonSkeletonText animated style={{ width: '40%', height: '12px' }} />
-                                        <IonSkeletonText animated style={{ width: '80%', height: '22px', marginTop: '10px' }} />
-                                    </div>
-                                </div>
+                                <IonSkeletonText animated style={{ width: '35%', height: '12px' }} />
+                                <IonSkeletonText animated style={{ width: '85%', height: '22px', marginTop: '12px' }} />
+                                <IonSkeletonText animated style={{ width: '55%', height: '14px', marginTop: '12px' }} />
                             </IonCardContent>
                         </IonCard>
                     ))}
@@ -262,22 +240,16 @@ const RequestList: React.FC = () => {
                         return (
                             <IonCard key={req.id} routerLink={`/request/${req.id}`} button className={`request-list-card ${borderClass}`}>
                                 <div className="request-list-card-body">
-                                    <div className="request-list-thumb-wrap">
-                                        <RequestMediaThumb
-                                          variant="requestList"
-                                          requestId={req.id!}
-                                          categoryCode={req.category}
-                                          photoSrc={req.photoUrl ? resolveMediaUrl(req.photoUrl) : undefined}
-                                          audioUrl={req.audioUrl}
-                                          videoUrl={req.videoUrl}
-                                          playingAudioId={playingAudioId}
-                                          onToggleAudio={toggleListAudio}
-                                        />
-                                        <span className={`request-list-status-badge ${getStatusColorClass(req.status)}`}>{getStatusLabel(req.status)}</span>
-                                    </div>
-                                    <div className="request-list-card-content">
-                                        <div className="request-list-card-top-row">
-                                            <span className="request-list-card-category">{getCategoryLabel(req.category)}</span>
+                                    <div className="request-list-card-main">
+                                        <div className="request-list-card-top">
+                                            <div className="request-list-card-pills">
+                                                <span className="request-list-card-category">{getCategoryLabel(req.category)}</span>
+                                                <span className={`request-list-status-badge ${getStatusColorClass(req.status)}`}>{getStatusLabel(req.status)}</span>
+                                            </div>
+                                            <div className="request-list-card-price-block">
+                                                <span className="request-list-card-price-label">Rango estimado</span>
+                                                <span className="request-list-card-price">{formatRequestPriceRangeEuros(req)}</span>
+                                            </div>
                                         </div>
                                         <h3 className="request-list-card-title">{req.title}</h3>
                                         <div className="request-list-info-row">
@@ -286,24 +258,25 @@ const RequestList: React.FC = () => {
                                         </div>
                                         {renderScheduleInfo(req.desiredExecutionTime)}
                                     </div>
-                                        <div className="request-list-card-right">
-                                        <div className="request-list-card-price-block">
-                                            <span className="request-list-card-price-label">Rango estimado</span>
-                                            <span className="request-list-card-price">{formatRequestPriceRangeEuros(req)}</span>
-                                        </div>
-                                    </div>
                                 </div>
-                                {req.assignedProfessional && (
-                                <div className="request-list-card-footer" style={{background: req.status === 'COMPLETED' ? '#f1f5f9' : '#ffffff'}}>
+                                <div className="request-list-card-footer" style={{background: req.assignedProfessional ? (req.status === 'COMPLETED' ? '#f1f5f9' : '#ffffff') : '#ffffff'}}>
                                     <div className="request-list-footer-left">
-                                        <div style={{display:'flex', alignItems: 'center'}}>
-                                            <div className={`pro-icon-bg ${req.status === 'COMPLETED' ? 'gray' : 'blue'}`}><IonIcon icon={req.status === 'COMPLETED' ? checkmarkDoneOutline : checkmarkCircleOutline} /></div>
-                                            <span className="request-list-footer-text">{req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:'} {req.assignedProfessional.fullName}</span>
-                                        </div>
+                                        {req.assignedProfessional ? (
+                                            <div style={{display:'flex', alignItems: 'center'}}>
+                                                <div className={`pro-icon-bg ${req.status === 'COMPLETED' ? 'gray' : 'blue'}`}><IonIcon icon={req.status === 'COMPLETED' ? checkmarkDoneOutline : checkmarkCircleOutline} /></div>
+                                                <span className="request-list-footer-text">{req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:'} {req.assignedProfessional.fullName}</span>
+                                                {req.assignedProfessional.rating && <div className="rating-badge" style={{marginLeft: 8}}><IonIcon icon={star} /> {req.assignedProfessional.rating}</div>}
+                                            </div>
+                                        ) : (
+                                            <span className="request-list-footer-text muted">Sin profesional asignado</span>
+                                        )}
                                     </div>
-                                    {req.assignedProfessional.rating && <div className="rating-badge"><IonIcon icon={star} /> {req.assignedProfessional.rating}</div>}
+                                    <RequestMediaChip
+                                      photoUrl={req.photoUrl}
+                                      videoUrl={req.videoUrl}
+                                      audioUrl={req.audioUrl}
+                                    />
                                 </div>
-                                )}
                             </IonCard>
                         );
                     })}

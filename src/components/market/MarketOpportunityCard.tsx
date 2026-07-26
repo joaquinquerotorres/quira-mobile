@@ -12,9 +12,8 @@ import {
   star,
 } from 'ionicons/icons';
 import { ServiceRequest } from '../../types';
-import { RequestMediaThumb } from '../shared/RequestMediaThumb';
+import { RequestMediaChip } from '../shared/RequestMediaModal';
 import { getCategoryLabel } from '../../utils/categoryLabels';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
 
 interface AddressInfo {
@@ -29,11 +28,8 @@ interface MarketOpportunityCardProps {
   isBlurry: boolean;
   isLocked: boolean;
   addressInfo: AddressInfo;
-  playingAudioId: number | null;
-  onToggleAudio: (e: React.MouseEvent, id: number, audioUrl: string) => void;
   onCardClick: () => void;
   onBidClick: (e: React.MouseEvent) => void;
-  serverUrl: string;
   renderScheduleInfo: (desiredExecutionTime?: string | null) => React.ReactNode;
 }
 
@@ -44,22 +40,17 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
   isBlurry,
   isLocked,
   addressInfo,
-  playingAudioId,
-  onToggleAudio,
   onCardClick,
   onBidClick,
-  serverUrl,
   renderScheduleInfo,
 }) => {
   return (
     <IonCard
       key={request.id}
       className={`mkt-card ${isBidden ? 'mkt-card-bidden' : 'mkt-card-default'}`}
-      style={{ margin: '0 0 16px 0', overflow: 'hidden', position: 'relative' }}
       onClick={!isBlurry ? onCardClick : undefined}
       button={!isBlurry}
     >
-      {/* OVERLAY BORROSO (ALTA DIFICULTAD) */}
       {isBlurry && (
         <div className="restricted-overlay blur">
           <IonIcon icon={lockClosedOutline} />
@@ -68,145 +59,93 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         </div>
       )}
 
-      <div style={{ display: 'flex', padding: '0', filter: isBlurry ? 'blur(5px)' : 'none' }}>
-        {/* THUMBNAIL */}
-        <div className="mkt-thumb-wrap">
-          <RequestMediaThumb
-            variant="market"
-            requestId={request.id!}
-            categoryCode={request.category}
-            photoSrc={request.photoUrl ? resolveMediaUrl(request.photoUrl) : undefined}
-            audioUrl={isBlurry ? undefined : request.audioUrl}
-            videoUrl={request.videoUrl}
-            playingAudioId={playingAudioId}
-            onToggleAudio={isBlurry ? undefined : onToggleAudio}
-          />
-          {isHigh && <span className="mkt-high-risk-badge">ALTA DIFICULTAD</span>}
-        </div>
-
-        {/* CONTENIDO */}
-        <div style={{ padding: '20px 5px 10px 0', flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '6px' }}>
-            <span className="mkt-category">{getCategoryLabel(request.category)}</span>
+      <div
+        className="mkt-card-body"
+        style={{ filter: isBlurry ? 'blur(5px)' : 'none' }}
+      >
+        <div className="mkt-card-main">
+          <div className="mkt-card-top">
+            <div className="mkt-card-pills">
+              <span className="mkt-category">{getCategoryLabel(request.category)}</span>
+              {isHigh && <span className="mkt-high-risk-badge">ALTA DIFICULTAD</span>}
+            </div>
+            <div className="mkt-price-block">
+              <span className="mkt-price-label">Rango estimado</span>
+              <span className="mkt-price">
+                {isBlurry ? '??? €' : formatRequestPriceRangeEuros(request)}
+              </span>
+            </div>
           </div>
 
-          <h3
-            className="mkt-title"
-            style={{
-              fontSize: '1.05rem',
-              fontWeight: 800,
-              color: '#1e293b',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
+          <h3 className="mkt-title">
             {isBlurry ? 'Oportunidad Reservada' : request.title}
           </h3>
 
-          <div
-            className="info-row"
-            style={{
-              marginBottom: '8px',
-              color: '#64748b',
-              fontSize: '0.8rem',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            <IonIcon icon={addressInfo.icon} style={{ marginRight: '6px' }} />
-            <span style={{ fontWeight: 700 }}>{addressInfo.text}</span>
+          <div className="info-row mkt-meta-row">
+            <IonIcon icon={addressInfo.icon} />
+            <span>{addressInfo.text}</span>
           </div>
 
           {renderScheduleInfo(request.desiredExecutionTime)}
-        </div>
 
-        {/* COLUMNA DERECHA (RANGO IA) */}
-        <div className="market-card-right" style={{ flexShrink: 0, paddingRight: '15px' }}>
-          <div className="mkt-price-block">
-            <span className="mkt-price-label">Rango estimado</span>
-            <span className="mkt-price">{isBlurry ? '??? €' : formatRequestPriceRangeEuros(request)}</span>
-          </div>
-
-          {isBidden ? (
-            <div className="bidden-badge" style={{ marginTop: '6px', fontSize: '0.6rem', padding: '2px 6px' }}>
-              <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: '10px', marginRight: '2px' }} /> ENVIADA
+          {isBidden && (
+            <div className="bidden-badge mkt-bidden-inline">
+              <IonIcon icon={checkmarkCircleOutline} /> ENVIADA
             </div>
-          ) : null}
+          )}
         </div>
       </div>
 
-      {/* FOOTER */}
       <div
-        style={{
-          padding: '12px 15px',
-          borderTop: '1px solid #f1f5f9',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: isBidden ? 'transparent' : '#ffffff',
-          filter: isBlurry ? 'blur(5px)' : 'none',
-        }}
+        className="mkt-card-footer"
+        style={{ filter: isBlurry ? 'blur(5px)' : 'none' }}
       >
-        <div style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', flex: 1, overflow: 'hidden' }}>
-          <span
-            style={{
-              marginRight: '10px',
-              color: '#64748b',
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
+        <div className="mkt-footer-left">
+          <span className="mkt-client-label">
             Cliente:{' '}
-            <strong style={{ color: '#1e293b' }}>
+            <strong>
               {request.client?.fullName?.split(' ')[0] || 'Usuario'}
             </strong>
           </span>
           {request.client?.rating ? (
-            <span
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: '#fffbeb',
-                color: '#b45309',
-                padding: '2px 6px',
-                borderRadius: '6px',
-                fontWeight: 800,
-                fontSize: '0.7rem',
-                border: '1px solid #fde68a',
-                flexShrink: 0,
-              }}
-            >
-              <IonIcon icon={star} style={{ fontSize: '10px', marginRight: '2px', color: '#fbbf24' }} />
+            <span className="mkt-rating-badge">
+              <IonIcon icon={star} />
               {request.client.rating}
             </span>
           ) : (
-            <IonBadge color="light" style={{ fontSize: '0.6rem', fontWeight: 700, flexShrink: 0 }}>
+            <IonBadge color="light" className="mkt-new-badge">
               NUEVO
             </IonBadge>
           )}
         </div>
 
-        {!isBidden && (
-          <IonButton
-            size="small"
-            color={isLocked ? 'medium' : 'secondary'}
-            fill={isLocked ? 'outline' : 'solid'}
-            shape="round"
-            onClick={onBidClick}
-            style={{ fontWeight: 800, height: '32px', opacity: isLocked ? 0.6 : 1, flexShrink: 0, marginLeft: '10px' }}
-          >
-            <IonIcon slot="start" icon={isLocked ? lockClosedOutline : hammerOutline} />
-            {isLocked ? 'SOLO PRO' : 'ME INTERESA'}
-          </IonButton>
-        )}
+        <div className="mkt-footer-actions">
+          {!isBlurry && (
+            <RequestMediaChip
+              photoUrl={request.photoUrl}
+              videoUrl={request.videoUrl}
+              audioUrl={request.audioUrl}
+            />
+          )}
+          {!isBidden && (
+            <IonButton
+              size="small"
+              color={isLocked ? 'medium' : 'secondary'}
+              fill={isLocked ? 'outline' : 'solid'}
+              shape="round"
+              onClick={onBidClick}
+              className="mkt-bid-btn"
+              style={{ opacity: isLocked ? 0.6 : 1 }}
+            >
+              <IonIcon
+                slot="start"
+                icon={isLocked ? lockClosedOutline : hammerOutline}
+              />
+              {isLocked ? 'SOLO PRO' : 'ME INTERESA'}
+            </IonButton>
+          )}
+        </div>
       </div>
     </IonCard>
   );
 };
-

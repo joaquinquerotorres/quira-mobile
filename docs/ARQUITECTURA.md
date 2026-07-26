@@ -163,11 +163,13 @@ interface RequestQuestion {
 
 ### Cards de oportunidad (`MarketOpportunityCard`)
 
-- Columna derecha: etiqueta **«Rango estimado»** y el texto del rango (p. ej. `40€ - 80€`); si `isBidden`, badge "ENVIADA" en lugar de repetir la etiqueta.
-- Muestran título, zona, categoría y media (foto/audio/video).
+- Layout sin thumbnail embebido: categoría (y badge HIGH si aplica) a la izquierda, **«Rango estimado»** + importe a la derecha; título, zona y disponibilidad debajo con tipografía más legible.
+- Si hay `photoUrl` / `videoUrl` / `audioUrl`, chip **Media** en el footer (abre `RequestMediaModal` con slider; no reproduce media en la card). Sin media real, no se muestra placeholder ni columna visual.
+- Footer: cliente + rating (o “NUEVO”) a la izquierda; **Media** (si hay) y **ME INTERESA** / **SOLO PRO** a la derecha. Si `isBidden`, badge "ENVIADA" en el cuerpo.
 - HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
 - `isBidden`: si el usuario tiene una propuesta `PENDING` en esa oportunidad.
 - `isLocked`: si no puede pujar (p. ej. HIGH Risk para no-PRO).
+- Tap en la card → detalle (`/pro/request/:id`); el chip Media y el botón de puja hacen `stopPropagation`.
 
 ### Botón "ME INTERESA"
 
@@ -374,12 +376,13 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ## 10. Vistas específicas
 
-### Listados (`/request-list` y `/market`)
+### Listados (`/request-list`, `/market`, `/my-work`)
 
 - La disponibilidad mostrada en cards se toma de `desiredExecutionTime` (texto directo del backend).
 - Si `desiredExecutionTime` está vacío o no viene informado, la UI cae al fallback "Lo antes posible".
 - El campo `scheduledAt` no se usa en frontend.
-- Cuando una card no tiene media (`photoUrl`/`videoUrl`/`audioUrl`), se muestra placeholder con **icono + fondo por categoría** (no logo genérico).
+- **Media en listados**: no hay thumbnail/placeholder en la card. Con adjuntos (`photoUrl` / `videoUrl` / `audioUrl`), chip **Media** → `RequestMediaModal` (carrusel foto/vídeo/audio a tamaño usable). Sin adjuntos, el texto usa todo el ancho. Utilidad: `utils/requestMedia.ts` (`collectRequestMedia` / `hasRequestMedia`).
+- Misma estructura de card en **Mercado**, **Mi Trabajo** (`MyWorkBidCard` / `MyWorkJobCard`) y **Mis solicitudes** (`RequestList`): categoría + estado/precio arriba, título y meta, footer con cliente/pro y acciones.
 
 ### RequestDetail (cliente)
 
@@ -413,6 +416,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Estados de trabajos: ASIGNADO, FINALIZADO.
 - En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
 - En **listados**, las solicitudes muestran etiqueta **«Rango estimado»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
+- Sin thumbnail: chip **Media** en footer si la solicitud tiene adjuntos (mismo patrón que Mercado / Mis solicitudes).
 
 ### NewRequest
 
@@ -466,8 +470,8 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 Para minimizar regresiones antes de publicar:
 
 - **Vitest (unit/integration)**:
-  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `getApiErrorMessage`, `streetLineFromGeocode`) y flujos sensibles (subidas por ticket en `uploadService`).
-  - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaThumb`, `MarketOpportunityCard`).
+  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `requestMedia`, `getApiErrorMessage`, `streetLineFromGeocode`) y flujos sensibles (subidas por ticket en `uploadService`).
+  - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaChip`/`RequestMediaModal`, `MarketOpportunityCard`, `MyWorkCards`).
   - `NewRequest.test.tsx`: verificación de teléfono (banner paso 1, ausencia de `POST /predict` cuando no se puede publicar con datos mínimos rellenos) y avisos de red en modo vídeo; el mock de `react-google-places-autocomplete` en ese archivo sustituye al stub global de `setupTests.ts` para poder simular dirección en Córdoba.
   - Robustez ante crashes con `ErrorBoundary`.
 - **Ionic en tests**:

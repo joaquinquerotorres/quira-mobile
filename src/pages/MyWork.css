@@ -116,55 +116,31 @@
 .mw-card-pending { border-left: 6px solid #ea580c; }
 .mw-card-closed { border-left: 6px solid #94a3b8; }
 
-.mw-card-body { display: flex; padding: 15px; align-items: flex-start; }
-
-/* Thumbnails */
-.mw-thumb-wrap {
-    position: relative;
-    flex-shrink: 0;
-    margin-right: 15px;
+.mw-card-body {
+    display: flex;
+    padding: 18px 18px 12px;
+    align-items: flex-start;
 }
 
-.mw-thumb-wrap .mw-status-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    font-size: 0.55rem;
-    padding: 2px 5px;
-    letter-spacing: 0.3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+.mw-card-main {
+    flex: 1;
+    min-width: 0;
 }
-
-.mw-thumb {
-    width: 110px;
-    height: 110px;
-    min-height: 110px;
-    border-radius: 18px;
-    background-color: #f8fafc;
-    overflow: hidden;
-    flex-shrink: 0;
-    position: relative;
-    border: 1px solid #f1f5f9;
-}
-
-.mw-thumb ion-img { width: 100%; height: 100%; object-fit: cover; }
-
-/* Medios */
-.thumb-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 26px; color: white; }
-.thumb-media.video { background-color: #000; }
-.thumb-media.audio { background-color: #e0e7ff; color: var(--ion-color-primary); cursor: pointer; }
-.thumb-media.audio.playing { background-color: #fee2e2; color: #ef4444; animation: pulse 1.5s infinite; }
-.thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #cbd5e1; }
-
-/* Contenido */
-.mw-card-content { flex: 1; min-width: 0; padding-top: 5px; }
 
 .mw-card-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 6px;
-    gap: 6px;
+    margin-bottom: 10px;
+    gap: 12px;
+}
+
+.mw-card-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 }
 
 /* --- NUEVO: PILL DE CATEGORÍA --- */
@@ -172,28 +148,28 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    padding: 3px 8px;
+    padding: 4px 9px;
     border-radius: 8px;
     letter-spacing: 0.5px;
 }
-.mw-category-pill ion-icon { font-size: 11px; }
+.mw-category-pill ion-icon { font-size: 12px; }
 
 /* Badges Status */
-.mw-status-badge { font-size: 0.55rem; font-weight: 900; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
+.mw-status-badge { font-size: 0.6rem; font-weight: 900; padding: 4px 9px; border-radius: 8px; text-transform: uppercase; }
 .mw-status-badge.mw-status-won { background: #dcfce7; color: #166534; }
 .mw-status-badge.mw-status-pending { background: #fff7ed; color: #ea580c; }
 .mw-status-badge.mw-status-closed { background: #f1f5f9; color: #64748b; }
 .mw-status-badge.mw-status-cancelled { background: #f1f5f9; color: #64748b; }
 
 .mw-title {
-    font-size: 1rem;
+    font-size: 1.18rem;
     font-weight: 800;
     color: #1e293b;
-    margin: 4px 0 8px 0;
-    line-height: 1.25;
+    margin: 0 0 10px 0;
+    line-height: 1.35;
     letter-spacing: -0.3px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -201,17 +177,39 @@
     overflow: hidden;
 }
 
-.mw-info-row { display: flex; align-items: center; font-size: 0.8rem; color: #64748b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mw-info-row ion-icon { margin-right: 4px; font-size: 15px; }
+.mw-info-row {
+    display: flex;
+    align-items: center;
+    font-size: 0.88rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.mw-info-row ion-icon { margin-right: 6px; font-size: 16px; flex-shrink: 0; }
+
+.mw-timing-row {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+.mw-timing-row ion-icon {
+    margin-right: 6px;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.mw-timing-row.primary { color: var(--ion-color-primary); }
+.mw-timing-row.urgent { color: #ea580c; }
 
 /* Derecha */
 .mw-card-right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    padding-left: 10px;
+    padding-left: 8px;
     min-width: 92px;
-    max-width: 40%;
+    max-width: 42%;
     flex-shrink: 0;
 }
 
@@ -225,7 +223,7 @@
 }
 
 .mw-price-sublabel {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -235,7 +233,7 @@
 
 /* PRECIO ÍNDIGO POR DEFECTO */
 .mw-price {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 900;
     color: var(--ion-color-primary);
     letter-spacing: -0.02em;
@@ -244,24 +242,50 @@
 }
 .mw-price.success { color: #10b981; } /* Solo si es ganado se pone verde */
 
-.mw-price-label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-top: 6px; }
-
-/* FLECHA AZUL */
-.mw-card-right .arrow-box {
-    margin-top: 15px;
-}
+.mw-price-label { font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-top: 6px; }
 
 /* Footer */
 .mw-card-footer {
-    padding: 12px 20px;
+    padding: 14px 18px;
     border-top: 1px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     background: #ffffff;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
 }
-.mw-footer-left { display: flex; align-items: center; }
+.mw-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+.mw-client-label {
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mw-client-label strong { color: #1e293b; }
+.mw-rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #fffbeb;
+    color: #b45309;
+    padding: 3px 7px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.72rem;
+    border: 1px solid #fde68a;
+    flex-shrink: 0;
+}
+.mw-rating-badge ion-icon {
+    font-size: 11px;
+    color: #fbbf24;
+}
 .mw-footer-right { display: flex; align-items: center; color: #94a3b8; font-weight: 600; font-size: 0.75rem; }
 
 

@@ -139,7 +139,7 @@ En cada oportunidad ve:
 
 - Título, categoría, zona aproximada.
 - Rango o precio estimado (o aviso de visita).
-- Media (foto / audio / vídeo) cuando existe.
+- Si hay foto, audio o vídeo: botón **Media** que abre un visor (no se reproduce en la propia tarjeta).
 - Si ya envió propuesta (“ENVIADA”).
 - Si es de **alta dificultad**, puede verse borroso o bloqueado según su plan.
 
