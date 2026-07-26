@@ -3,7 +3,6 @@ import { IonCard, IonIcon } from '@ionic/react';
 import {
   locationOutline,
   calendarOutline,
-  arrowForwardOutline,
   star,
   flashOutline,
 } from 'ionicons/icons';
@@ -117,9 +116,6 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
       <div className="mw-card-right">
         <span className="mw-price">{bidPriceLabel(bid)}</span>
         <span className="mw-price-label">TU PROPUESTA</span>
-        <div className="arrow-box">
-          <IonIcon icon={arrowForwardOutline} />
-        </div>
       </div>
     </div>
     <div className="mw-card-footer">
@@ -248,9 +244,6 @@ export const MyWorkJobCard: React.FC<MyWorkJobCardProps> = ({
           <span className="mw-price success">{formatRequestPriceRangeEuros(job)}</span>
         </div>
         <span className="mw-price-label">GANADO</span>
-        <div className="arrow-box">
-          <IonIcon icon={arrowForwardOutline} />
-        </div>
       </div>
     </div>
     <div className="mw-card-footer">

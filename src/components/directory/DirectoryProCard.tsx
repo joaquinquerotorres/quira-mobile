@@ -2,7 +2,7 @@ import React from 'react';
 import { IonAvatar, IonIcon } from '@ionic/react';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { getCategoryLabel } from '../../utils/categoryLabels';
-import { star, arrowForwardOutline } from 'ionicons/icons';
+import { star } from 'ionicons/icons';
 
 interface DirectoryProCardProps {
   pro: {
@@ -156,10 +156,6 @@ export const DirectoryProCard: React.FC<DirectoryProCardProps> = ({
           ({pro.reviewCount ?? 0})
         </span>
       </div>
-    </div>
-
-    <div className="arrow-box muted">
-      <IonIcon icon={arrowForwardOutline} />
     </div>
   </div>
   );

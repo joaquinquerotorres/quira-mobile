@@ -8,7 +8,6 @@ import {
 import {
   hammerOutline,
   lockClosedOutline,
-  arrowForwardOutline,
   checkmarkCircleOutline,
   star,
 } from 'ionicons/icons';
@@ -137,12 +136,6 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: '10px', marginRight: '2px' }} /> ENVIADA
             </div>
           ) : null}
-
-          {!isBlurry && (
-            <div className="arrow-box">
-              <IonIcon icon={arrowForwardOutline} />
-            </div>
-          )}
         </div>
       </div>
 

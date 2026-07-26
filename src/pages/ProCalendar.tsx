@@ -2,18 +2,15 @@ import React, { useCallback, useMemo, useState } from 'react';
 import {
   IonAlert,
   IonButton,
-  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
-  IonHeader,
   IonIcon,
   IonPage,
   IonRefresher,
   IonRefresherContent,
   IonSpinner,
   IonToast,
-  IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
 } from '@ionic/react';
@@ -25,6 +22,7 @@ import {
   trashOutline,
 } from 'ionicons/icons';
 import { LogoHeader } from '../components/layout/LogoHeader';
+import MainHeader from '../components/shared/MainHeader';
 import CalendarEventFormModal from '../components/calendar/CalendarEventFormModal';
 import type { CalendarEvent, ServiceRequest } from '../types';
 import {
@@ -181,13 +179,8 @@ const ProCalendar: React.FC = () => {
   return (
     <IonPage>
       <LogoHeader />
-      <IonHeader className="ion-no-border">
-        <IonToolbar style={{ '--background': '#f8fafc' }}>
-          <div className="pro-calendar-title">Calendario</div>
-        </IonToolbar>
-      </IonHeader>
 
-      <IonContent style={{ '--background': '#f8fafc' }}>
+      <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
         <IonRefresher
           slot="fixed"
           onIonRefresh={async (e) => {
@@ -198,6 +191,12 @@ const ProCalendar: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
+        <MainHeader
+          title="Calendario"
+          subtitle="Organiza tus trabajos agendados."
+        />
+
+        <div className="pro-calendar-content">
         <div className="pro-calendar-month-nav">
           <IonButton
             fill="clear"
@@ -318,6 +317,7 @@ const ProCalendar: React.FC = () => {
             </div>
           </>
         )}
+        </div>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={openCreate} className="pro-calendar-fab">

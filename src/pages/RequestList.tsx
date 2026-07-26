@@ -286,12 +286,11 @@ const RequestList: React.FC = () => {
                                         </div>
                                         {renderScheduleInfo(req.desiredExecutionTime)}
                                     </div>
-                                    <div className="request-list-card-right">
+                                        <div className="request-list-card-right">
                                         <div className="request-list-card-price-block">
                                             <span className="request-list-card-price-label">Rango estimado</span>
                                             <span className="request-list-card-price">{formatRequestPriceRangeEuros(req)}</span>
                                         </div>
-                                        <div className="arrow-box"><IonIcon icon={arrowForwardOutline} /></div>
                                     </div>
                                 </div>
                                 {req.assignedProfessional && (
@@ -430,7 +429,6 @@ const RequestList: React.FC = () => {
                                               })()}
                                             </div>
                                         </div>
-                                        <IonIcon icon={arrowForwardOutline} color="medium" />
                                     </div>
                                 );
                             })

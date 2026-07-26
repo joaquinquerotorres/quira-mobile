@@ -10,7 +10,7 @@ import {
 import { 
   hammerOutline, 
   cashOutline, sendOutline, closeOutline, calendarOutline, flashOutline, 
-  checkmarkCircleOutline, star, lockClosedOutline, arrowForwardOutline,
+  checkmarkCircleOutline, star, lockClosedOutline,
   swapVerticalOutline
 } from 'ionicons/icons';
 import api from '../api/axios';
