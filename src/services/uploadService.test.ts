@@ -1,5 +1,9 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
-import { uploadAvatarWithTicket, uploadRequestMediaWithTicket } from './uploadService';
+import {
+  putBlobToSignedUrl,
+  uploadAvatarWithTicket,
+  uploadRequestMediaWithTicket,
+} from './uploadService';
 
 import api from '../api/axios';
 
@@ -7,19 +11,68 @@ vi.mock('../api/axios', () => ({
   default: { post: vi.fn() },
 }));
 
+type XhrInstance = {
+  open: ReturnType<typeof vi.fn>;
+  setRequestHeader: ReturnType<typeof vi.fn>;
+  send: ReturnType<typeof vi.fn>;
+  upload: { onprogress: ((ev: ProgressEvent) => void) | null };
+  onload: (() => void) | null;
+  onerror: (() => void) | null;
+  ontimeout: (() => void) | null;
+  status: number;
+  timeout: number;
+};
+
 describe('uploadService', () => {
-  const fetchSpy = vi.fn();
+  let lastXhr: XhrInstance | null = null;
+  let OriginalXHR: typeof XMLHttpRequest;
 
   beforeEach(() => {
     vi.mocked(api.post).mockReset();
-    fetchSpy.mockReset();
-    // @ts-expect-error override global fetch in tests
-    globalThis.fetch = fetchSpy;
-    fetchSpy.mockResolvedValue({ ok: true });
+    lastXhr = null;
+    OriginalXHR = globalThis.XMLHttpRequest;
+
+    class MockXHR {
+      open = vi.fn();
+      setRequestHeader = vi.fn();
+      upload: { onprogress: ((ev: ProgressEvent) => void) | null } = {
+        onprogress: null,
+      };
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      ontimeout: (() => void) | null = null;
+      status = 0;
+      timeout = 0;
+
+      send = vi.fn(() => {
+        // Simulate successful PUT after send
+        this.status = 200;
+        queueMicrotask(() => this.onload?.());
+      });
+
+      constructor() {
+        lastXhr = this as unknown as XhrInstance;
+      }
+    }
+
+    // @ts-expect-error mock XHR in jsdom
+    globalThis.XMLHttpRequest = MockXHR;
   });
 
   afterEach(() => {
+    globalThis.XMLHttpRequest = OriginalXHR;
     vi.restoreAllMocks();
+  });
+
+  test('putBlobToSignedUrl PUTs with Content-Type and resolves on 2xx', async () => {
+    const blob = new Blob(['x'], { type: 'text/plain' });
+    const progress = vi.fn();
+    await putBlobToSignedUrl('https://signed/put', blob, 'text/plain', progress);
+
+    expect(lastXhr?.open).toHaveBeenCalledWith('PUT', 'https://signed/put');
+    expect(lastXhr?.setRequestHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
+    expect(lastXhr?.send).toHaveBeenCalledWith(blob);
+    expect(progress).toHaveBeenCalledWith(100);
   });
 
   test('uploadAvatarWithTicket requests ticket, PUTs file, returns publicUrl', async () => {
@@ -31,11 +84,9 @@ describe('uploadService', () => {
     const url = await uploadAvatarWithTicket(file);
 
     expect(api.post).toHaveBeenCalledWith('/upload-ticket/avatar', { contentType: 'image/png' });
-    expect(fetchSpy).toHaveBeenCalledWith('https://signed/avatar', {
-      method: 'PUT',
-      body: file,
-      headers: { 'Content-Type': 'image/png' },
-    });
+    expect(lastXhr?.open).toHaveBeenCalledWith('PUT', 'https://signed/avatar');
+    expect(lastXhr?.setRequestHeader).toHaveBeenCalledWith('Content-Type', 'image/png');
+    expect(lastXhr?.send).toHaveBeenCalledWith(file);
     expect(url).toBe('https://public/avatar.png');
   });
 
@@ -52,16 +103,9 @@ describe('uploadService', () => {
       type: 'audio',
       contentType: 'text/plain',
     });
-    expect(fetchSpy).toHaveBeenCalledWith(
-      'https://signed/media',
-      expect.objectContaining({
-        method: 'PUT',
-        headers: { 'Content-Type': 'text/plain' },
-      }),
-    );
-    const putArgs = fetchSpy.mock.calls[0][1] as any;
-    expect(putArgs.body).toBeInstanceOf(Blob);
+    expect(lastXhr?.open).toHaveBeenCalledWith('PUT', 'https://signed/media');
+    expect(lastXhr?.setRequestHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
+    expect(lastXhr?.send.mock.calls[0][0]).toBeInstanceOf(Blob);
     expect(url).toBe('https://public/media');
   });
 });
-
