@@ -267,11 +267,6 @@ const RequestList: React.FC = () => {
                                 audioUrl: req.audioUrl,
                               }}
                               footer={{
-                                emptyText: !req.assignedProfessional
-                                  ? req.status === 'PENDING'
-                                    ? 'Esperando propuestas'
-                                    : 'Sin profesional asignado'
-                                  : undefined,
                                 personPrefix: req.assignedProfessional
                                   ? (req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:')
                                   : undefined,

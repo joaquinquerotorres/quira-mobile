@@ -21,9 +21,9 @@ vi.mock('@ionic/react', () => ({
 }));
 
 describe('ListingCardFooter', () => {
-  test('shows waiting copy when there is no professional', () => {
-    render(<ListingCardFooter emptyText="Esperando propuestas" />);
-    expect(screen.getByText('Esperando propuestas')).toBeInTheDocument();
+  test('renders nothing when there is no professional and no action', () => {
+    const { container } = render(<ListingCardFooter />);
+    expect(container.firstChild).toBeNull();
   });
 
   test('shows person when assigned', () => {

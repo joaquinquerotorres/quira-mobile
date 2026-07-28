@@ -9,7 +9,7 @@ export interface ListingCardFooterMedia {
 }
 
 export interface ListingCardFooterProps {
-  /** Texto pasivo (p. ej. «Esperando propuestas», «Sin profesional asignado»). */
+  /** Texto pasivo opcional (solo si hay contenido en el footer). */
   emptyText?: string;
   /** Prefijo: "Cliente:", "Pro:", "Finalizado por:". */
   personPrefix?: string;
@@ -31,6 +31,10 @@ export const ListingCardFooter: React.FC<ListingCardFooterProps> = ({
   mutedBackground,
 }) => {
   const hasPerson = Boolean(personName);
+  const hasLeft = hasPerson || Boolean(emptyText);
+  if (!hasLeft && !action) {
+    return null;
+  }
 
   return (
     <div
