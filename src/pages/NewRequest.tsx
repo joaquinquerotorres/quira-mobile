@@ -41,6 +41,12 @@ import {
   type VideoUploadConnectionHint,
 } from '../utils/videoUploadNetworkHint';
 import {
+  formatPredictMediaLimitMb,
+  PREDICT_AUDIO_MAX_BYTES,
+  PREDICT_IMAGE_MAX_BYTES,
+  PREDICT_VIDEO_MAX_BYTES,
+} from '../utils/predictMediaLimits';
+import {
   maybeCompressVideoDataUrlForPredict,
   predictVideoPayloadDecodedBytes,
   shouldCompressVideoForUpload,
@@ -411,9 +417,11 @@ const NewRequest: React.FC = () => {
   const handleVideoFile = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-          // 1. Límite de Tamaño: Bajamos a 25MB (Suficiente para 15s HD)
-          if (file.size > 25 * 1024 * 1024) { 
-              setToast("El vídeo es demasiado pesado. Máximo 25MB.");
+          // Mismo tope que PredictMediaLimits / maxBytes del upload-ticket (Wi‑Fi y datos).
+          if (file.size > PREDICT_VIDEO_MAX_BYTES) {
+              setToast(
+                `El vídeo es demasiado pesado. Máximo ${formatPredictMediaLimitMb(PREDICT_VIDEO_MAX_BYTES)}MB.`,
+              );
               return;
           }
 
@@ -449,8 +457,10 @@ const NewRequest: React.FC = () => {
   const handleSelectAudioFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      setToast('El audio es demasiado pesado. Máximo 10MB.');
+    if (file.size > PREDICT_AUDIO_MAX_BYTES) {
+      setToast(
+        `El audio es demasiado pesado. Máximo ${formatPredictMediaLimitMb(PREDICT_AUDIO_MAX_BYTES)}MB.`,
+      );
       return;
     }
     const reader = new FileReader();
@@ -605,17 +615,23 @@ const NewRequest: React.FC = () => {
     reader.onloadend = () => {
       const result = reader.result;
       if (typeof result !== 'string') return;
-      // Reutilizamos los mismos límites básicos de tamaño/duración que en el resto de la app
-      if (type === 'video' && file.size > 25 * 1024 * 1024) {
-        setToast('El vídeo es demasiado pesado. Máximo 25MB.');
+      // Mismos límites que PredictMediaLimits / maxBytes del upload-ticket
+      if (type === 'video' && file.size > PREDICT_VIDEO_MAX_BYTES) {
+        setToast(
+          `El vídeo es demasiado pesado. Máximo ${formatPredictMediaLimitMb(PREDICT_VIDEO_MAX_BYTES)}MB.`,
+        );
         return;
       }
-      if (type === 'photo' && file.size > 10 * 1024 * 1024) {
-        setToast('La imagen es demasiado pesada. Máximo 10MB.');
+      if (type === 'photo' && file.size > PREDICT_IMAGE_MAX_BYTES) {
+        setToast(
+          `La imagen es demasiado pesada. Máximo ${formatPredictMediaLimitMb(PREDICT_IMAGE_MAX_BYTES)}MB.`,
+        );
         return;
       }
-      if (type === 'audio' && file.size > 10 * 1024 * 1024) {
-        setToast('El audio es demasiado pesado. Máximo 10MB.');
+      if (type === 'audio' && file.size > PREDICT_AUDIO_MAX_BYTES) {
+        setToast(
+          `El audio es demasiado pesado. Máximo ${formatPredictMediaLimitMb(PREDICT_AUDIO_MAX_BYTES)}MB.`,
+        );
         return;
       }
       setExtraMedia(prev => [...prev, { type, data: result }]);

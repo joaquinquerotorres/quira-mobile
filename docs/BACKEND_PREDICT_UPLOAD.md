@@ -20,9 +20,21 @@ La app **ya no** envía vídeo/audio/imagen en base64 dentro de `POST /api/predi
 
 | Método | Ruta | Rol |
 |--------|------|-----|
-| POST | `/api/upload-ticket/request-media` | Ticket firmado (`type`, `contentType`) |
+| POST | `/api/upload-ticket/request-media` | Ticket firmado (`type`, `contentType`). Respuesta incluye **`maxBytes`** |
 | POST | `/api/predict` | Body JSON pequeño con `*Url` (preferido) o legacy base64 |
 | GET | `/api/predict/tasks/{publicId}` | Estado / resultado de la tarea |
+
+### Límites de media (`PredictMediaLimits` / `maxBytes`)
+
+Mismo tope en Wi‑Fi y datos móviles (sin hard-cap artificial ~25 MB en no‑Wi‑Fi):
+
+| Media | `maxBytes` |
+|-------|------------|
+| imagen / `photo` | **10 MB** |
+| audio | **12 MB** |
+| vídeo | **40 MB** |
+
+Cliente: `src/utils/predictMediaLimits.ts`, validación en `uploadService` y UI en `NewRequest`.
 
 Campos preferidos en `POST /api/predict`: `description`, `location`, `imageUrl`, `audioUrl`, `videoUrl` (HTTPS del bucket de requests de Supabase).
 
