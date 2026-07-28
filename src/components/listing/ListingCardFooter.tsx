@@ -1,6 +1,6 @@
 import React from 'react';
-import { IonBadge, IonButton, IonIcon } from '@ionic/react';
-import { arrowForwardOutline, star } from 'ionicons/icons';
+import { IonBadge, IonIcon } from '@ionic/react';
+import { star } from 'ionicons/icons';
 
 export interface ListingCardFooterMedia {
   photoUrl?: string | null;
@@ -8,19 +8,9 @@ export interface ListingCardFooterMedia {
   audioUrl?: string | null;
 }
 
-export interface ListingCardFooterEmptyCta {
-  label: string;
-  onClick: (e: React.MouseEvent) => void;
-}
-
 export interface ListingCardFooterProps {
-  /** Texto pasivo (p. ej. estados sin CTA). */
+  /** Texto pasivo (p. ej. «Esperando propuestas», «Sin profesional asignado»). */
   emptyText?: string;
-  /**
-   * CTA ghost cuando no hay profesional (p. ej. pendiente → "Buscar profesional").
-   * Tiene prioridad sobre `emptyText`.
-   */
-  emptyCta?: ListingCardFooterEmptyCta;
   /** Prefijo: "Cliente:", "Pro:", "Finalizado por:". */
   personPrefix?: string;
   personName?: string;
@@ -33,7 +23,6 @@ export interface ListingCardFooterProps {
 
 export const ListingCardFooter: React.FC<ListingCardFooterProps> = ({
   emptyText,
-  emptyCta,
   personPrefix,
   personName,
   rating,
@@ -48,23 +37,7 @@ export const ListingCardFooter: React.FC<ListingCardFooterProps> = ({
       className={`listing-card-footer${mutedBackground ? ' muted-bg' : ''}`}
     >
       <div className="listing-footer-left">
-        {!hasPerson && emptyCta && (
-          <IonButton
-            fill="outline"
-            color="primary"
-            size="small"
-            className="listing-footer-empty-cta"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              emptyCta.onClick(e);
-            }}
-          >
-            {emptyCta.label}
-            <IonIcon slot="end" icon={arrowForwardOutline} />
-          </IonButton>
-        )}
-        {!hasPerson && !emptyCta && emptyText && (
+        {!hasPerson && emptyText && (
           <span className="listing-footer-text muted">{emptyText}</span>
         )}
         {hasPerson && (

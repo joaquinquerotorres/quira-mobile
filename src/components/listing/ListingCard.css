@@ -201,6 +201,14 @@
   font-size: 0.85rem;
 }
 
+/* Media bajo disponibilidad/fecha (no en pills superiores) */
+.listing-card-media {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
 .listing-card-footer {
   padding: 10px 16px;
   border-top: 1px solid #f1f5f9;
@@ -311,17 +319,4 @@
 
 .listing-filter-chips::-webkit-scrollbar {
   display: none;
-}
-
-.listing-footer-empty-cta {
-  --border-radius: 8px;
-  --border-width: 1px;
-  --padding-start: 10px;
-  --padding-end: 8px;
-  height: 30px;
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: none;
-  letter-spacing: 0;
 }

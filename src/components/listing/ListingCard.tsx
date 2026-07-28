@@ -29,7 +29,10 @@ export interface ListingCardProps {
   category: string | { code?: string; name?: string } | null | undefined;
   statusLabel?: string;
   extraBadges?: React.ReactNode;
-  /** Media junto a las pills (no en el footer, evita solapar CTAs). */
+  /**
+   * Media debajo de las meta rows (ubicación / disponibilidad).
+   * Patrón tipo Airbnb/Marketplace: adjuntos junto al contexto temporal, no en la fila de badges.
+   */
   media?: ListingCardFooterMedia | null;
   title: string;
   price: {
@@ -84,14 +87,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 <StatusBadge status={status} label={statusLabel} />
               )}
               {extraBadges}
-              {media && (
-                <RequestMediaChip
-                  photoUrl={media.photoUrl}
-                  videoUrl={media.videoUrl}
-                  audioUrl={media.audioUrl}
-                  className="request-media-chip--inline"
-                />
-              )}
             </div>
             <EstimatePriceBlock
               variant={price.variant}
@@ -110,6 +105,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <span>{row.text}</span>
             </div>
           ))}
+          {media && (
+            <div className="listing-card-media">
+              <RequestMediaChip
+                photoUrl={media.photoUrl}
+                videoUrl={media.videoUrl}
+                audioUrl={media.audioUrl}
+                className="request-media-chip--inline"
+              />
+            </div>
+          )}
         </div>
       </div>
       <ListingCardFooter {...footer} />

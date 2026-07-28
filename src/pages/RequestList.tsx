@@ -267,23 +267,11 @@ const RequestList: React.FC = () => {
                                 audioUrl: req.audioUrl,
                               }}
                               footer={{
-                                emptyCta:
-                                  !req.assignedProfessional && req.status === 'PENDING'
-                                    ? {
-                                        label: 'Buscar profesional',
-                                        onClick: () => {
-                                          const cat =
-                                            typeof req.category === 'string'
-                                              ? req.category
-                                              : (req.category as { code?: string } | undefined)?.code;
-                                          goToDirectory(cat);
-                                        },
-                                      }
-                                    : undefined,
-                                emptyText:
-                                  !req.assignedProfessional && req.status !== 'PENDING'
-                                    ? 'Sin profesional asignado'
-                                    : undefined,
+                                emptyText: !req.assignedProfessional
+                                  ? req.status === 'PENDING'
+                                    ? 'Esperando propuestas'
+                                    : 'Sin profesional asignado'
+                                  : undefined,
                                 personPrefix: req.assignedProfessional
                                   ? (req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:')
                                   : undefined,

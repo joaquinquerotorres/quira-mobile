@@ -21,23 +21,21 @@ vi.mock('@ionic/react', () => ({
 }));
 
 describe('ListingCardFooter', () => {
-  test('renders emptyCta instead of passive emptyText', () => {
-    const onClick = vi.fn();
-    render(
-      <ListingCardFooter
-        emptyText="Sin profesional asignado"
-        emptyCta={{ label: 'Buscar profesional', onClick }}
-      />,
-    );
-    expect(screen.getByText('Buscar profesional')).toBeInTheDocument();
-    expect(screen.queryByText('Sin profesional asignado')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByText('Buscar profesional'));
-    expect(onClick).toHaveBeenCalled();
+  test('shows waiting copy when there is no professional', () => {
+    render(<ListingCardFooter emptyText="Esperando propuestas" />);
+    expect(screen.getByText('Esperando propuestas')).toBeInTheDocument();
   });
 
-  test('keeps emptyText when there is no emptyCta', () => {
-    render(<ListingCardFooter emptyText="Sin profesional asignado" />);
-    expect(screen.getByText('Sin profesional asignado')).toBeInTheDocument();
+  test('shows person when assigned', () => {
+    render(
+      <ListingCardFooter
+        personPrefix="Pro:"
+        personName="Ana"
+        rating={4.8}
+      />,
+    );
+    expect(screen.getByText(/Ana/)).toBeInTheDocument();
+    expect(screen.getByText('4.8')).toBeInTheDocument();
   });
 });
 
