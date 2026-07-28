@@ -23,7 +23,7 @@ export const PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE = 120;
 
 /**
  * Tope de bytes decodificados por encima del cual **no** se intenta compresión en cliente (web).
- * Por debajo del máximo de fichero de la UI (~25 MB), pero evita picos de memoria (atob + Blob + vídeo + canvas).
+ * Por debajo del máximo de fichero de la UI (PredictMediaLimits vídeo = 40 MB), pero evita picos de memoria (atob + Blob + vídeo + canvas).
  */
 export const PREDICT_VIDEO_MAX_DECODED_BYTES_FOR_COMPRESS_DEFAULT =
   16 * 1024 * 1024;

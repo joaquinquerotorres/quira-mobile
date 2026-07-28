@@ -3,10 +3,16 @@
  * Flujo: 1) Pedir ticket → 2) PUT a signedUrl → 3) Usar publicUrl
  */
 import api from '../api/axios';
+import {
+  formatPredictMediaLimitMb,
+  maxBytesForPredictMedia,
+} from '../utils/predictMediaLimits';
 
 interface UploadTicketResponse {
   signedUrl: string;
   publicUrl: string;
+  /** Límite del análisis IA (PredictMediaLimits); presente en request-media. */
+  maxBytes?: number;
 }
 
 export type UploadProgressHandler = (percent: number) => void;
@@ -71,7 +77,8 @@ export async function uploadAvatarWithTicket(
 type MediaType = 'photo' | 'audio' | 'video';
 
 /**
- * Request media: ticket + PUT + devolver publicUrl
+ * Request media: ticket + PUT + devolver publicUrl.
+ * Respeta `maxBytes` del ticket (fallback: PredictMediaLimits locales).
  */
 export async function uploadRequestMediaWithTicket(
   dataUrl: string,
@@ -83,6 +90,18 @@ export async function uploadRequestMediaWithTicket(
     type,
     contentType,
   });
+  const maxBytes =
+    typeof data.maxBytes === 'number' && data.maxBytes > 0
+      ? data.maxBytes
+      : maxBytesForPredictMedia(type);
+  if (blob.size > maxBytes) {
+    const mb = formatPredictMediaLimitMb(maxBytes);
+    const label =
+      type === 'video' ? 'vídeo' : type === 'audio' ? 'audio' : 'imagen';
+    throw new Error(
+      `El ${label} es demasiado pesado. Máximo ${mb}MB.`,
+    );
+  }
   await putBlobToSignedUrl(data.signedUrl, blob, contentType, onProgress);
   return data.publicUrl;
 }

@@ -92,7 +92,11 @@ describe('uploadService', () => {
 
   test('uploadRequestMediaWithTicket requests ticket, PUTs blob with inferred content-type, returns publicUrl', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: { signedUrl: 'https://signed/media', publicUrl: 'https://public/media' },
+      data: {
+        signedUrl: 'https://signed/media',
+        publicUrl: 'https://public/media',
+        maxBytes: 12_000_000,
+      },
     } as any);
 
     // "hello" base64 is aGVsbG8=
@@ -107,5 +111,33 @@ describe('uploadService', () => {
     expect(lastXhr?.setRequestHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
     expect(lastXhr?.send.mock.calls[0][0]).toBeInstanceOf(Blob);
     expect(url).toBe('https://public/media');
+  });
+
+  test('uploadRequestMediaWithTicket rejects when blob exceeds maxBytes from ticket', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: {
+        signedUrl: 'https://signed/media',
+        publicUrl: 'https://public/media',
+        maxBytes: 4,
+      },
+    } as any);
+
+    // "hello" = 5 bytes
+    const dataUrl = 'data:text/plain;base64,aGVsbG8=';
+    await expect(uploadRequestMediaWithTicket(dataUrl, 'video')).rejects.toThrow(
+      /vídeo es demasiado pesado/i,
+    );
+    expect(lastXhr).toBeNull();
+  });
+
+  test('uploadRequestMediaWithTicket falls back to local PredictMediaLimits when maxBytes missing', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { signedUrl: 'https://signed/media', publicUrl: 'https://public/media' },
+    } as any);
+
+    const dataUrl = 'data:text/plain;base64,aGVsbG8=';
+    const url = await uploadRequestMediaWithTicket(dataUrl, 'photo');
+    expect(url).toBe('https://public/media');
+    expect(lastXhr?.open).toHaveBeenCalledWith('PUT', 'https://signed/media');
   });
 });
