@@ -379,12 +379,12 @@ ion-datetime::part(time-button active) {
     overflow: visible;
 }
 
-/* "Pedir": FAB circular superpuesto por encima de la barra (no comprimido dentro) */
+/* "Pedir": FAB compacto, ligeramente por encima de la barra */
 .quira-tabbar ion-tab-button.quira-tab-pedir {
     --color: #ea580c;
     --color-selected: #ea580c;
-    --padding-top: 0;
-    --padding-bottom: 6px;
+    --padding-top: 2px;
+    --padding-bottom: 4px;
     position: relative;
     z-index: 12;
     overflow: visible !important;
@@ -395,18 +395,20 @@ ion-datetime::part(time-button active) {
     overflow: visible;
     contain: none;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
+    gap: 0;
     padding-top: 0;
+    padding-bottom: 0;
 }
 
 .quira-tabbar ion-tab-button.quira-tab-pedir ion-icon {
-    font-size: 30px;
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    min-height: 58px;
-    margin: 0 0 2px;
+    font-size: 22px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
@@ -415,12 +417,12 @@ ion-datetime::part(time-button active) {
     border-radius: 50%;
     background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
     color: #ffffff !important;
-    border: 3px solid #ffffff;
+    border: 2.5px solid #ffffff;
     box-shadow:
-      0 8px 20px rgba(249, 115, 22, 0.42),
-      0 0 0 1px rgba(249, 115, 22, 0.12);
-    /* Mitad del círculo por encima del borde superior de la tab bar */
-    transform: translateY(-22px);
+      0 4px 12px rgba(249, 115, 22, 0.35),
+      0 0 0 1px rgba(249, 115, 22, 0.1);
+    /* Solo un poco por encima del borde de la tab bar */
+    transform: translateY(-12px);
     position: relative;
     z-index: 13;
     flex-shrink: 0;
@@ -429,8 +431,11 @@ ion-datetime::part(time-button active) {
 .quira-tabbar ion-tab-button.quira-tab-pedir ion-label {
     color: #ea580c;
     font-weight: 800;
-    line-height: 1.05;
-    font-size: 0.7rem;
+    line-height: 1;
+    font-size: 0.65rem;
+    margin: 0;
+    /* Compensa el lift del icono para alinear "Pedir" con Inicio / Perfil */
+    transform: translateY(-10px);
     position: relative;
     z-index: 13;
 }
