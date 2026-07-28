@@ -49,13 +49,13 @@ describe('activeMode', () => {
   });
 
   it('resolvePostLoginPath sets pro for pro-only', () => {
-    expect(resolvePostLoginPath({ professionalProfile: {} })).toBe('/my-work');
+    expect(resolvePostLoginPath({ professionalProfile: {} })).toBe('/market');
     expect(getActiveMode()).toBe('pro');
   });
 
   it('homePathForMode', () => {
     expect(homePathForMode('client')).toBe('/request-list');
-    expect(homePathForMode('pro')).toBe('/my-work');
+    expect(homePathForMode('pro')).toBe('/market');
   });
 
   it('getEffectiveActiveMode defaults to client', () => {

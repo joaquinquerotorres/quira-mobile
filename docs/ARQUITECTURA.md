@@ -163,13 +163,10 @@ interface RequestQuestion {
 
 ### Cards de oportunidad (`MarketOpportunityCard`)
 
-- Layout sin thumbnail embebido: categoría (y badge HIGH si aplica) a la izquierda, **«Rango estimado»** + importe a la derecha; título, zona y disponibilidad debajo con tipografía más legible.
-- Si hay `photoUrl` / `videoUrl` / `audioUrl`, chip **Media** en el footer (abre `RequestMediaModal` con slider; no reproduce media en la card). Sin media real, no se muestra placeholder ni columna visual.
-- Footer: cliente + rating (o “NUEVO”) a la izquierda; **Media** (si hay) y **ME INTERESA** / **SOLO PRO** a la derecha. Si `isBidden`, badge "ENVIADA" en el cuerpo.
-- HIGH Risk: overlay borroso y badge "TRABAJO DE ALTA DIFICULTAD".
-- `isBidden`: si el usuario tiene una propuesta `PENDING` en esa oportunidad.
-- `isLocked`: si no puede pujar (p. ej. HIGH Risk para no-PRO).
-- Tap en la card → detalle (`/pro/request/:id`); el chip Media y el botón de puja hacen `stopPropagation`.
+- Wrapper sobre `ListingCard` compartida: `CategoryBadge` (píldora+icono), `StatusBadge` "ENVIADA" si `isBidden`, **EstimatePriceBlock** `range`, meta zona + disponibilidad.
+- Footer: cliente + rating/NUEVO, chip Media, CTA **ME INTERESA** / **SOLO PRO** (o sin CTA si ya envió).
+- HIGH Risk: overlay borroso + badge "ALTA DIFICULTAD".
+- `isBidden` / `isLocked` / tap → detalle: misma semántica de negocio que antes.
 
 ### Botón "ME INTERESA"
 
@@ -275,7 +272,7 @@ La app usa un flujo de subida por **ticket** (el backend devuelve `signedUrl` + 
 | POST | `/upload-ticket/avatar` | Obtener ticket para subir avatar (devuelve `signedUrl` + `publicUrl`) |
 | POST | `/upload-ticket/request-media` | Obtener ticket para subir media de solicitud (foto/audio/vídeo; devuelve `signedUrl` + `publicUrl`) |
 
-Después del ticket, el frontend hace `PUT` a `signedUrl` y guarda/usa `publicUrl`.
+Después del ticket, el frontend hace `PUT` a `signedUrl` (con progreso en análisis) y usa `publicUrl`. El **análisis IA** (`NewRequest`) sube el media principal **antes** de `POST /predict` (por URL); al publicar se reutiliza esa `publicUrl`. Ver `BACKEND_PREDICT_UPLOAD.md`.
 
 ### Solicitudes
 
@@ -381,17 +378,19 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - La disponibilidad mostrada en cards se toma de `desiredExecutionTime` (texto directo del backend).
 - Si `desiredExecutionTime` está vacío o no viene informado, la UI cae al fallback "Lo antes posible".
 - El campo `scheduledAt` no se usa en frontend.
-- **Media en listados**: no hay thumbnail/placeholder en la card. Con adjuntos (`photoUrl` / `videoUrl` / `audioUrl`), chip **Media** → `RequestMediaModal` (carrusel foto/vídeo/audio a tamaño usable). Sin adjuntos, el texto usa todo el ancho. Utilidad: `utils/requestMedia.ts` (`collectRequestMedia` / `hasRequestMedia`).
-- Misma estructura de card en **Mercado**, **Mi Trabajo** (`MyWorkBidCard` / `MyWorkJobCard`) y **Mis solicitudes** (`RequestList`): categoría + estado/precio arriba, título y meta, footer con cliente/pro y acciones.
+- **Componentes compartidos** (`src/components/listing/`): `ListingCard` compone `CategoryBadge` (píldora+icono), `StatusBadge`, `EstimatePriceBlock` (`range` | `text` | `ownBid`) y `ListingCardFooter`. Tokens de estado en `utils/listingStatus.ts` (incluye `available` / `sent` para detalle pro); estilos de categoría en `utils/categoryStyles.ts`. `FilterChipRow` solo en Mis solicitudes (Mercado/Gestión filtran por modal), con fade de scroll cuando desborda. Alias: `ListingHeroHeader`→`MainHeader` (cabecera compacta), `SegmentedTabBar`→`SegmentTab`, `SearchWithFilter`→`SearchText`. Bottom nav: `IonTabs` en `App.tsx` — cliente con FAB naranja **"Pedir"**; pro sin FAB (**Mercado → Gestión → Calendario → Perfil**; home pro = `/market`). En solicitudes pendientes sin pro, footer muestra CTA **"Buscar profesional"** → `/directory`.
+- **Media en listados**: chip **Media** en la fila de pills de `ListingCard` → un único `RequestMediaModalHost` en `App` (no un `IonModal` por card; evita pantallas negras intermitentes en Mercado/Gestión). Sin adjuntos, no se muestra el chip (`utils/requestMedia.ts`).
+- Wrappers de dominio: `MarketOpportunityCard`, `MyWorkBidCard` / `MyWorkJobCard`; Mis solicitudes usa `ListingCard` directamente.
+- **Detalle de servicio compartido** (`src/components/detail/`): `DetailHeroHeader` (`StatusBadge` + título), `InfoBox` (rango, disponibilidad y ubicación a ancho completo), `PersonCard` (texto «Sin valoraciones todavía» si `reviewCount === 0`), `JobDetailsSection` (`CategoryBadge`), `QuestionsRow`, `DetailBottomAction` (retirar propuesta fuera de la caja verde; confirmación vía alert de página). Helpers `utils/detailStatus.ts`. Placeholder de categoría en media más bajo (~68px). Disclaimer del rango estimado también en vista cliente.
 
 ### RequestDetail (cliente)
 
-- Muestra solicitud, multimedia principal; si no hay media principal, el placeholder usa **icono + color por categoría**.
-- Orden principal actual: título + estado, ofertas (si `PENDING` o `ACCEPTED`), profesional asignado (si `ACCEPTED`/`COMPLETED`), rango IA, disponibilidad, ubicación, descripción, Q&A y acciones finales.
-- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): tarjeta de información ("Rango estimado") en euros.
+- Muestra solicitud, multimedia principal; si no hay media principal, el placeholder usa **icono + color por categoría** (`getCategoryStyle`).
+- Orden principal: `DetailHeroHeader`, ofertas (`PersonCard` × n si `PENDING`/`ACCEPTED`), profesional asignado (`PersonCard`), `InfoBox` rango IA (+ disclaimer), disponibilidad, ubicación, `JobDetailsSection`, `QuestionsRow`.
+- **Rango de precio IA** (`estimatedPriceMin` / `estimatedPriceMax`, céntimos): `InfoBox` "Rango estimado" en euros con subtexto orientativo.
 - Lista de ofertas ordenadas por tier y precio de la **propuesta** (`priceQuote`); cada oferta muestra **rating** y **reviewCount** del profesional.
 - En el listado de ofertas se muestran directamente todas las propuestas visibles, ordenadas por tier/precio según la lógica de cliente.
-- Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo estilo que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
+- Bloque **Profesional asignado** (cuando la solicitud está aceptada o completada): mismo `PersonCard` que las ofertas (avatar con badge PRO/SOLVER/FREE, nombre, rating y reviewCount), botón CONTACTAR o VALORAR TRABAJO.
 - **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
 - Botón **"ACEPTAR PRESUPUESTO"** (aceptar la **oferta de un profesional**, no el rango IA) → modal de dirección y confirmación.
@@ -400,12 +399,12 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### ProRequestDetail (profesional)
 
-- Vista de la solicitud para el profesional: si no hay media principal, el placeholder usa **icono + color por categoría** (alto compacto); descripción/categoría y **adjuntos adicionales** dentro de "Detalles del trabajo".
-- Orden principal actual: título + estado, bloque cliente, rango IA, ubicación (y mapa si ganador), detalles del trabajo, Q&A, tu propuesta y acciones.
-- **Rango estimado** en tarjeta bajo título ("Rango estimado" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
-- **Bloque Cliente**: card con título "Cliente", avatar redondeado, nombre, **rating** y **reviewCount** del cliente (si vienen en `request.client`). Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
+- Vista de la solicitud para el profesional: si no hay media principal, el placeholder usa **icono + color por categoría** (`getCategoryStyle`); descripción/categoría y **adjuntos adicionales** dentro de `JobDetailsSection`.
+- Orden principal: `DetailHeroHeader` (Disponible / Propuesta Enviada / …), `PersonCard` cliente, `InfoBox` rango + disponibilidad + ubicación (mapa si ganador), `JobDetailsSection`, `QuestionsRow`, `DetailBottomAction` (enviar / retirar propuesta + acciones de ganador).
+- **Rango estimado** en `InfoBox` bajo título ("Rango estimado" + texto de ayuda); el **modal de propuesta** sugiere como importe inicial la media del rango.
+- **Bloque Cliente**: `PersonCard` con título "Cliente", avatar, nombre, **rating** y **reviewCount**. Botón **"LLAMAR AL CLIENTE"** cuando el pro es ganador (`isWinner`) o cuando la **visita de valoración está aceptada** y el backend envía `client.phoneNumber` (el número no se muestra en UI, solo la acción de llamar).
 - **Solicitar visita para valorar** (solo HIGH, **tier efectivo PRO**): `POST /requests/{id}/visit-request`; errores del API se muestran con `getApiErrorMessage`.
-- Si tiene propuesta `PENDING`: muestra su propuesta con opción de retirarla.
+- Si tiene propuesta `PENDING`: muestra su propuesta con opción de retirarla (`DetailBottomAction` `sent-bid`).
 - Si es HIGH Risk y el tier efectivo no es PRO: bloqueo para pujar; el API valida igualmente.
 - Si está degradado pero tiene relación con la solicitud (puja activa o ganador): puede ver el detalle pese a HIGH.
 
@@ -416,7 +415,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Estados de trabajos: ASIGNADO, FINALIZADO.
 - En cards de **Propuestas** se muestra `desiredExecutionTime`; si no viene, fallback visual "Lo antes posible".
 - En **listados**, las solicitudes muestran etiqueta **«Rango estimado»** y el rango en euros (convertido desde céntimos); en **Propuestas** la columna derecha sigue siendo **tu propuesta** (`priceQuote`).
-- Sin thumbnail: chip **Media** en footer si la solicitud tiene adjuntos (mismo patrón que Mercado / Mis solicitudes).
+- Sin thumbnail: chip **Media** en la fila de pills (junto a categoría/estado), no en el footer — así no solapa CTAs ni el nombre del cliente.
 
 ### NewRequest
 
@@ -425,12 +424,11 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Paso 2: Diagnóstico IA, título, **nivel de riesgo (`risk_level` → LOW / MEDIUM / HIGH)**, **rango de precio estimado por la IA en la zona** (solo lectura; se muestra como «Rango estimado en tu zona (IA)») y **disponibilidad preferida para realizar el trabajo (sin fecha exacta)**. El nivel de riesgo se muestra como etiqueta no editable en el step 2 y se envía en la creación de la request para rellenar el campo `riskLevel` del backend. **Publicar** envía `estimatedPriceMin`, `estimatedPriceMax` y `aiDiagnosis` (objeto con `min`/`max` en céntimos); **no** se envía `priceAmount`. **Añadir más detalles (opcional)**: fotos, vídeos y audios adicionales (hasta un máximo configurable); texto de ayuda: "Cuanto más detallada sea tu solicitud... más fácil será que los profesionales te hagan una buena oferta". Para audio se puede grabar in situ o elegir desde galería.
 - Requiere dirección aproximada (Google Places o GPS).
 - Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
-- Antes de llamar a la IA (`/predict`), se envía:
-  - `description`, `image`, `audio`, **`video`** (según el modo; el resto va vacío o `null`),
-  - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
-- El cliente usa **timeout explícito** para `POST /predict` (p. ej. 300 s en `httpTimeouts.ts`; recomendado 120–300 s con vídeo). El backend debe permitir lectura del cuerpo y ejecución suficientes; ver **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- **Análisis IA (flujo híbrido):** primero se sube el media principal a Supabase (`upload-ticket` + PUT con progreso); luego `POST /predict` solo con URLs (`imageUrl` / `audioUrl` / `videoUrl`) + `description` / `location`. Si el backend responde `202`, la app hace polling a `GET /predict/tasks/{id}`. Al **publicar**, se **reutilizan** esas URLs (no se vuelve a subir el media del paso 1). Detalle: **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
+- Timeouts: `PREDICT_REQUEST_TIMEOUT_MS` (120 s) y, si aplica, `PREDICT_POLL_*` en `httpTimeouts.ts`.
 - En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network` en iOS/Android) o, cuando no hay detalle de red nativo, **conexión lenta** vía heurística (`navigator.connection.effectiveType` 2g/3g, p. ej. en tests), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
-- **Vídeo hacia `/predict`:** la app intenta **re-codificar** en cliente con **datos móviles** o red **lenta**; con **Wi‑Fi** o red **desconocida** solo si el vídeo es **grande** (≥ **~10 MB** decodificados). La re-codificación es **moderada** (calidad suficiente para modelos multimodales / Gemini). Si falla o el vídeo supera **~5 minutos**, se envía el original. La publicación (paso 2) sigue subiendo el vídeo **original** del paso 1 al bucket.
+- **Vídeo antes del PUT:** la app intenta **re-codificar** en cliente con **datos móviles** o red **lenta**; con **Wi‑Fi** o red **desconocida** solo si el vídeo es **grande** (≥ **~10 MB** decodificados). Si falla o supera los topes de duración/memoria, se sube el original. La misma URL sirve para predict y para publicar.
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.

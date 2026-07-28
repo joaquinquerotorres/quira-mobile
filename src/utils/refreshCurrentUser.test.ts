@@ -62,4 +62,39 @@ describe('refreshCurrentUserInStorage', () => {
     expect(ok).toBe(false);
     expect(localStorage.getItem('user')).toContain('"id":1');
   });
+
+  it('falls back to email lookup when GET by id fails', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 91, email: 'pro@test.com' })
+    );
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/users/91') {
+        throw Object.assign(new Error('Not Found'), { response: { status: 404 } });
+      }
+      if (url.startsWith('/users?email=')) {
+        return {
+          data: {
+            'hydra:member': [
+              {
+                id: 167,
+                email: 'pro@test.com',
+                professionalProfile: { id: 106, notifyRequestActivity: true },
+              },
+            ],
+          },
+        };
+      }
+      throw new Error(`Unexpected url: ${url}`);
+    });
+
+    const ok = await refreshCurrentUserInStorage();
+
+    expect(ok).toBe(true);
+    expect(api.get).toHaveBeenCalledWith('/users/91');
+    expect(api.get).toHaveBeenCalledWith('/users?email=pro%40test.com');
+    const stored = JSON.parse(localStorage.getItem('user')!);
+    expect(stored.id).toBe(167);
+    expect(stored.professionalProfile.id).toBe(106);
+  });
 });

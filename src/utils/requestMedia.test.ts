@@ -20,6 +20,7 @@ describe('requestMedia', () => {
     expect(hasRequestMedia({ photoUrl: null, videoUrl: '', audioUrl: undefined })).toBe(
       false,
     );
+    expect(hasRequestMedia({ photoUrl: '  null  ' })).toBe(false);
   });
 
   test('hasRequestMedia is true when any media exists', () => {

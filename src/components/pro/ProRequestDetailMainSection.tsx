@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonBadge, IonButton, IonIcon, IonAvatar } from '@ionic/react';
+import { IonBadge, IonButton, IonIcon } from '@ionic/react';
 import {
   calendarOutline,
   cashOutline,
@@ -7,16 +7,10 @@ import {
   lockClosedOutline,
   callOutline,
   checkmarkCircle,
-  walletOutline,
-  chatbubbleEllipsesOutline,
-  timeOutline,
-  star,
-  chatboxEllipsesOutline,
-  chevronForwardOutline,
-  alertCircleOutline,
   helpCircleOutline,
+  star,
 } from 'ionicons/icons';
-import { ServiceRequest, Category, VisitRequest } from '../../types';
+import { ServiceRequest, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import type { EffectiveTier } from '../../utils/effectiveTier';
@@ -25,6 +19,16 @@ import {
   getRequestPriceRangeEuros,
 } from '../../utils/requestPriceRange';
 import { bidPriceLabel } from '../../utils/bidPriceLabel';
+import { getProDetailStatus } from '../../utils/detailStatus';
+import {
+  DetailHeroHeader,
+  InfoBox,
+  PRICE_RANGE_DISCLAIMER,
+  PersonCard,
+  JobDetailsSection,
+  QuestionsRow,
+  DetailBottomAction,
+} from '../detail';
 
 interface ProRequestDetailMainSectionProps {
   request: ServiceRequest;
@@ -101,133 +105,163 @@ export const ProRequestDetailMainSection: React.FC<
   onAddToCalendar,
   onEditCalendar,
 }) => {
-  const CATEGORY_LABELS: Record<Category, string> = {
-    DIY: 'Manitas',
-    PLUMBING: 'Fontanería',
-    ELECTRICITY: 'Electricidad',
-    MASONRY: 'Albañilería',
-    HVAC: 'Climatización',
-    CLEANING: 'Limpieza',
-    PAINTING: 'Pintura',
-  };
+  const detailStatus = getProDetailStatus({
+    isCompleted,
+    isWinner,
+    hasBid: Boolean(myBid),
+  });
+
+  const hasExtraMedia =
+    (request.extraPhotoUrls?.length ?? 0) +
+      (request.extraVideoUrls?.length ?? 0) +
+      (request.extraAudioUrls?.length ?? 0) >
+    0;
+
+  const winnerAndCompletionActions = (
+    <>
+      {isWinner && (
+        <IonButton
+          expand="block"
+          fill="outline"
+          color="primary"
+          className="pro-main-btn"
+          style={{ marginBottom: 10 }}
+          disabled={calendarLoading}
+          onClick={() => {
+            if (calendarEventId && onEditCalendar) {
+              onEditCalendar();
+              return;
+            }
+            onAddToCalendar?.();
+          }}
+        >
+          <IonIcon slot="start" icon={calendarOutline} />
+          {calendarEventId ? 'EDITAR EN CALENDARIO' : 'AÑADIR AL CALENDARIO'}
+        </IonButton>
+      )}
+
+      {isWinner && !isCompleted && (
+        <IonButton
+          expand="block"
+          color="success"
+          className="pro-main-btn"
+          onClick={onHandleFinishWork}
+          disabled={isFinishing}
+        >
+          {isFinishing ? (
+            'FINALIZANDO...'
+          ) : (
+            <>
+              <IonIcon slot="start" icon={checkmarkCircle} /> FINALIZAR
+              TRABAJO
+            </>
+          )}
+        </IonButton>
+      )}
+
+      {isWinner && isCompleted && !hasReviewed && (
+        <IonButton
+          expand="block"
+          color="secondary"
+          className="pro-main-btn"
+          onClick={onOpenReviewModal}
+        >
+          <IonIcon icon={star} slot="start" /> VALORAR CLIENTE
+        </IonButton>
+      )}
+
+      {isWinner && isCompleted && hasReviewed && (
+        <div className="completed-badge">
+          <IonIcon icon={checkmarkCircle} /> ¡Trabajo cerrado y valorado!
+        </div>
+      )}
+    </>
+  );
+
+  const proLockUi = (
+    <div
+      style={{
+        textAlign: 'center',
+        background: '#fef2f2',
+        padding: '20px',
+        borderRadius: '16px',
+        border: '1px solid #fee2e2',
+        color: '#b91c1c',
+        marginTop: '10px',
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 800,
+          marginBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+        }}
+      >
+        <IonIcon icon={lockClosedOutline} /> SOLO PARA PRO
+      </div>
+      <div
+        style={{
+          fontSize: '0.9rem',
+          marginBottom: '15px',
+          color: '#7f1d1d',
+        }}
+      >
+        Esta solicitud es de <strong>alta dificultad</strong>. Necesitas una cuenta
+        PRO para enviar propuestas.
+      </div>
+      <IonButton
+        routerLink="/become-pro"
+        fill="outline"
+        color="danger"
+        expand="block"
+        style={{ height: '44px', fontWeight: 800 }}
+      >
+        ACTUALIZAR A PRO
+      </IonButton>
+    </div>
+  );
 
   return (
     <div style={{ marginTop: '20px', padding: '0 5px' }}>
-      <div
-        style={{
-          marginBottom: '10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <IonBadge
-          className={`pro-status-pill ${
-            isCompleted
-              ? 'completed'
-              : isWinner
-              ? 'winner'
-              : myBid
-              ? 'bid'
-              : 'pending'
-          }`}
-        >
-          {isCompleted
-            ? 'Finalizado'
-            : isWinner
-            ? 'Trabajo Ganado'
-            : myBid
-            ? 'Propuesta Enviada'
-            : 'Disponible'}
-        </IonBadge>
-        {isHighRisk && (
-          <IonBadge
-            color="danger"
-            style={{ fontSize: '0.65rem', fontWeight: 800 }}
-          >
-            ALTA DIFICULTAD
-          </IonBadge>
-        )}
-      </div>
+      <DetailHeroHeader
+        status={detailStatus.key}
+        statusLabel={detailStatus.label}
+        title={request.title}
+        extras={
+          isHighRisk ? (
+            <IonBadge color="danger" style={{ fontSize: '0.65rem', fontWeight: 800 }}>
+              ALTA DIFICULTAD
+            </IonBadge>
+          ) : undefined
+        }
+      />
 
-      <h1 className="pro-detail-title">{request.title}</h1>
-
-      {/* INFORMACIÓN DEL CLIENTE */}
       {request.client && (
-        <div
-          className="pro-client-card animate__animated animate__fadeIn"
-          style={{
-            marginBottom: '16px',
-            padding: '18px',
-            background: 'white',
-            borderRadius: '20px',
-            border: isWinner || visitRequest?.status === 'ACCEPTED' ? '1px solid #dcfce7' : '1px solid #e2e8f0',
-            boxShadow: isWinner || visitRequest?.status === 'ACCEPTED' ? '0 4px 16px rgba(16, 185, 129, 0.08)' : '0 4px 16px rgba(0, 0, 0, 0.04)',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '0.7rem',
-              fontWeight: 800,
-              color: '#64748b',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: '12px',
-            }}
-          >
-            Cliente
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <IonAvatar
-              style={{
-                width: '52px',
-                height: '52px',
-                minWidth: '52px',
-                minHeight: '52px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                background: '#f1f5f9',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {request.client.avatar ? (
-                <img
-                  src={resolveMediaUrl(request.client.avatar)}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#64748b' }}>
-                  {request.client.fullName?.charAt(0) || '?'}
-                </span>
-              )}
-            </IonAvatar>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '1rem' }}>
-                {request.client.fullName}
-              </div>
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#64748b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  marginTop: '4px',
-                }}
+        <PersonCard
+          className="animate__animated animate__fadeIn"
+          sectionLabel="Cliente"
+          name={request.client.fullName || 'Cliente'}
+          avatarUrl={request.client.avatar}
+          rating={request.client.rating}
+          reviewCount={request.client.reviewCount}
+          highlight={isWinner || visitRequest?.status === 'ACCEPTED'}
+          action={
+            (isWinner ||
+              (visitRequest?.status === 'ACCEPTED' && request.client.phoneNumber)) ? (
+              <IonButton
+                expand="block"
+                color="success"
+                onClick={onCallClient}
+                style={{ fontWeight: 800, '--border-radius': '12px' }}
               >
-                <IonIcon icon={star} style={{ fontSize: '0.8rem', color: '#fbbf24' }} />
-                <span style={{ fontWeight: 600 }}>
-                  {typeof request.client.rating === 'number' && Number.isFinite(request.client.rating)
-                    ? request.client.rating.toFixed(1)
-                    : '—'}
-                </span>
-                <span style={{ color: '#94a3b8' }}>({request.client.reviewCount ?? 0})</span>
-              </div>
-            </div>
-          </div>
+                <IonIcon slot="start" icon={callOutline} /> LLAMAR AL CLIENTE
+              </IonButton>
+            ) : undefined
+          }
+        >
           {visitRequest?.status === 'ACCEPTED' && (
             <div
               style={{
@@ -244,54 +278,38 @@ export const ProRequestDetailMainSection: React.FC<
               Visita aceptada: ya puedes contactar por teléfono.
             </div>
           )}
-          {(isWinner || (visitRequest?.status === 'ACCEPTED' && request.client.phoneNumber)) && (
-            <IonButton
-              expand="block"
-              color="success"
-              onClick={onCallClient}
-              style={{ marginTop: '14px', fontWeight: 800, '--border-radius': '12px' }}
-            >
-              <IonIcon slot="start" icon={callOutline} /> LLAMAR AL CLIENTE
-            </IonButton>
-          )}
-        </div>
+        </PersonCard>
       )}
 
       {getRequestPriceRangeEuros(request) && (
-        <div className="pro-detail-range-card animate__animated animate__fadeIn">
-          <div className="pro-detail-range-icon">
-            <IonIcon icon={cashOutline} />
-          </div>
-          <div className="pro-detail-range-copy">
-            <div className="pro-detail-range-label">Rango estimado</div>
-            <div className="pro-detail-range-value">{formatRequestPriceRangeEuros(request)}</div>
-            <div className="pro-detail-range-hint">Orientativo para la zona; no incluye desplazamiento ni materiales.</div>
-          </div>
-        </div>
+        <InfoBox
+          tone="peach"
+          icon={cashOutline}
+          label="Rango estimado"
+          value={formatRequestPriceRangeEuros(request)}
+          subtext={PRICE_RANGE_DISCLAIMER}
+          emphasizeValue
+        />
       )}
 
-      {/* UBICACIÓN */}
-      <div className={`pro-info-card ${isWinner ? 'highlight-border' : ''}`}>
-        <div className="pro-icon-box">
-          <IonIcon
-            icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
-            color={isWinner ? 'primary' : 'medium'}
-          />
-        </div>
-        <div>
-          <div className="pro-label">Ubicación</div>
-          <div className="pro-value">
-            {isWinner || isCompleted
-              ? request.preciseAddress || request.address
-              : `Zona: ${request.address
-                  .split(',')
-                  .slice(0, 2)
-                  .join(', ')}`}
-          </div>
-        </div>
-      </div>
+      <InfoBox
+        tone="lavender"
+        icon={calendarOutline}
+        label="Disponibilidad preferida"
+        value={request.desiredExecutionTime || 'Lo antes posible'}
+      />
 
-      {/* MAPA (GANADOR) */}
+      <InfoBox
+        tone={isWinner ? 'success' : 'neutral'}
+        icon={isWinner || isCompleted ? navigateOutline : lockClosedOutline}
+        label="Ubicación"
+        value={
+          isWinner || isCompleted
+            ? request.preciseAddress || request.address
+            : `Zona: ${request.address.split(',').slice(0, 2).join(', ')}`
+        }
+      />
+
       {isWinner && (
         <div className="map-container-wrapper animate__animated animate__fadeIn">
           <iframe
@@ -306,81 +324,17 @@ export const ProRequestDetailMainSection: React.FC<
         </div>
       )}
 
-      {/* DETALLES DEL TRABAJO */}
-      <div className="pro-section-header">DETALLES DEL TRABAJO</div>
-      <div className="description-card">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '10px',
-            color: '#4f46e5',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-          }}
-        >
-          <IonIcon icon={calendarOutline} />
-          {request.desiredExecutionTime || 'Lo antes posible'}
-        </div>
-
-        {request.clientOriginalDescription?.trim() ? (
-          <>
+      <JobDetailsSection
+        title="Detalles del trabajo"
+        category={request.category}
+        description={request.description}
+        clientOriginalDescription={request.clientOriginalDescription}
+        originalLabel="Texto del cliente"
+      >
+        {hasExtraMedia && (
+          <div className="detail-extra-media-inside">
             <div
-              style={{
-                fontSize: '0.72rem',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                color: '#64748b',
-                marginBottom: '8px',
-              }}
-            >
-              Texto del cliente
-            </div>
-            <p style={{ marginBottom: '16px' }}>{request.clientOriginalDescription.trim()}</p>
-            <div
-              style={{
-                fontSize: '0.72rem',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                color: '#64748b',
-                marginBottom: '8px',
-              }}
-            >
-              Valoración técnica (IA)
-            </div>
-          </>
-        ) : null}
-
-        {CATEGORY_LABELS[request.category] && (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: '2px 10px',
-              borderRadius: '999px',
-              background: '#eef2ff',
-              color: '#4f46e5',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              marginBottom: '6px',
-            }}
-          >
-            {CATEGORY_LABELS[request.category]}
-          </div>
-        )}
-
-        {request.description ? <p>{request.description}</p> : null}
-
-        {((request.extraPhotoUrls?.length ?? 0) +
-          (request.extraVideoUrls?.length ?? 0) +
-          (request.extraAudioUrls?.length ?? 0) >
-          0) && (
-          <div className="pro-detail-extra-media-inside">
-            <div
-              className="pro-detail-extra-media-title-inside"
+              className="detail-extra-media-title-inside"
               style={{
                 fontSize: '0.75rem',
                 textTransform: 'uppercase',
@@ -393,31 +347,31 @@ export const ProRequestDetailMainSection: React.FC<
             >
               Adjuntos adicionales
             </div>
-            <div className="pro-detail-extra-media-list-inside">
+            <div className="detail-extra-media-list-inside">
               {(request.extraPhotoUrls || []).map((url) => (
-                <div key={`inside-photo-${url}`} className="pro-detail-extra-media-item-inside">
+                <div key={`inside-photo-${url}`} className="detail-extra-media-item-inside">
                   <img
                     src={resolveMediaUrl(url)}
                     alt="Foto adicional"
-                    className="pro-detail-extra-media-img-inside"
+                    className="detail-extra-media-img-inside"
                   />
                 </div>
               ))}
               {(request.extraVideoUrls || []).map((url) => (
-                <div key={`inside-video-${url}`} className="pro-detail-extra-media-item-inside">
+                <div key={`inside-video-${url}`} className="detail-extra-media-item-inside">
                   <video
                     src={resolveMediaUrl(url)}
                     controls
-                    className="pro-detail-extra-media-video-inside"
+                    className="detail-extra-media-video-inside"
                   />
                 </div>
               ))}
               {(request.extraAudioUrls || []).map((url) => (
-                <div key={`inside-audio-${url}`} className="pro-detail-extra-media-item-inside">
+                <div key={`inside-audio-${url}`} className="detail-extra-media-item-inside">
                   <audio
                     src={resolveMediaUrl(url)}
                     controls
-                    className="pro-detail-extra-media-audio-inside"
+                    className="detail-extra-media-audio-inside"
                   />
                 </div>
               ))}
@@ -425,8 +379,7 @@ export const ProRequestDetailMainSection: React.FC<
           </div>
         )}
 
-      {/* VISITA DE VALORACIÓN: disponible cuando el diagnóstico marca pricing_type=VISIT_REQUIRED */}
-      {canRequestVisitByPricing && request.status === 'PENDING' && (
+        {canRequestVisitByPricing && request.status === 'PENDING' && (
           <div
             style={{
               marginTop: '14px',
@@ -568,198 +521,43 @@ export const ProRequestDetailMainSection: React.FC<
             )}
           </div>
         )}
-      </div>
+      </JobDetailsSection>
 
-      {/* Q&A ENTRY */}
-      <div className="qa-entry-card" style={{ marginTop: '16px' }} onClick={onOpenQAModal}>
-        <div className="qa-icon-badge">
-          <IonIcon icon={chatboxEllipsesOutline} />
-        </div>
-        <div className="qa-content-text">
-          <div className="qa-title">Preguntas y Dudas</div>
-          <div className="qa-subtitle">
-            {questionsCount === 0
-              ? 'No hay preguntas todavía'
-              : `${questionsCount} pregunta${
-                  questionsCount > 1 ? 's' : ''
-                } resuelta${questionsCount > 1 ? 's' : ''}`}
-          </div>
-        </div>
-        <IonIcon icon={chevronForwardOutline} color="medium" />
-      </div>
+      <QuestionsRow
+        questionsCount={questionsCount}
+        emptySubtitle="No hay preguntas todavía"
+        countFormat="resolved"
+        onClick={onOpenQAModal}
+      />
 
-      {/* MI PUJA */}
-      {myBid && (
-        <div
-          className="my-bid-card animate__animated animate__fadeIn"
-          style={{ marginTop: '16px' }}
-        >
-          <div className="bid-header">
-            <IonIcon icon={walletOutline} /> TU PROPUESTA
-          </div>
-          <div className="bid-row">
-            <span>Tu Precio:</span>
-            <strong>{bidPriceLabel(myBid)}</strong>
-          </div>
-          {myBid.estimatedExecutionTime && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.8rem',
-                color: '#065f46',
-                marginBottom: 10,
-              }}
-            >
-              <IonIcon icon={timeOutline} style={{ fontSize: '0.9rem' }} />
-              <span>
-                Disponibilidad: <strong>{myBid.estimatedExecutionTime}</strong>
-              </span>
-            </div>
-          )}
-          {myBid.comment && (
-            <div className="bid-comment-box">
-              <IonIcon icon={chatbubbleEllipsesOutline} /> "{myBid.comment}"
-            </div>
-          )}
-          <div className="bid-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              <IonIcon icon={timeOutline} style={{ marginRight: '4px' }} />
-              Enviada el {new Date(myBid.createdAt).toLocaleDateString()}
-            </span>
-            {canCancelBid && onCancelBid && (
-              <IonButton
-                className="cancel-bid-btn"
-                fill="solid"
-                color="danger"
-                size="small"
-                onClick={() => onCancelBid()}
-                disabled={cancellingBid}
-              >
-                {cancellingBid ? 'Retirando...' : 'Retirar propuesta'}
-              </IonButton>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ACCIONES */}
-      <div style={{ marginTop: '16px', paddingBottom: '40px' }}>
-        {!hasActiveBid && request.status === 'PENDING' && canSubmitBid && (
-          <IonButton
-            expand="block"
-            className="pro-main-btn"
-            onClick={onOpenBidModal}
+      {/* Acciones finales (DetailBottomAction incluye padding) */}
+        {myBid ? (
+          <DetailBottomAction
+            variant="sent-bid"
+            priceLabel={bidPriceLabel(myBid)}
+            availability={myBid.estimatedExecutionTime}
+            comment={myBid.comment}
+            createdAt={myBid.createdAt}
+            canWithdraw={canCancelBid}
+            onWithdraw={onCancelBid}
+            withdrawing={cancellingBid}
           >
-            <IonIcon slot="start" icon={walletOutline} /> ENVIAR PROPUESTA
-          </IonButton>
+            {winnerAndCompletionActions}
+          </DetailBottomAction>
+        ) : !hasActiveBid && request.status === 'PENDING' && canSubmitBid ? (
+          <DetailBottomAction variant="send-bid" onSend={onOpenBidModal}>
+            {winnerAndCompletionActions}
+          </DetailBottomAction>
+        ) : !hasActiveBid && request.status === 'PENDING' && !canSubmitBid ? (
+          <DetailBottomAction variant="custom">
+            {proLockUi}
+            {winnerAndCompletionActions}
+          </DetailBottomAction>
+        ) : (
+          <DetailBottomAction variant="custom">
+            {winnerAndCompletionActions}
+          </DetailBottomAction>
         )}
-
-        {!hasActiveBid && request.status === 'PENDING' && !canSubmitBid && (
-            <div
-            style={{
-              textAlign: 'center',
-              background: '#fef2f2',
-              padding: '20px',
-              borderRadius: '16px',
-              border: '1px solid #fee2e2',
-              color: '#b91c1c',
-              marginTop: '10px',
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 800,
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-              }}
-            >
-              <IonIcon icon={lockClosedOutline} /> SOLO PARA PRO
-            </div>
-            <div
-              style={{
-                fontSize: '0.9rem',
-                marginBottom: '15px',
-                color: '#7f1d1d',
-              }}
-            >
-              Esta solicitud es de <strong>alta dificultad</strong>. Necesitas una cuenta
-              PRO para enviar propuestas.
-            </div>
-            <IonButton
-              routerLink="/become-pro"
-              fill="outline"
-              color="danger"
-              expand="block"
-              style={{ height: '44px', fontWeight: 800 }}
-            >
-              ACTUALIZAR A PRO
-            </IonButton>
-          </div>
-        )}
-
-        {isWinner && (
-          <IonButton
-            expand="block"
-            fill="outline"
-            color="primary"
-            className="pro-main-btn"
-            style={{ marginBottom: 10 }}
-            disabled={calendarLoading}
-            onClick={() => {
-              if (calendarEventId && onEditCalendar) {
-                onEditCalendar();
-                return;
-              }
-              onAddToCalendar?.();
-            }}
-          >
-            <IonIcon slot="start" icon={calendarOutline} />
-            {calendarEventId ? 'EDITAR EN CALENDARIO' : 'AÑADIR AL CALENDARIO'}
-          </IonButton>
-        )}
-
-        {isWinner && !isCompleted && (
-          <IonButton
-            expand="block"
-            color="success"
-            className="pro-main-btn"
-            onClick={onHandleFinishWork}
-            disabled={isFinishing}
-          >
-            {isFinishing ? (
-              'FINALIZANDO...'
-            ) : (
-              <>
-                <IonIcon slot="start" icon={checkmarkCircle} /> FINALIZAR
-                TRABAJO
-              </>
-            )}
-          </IonButton>
-        )}
-
-        {isWinner && isCompleted && !hasReviewed && (
-          <IonButton
-            expand="block"
-            color="secondary"
-            className="pro-main-btn"
-            onClick={onOpenReviewModal}
-          >
-            <IonIcon icon={star} slot="start" /> VALORAR CLIENTE
-          </IonButton>
-        )}
-
-        {isWinner && isCompleted && hasReviewed && (
-          <div className="completed-badge">
-            <IonIcon icon={checkmarkCircle} /> ¡Trabajo cerrado y valorado!
-          </div>
-        )}
-      </div>
     </div>
   );
 };
-

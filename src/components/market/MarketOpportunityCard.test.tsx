@@ -39,7 +39,6 @@ describe('MarketOpportunityCard', () => {
 
   const commonProps = {
     addressInfo: { text: 'Zona: Madrid', icon: lockClosedOutline },
-    renderScheduleInfo: () => null as React.ReactNode,
   };
 
   test('shows reserved title and disables card click when blurry', () => {
@@ -113,8 +112,7 @@ describe('MarketOpportunityCard', () => {
     expect(screen.getByText('ME INTERESA')).toBeInTheDocument();
   });
 
-  test('passes desiredExecutionTime to renderScheduleInfo', () => {
-    const renderScheduleInfo = vi.fn(() => <span>DISPONIBILIDAD</span>);
+  test('shows schedule preference and category pill', () => {
     render(
       <MarketOpportunityCard
         request={baseRequest}
@@ -122,15 +120,14 @@ describe('MarketOpportunityCard', () => {
         isHigh={false}
         isBlurry={false}
         isLocked={false}
-        addressInfo={{ text: 'Zona: Madrid', icon: lockClosedOutline }}
         onCardClick={vi.fn()}
         onBidClick={vi.fn()}
-        renderScheduleInfo={renderScheduleInfo}
+        {...commonProps}
       />,
     );
 
-    expect(renderScheduleInfo).toHaveBeenCalledWith('Esta semana');
-    expect(screen.getByText('DISPONIBILIDAD')).toBeInTheDocument();
+    expect(screen.getByText('Esta semana')).toBeInTheDocument();
+    expect(screen.getByText(/Fontanería/)).toBeInTheDocument();
   });
 
   test('shows Media chip only when request has media', () => {

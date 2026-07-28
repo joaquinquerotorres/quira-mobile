@@ -15,6 +15,25 @@
   cursor: pointer;
 }
 
+/* Compacto en la fila de pills de ListingCard */
+.request-media-chip--inline {
+  gap: 4px;
+  font-size: 0.65rem;
+  padding: 4px 9px;
+  letter-spacing: 0.03em;
+}
+
+.request-media-chip--inline ion-icon {
+  font-size: 13px;
+}
+
+.request-media-chip--inline .request-media-chip-count {
+  min-width: 16px;
+  height: 16px;
+  font-size: 0.6rem;
+  padding: 0 4px;
+}
+
 .request-media-chip ion-icon {
   font-size: 16px;
 }
@@ -63,6 +82,51 @@
   height: 100%;
   object-fit: contain;
   background: #0f172a;
+}
+
+.request-media-stage-status {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.request-media-stage-status ion-icon {
+  font-size: 36px;
+  color: #f87171;
+}
+
+.request-media-empty {
+  flex: 1;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #64748b;
+  text-align: center;
+  padding: 24px;
+}
+
+.request-media-empty ion-icon {
+  font-size: 40px;
+  color: #94a3b8;
+}
+
+.request-media-empty p {
+  margin: 0;
+  font-weight: 600;
 }
 
 .request-media-audio-panel {

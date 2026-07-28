@@ -1,26 +1,29 @@
 .header-bg {
     background: var(--ion-color-primary);
-    padding: 15px 24px 60px 24px; 
-    border-bottom-left-radius: 40px;
-    border-bottom-right-radius: 40px;
+    /* Antes: 15px / 60px → zona púrpura ~30–40% más baja */
+    padding: 6px 20px 40px 20px;
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
     position: relative;
     z-index: 0;
     margin-bottom: 0;
     text-align: center;
-    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 8px 16px -5px rgba(79, 70, 229, 0.28);
 }
 
 .header-bg h2 {
     font-weight: 900 !important;
     color: white !important;
-    margin: 0 0 8px 0 !important;
-    font-size: 1.8rem !important;
-    letter-spacing: -1px;
+    margin: 0 0 4px 0 !important;
+    font-size: 1.4rem !important;
+    letter-spacing: -0.5px;
+    line-height: 1.2 !important;
 }
 
 .header-bg p {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(255, 255, 255, 0.88) !important;
     margin: 0 !important;
-    font-size: 0.95rem !important;
+    font-size: 0.78rem !important;
     font-weight: 500 !important;
+    line-height: 1.25 !important;
 }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  IonPage, IonHeader, IonToolbar, IonButtons, IonContent,
+  IonPage, IonHeader, IonToolbar, IonButtons, IonContent, IonFooter,
   IonLoading, IonToast, IonBadge, IonIcon, IonButton, 
   useIonRouter, IonAvatar, IonTitle, IonModal, IonTextarea, IonSpinner,
-  IonInput, IonLabel, IonAlert, IonSelect, IonSelectOption
+  IonLabel, IonAlert, IonSelect, IonSelectOption
 } from '@ionic/react';
 import { useParams } from 'react-router';
 import { 
@@ -35,6 +35,13 @@ import {
 } from '../utils/bidDisplay';
 import { getApiErrorMessage } from '../utils/apiError';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
+import {
+  defaultBidPricingType,
+  getAllowedBidPricingTypes,
+  getRequestPricingType,
+  type BidPricingType,
+} from '../utils/bidPricing';
+import { BidPricingFields } from '../components/pro/BidPricingFields';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -61,7 +68,7 @@ const ProRequestDetail: React.FC = () => {
 
   // --- ESTADOS PUJA ---
   const [showBidModal, setShowBidModal] = useState(false);
-  const [bidPricingType, setBidPricingType] = useState<'FIXED' | 'RANGE'>('FIXED');
+  const [bidPricingType, setBidPricingType] = useState<BidPricingType>('FIXED');
   const [bidPrice, setBidPrice] = useState<number | undefined>(undefined);
   const [bidPriceMin, setBidPriceMin] = useState<number | undefined>(undefined);
   const [bidPriceMax, setBidPriceMax] = useState<number | undefined>(undefined);
@@ -210,18 +217,8 @@ const ProRequestDetail: React.FC = () => {
   }, [isWinner, request?.id]);
   const isCompleted = request?.status === 'COMPLETED';
   const isHighRisk = request?.riskLevel === 'HIGH';
-  const requestPricingType = String(
-    request?.pricingType ??
-    request?.aiDiagnosis?.pricing_type ??
-    request?.aiDiagnosis?.pricingType ??
-    ''
-  ).toUpperCase();
-  const allowedBidPricingTypes: Array<'FIXED' | 'RANGE'> =
-    requestPricingType === 'FIXED'
-      ? ['FIXED']
-      : requestPricingType === 'RANGE'
-        ? ['RANGE']
-        : ['FIXED', 'RANGE'];
+  const requestPricingType = getRequestPricingType(request);
+  const allowedBidPricingTypes = getAllowedBidPricingTypes(request);
   const canRequestVisitByPricing = requestPricingType === 'VISIT_REQUIRED';
   
   // REGLA: Si es High Risk (alta dificultad), SOLO los PRO pueden enviar propuestas.
@@ -385,7 +382,7 @@ const ProRequestDetail: React.FC = () => {
           router.push('/profile');
           return;
       }
-      const defaultType = allowedBidPricingTypes[0] ?? 'FIXED';
+      const defaultType = defaultBidPricingType(request);
       const suggested = request ? suggestedBidPriceEuros(request) : undefined;
       setBidPricingType(defaultType);
       setBidPrice(suggested);
@@ -551,7 +548,7 @@ const ProRequestDetail: React.FC = () => {
         />
 
         {/* MODAL BID */}
-        <IonModal isOpen={showBidModal} onDidDismiss={() => setShowBidModal(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]} className="bid-modal-content">
+        <IonModal isOpen={showBidModal} onDidDismiss={() => setShowBidModal(false)} className="bid-modal-content">
              <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonTitle style={{ fontWeight: 800 }}>Enviar Propuesta</IonTitle>
@@ -560,7 +557,7 @@ const ProRequestDetail: React.FC = () => {
                     </IonButtons>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding">
+            <IonContent className="ion-padding bid-modal-scroll">
                 <div className="animate__animated animate__fadeIn">
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', background: '#eef2ff', padding: '15px', borderRadius: '16px', border: '1px solid #e0e7ff' }}>
                         <div style={{ background: '#4f46e5', padding: '10px', borderRadius: '12px', marginRight: '15px', display: 'flex' }}>
@@ -572,79 +569,17 @@ const ProRequestDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    {allowedBidPricingTypes.length > 1 && (
-                      <>
-                        <IonLabel className="section-label">Tipo de propuesta</IonLabel>
-                        <div className="input-wrapper">
-                          <IonSelect
-                            interface="action-sheet"
-                            value={bidPricingType}
-                            onIonChange={(e) => setBidPricingType(e.detail.value as 'FIXED' | 'RANGE')}
-                          >
-                            {allowedBidPricingTypes.includes('FIXED') && (
-                              <IonSelectOption value="FIXED">Precio fijo</IonSelectOption>
-                            )}
-                            {allowedBidPricingTypes.includes('RANGE') && (
-                              <IonSelectOption value="RANGE">Rango de precio</IonSelectOption>
-                            )}
-                          </IonSelect>
-                        </div>
-                      </>
-                    )}
-
-                    {bidPricingType === 'FIXED' ? (
-                      <>
-                        <IonLabel className="section-label">Tu Oferta Económica (€)</IonLabel>
-                        <div className="price-fixed-card">
-                          <div className="price-fixed-hint">Indica el precio cerrado que ofreces por el trabajo.</div>
-                          <div className="price-fixed-field">
-                            <div className="price-fixed-label">Precio fijo</div>
-                            <div className="price-fixed-input-wrap">
-                              <span className="price-fixed-currency">€</span>
-                              <IonInput
-                                type="number"
-                                value={bidPrice}
-                                placeholder="100"
-                                onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <IonLabel className="section-label">Rango de precio (€)</IonLabel>
-                        <div className="price-range-card">
-                          <div className="price-range-hint">Define una horquilla realista para el cliente.</div>
-                          <div className="price-range-grid">
-                            <div className="price-range-field">
-                              <div className="price-range-label">Precio mínimo</div>
-                              <div className="price-range-input-wrap">
-                                <span className="price-range-currency">€</span>
-                                <IonInput
-                                  type="number"
-                                  value={bidPriceMin}
-                                  placeholder="80"
-                                  onIonInput={e => setBidPriceMin(parseInt(e.detail.value!, 10))}
-                                />
-                              </div>
-                            </div>
-                            <div className="price-range-field">
-                              <div className="price-range-label">Precio máximo</div>
-                              <div className="price-range-input-wrap">
-                                <span className="price-range-currency">€</span>
-                                <IonInput
-                                  type="number"
-                                  value={bidPriceMax}
-                                  placeholder="120"
-                                  onIonInput={e => setBidPriceMax(parseInt(e.detail.value!, 10))}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                    <BidPricingFields
+                      allowedTypes={allowedBidPricingTypes}
+                      pricingType={bidPricingType}
+                      onPricingTypeChange={setBidPricingType}
+                      bidPrice={bidPrice}
+                      onBidPriceChange={setBidPrice}
+                      bidPriceMin={bidPriceMin}
+                      onBidPriceMinChange={setBidPriceMin}
+                      bidPriceMax={bidPriceMax}
+                      onBidPriceMaxChange={setBidPriceMax}
+                    />
 
                     <IonLabel className="section-label" style={{marginTop:'15px'}}>Cuándo podrías realizar el trabajo</IonLabel>
                     <div className="input-wrapper">
@@ -666,25 +601,27 @@ const ProRequestDetail: React.FC = () => {
                     <IonLabel className="section-label" style={{marginTop:'15px'}}>Mensaje de presentación</IonLabel>
                     <div className="input-wrapper textarea-wrapper">
                         <IonTextarea 
-                            rows={5} 
+                            rows={4} 
                             placeholder="Hola, soy experto en..."
                             value={bidComment}
                             onIonInput={e => setBidComment(e.detail.value!)}
                         />
                     </div>
-
-                    <IonButton 
-                        expand="block" 
-                        color="secondary"
-                        onClick={submitBid} 
-                        disabled={submittingBid}
-                        className="pro-main-btn"
-                        style={{marginTop: '20px'}}
-                    >
-                        {submittingBid ? 'ENVIANDO...' : <><IonIcon slot="start" icon={sendOutline} /> ENVIAR OFERTA</>}
-                    </IonButton>
                 </div>
             </IonContent>
+            <IonFooter className="ion-no-border bid-modal-footer">
+              <IonToolbar>
+                <IonButton
+                  expand="block"
+                  color="secondary"
+                  onClick={submitBid}
+                  disabled={submittingBid}
+                  className="pro-main-btn"
+                >
+                  {submittingBid ? 'ENVIANDO...' : <><IonIcon slot="start" icon={sendOutline} /> ENVIAR OFERTA</>}
+                </IonButton>
+              </IonToolbar>
+            </IonFooter>
         </IonModal>
 
         {/* MODAL REVIEW */}

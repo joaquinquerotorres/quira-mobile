@@ -336,15 +336,17 @@ ion-datetime::part(time-button active) {
     border-radius: 12px;
 }
 
-/* Tab bar: altura suficiente para etiquetas de dos líneas (p. ej. "Pedir") */
+/* Tab bar: overflow visible para el FAB "Pedir" del cliente */
 .quira-tabbar {
     --background: #ffffff;
     border-top: 1px solid #f1f5f9;
     min-height: 56px;
     height: auto;
-    padding-top: 4px;
+    padding-top: 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     box-sizing: border-box;
+    overflow: visible !important;
+    contain: none;
 }
 
 .quira-tabbar--hidden {
@@ -374,17 +376,65 @@ ion-datetime::part(time-button active) {
     --padding-top: 4px;
     --padding-bottom: 6px;
     min-height: 52px;
+    overflow: visible;
 }
 
-/* Destacar "Pedir" sin empujar el texto fuera del área útil (icono 34px + margin cortaba la etiqueta) */
+/* "Pedir": FAB circular superpuesto por encima de la barra (no comprimido dentro) */
+.quira-tabbar ion-tab-button.quira-tab-pedir {
+    --color: #ea580c;
+    --color-selected: #ea580c;
+    --padding-top: 0;
+    --padding-bottom: 6px;
+    position: relative;
+    z-index: 12;
+    overflow: visible !important;
+    contain: none;
+}
+
+.quira-tabbar ion-tab-button.quira-tab-pedir::part(native) {
+    overflow: visible;
+    contain: none;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 0;
+}
+
 .quira-tabbar ion-tab-button.quira-tab-pedir ion-icon {
-    font-size: 28px;
-    color: #ea580c;
-    margin-bottom: 0;
+    font-size: 30px;
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    min-height: 58px;
+    margin: 0 0 2px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    color: #ffffff !important;
+    border: 3px solid #ffffff;
+    box-shadow:
+      0 8px 20px rgba(249, 115, 22, 0.42),
+      0 0 0 1px rgba(249, 115, 22, 0.12);
+    /* Mitad del círculo por encima del borde superior de la tab bar */
+    transform: translateY(-22px);
+    position: relative;
+    z-index: 13;
+    flex-shrink: 0;
 }
 
 .quira-tabbar ion-tab-button.quira-tab-pedir ion-label {
     color: #ea580c;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.05;
+    font-size: 0.7rem;
+    position: relative;
+    z-index: 13;
+}
+/* Evita que el host de tabs recorte el FAB elevado */
+ion-tabs {
+    overflow: visible;
 }

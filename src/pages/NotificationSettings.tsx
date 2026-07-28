@@ -20,6 +20,7 @@ import api from '../api/axios';
 import { ClientProfile, ProfessionalProfile } from '../types';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getEffectiveActiveMode } from '../utils/activeMode';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import './Profile.css';
 import './NotificationSettings.css';
 
@@ -34,8 +35,6 @@ const PRO_LABELS = {
   notifyBidActivity: 'Cuando aceptan mis ofertas',
   notifyReviews: 'Nuevas reseñas recibidas',
 };
-
-type ProfileType = 'client' | 'professional';
 
 interface NotificationSectionProps {
   profile: ClientProfile | ProfessionalProfile;
@@ -62,16 +61,30 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  useEffect(() => {
+    setNotifyRequestActivity(profile.notifyRequestActivity ?? true);
+    setNotifyBidActivity(profile.notifyBidActivity ?? true);
+    setNotifyReviews(profile.notifyReviews ?? true);
+  }, [
+    profile.id,
+    profile.notifyRequestActivity,
+    profile.notifyBidActivity,
+    profile.notifyReviews,
+  ]);
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.patch(`${endpoint}/${profile.id}`, {
-        notifyRequestActivity,
-        notifyBidActivity,
-        notifyReviews,
-      });
+      await api.patch(
+        `${endpoint}/${profile.id}`,
+        {
+          notifyRequestActivity,
+          notifyBidActivity,
+          notifyReviews,
+        },
+        { headers: { 'Content-Type': 'application/merge-patch+json' } }
+      );
       setToast('Preferencias guardadas');
-      // Actualizar localStorage
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
@@ -164,17 +177,40 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
 const NotificationSettings: React.FC = () => {
   const router = useIonRouter();
   const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
-    } else {
-      router.push('/login');
-    }
+    let cancelled = false;
+
+    const load = async () => {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        router.push('/login');
+        return;
+      }
+
+      if (!cancelled) {
+        setUser(JSON.parse(userStr));
+        setLoadingUser(true);
+      }
+
+      await refreshCurrentUserInStorage();
+      if (cancelled) return;
+
+      const freshStr = localStorage.getItem('user');
+      if (freshStr) {
+        setUser(JSON.parse(freshStr));
+      }
+      setLoadingUser(false);
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
-  if (!user) {
+  if (!user || loadingUser) {
     return (
       <IonPage>
         <IonContent>

@@ -1,0 +1,79 @@
+.bid-pricing-select-wrap {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  min-height: 56px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.01);
+}
+
+.price-range-card,
+.price-fixed-card {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8faff 0%, #f1f5ff 100%);
+  border: 1px solid #e0e7ff;
+}
+
+.price-range-hint,
+.price-fixed-hint {
+  font-size: 0.78rem;
+  color: #475569;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.price-range-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.price-range-field,
+.price-fixed-field {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.price-range-label,
+.price-fixed-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.price-range-input-wrap,
+.price-fixed-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dbe4f5;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 0 8px;
+  background: #f8fafc;
+}
+
+.price-range-currency,
+.price-fixed-currency {
+  color: #4f46e5;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.price-range-input-wrap ion-input,
+.price-fixed-input-wrap ion-input {
+  --padding-start: 2px;
+  --padding-end: 2px;
+  font-weight: 700;
+  color: #1e293b;
+}

@@ -5,7 +5,7 @@
    ========================================================= */
 
 .segment-floater {
-    margin: -35px 20px 10px 20px; /* Sube sobre el Hero */
+    margin: -28px 20px 8px 20px; /* Alineado con padding-bottom compacto del MainHeader */
     background: white;
     padding: 6px;
     border-radius: 20px;

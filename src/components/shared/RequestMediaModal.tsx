@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   IonButton,
   IonButtons,
@@ -6,10 +12,12 @@ import {
   IonHeader,
   IonIcon,
   IonModal,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
 import {
+  alertCircleOutline,
   chevronBackOutline,
   chevronForwardOutline,
   closeOutline,
@@ -31,6 +39,16 @@ const KIND_LABEL: Record<RequestMediaItem['kind'], string> = {
   audio: 'Audio',
 };
 
+type OpenHandler = (items: RequestMediaItem[]) => void;
+
+/** Un solo modal para toda la app (evita IonModal por card → pantalla negra intermitente). */
+let openMediaHandler: OpenHandler | null = null;
+
+export function openRequestMedia(items: RequestMediaItem[]): void {
+  if (!items.length) return;
+  openMediaHandler?.([...items]);
+}
+
 interface RequestMediaSources {
   photoUrl?: string | null;
   videoUrl?: string | null;
@@ -47,35 +65,37 @@ export const RequestMediaChip: React.FC<RequestMediaChipProps> = ({
   audioUrl,
   className,
 }) => {
-  const [open, setOpen] = useState(false);
   const items = useMemo(
     () => collectRequestMedia({ photoUrl, videoUrl, audioUrl }),
     [photoUrl, videoUrl, audioUrl],
   );
 
+  /** Evita que IonCard (routerLink/button) navegue al detalle al abrir media. */
+  const blockCardNavigation = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const openModal = (e: React.MouseEvent | React.PointerEvent) => {
+    blockCardNavigation(e);
+    openRequestMedia(items);
+  };
+
   if (items.length === 0) return null;
 
   return (
-    <>
-      <button
-        type="button"
-        className={`request-media-chip${className ? ` ${className}` : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setOpen(true);
-        }}
-      >
-        <IonIcon icon={imagesOutline} />
-        Media
-        <span className="request-media-chip-count">{items.length}</span>
-      </button>
-      <RequestMediaModal
-        isOpen={open}
-        items={items}
-        onDidDismiss={() => setOpen(false)}
-      />
-    </>
+    <button
+      type="button"
+      className={`request-media-chip${className ? ` ${className}` : ''}`}
+      onClick={openModal}
+      onPointerDown={blockCardNavigation}
+      onMouseDown={blockCardNavigation}
+      onTouchStart={blockCardNavigation}
+    >
+      <IonIcon icon={imagesOutline} />
+      Media
+      <span className="request-media-chip-count">{items.length}</span>
+    </button>
   );
 };
 
@@ -92,30 +112,44 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
 }) => {
   const [index, setIndex] = useState(0);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [mediaStatus, setMediaStatus] = useState<'loading' | 'ready' | 'error'>(
+    'loading',
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const current = items[index] ?? null;
+  const safeIndex = items.length === 0 ? 0 : Math.min(index, items.length - 1);
+  const current = items[safeIndex] ?? null;
+  const resolvedSrc = current ? resolveMediaUrl(current.url) : '';
 
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
     }
     setAudioPlaying(false);
-  };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
       setIndex(0);
+      setMediaStatus('loading');
       stopAudio();
+      return;
     }
-  }, [isOpen]);
+    setIndex(0);
+    setMediaStatus(items[0]?.kind === 'audio' ? 'ready' : 'loading');
+  }, [isOpen, items, stopAudio]);
 
   useEffect(() => {
     stopAudio();
-  }, [index]);
+    if (!current) {
+      setMediaStatus('error');
+      return;
+    }
+    setMediaStatus(current.kind === 'audio' ? 'ready' : 'loading');
+  }, [safeIndex, current?.kind, current?.url, stopAudio]);
 
-  useEffect(() => () => stopAudio(), []);
+  useEffect(() => () => stopAudio(), [stopAudio]);
 
   const goPrev = () => {
     setIndex((i) => (i <= 0 ? items.length - 1 : i - 1));
@@ -126,19 +160,25 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
   };
 
   const toggleAudio = async () => {
-    if (!current || current.kind !== 'audio') return;
+    if (!current || current.kind !== 'audio' || !resolvedSrc) return;
     if (audioPlaying && audioRef.current) {
       stopAudio();
       return;
     }
-    const audio = new Audio(resolveMediaUrl(current.url));
+    const audio = new Audio(resolvedSrc);
     audioRef.current = audio;
     audio.onended = () => setAudioPlaying(false);
+    audio.onerror = () => {
+      setMediaStatus('error');
+      setAudioPlaying(false);
+    };
     try {
       await audio.play();
       setAudioPlaying(true);
+      setMediaStatus('ready');
     } catch {
       setAudioPlaying(false);
+      setMediaStatus('error');
     }
   };
 
@@ -146,8 +186,8 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
     <IonModal
       isOpen={isOpen}
       onDidDismiss={onDidDismiss}
-      initialBreakpoint={0.9}
-      breakpoints={[0, 0.9, 1]}
+      initialBreakpoint={0.92}
+      breakpoints={[0, 0.92, 1]}
       className="request-media-modal"
     >
       <IonHeader className="ion-no-border">
@@ -168,27 +208,57 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
       </IonHeader>
       <IonContent>
         <div className="request-media-modal-body">
-          {current && (
+          {!current || !resolvedSrc ? (
+            <div className="request-media-empty">
+              <IonIcon icon={alertCircleOutline} />
+              <p>No hay media disponible para mostrar.</p>
+            </div>
+          ) : (
             <>
               <div className="request-media-kind-label">
-                {KIND_LABEL[current.kind]} ({index + 1}/{items.length})
+                {KIND_LABEL[current.kind]} ({safeIndex + 1}/{items.length})
               </div>
               <div className="request-media-stage">
+                {mediaStatus === 'loading' && current.kind !== 'audio' && (
+                  <div className="request-media-stage-status">
+                    <IonSpinner name="crescent" color="light" />
+                    <span>Cargando…</span>
+                  </div>
+                )}
+                {mediaStatus === 'error' && (
+                  <div className="request-media-stage-status">
+                    <IonIcon icon={alertCircleOutline} />
+                    <span>No se pudo cargar este archivo.</span>
+                  </div>
+                )}
                 {current.kind === 'photo' && (
                   <img
-                    src={resolveMediaUrl(current.url)}
+                    key={resolvedSrc}
+                    src={resolvedSrc}
                     alt="Foto de la solicitud"
+                    style={{
+                      opacity: mediaStatus === 'ready' ? 1 : 0,
+                      position: mediaStatus === 'ready' ? 'relative' : 'absolute',
+                    }}
+                    onLoad={() => setMediaStatus('ready')}
+                    onError={() => setMediaStatus('error')}
                   />
                 )}
                 {current.kind === 'video' && (
                   <video
-                    key={current.url}
-                    src={resolveMediaUrl(current.url)}
+                    key={resolvedSrc}
+                    src={resolvedSrc}
                     controls
                     playsInline
+                    preload="metadata"
+                    style={{
+                      opacity: mediaStatus === 'error' ? 0 : 1,
+                    }}
+                    onLoadedData={() => setMediaStatus('ready')}
+                    onError={() => setMediaStatus('error')}
                   />
                 )}
-                {current.kind === 'audio' && (
+                {current.kind === 'audio' && mediaStatus !== 'error' && (
                   <div className="request-media-audio-panel">
                     <IonButton
                       fill="clear"
@@ -215,9 +285,9 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
                   <div className="request-media-dots">
                     {items.map((item, i) => (
                       <button
-                        key={`${item.kind}-${item.url}`}
+                        key={`${item.kind}-${item.url}-${i}`}
                         type="button"
-                        className={`request-media-dot${i === index ? ' active' : ''}`}
+                        className={`request-media-dot${i === safeIndex ? ' active' : ''}`}
                         aria-label={`Ir a ${KIND_LABEL[item.kind]}`}
                         onClick={() => setIndex(i)}
                       />
@@ -233,5 +303,32 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
         </div>
       </IonContent>
     </IonModal>
+  );
+};
+
+/** Host único: montar una vez en App (fuera de las cards). */
+export const RequestMediaModalHost: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [items, setItems] = useState<RequestMediaItem[]>([]);
+
+  useEffect(() => {
+    openMediaHandler = (next) => {
+      setItems(next);
+      setIsOpen(true);
+    };
+    return () => {
+      openMediaHandler = null;
+    };
+  }, []);
+
+  return (
+    <RequestMediaModal
+      isOpen={isOpen}
+      items={items}
+      onDidDismiss={() => {
+        setIsOpen(false);
+        setItems([]);
+      }}
+    />
   );
 };

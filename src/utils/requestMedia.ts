@@ -5,15 +5,28 @@ export interface RequestMediaItem {
   url: string;
 }
 
+/** Normaliza URLs de media; descarta vacíos / placeholders. */
+export function normalizeMediaUrl(url?: string | null): string | null {
+  if (typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  const lower = trimmed.toLowerCase();
+  if (lower === 'null' || lower === 'undefined') return null;
+  return trimmed;
+}
+
 export function collectRequestMedia(input: {
   photoUrl?: string | null;
   videoUrl?: string | null;
   audioUrl?: string | null;
 }): RequestMediaItem[] {
   const items: RequestMediaItem[] = [];
-  if (input.photoUrl) items.push({ kind: 'photo', url: input.photoUrl });
-  if (input.videoUrl) items.push({ kind: 'video', url: input.videoUrl });
-  if (input.audioUrl) items.push({ kind: 'audio', url: input.audioUrl });
+  const photo = normalizeMediaUrl(input.photoUrl);
+  const video = normalizeMediaUrl(input.videoUrl);
+  const audio = normalizeMediaUrl(input.audioUrl);
+  if (photo) items.push({ kind: 'photo', url: photo });
+  if (video) items.push({ kind: 'video', url: video });
+  if (audio) items.push({ kind: 'audio', url: audio });
   return items;
 }
 

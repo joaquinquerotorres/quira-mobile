@@ -5,14 +5,11 @@ import {
   useIonViewWillEnter, useIonRouter, IonButton,
   IonModal, IonSelect, IonSelectOption
 } from '@ionic/react';
-import { 
+import {
   briefcaseOutline, 
   alertCircleOutline, swapVerticalOutline,
-  waterOutline, hammerOutline, flashOutline, brushOutline, leafOutline, listOutline, 
+  listOutline, 
   checkmarkCircleOutline,
-  starOutline,
-  snowOutline,
-  handLeftOutline,
 } from 'ionicons/icons';
 import api from '../api/axios';
 import { Bid, ServiceRequest } from '../types';
@@ -24,7 +21,6 @@ import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
 import { MyWorkBidCard, MyWorkJobCard } from '../components/mywork/MyWorkCards';
 
-import { getCategoryLabel } from '../utils/categoryLabels';
 import { dedupeBidsByRequestForMyWork } from '../utils/bidDisplay';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 
@@ -91,22 +87,6 @@ const MyWork: React.FC = () => {
 
   const displayBids = useMemo(() => dedupeBidsByRequestForMyWork(bids), [bids]);
 
-  // --- HELPER VISUAL PARA CATEGORÍAS ---
-  const getCategoryStyle = (catCode: string) => {
-      const normalized = (catCode || '').toUpperCase();
-      switch (normalized) {
-          case 'PLUMBING': return { label: 'Fontanería', icon: waterOutline, color: '#3b82f6', bg: '#dbeafe' };
-          case 'ELECTRICITY': return { label: 'Electricidad', icon: flashOutline, color: '#eab308', bg: '#fef9c3' };
-          case 'MASONRY': return { label: 'Reformas', icon: hammerOutline, color: '#ef4444', bg: '#fee2e2' };
-          case 'PAINTING': return { label: 'Pintura', icon: brushOutline, color: '#a855f7', bg: '#f3e8ff' };
-          case 'GARDENING': return { label: 'Jardinería', icon: leafOutline, color: '#22c55e', bg: '#dcfce7' };
-          case 'CLEANING': return { label: 'Limpieza', icon: starOutline, color: '#06b6d4', bg: '#cffafe' };
-          case 'HVAC': return { label: 'Climatización', icon: snowOutline, color: '#64748b', bg: '#f1f5f9' };
-          case 'DIY': return { label: 'Manitas', icon: handLeftOutline, color: '#63d8ce', bg: '#f1f5f9' };
-          default: return { label: getCategoryLabel(catCode), icon: handLeftOutline, color: '#63d8ce', bg: '#f1f5f9' };
-      }
-  };
-
   // --- LÓGICA DE FETCH (CON FILTROS AL BACKEND) ---
   const fetchData = async (targetSegment = segment) => {
     setLoading(true);
@@ -159,24 +139,19 @@ const MyWork: React.FC = () => {
     const isWon = req.status === 'ACCEPTED' && assignedIri === myIri;
     const isClosed = req.status === 'COMPLETED' || (req.status === 'ACCEPTED' && !isWon);
 
-    // Clases CSS aisladas (mw-)
-    let borderClass = 'mw-card-pending';
+    // Clases / tokens de estado compartidos
+    let status: 'pending' | 'assigned' | 'completed' = 'pending';
     let statusLabel = 'PENDIENTE';
-    let badgeClass = 'mw-status-pending';
 
-    if (isWon) { borderClass = 'mw-card-won'; statusLabel = 'GANADA'; badgeClass = 'mw-status-won'; }
-    else if (isClosed) { borderClass = 'mw-card-closed'; statusLabel = 'CERRADA'; badgeClass = 'mw-status-closed'; }
-
-    const catStyle = getCategoryStyle(req.category);
+    if (isWon) { status = 'assigned'; statusLabel = 'GANADA'; }
+    else if (isClosed) { status = 'completed'; statusLabel = 'CERRADA'; }
 
     return (
       <MyWorkBidCard
         bid={bid}
         request={req}
-        borderClass={borderClass}
+        status={status}
         statusLabel={statusLabel}
-        badgeClass={badgeClass}
-        catStyle={catStyle}
         onClick={() => router.push(`/pro/request/${requestId}`)}
       />
     );
@@ -185,21 +160,16 @@ const MyWork: React.FC = () => {
   // --- RENDER DE TARJETA DE TRABAJO (JOB) ---
   const renderJob = (job: ServiceRequest) => {
     const isCompleted = job.status === 'COMPLETED';
-    const borderClass = isCompleted ? 'mw-card-closed' : 'mw-card-won'; 
+    const status = isCompleted ? 'completed' as const : 'assigned' as const;
     const statusLabel = isCompleted ? 'FINALIZADO' : 'ASIGNADO';
-    const badgeClass = isCompleted ? 'mw-status-closed' : 'mw-status-won';
     const dateToShow = job.createdAt;
     const jobId = getIdFromIri(job);
-
-    const catStyle = getCategoryStyle(job.category);
 
     return (
       <MyWorkJobCard
         job={job}
-        borderClass={borderClass}
+        status={status}
         statusLabel={statusLabel}
-        badgeClass={badgeClass}
-        catStyle={catStyle}
         dateToShow={dateToShow}
         onClick={() => router.push(`/pro/request/${jobId}`)}
       />

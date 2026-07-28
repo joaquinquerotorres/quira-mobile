@@ -87,7 +87,7 @@ const BecomePro: React.FC = () => {
         setTimeout(() => {
           window.history.replaceState({}, '', '/become-pro');
           setActiveMode('pro');
-          window.location.href = '/my-work';
+          window.location.href = '/market';
         }, 2000);
       })();
     } else if (params.get('canceled') === '1') {
@@ -353,7 +353,7 @@ const BecomePro: React.FC = () => {
       setToast(isUpgrading ? `¡Plan actualizado a ${selectedTier}!` : `¡Bienvenido al plan ${selectedTier}!`);
       setTimeout(() => {
         setActiveMode('pro');
-        window.location.href = '/my-work';
+        window.location.href = '/market';
       }, 1500);
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { 'hydra:description'?: string; message?: string } } })?.response?.data?.['hydra:description']

@@ -17,7 +17,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
             <h2>{title}</h2>
             <p>{subtitle}</p>
             {extraInfo && 
-                <div style={{color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: 600, marginTop: '5px', background:'rgba(255,255,255,0.1)', display:'inline-block', padding:'4px 10px', borderRadius:'10px'}}>
+                <div style={{color: 'rgba(255,255,255,0.9)', fontSize: '0.72rem', fontWeight: 600, marginTop: '4px', background:'rgba(255,255,255,0.1)', display:'inline-block', padding:'3px 8px', borderRadius:'8px', lineHeight: 1.2}}>
                     {extraInfo}
                 </div>
             }

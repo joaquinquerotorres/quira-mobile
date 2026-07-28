@@ -16,7 +16,7 @@ import {
   hammerOutline, 
   personOutline, 
   briefcaseOutline, 
-  addCircleOutline,
+  add,
   calendarOutline,
 } from 'ionicons/icons';
 
@@ -40,6 +40,7 @@ import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
 import NotificationSettings from './pages/NotificationSettings';
 import { DowngradeBanner } from './components/DowngradeBanner';
+import { RequestMediaModalHost } from './components/shared/RequestMediaModal';
 import { initAnalytics, logEvent } from './services/analytics';
 import { syncPushTokenForCurrentUser } from './services/pushNotifications';
 import {
@@ -193,18 +194,10 @@ const MainTabs: React.FC = () => {
           href="/new-request"
           className={showProTabs ? 'quira-tab-hidden quira-tab-pedir' : 'quira-tab-pedir'}
         >
-          <IonIcon aria-hidden="true" icon={addCircleOutline} />
+          <IonIcon aria-hidden="true" icon={add} />
           <IonLabel>Pedir</IonLabel>
         </IonTabButton>
 
-        <IonTabButton
-          tab="my-work"
-          href="/my-work"
-          className={showProTabs ? undefined : 'quira-tab-hidden'}
-        >
-          <IonIcon aria-hidden="true" icon={briefcaseOutline} />
-          <IonLabel>Gestión</IonLabel>
-        </IonTabButton>
         <IonTabButton
           tab="market"
           href="/market"
@@ -212,6 +205,14 @@ const MainTabs: React.FC = () => {
         >
           <IonIcon aria-hidden="true" icon={hammerOutline} />
           <IonLabel>Mercado</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="my-work"
+          href="/my-work"
+          className={showProTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={briefcaseOutline} />
+          <IonLabel>Gestión</IonLabel>
         </IonTabButton>
         <IonTabButton
           tab="pro-calendar"
@@ -246,6 +247,7 @@ const App: React.FC = () => {
       <IonReactRouter>
         <MainTabs />
       </IonReactRouter>
+      <RequestMediaModalHost />
     </IonApp>
   );
 };

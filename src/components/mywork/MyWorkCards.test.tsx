@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import { waterOutline } from 'ionicons/icons';
 import { MyWorkBidCard, MyWorkJobCard } from './MyWorkCards';
 import { Bid, ServiceRequest } from '../../types';
 
@@ -40,7 +39,6 @@ const mockBid: Bid = {
   request: mockRequest,
 };
 
-const catStyle = { label: 'Fontanería', icon: waterOutline, color: '#3b82f6', bg: '#dbeafe' };
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <div>{children}</div>
 );
@@ -50,10 +48,8 @@ test('MyWorkBidCard renders request title and bid price', () => {
     <MyWorkBidCard
       bid={mockBid}
       request={mockRequest}
-      borderClass=""
+      status="pending"
       statusLabel="Pendiente"
-      badgeClass=""
-      catStyle={catStyle}
       onClick={vi.fn()}
     />,
     { wrapper }
@@ -63,6 +59,7 @@ test('MyWorkBidCard renders request title and bid price', () => {
   expect(screen.getByText('TU PROPUESTA')).toBeInTheDocument();
   expect(screen.getByText('Calle Mayor 1')).toBeInTheDocument();
   expect(screen.getByText('Esta semana')).toBeInTheDocument();
+  expect(screen.getByText(/Fontanería/)).toBeInTheDocument();
 });
 
 test('MyWorkBidCard calls onClick when card is clicked', () => {
@@ -71,10 +68,8 @@ test('MyWorkBidCard calls onClick when card is clicked', () => {
     <MyWorkBidCard
       bid={mockBid}
       request={mockRequest}
-      borderClass=""
+      status="pending"
       statusLabel="Pendiente"
-      badgeClass=""
-      catStyle={catStyle}
       onClick={onClick}
     />,
     { wrapper }
@@ -87,10 +82,8 @@ test('MyWorkJobCard renders job and price', () => {
   render(
     <MyWorkJobCard
       job={{ ...mockRequest, status: 'COMPLETED' }}
-      borderClass=""
+      status="completed"
       statusLabel="Completado"
-      badgeClass=""
-      catStyle={catStyle}
       dateToShow="2024-01-20"
       onClick={vi.fn()}
     />,
@@ -107,10 +100,8 @@ test('MyWorkBidCard renders accepted bid with custom badge', () => {
     <MyWorkBidCard
       bid={acceptedBid}
       request={mockRequest}
-      borderClass="mw-card-closed"
+      status="completed"
       statusLabel="CERRADA"
-      badgeClass="mw-status-closed"
-      catStyle={catStyle}
       onClick={vi.fn()}
     />,
     { wrapper }
@@ -125,10 +116,8 @@ test('MyWorkBidCard shows Media chip when request has media', () => {
     <MyWorkBidCard
       bid={mockBid}
       request={{ ...mockRequest, audioUrl: '/a.mp3' }}
-      borderClass=""
+      status="pending"
       statusLabel="Pendiente"
-      badgeClass=""
-      catStyle={catStyle}
       onClick={vi.fn()}
     />,
     { wrapper }

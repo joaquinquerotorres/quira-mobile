@@ -3,13 +3,13 @@ import {
   IonContent, IonPage,
   IonCard, IonCardContent, IonIcon, IonRefresher, IonRefresherContent,
   useIonViewWillEnter, IonSkeletonText, IonButton,
-  IonChip, IonLabel, IonSelect, IonSelectOption,
+  IonLabel, IonSelect, IonSelectOption,
   IonAvatar, IonToast
 } from '@ionic/react';
 import { 
   locationOutline, calendarOutline, flashOutline, 
   arrowForwardOutline, star, checkmarkCircleOutline, filterOutline, 
-  swapVerticalOutline, checkmarkDoneOutline, 
+  swapVerticalOutline, 
   searchOutline,
   waterOutline, hammerOutline, leafOutline, brushOutline,
   compassOutline, listOutline,
@@ -26,13 +26,14 @@ import MainHeader from '../components/shared/MainHeader';
 import { SearchText } from '../components/shared/SearchText';
 import { FilterModal } from '../components/shared/FilterModal';
 import { SegmentTab } from '../components/shared/SegmentTab';
-import { RequestMediaChip } from '../components/shared/RequestMediaModal';
+import { ListingCard, FilterChipRow } from '../components/listing';
 
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
+import type { ListingStatusKey } from '../utils/listingStatus';
 
 const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
 
@@ -172,16 +173,21 @@ const RequestList: React.FC = () => {
   const getStatusLabel = (status: RequestStatus) => {
     switch (status) { case 'COMPLETED': return 'FINALIZADO'; case 'ACCEPTED': return 'ASIGNADO'; case 'PENDING_APPROVAL': return 'EN REVISIÓN'; default: return 'PENDIENTE'; }
   };
-  const getStatusColorClass = (status: RequestStatus) => {
-      switch (status) { case 'COMPLETED': return 'request-status-completed'; case 'ACCEPTED': return 'request-status-accepted'; case 'PENDING_APPROVAL': return 'request-status-pending-approval'; default: return 'request-status-pending'; }
+  const getListingStatus = (status: RequestStatus): ListingStatusKey => {
+      switch (status) {
+        case 'COMPLETED': return 'completed';
+        case 'ACCEPTED': return 'assigned';
+        case 'PENDING_APPROVAL': return 'pending_approval';
+        default: return 'pending';
+      }
   };
-  const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
-    const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', marginTop: '8px', fontSize: '0.85rem', fontWeight: 700 };
-    const preference = desiredExecutionTime?.trim();
-    const isUrgent = !preference || preference.toLowerCase() === 'lo antes posible';
-    if (isUrgent) return (<div style={{...rowStyle, color: '#ea580c'}}><IonIcon icon={flashOutline} style={{marginRight: '6px', fontSize: '15px'}} /><span>Lo antes posible</span></div>);
-    return (<div style={{...rowStyle, color: '#4f46e5'}}><IonIcon icon={calendarOutline} style={{marginRight: '6px', fontSize: '15px'}} /><span>{preference}</span></div>);
-  };
+  const STATUS_FILTER_CHIPS = [
+    { value: 'ALL', label: 'Todas' },
+    { value: 'PENDING', label: 'Pendientes' },
+    { value: 'ACCEPTED', label: 'Asignadas' },
+    { value: 'COMPLETED', label: 'Finalizadas' },
+    { value: 'PENDING_APPROVAL', label: 'Validándose' },
+  ];
 
   return (
     <IonPage>
@@ -217,16 +223,14 @@ const RequestList: React.FC = () => {
                         onSearch={fetchRequests}
                         placeholder="Buscar solicitud..." />
 
-                    <div className="request-list-filter-chips-container">
-                        <IonChip className={filterStatus === 'ALL' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('ALL')}><IonLabel>Todas</IonLabel></IonChip>
-                        <IonChip className={filterStatus === 'PENDING' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('PENDING')}><IonLabel>Pendientes</IonLabel></IonChip>
-                        <IonChip className={filterStatus === 'ACCEPTED' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('ACCEPTED')}><IonLabel>Asignadas</IonLabel></IonChip>
-                        <IonChip className={filterStatus === 'COMPLETED' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('COMPLETED')}><IonLabel>Finalizadas</IonLabel></IonChip>
-                        <IonChip className={filterStatus === 'PENDING_APPROVAL' ? 'active-chip' : 'inactive-chip'} onClick={() => setFilterStatus('PENDING_APPROVAL')}><IonLabel>Validándose</IonLabel></IonChip>
-                    </div>
+                    <FilterChipRow
+                      options={STATUS_FILTER_CHIPS}
+                      value={filterStatus}
+                      onChange={setFilterStatus}
+                    />
 
                     {loading && [1, 2, 3].map(i => (
-                        <IonCard key={i} className="request-list-card" style={{height: '140px'}}>
+                        <IonCard key={i} className="listing-card" style={{height: '140px'}}>
                             <IonCardContent>
                                 <IonSkeletonText animated style={{ width: '35%', height: '12px' }} />
                                 <IonSkeletonText animated style={{ width: '85%', height: '22px', marginTop: '12px' }} />
@@ -236,48 +240,58 @@ const RequestList: React.FC = () => {
                     ))}
 
                     {!loading && requests.map((req) => {
-                        const borderClass = req.status === 'COMPLETED' ? 'card-status-completed' : req.status === 'ACCEPTED' ? 'card-status-accepted' : 'card-status-pending';
+                        const listingStatus = getListingStatus(req.status);
+                        const preference = req.desiredExecutionTime?.trim();
+                        const isUrgent = !preference || preference.toLowerCase() === 'lo antes posible';
                         return (
-                            <IonCard key={req.id} routerLink={`/request/${req.id}`} button className={`request-list-card ${borderClass}`}>
-                                <div className="request-list-card-body">
-                                    <div className="request-list-card-main">
-                                        <div className="request-list-card-top">
-                                            <div className="request-list-card-pills">
-                                                <span className="request-list-card-category">{getCategoryLabel(req.category)}</span>
-                                                <span className={`request-list-status-badge ${getStatusColorClass(req.status)}`}>{getStatusLabel(req.status)}</span>
-                                            </div>
-                                            <div className="request-list-card-price-block">
-                                                <span className="request-list-card-price-label">Rango estimado</span>
-                                                <span className="request-list-card-price">{formatRequestPriceRangeEuros(req)}</span>
-                                            </div>
-                                        </div>
-                                        <h3 className="request-list-card-title">{req.title}</h3>
-                                        <div className="request-list-info-row">
-                                            <IonIcon icon={locationOutline} />
-                                            <span>{req.address.split(',')[0]}</span>
-                                        </div>
-                                        {renderScheduleInfo(req.desiredExecutionTime)}
-                                    </div>
-                                </div>
-                                <div className="request-list-card-footer" style={{background: req.assignedProfessional ? (req.status === 'COMPLETED' ? '#f1f5f9' : '#ffffff') : '#ffffff'}}>
-                                    <div className="request-list-footer-left">
-                                        {req.assignedProfessional ? (
-                                            <div style={{display:'flex', alignItems: 'center'}}>
-                                                <div className={`pro-icon-bg ${req.status === 'COMPLETED' ? 'gray' : 'blue'}`}><IonIcon icon={req.status === 'COMPLETED' ? checkmarkDoneOutline : checkmarkCircleOutline} /></div>
-                                                <span className="request-list-footer-text">{req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:'} {req.assignedProfessional.fullName}</span>
-                                                {req.assignedProfessional.rating && <div className="rating-badge" style={{marginLeft: 8}}><IonIcon icon={star} /> {req.assignedProfessional.rating}</div>}
-                                            </div>
-                                        ) : (
-                                            <span className="request-list-footer-text muted">Sin profesional asignado</span>
-                                        )}
-                                    </div>
-                                    <RequestMediaChip
-                                      photoUrl={req.photoUrl}
-                                      videoUrl={req.videoUrl}
-                                      audioUrl={req.audioUrl}
-                                    />
-                                </div>
-                            </IonCard>
+                            <ListingCard
+                              key={req.id}
+                              status={listingStatus}
+                              category={req.category}
+                              statusLabel={getStatusLabel(req.status)}
+                              title={req.title}
+                              price={{
+                                variant: 'range',
+                                value: formatRequestPriceRangeEuros(req),
+                              }}
+                              metaRows={[
+                                { icon: locationOutline, text: req.address.split(',')[0] },
+                                isUrgent
+                                  ? { icon: flashOutline, text: 'Lo antes posible', tone: 'urgent' }
+                                  : { icon: calendarOutline, text: preference!, tone: 'primary' },
+                              ]}
+                              onClick={() => history.push(`/request/${req.id}`)}
+                              media={{
+                                photoUrl: req.photoUrl,
+                                videoUrl: req.videoUrl,
+                                audioUrl: req.audioUrl,
+                              }}
+                              footer={{
+                                emptyCta:
+                                  !req.assignedProfessional && req.status === 'PENDING'
+                                    ? {
+                                        label: 'Buscar profesional',
+                                        onClick: () => {
+                                          const cat =
+                                            typeof req.category === 'string'
+                                              ? req.category
+                                              : (req.category as { code?: string } | undefined)?.code;
+                                          goToDirectory(cat);
+                                        },
+                                      }
+                                    : undefined,
+                                emptyText:
+                                  !req.assignedProfessional && req.status !== 'PENDING'
+                                    ? 'Sin profesional asignado'
+                                    : undefined,
+                                personPrefix: req.assignedProfessional
+                                  ? (req.status === 'COMPLETED' ? 'Finalizado por:' : 'Pro:')
+                                  : undefined,
+                                personName: req.assignedProfessional?.fullName,
+                                rating: req.assignedProfessional?.rating,
+                                mutedBackground: req.status === 'COMPLETED' && !!req.assignedProfessional,
+                              }}
+                            />
                         );
                     })}
 

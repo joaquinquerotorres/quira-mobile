@@ -1,24 +1,17 @@
 import React from 'react';
 import {
   IonIcon,
-  IonAvatar,
   IonButton,
-  IonBadge,
 } from '@ionic/react';
 import {
   calendarOutline,
   cashOutline,
-  flashOutline,
   informationCircleOutline,
-  checkmarkCircle,
   checkmarkDoneOutline,
   callOutline,
   star,
-  chatboxEllipsesOutline,
-  chevronForwardOutline,
-  timeOutline,
 } from 'ionicons/icons';
-import { Bid, ServiceRequest, Category, VisitRequest, ProfessionalProfile } from '../../types';
+import { Bid, ServiceRequest, VisitRequest, ProfessionalProfile } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { bidPriceLabel } from '../../utils/bidPriceLabel';
 import { dedupePendingBidsByProProfile } from '../../utils/bidDisplay';
@@ -26,6 +19,15 @@ import {
   formatRequestPriceRangeEuros,
   getRequestPriceRangeEuros,
 } from '../../utils/requestPriceRange';
+import { getClientDetailStatus } from '../../utils/detailStatus';
+import {
+  DetailHeroHeader,
+  InfoBox,
+  PRICE_RANGE_DISCLAIMER,
+  PersonCard,
+  JobDetailsSection,
+  QuestionsRow,
+} from '../detail';
 
 type TierLabel = 'PRO' | 'SOLVER' | 'FREE';
 
@@ -53,16 +55,6 @@ function getResourceId(resource: { id?: number; '@id'?: string } | string | unde
   if (resource['@id']) return parseInt(String(resource['@id']).split('/').pop() || '0', 10);
   return 0;
 }
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  DIY: 'Manitas',
-  PLUMBING: 'Fontanería',
-  ELECTRICITY: 'Electricidad',
-  MASONRY: 'Albañilería',
-  HVAC: 'Climatización',
-  CLEANING: 'Limpieza',
-  PAINTING: 'Pintura',
-};
 
 const TIER_STYLES: Record<TierLabel, { bg: string; color: string }> = {
   PRO: { bg: 'var(--ion-color-primary)', color: 'white' },
@@ -141,175 +133,79 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
       (request.extraVideoUrls?.length ?? 0) +
       (request.extraAudioUrls?.length ?? 0) >
     0;
+  const detailStatus = getClientDetailStatus(request.status);
 
   return (
     <>
       {/* INFO PRINCIPAL */}
       <div style={{ marginTop: '20px', padding: '0 5px' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            marginBottom: '10px',
-          }}
-        >
-          <span
-            className={`status-badge-detail ${
-              request.status === 'COMPLETED'
-                ? 'completed'
-                : request.status === 'ACCEPTED'
-                ? 'accepted'
-                : request.status === 'PENDING_APPROVAL'
-                ? 'pending-approval'
-                : 'pending'
-            }`}
-          >
-            {request.status === 'COMPLETED'
-              ? 'Finalizado'
-              : request.status === 'ACCEPTED'
-              ? 'Asignado'
-              : request.status === 'PENDING_APPROVAL'
-              ? 'En revisión'
-              : 'Pendiente'}
-          </span>
-        </div>
-
-        <h1 className="detail-title">{request.title}</h1>
+        <DetailHeroHeader
+          status={detailStatus.key}
+          statusLabel={detailStatus.label}
+          title={request.title}
+        />
 
         {/* PRO ASIGNADO */}
         {(request.status === 'ACCEPTED' || request.status === 'COMPLETED') &&
-          request.assignedProfessional && (
-            <div className="pro-card-assigned animate__animated animate__fadeInUp">
-              <div className="pro-header">
-                <div
-                  className="pro-card-label"
-                  style={{ marginBottom: 10 }}
-                >
-                  {request.status === 'COMPLETED'
+          request.assignedProfessional && (() => {
+            const ap = request.assignedProfessional as {
+              user?: { roles?: string[] };
+              roles?: string[];
+              rating?: number | string;
+              reviewCount?: number;
+              avatar?: string;
+              fullName?: string;
+            };
+            const tier = getTierFromRoles(getRolesFromObj(ap));
+            const tierStyle = TIER_STYLES[tier];
+            return (
+              <PersonCard
+                className="animate__animated animate__fadeInUp"
+                sectionLabel={
+                  request.status === 'COMPLETED'
                     ? 'Servicio finalizado'
-                    : 'Profesional asignado'}
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ position: 'relative' }}>
-                    <IonAvatar className="bid-avatar">
-                      {request.assignedProfessional.avatar ? (
-                        <img
-                          src={resolveMediaUrl(request.assignedProfessional.avatar)}
-                          alt="avatar"
-                        />
-                      ) : (
-                        <span>
-                          {request.assignedProfessional.fullName
-                            ? request.assignedProfessional.fullName.charAt(0)
-                            : '?'}
-                        </span>
-                      )}
-                    </IonAvatar>
-                    {(() => {
-                      const ap = request.assignedProfessional as { user?: { roles?: string[] } };
-                      const roles = getRolesFromObj(ap);
-                      const tier = getTierFromRoles(roles);
-                      const tierStyle = TIER_STYLES[tier];
-                      return (
-                        <span
-                          className="bid-tier-badge"
-                          style={{
-                            position: 'absolute',
-                            top: '-4px',
-                            left: '-4px',
-                            background: tierStyle.bg,
-                            color: tierStyle.color,
-                            fontSize: '0.55rem',
-                            fontWeight: 800,
-                            padding: '2px 5px',
-                            borderRadius: '999px',
-                            boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
-                          }}
-                        >
-                          {tier}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      className="bid-pro-name"
-                      style={{
-                        fontWeight: 800,
-                        color: '#1e293b',
-                        fontSize: '0.95rem',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
+                    : 'Profesional asignado'
+                }
+                name={ap.fullName || 'Profesional'}
+                avatarUrl={ap.avatar}
+                rating={ap.rating}
+                reviewCount={ap.reviewCount}
+                planBadge={
+                  <span
+                    className="detail-person-card-plan-badge"
+                    style={{ background: tierStyle.bg, color: tierStyle.color }}
+                  >
+                    {tier}
+                  </span>
+                }
+                highlight={request.status === 'ACCEPTED'}
+                action={
+                  request.status !== 'COMPLETED' ? (
+                    <IonButton
+                      expand="block"
+                      className="quira-main-btn"
+                      onClick={onCallProfessional}
                     >
-                      {request.assignedProfessional.fullName}
+                      <IonIcon slot="start" icon={callOutline} /> CONTACTAR
+                    </IonButton>
+                  ) : !hasReviewed ? (
+                    <IonButton
+                      expand="block"
+                      color="secondary"
+                      className="quira-main-btn"
+                      onClick={onOpenReviewModal}
+                    >
+                      <IonIcon slot="start" icon={star} /> VALORAR TRABAJO
+                    </IonButton>
+                  ) : (
+                    <div className="reviewed-badge">
+                      <IonIcon icon={checkmarkDoneOutline} /> ¡Valoración enviada!
                     </div>
-                    {(() => {
-                      const apAny = request.assignedProfessional as any;
-                      const hasRatingData = apAny?.rating != null || apAny?.reviewCount != null;
-                      if (!hasRatingData) return null;
-                      const numeric =
-                        typeof apAny.rating === 'number'
-                          ? apAny.rating
-                          : typeof apAny.rating === 'string'
-                            ? Number.parseFloat(apAny.rating)
-                            : NaN;
-                      const display = Number.isFinite(numeric) ? numeric.toFixed(1) : '—';
-                      const count = apAny.reviewCount ?? 0;
-                      return (
-                        <div
-                          className="bid-rating"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            fontSize: '0.8rem',
-                            color: '#64748b',
-                            marginTop: 4,
-                          }}
-                        >
-                          <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.9rem' }} />
-                          <span style={{ fontWeight: 600 }}>{display}</span>
-                          <span style={{ color: '#94a3b8' }}>({count})</span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-              <div className="pro-body">
-                {request.status !== 'COMPLETED' ? (
-                  <IonButton
-                    expand="block"
-                    className="quira-main-btn"
-                    onClick={onCallProfessional}
-                  >
-                    <IonIcon slot="start" icon={callOutline} /> CONTACTAR
-                  </IonButton>
-                ) : !hasReviewed ? (
-                  <IonButton
-                    expand="block"
-                    color="secondary"
-                    className="quira-main-btn"
-                    onClick={onOpenReviewModal}
-                  >
-                    <IonIcon slot="start" icon={star} /> VALORAR TRABAJO
-                  </IonButton>
-                ) : (
-                  <div className="reviewed-badge">
-                    <IonIcon icon={checkmarkDoneOutline} /> ¡Valoración enviada!
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                  )
+                }
+              />
+            );
+          })()}
 
         <div className="request-detail-main-sections">
         {/* LISTADO DE OFERTAS */}
@@ -336,135 +232,54 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                       const proProfile = bid.professional?.professionalProfile as ProfessionalProfile | undefined;
                       const proId = proProfile?.id ?? (proProfile?.['@id'] ? parseInt(String(proProfile['@id']).split('/').pop() || '0', 10) : 0);
                       const isAssignedBid = requestAlreadyAssigned && proId === assignedProfessionalId;
-                      const hasRating = proProfile?.rating != null || proProfile?.reviewCount != null;
-                      const numericRating =
-                        typeof proProfile?.rating === 'number'
-                          ? proProfile.rating
-                          : typeof proProfile?.rating === 'string'
-                            ? Number.parseFloat(proProfile.rating)
-                            : NaN;
-                      const displayRating = Number.isFinite(numericRating)
-                        ? numericRating.toFixed(1)
-                        : '—';
                       const handleViewPro = () => proId && onViewProfessional?.(proId);
                       const tier = getBidTier(bid);
                       const tierStyle = TIER_STYLES[tier];
                       const isRangeBid = bid.pricingType === 'RANGE';
                       const rangeMin = Number(bid.priceQuoteMin ?? bid.priceQuote ?? 0);
                       const rangeMax = Number(bid.priceQuoteMax ?? bid.priceQuote ?? rangeMin);
+                      const priceNode =
+                        isRangeBid && Number.isFinite(rangeMin) && Number.isFinite(rangeMax) ? (
+                          <div className="bid-price bid-price-range">
+                            <span className="bid-price-range-value">{rangeMin}€</span>
+                            <span className="bid-price-range-separator">-</span>
+                            <span className="bid-price-range-value">{rangeMax}€</span>
+                          </div>
+                        ) : (
+                          <div className="bid-price bid-price-fixed-pill">{bidPriceLabel(bid)}</div>
+                        );
                       return (
-                        <div
+                        <PersonCard
                           key={bid.id}
                           className="bid-card animate__animated animate__fadeInUp"
+                          name={proProfile?.fullName || 'Profesional'}
+                          avatarUrl={proProfile?.avatar}
+                          rating={proProfile?.rating}
+                          reviewCount={proProfile?.reviewCount}
+                          onPersonClick={onViewProfessional && proId ? handleViewPro : undefined}
+                          planBadge={
+                            <span
+                              className="detail-person-card-plan-badge"
+                              style={{ background: tierStyle.bg, color: tierStyle.color }}
+                            >
+                              {tier}
+                            </span>
+                          }
+                          price={priceNode}
+                          comment={bid.comment}
+                          availability={bid.estimatedExecutionTime}
+                          action={
+                            !requestAlreadyAssigned ? (
+                              <IonButton
+                                expand="block"
+                                className="accept-bid-btn"
+                                onClick={() => onOpenAcceptModal(bid.id)}
+                              >
+                                ACEPTAR PRESUPUESTO
+                              </IonButton>
+                            ) : undefined
+                          }
                         >
-                          <div className="bid-card-header">
-                            <div
-                              className={`bid-pro-info${onViewProfessional && proId ? ' bid-pro-info--clickable' : ''}`}
-                              role={onViewProfessional && proId ? 'button' : undefined}
-                              tabIndex={onViewProfessional && proId ? 0 : undefined}
-                              onClick={handleViewPro}
-                              onKeyDown={e => (e.key === 'Enter' && handleViewPro())}
-                            >
-                              <div style={{ position: 'relative' }}>
-                                <IonAvatar className="bid-avatar">
-                                  {proProfile?.avatar ? (
-                                    <img
-                                      src={resolveMediaUrl(proProfile.avatar)}
-                                      alt="avatar"
-                                    />
-                                  ) : (
-                                    <span>
-                                      {proProfile?.fullName
-                                        ? proProfile.fullName.charAt(0)
-                                        : '?'}
-                                    </span>
-                                  )}
-                                </IonAvatar>
-                                <span
-                                  className="bid-tier-badge"
-                                  style={{
-                                    position: 'absolute',
-                                    top: '-4px',
-                                    left: '-4px',
-                                    background: tierStyle.bg,
-                                    color: tierStyle.color,
-                                    fontSize: '0.55rem',
-                                    fontWeight: 800,
-                                    padding: '2px 5px',
-                                    borderRadius: '999px',
-                                    boxShadow: '0 2px 4px rgba(15, 23, 42, 0.25)',
-                                  }}
-                                >
-                                  {tier}
-                                </span>
-                              </div>
-                              <div>
-                                <div className="bid-pro-name">
-                                  <span>{proProfile?.fullName || 'Profesional'}</span>
-                                </div>
-                                {hasRating && (
-                                  <div
-                                    className="bid-rating"
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 4,
-                                      fontSize: '0.8rem',
-                                      color: '#64748b',
-                                      marginTop: 6,
-                                    }}
-                                  >
-                                    <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.85rem' }} />
-                                    <span style={{ fontWeight: 600 }}>{displayRating}</span>
-                                    {proProfile?.reviewCount != null && (
-                                      <span style={{ color: '#94a3b8' }}>({proProfile.reviewCount})</span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right', minWidth: '72px' }}>
-                              {isRangeBid && Number.isFinite(rangeMin) && Number.isFinite(rangeMax) ? (
-                                <div className="bid-price bid-price-range">
-                                  <span className="bid-price-range-value">{rangeMin}€</span>
-                                  <span className="bid-price-range-separator">-</span>
-                                  <span className="bid-price-range-value">{rangeMax}€</span>
-                                </div>
-                              ) : (
-                                <div className="bid-price bid-price-fixed-pill">{bidPriceLabel(bid)}</div>
-                              )}
-                            </div>
-                          </div>
-                          {bid.comment && (
-                            <div className="bid-comment">"{bid.comment}"</div>
-                          )}
-                          {bid.estimatedExecutionTime && (
-                            <div
-                              style={{
-                                marginBottom: 10,
-                                fontSize: '0.8rem',
-                                color: '#64748b',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                              }}
-                            >
-                              <IonIcon icon={timeOutline} style={{ fontSize: '0.85rem' }} />
-                              <span>
-                                Disponibilidad: <strong>{bid.estimatedExecutionTime}</strong>
-                              </span>
-                            </div>
-                          )}
-                          {!requestAlreadyAssigned && (
-                            <IonButton
-                              expand="block"
-                              className="accept-bid-btn"
-                              onClick={() => onOpenAcceptModal(bid.id)}
-                            >
-                              ACEPTAR PRESUPUESTO
-                            </IonButton>
-                          )}
-
                           {requestAlreadyAssigned && isAssignedBid && (
                             <div
                               style={{
@@ -482,7 +297,6 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                               Oferta aceptada
                             </div>
                           )}
-
                           {requestAlreadyAssigned && !isAssignedBid && (
                             <div
                               style={{
@@ -500,7 +314,7 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                               Oferta no seleccionada
                             </div>
                           )}
-                        </div>
+                        </PersonCard>
                       );
                     })
                   )}
@@ -511,92 +325,38 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
         )}
 
         {getRequestPriceRangeEuros(request) && (
-          <div className="info-card-detail orange-border">
-            <div className="icon-box-detail orange">
-              <IonIcon icon={cashOutline} />
-            </div>
-            <div>
-              <div className="info-label-detail">Rango estimado</div>
-              <div className="info-text-detail info-text-detail-price-range">
-                {formatRequestPriceRangeEuros(request)}
-              </div>
-            </div>
-          </div>
+          <InfoBox
+            tone="peach"
+            icon={cashOutline}
+            label="Rango estimado"
+            value={formatRequestPriceRangeEuros(request)}
+            subtext={PRICE_RANGE_DISCLAIMER}
+            emphasizeValue
+          />
         )}
 
-        <div className="info-card-detail blue-border">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={calendarOutline} />
-          </div>
-          <div>
-            <div className="info-label-detail">Disponibilidad preferida</div>
-            <div className="info-text-detail">
-              {request.desiredExecutionTime || 'Lo antes posible'}
-            </div>
-          </div>
-        </div>
+        <InfoBox
+          tone="lavender"
+          icon={calendarOutline}
+          label="Disponibilidad preferida"
+          value={request.desiredExecutionTime || 'Lo antes posible'}
+        />
 
-        <div className="info-card-detail">
-          <div className="icon-box-detail blue">
-            <IonIcon icon={addressDisplay.icon} />
-          </div>
-          <div>
-            <div className="info-label-detail">{addressDisplay.label}</div>
-            <div className="info-text-detail">{addressDisplay.text}</div>
-          </div>
-        </div>
+        <InfoBox
+          tone="neutral"
+          icon={addressDisplay.icon}
+          label={addressDisplay.label}
+          value={addressDisplay.text}
+        />
 
         {(request.clientOriginalDescription?.trim() || request.description) && (
-          <div className="description-box">
-            <div className="section-header">Descripción del problema</div>
-            {request.clientOriginalDescription?.trim() ? (
-              <>
-                <div
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: '#64748b',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Tu texto original
-                </div>
-                <p style={{ marginBottom: '18px' }}>{request.clientOriginalDescription.trim()}</p>
-                <div
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: '#64748b',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Valoración técnica (IA)
-                </div>
-              </>
-            ) : null}
-            {CATEGORY_LABELS[request.category] && (
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '2px 10px',
-                  borderRadius: '999px',
-                  background: '#eef2ff',
-                  color: '#4f46e5',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  marginBottom: '6px',
-                }}
-              >
-                {CATEGORY_LABELS[request.category]}
-              </div>
-            )}
-            {request.description ? <p>{request.description}</p> : null}
-
+          <JobDetailsSection
+            title="Descripción del problema"
+            category={request.category}
+            description={request.description}
+            clientOriginalDescription={request.clientOriginalDescription}
+            originalLabel="Tu texto original"
+          >
             {hasExtraMedia && (
               <div className="detail-extra-media-inside">
                 <div
@@ -753,46 +513,18 @@ export const RequestDetailMainSection: React.FC<RequestDetailMainSectionProps> =
                 )}
               </div>
             )}
-          </div>
+          </JobDetailsSection>
         )}
         </div>
       </div>
 
-      {/* Q&A ENTRY CARD */}
-      <div className="qa-entry-card" onClick={onOpenQAModal}>
-        <div className="qa-icon-badge">
-          <IonIcon icon={chatboxEllipsesOutline} />
-        </div>
-        <div className="qa-content-text">
-          <div className="qa-title">Preguntas y dudas</div>
-          <div
-            className="qa-subtitle"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              flexWrap: 'wrap',
-            }}
-          >
-            <span>
-              {questionsCount === 0
-                ? 'Nadie ha preguntado aún'
-                : `${questionsCount} pregunta${
-                    questionsCount > 1 ? 's' : ''
-                  }`}
-            </span>
-            {pendingAnswers > 0 && (
-              <IonBadge
-                color="danger"
-                style={{ fontSize: '0.7rem' }}
-              >
-                Requiere atención
-              </IonBadge>
-            )}
-          </div>
-        </div>
-        <IonIcon icon={chevronForwardOutline} color="medium" />
-      </div>
+      <QuestionsRow
+        questionsCount={questionsCount}
+        emptySubtitle="Nadie ha preguntado aún"
+        countFormat="count"
+        pendingAnswers={pendingAnswers}
+        onClick={onOpenQAModal}
+      />
 
     </>
   );

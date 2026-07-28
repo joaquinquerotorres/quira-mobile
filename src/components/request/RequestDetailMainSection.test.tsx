@@ -45,6 +45,10 @@ test('RequestDetailMainSection renders request title', () => {
   expect(screen.getByText('Arreglo grifo')).toBeInTheDocument();
   expect(screen.getByText('Rango estimado')).toBeInTheDocument();
   expect(screen.getByText('70€ - 90€')).toBeInTheDocument();
+  expect(
+    screen.getByText('Orientativo para la zona; no incluye desplazamiento ni materiales.'),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Preguntas y Dudas')).toBeInTheDocument();
 });
 
 test('RequestDetailMainSection shows PRO and SOLVER tier badges on bids', () => {

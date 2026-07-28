@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter,
   IonCard, IonCardContent, IonRefresher, IonRefresherContent,
   useIonViewWillEnter, IonSkeletonText, IonModal, IonButton,
-  IonIcon, IonButtons, IonInput, IonTextarea, IonLabel,
+  IonIcon, IonButtons, IonTextarea, IonLabel,
   IonToast, useIonRouter, IonSelect, IonSelectOption,
   IonAlert
 } from '@ionic/react';
 import { 
   hammerOutline, 
-  cashOutline, sendOutline, closeOutline, calendarOutline, flashOutline, 
+  cashOutline, sendOutline, closeOutline, 
   checkmarkCircleOutline, star, lockClosedOutline,
   swapVerticalOutline
 } from 'ionicons/icons';
@@ -29,6 +29,12 @@ import { getApiErrorMessage } from '../utils/apiError';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
+import {
+  defaultBidPricingType,
+  getAllowedBidPricingTypes,
+  type BidPricingType,
+} from '../utils/bidPricing';
+import { BidPricingFields } from '../components/pro/BidPricingFields';
 
 // LÍMITE DE PROPUESTAS PARA USUARIOS FREE
 const FREE_BID_LIMIT = 3;
@@ -61,7 +67,10 @@ const Market: React.FC = () => {
   // --- LÓGICA DE PROPUESTAS (ANTES PUJAS) ---
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+  const [bidPricingType, setBidPricingType] = useState<BidPricingType>('FIXED');
   const [bidPrice, setBidPrice] = useState<number | undefined>(undefined);
+  const [bidPriceMin, setBidPriceMin] = useState<number | undefined>(undefined);
+  const [bidPriceMax, setBidPriceMax] = useState<number | undefined>(undefined);
   const [bidComment, setBidComment] = useState('');
   const [bidEstimatedExecutionTime, setBidEstimatedExecutionTime] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
@@ -266,59 +275,66 @@ const Market: React.FC = () => {
     }
 
     setSelectedRequest(req);
-    setBidPrice(suggestedBidPriceEuros(req));
+    const suggested = suggestedBidPriceEuros(req);
+    const defaultType = defaultBidPricingType(req);
+    setBidPricingType(defaultType);
+    setBidPrice(suggested);
+    setBidPriceMin(suggested);
+    setBidPriceMax(suggested);
     setBidComment('');
     setBidEstimatedExecutionTime('');
     setShowModal(true);
   };
 
   const handleSubmitBid = async () => {
-    if (!selectedRequest || !bidPrice) {
-        setToast("Debes indicar un precio.");
+    if (!selectedRequest) return;
+
+    if (bidPricingType === 'FIXED') {
+      if (!bidPrice || bidPrice <= 0) {
+        setToast('Debes indicar un precio fijo.');
         return;
+      }
+    } else {
+      if (!bidPriceMin || !bidPriceMax || bidPriceMin <= 0 || bidPriceMax <= 0) {
+        setToast('Debes indicar un rango válido (mínimo y máximo).');
+        return;
+      }
+      if (bidPriceMax < bidPriceMin) {
+        setToast('El máximo debe ser mayor o igual que el mínimo.');
+        return;
+      }
     }
     if (!bidEstimatedExecutionTime) {
-        setToast("Debes indicar cuándo estimas poder realizar el trabajo.");
-        return;
+      setToast('Debes indicar cuándo estimas poder realizar el trabajo.');
+      return;
     }
     setSubmitting(true);
     try {
-        const payload = {
-            request: selectedRequest['@id'] || `/api/requests/${selectedRequest.id}`,
-            priceQuote: Number(bidPrice),
-            comment: bidComment,
-            estimatedExecutionTime: bidEstimatedExecutionTime,
-            status: 'PENDING'
-        };
-        await api.post('/bids', payload);
-        
-        setToast("¡Propuesta enviada con éxito!");
-        setShowModal(false);
-        void refreshCanBidStatus();
-        fetchOpportunities(); 
-    } catch (error: unknown) {
-        setToast(getApiErrorMessage(error) || 'Error al enviar la propuesta.');
-    } finally {
-        setSubmitting(false);
-    }
-  };
-
-  const renderScheduleInfo = (desiredExecutionTime?: string | null) => {
-      const preference = desiredExecutionTime?.trim();
-      if (!preference) {
-          return (
-              <div className="info-row" style={{color: '#ea580c', fontWeight: 700, fontSize: '0.85rem'}}>
-                  <IonIcon icon={flashOutline} style={{marginRight: '6px', fontSize: '15px'}} />
-                  <span>Urgente: Lo antes posible</span>
-              </div>
-          );
+      const payload: Record<string, unknown> = {
+        request: selectedRequest['@id'] || `/api/requests/${selectedRequest.id}`,
+        pricingType: bidPricingType,
+        comment: bidComment,
+        estimatedExecutionTime: bidEstimatedExecutionTime,
+        status: 'PENDING',
+      };
+      if (bidPricingType === 'FIXED') {
+        payload.priceQuote = Number(bidPrice);
+      } else {
+        payload.priceQuoteMin = Number(bidPriceMin);
+        payload.priceQuoteMax = Number(bidPriceMax);
+        payload.priceQuote = Number(bidPriceMin);
       }
-      return (
-          <div className="info-row" style={{color: 'var(--ion-color-primary)', fontWeight: 700, fontSize: '0.85rem'}}>
-              <IonIcon icon={calendarOutline} style={{marginRight: '6px', fontSize: '15px'}} />
-              <span>{preference}</span>
-          </div>
-      );
+      await api.post('/bids', payload);
+
+      setToast('¡Propuesta enviada con éxito!');
+      setShowModal(false);
+      void refreshCanBidStatus();
+      fetchOpportunities();
+    } catch (error: unknown) {
+      setToast(getApiErrorMessage(error) || 'Error al enviar la propuesta.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -393,7 +409,6 @@ const Market: React.FC = () => {
                         openBidModal(e, req);
                       }
                     }}
-                    renderScheduleInfo={renderScheduleInfo}
                   />
                 );
               })
@@ -419,7 +434,7 @@ const Market: React.FC = () => {
         />
 
         {/* MODAL PROPUESTA*/}
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} initialBreakpoint={0.85} breakpoints={[0, 0.85, 1]} className="bid-modal-content">
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className="bid-modal-content">
              <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonTitle style={{ fontWeight: 800 }}>Me Interesa</IonTitle>
@@ -428,7 +443,7 @@ const Market: React.FC = () => {
                     </IonButtons>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding">
+            <IonContent className="ion-padding bid-modal-scroll">
                 {selectedRequest && (
                     <div className="animate__animated animate__fadeIn">
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', background: '#eef2ff', padding: '15px', borderRadius: '16px', border: '1px solid #e0e7ff' }}>
@@ -441,15 +456,17 @@ const Market: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bid-input-group bid-price-input-group">
-                            <IonLabel>Precio de la propuesta (€)</IonLabel>
-                            <IonInput 
-                                type="number" 
-                                inputMode="numeric"
-                                value={bidPrice} 
-                                onIonInput={e => setBidPrice(parseInt(e.detail.value!, 10))} 
-                            />
-                        </div>
+                        <BidPricingFields
+                          allowedTypes={getAllowedBidPricingTypes(selectedRequest)}
+                          pricingType={bidPricingType}
+                          onPricingTypeChange={setBidPricingType}
+                          bidPrice={bidPrice}
+                          onBidPriceChange={setBidPrice}
+                          bidPriceMin={bidPriceMin}
+                          onBidPriceMinChange={setBidPriceMin}
+                          bidPriceMax={bidPriceMax}
+                          onBidPriceMaxChange={setBidPriceMax}
+                        />
 
                         <div className="bid-input-group">
                             <IonLabel>Cuándo podrías realizar el trabajo</IonLabel>
@@ -471,26 +488,29 @@ const Market: React.FC = () => {
                         <div className="bid-input-group textarea-group">
                             <IonLabel>Detalle de la propuesta</IonLabel>
                             <IonTextarea 
-                                rows={5} 
+                                rows={4} 
                                 placeholder="Cuéntale al cliente por qué eres el profesional ideal..."
                                 value={bidComment}
                                 onIonInput={e => setBidComment(e.detail.value!)}
                             />
                         </div>
-
-                        <IonButton 
-                            expand="block" 
-                            color="secondary"
-                            onClick={handleSubmitBid} 
-                            disabled={submitting}
-                            style={{ marginTop: '20px', height: '56px', fontWeight: 800, '--border-radius': '16px' }}
-                        >
-                            <IonIcon slot="start" icon={sendOutline} />
-                            {submitting ? 'ENVIANDO...' : 'ENVIAR PROPUESTA'}
-                        </IonButton>
                     </div>
                 )}
             </IonContent>
+            <IonFooter className="ion-no-border bid-modal-footer">
+              <IonToolbar>
+                <IonButton
+                  expand="block"
+                  color="secondary"
+                  onClick={handleSubmitBid}
+                  disabled={submitting || !selectedRequest}
+                  style={{ height: '52px', fontWeight: 800, '--border-radius': '14px', margin: '0 8px 8px' }}
+                >
+                  <IonIcon slot="start" icon={sendOutline} />
+                  {submitting ? 'ENVIANDO...' : 'ENVIAR PROPUESTA'}
+                </IonButton>
+              </IonToolbar>
+            </IonFooter>
         </IonModal>
 
         {/* ================= MODAL DE FILTROS ================= */}

@@ -75,7 +75,7 @@
 }
 
 .image-container-rounded--placeholder {
-    height: 105px;
+    height: 68px; /* antes 105px (~35% menos) */
 }
 
 .detail-image-img {

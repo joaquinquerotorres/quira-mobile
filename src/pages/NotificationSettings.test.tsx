@@ -1,16 +1,20 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import NotificationSettings from './NotificationSettings';
 
 import api from '../api/axios';
+import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 
 vi.mock('../api/axios', () => ({
   default: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
 }));
 
+vi.mock('../utils/refreshCurrentUser', () => ({
+  refreshCurrentUserInStorage: vi.fn().mockResolvedValue(true),
+}));
+
 vi.mock('@ionic/react', () => {
-  // Stubs ligeros para evitar carga pesada de Stencil en jsdom.
   const routerMock = { goBack: vi.fn(), push: vi.fn() };
   return {
     IonPage: ({ children }: any) => React.createElement('div', null, children),
@@ -30,7 +34,6 @@ vi.mock('@ionic/react', () => {
     IonSpinner: () => null,
     IonToast: ({ isOpen, message }: any) =>
       isOpen ? React.createElement('div', null, message) : null,
-    // Importante: router estable para que el `useEffect(..., [router])` no entre en loop infinito.
     useIonRouter: () => routerMock,
   };
 });
@@ -69,6 +72,7 @@ const proUser = {
 
 beforeEach(() => {
   (api.patch as ReturnType<typeof vi.fn>).mockResolvedValue({});
+  (refreshCurrentUserInStorage as ReturnType<typeof vi.fn>).mockResolvedValue(true);
 });
 
 test('NotificationSettings renders client section when user has clientProfile', async () => {
@@ -86,6 +90,7 @@ test('NotificationSettings renders client section when user has clientProfile', 
 
 test('NotificationSettings renders professional section when user has professionalProfile', async () => {
   (localStorage as any).setItem?.('user', JSON.stringify(proUser));
+  (localStorage as any).setItem?.('quira_active_mode', 'pro');
   render(<NotificationSettings />, { wrapper });
   await waitFor(() => {
     expect(screen.getByText('Notificaciones')).toBeInTheDocument();
@@ -102,4 +107,16 @@ test('NotificationSettings has Guardar cambios button and client labels', async 
   expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
   expect(screen.getByText('Nuevas ofertas en mis solicitudes')).toBeInTheDocument();
   expect(screen.getByText('Nuevas valoraciones recibidas')).toBeInTheDocument();
+});
+
+test('NotificationSettings refreshes user before rendering prefs', async () => {
+  (localStorage as any).setItem?.('user', JSON.stringify(proUser));
+  (localStorage as any).setItem?.('quira_active_mode', 'pro');
+  render(<NotificationSettings />, { wrapper });
+  await waitFor(() => {
+    expect(refreshCurrentUserInStorage).toHaveBeenCalled();
+  });
+  await waitFor(() => {
+    expect(screen.getByText('Notificaciones')).toBeInTheDocument();
+  });
 });

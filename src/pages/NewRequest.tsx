@@ -28,9 +28,12 @@ import { NewRequestLocation } from '../components/newrequest/NewRequestLocation'
 import { NewRequestStep2Form } from '../components/newrequest/NewRequestStep2Form';
 
 import { env } from '../config/env';
-import { PREDICT_REQUEST_TIMEOUT_MS } from '../config/httpTimeouts';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
+import {
+  requestPredictByUrls,
+  uploadPrimaryMediaForPredict,
+} from '../services/predictService';
 import { uploadRequestMediaWithTicket } from '../services/uploadService';
 import { buildAudioDataUrlForApi } from '../utils/audioDataUrl';
 import {
@@ -75,6 +78,10 @@ type NewRequestDraftSnapshotV1 = {
   coords: { lat: number; lng: number } | null;
   extraMedia: Array<{ type: 'photo' | 'video' | 'audio'; data: string }>;
   videoUploadNetworkHint: VideoUploadConnectionHint | null;
+  /** URLs ya subidas en analyze; se reutilizan al publicar. */
+  uploadedPhotoUrl: string | null;
+  uploadedAudioUrl: string | null;
+  uploadedVideoUrl: string | null;
 };
 
 const NewRequest: React.FC = () => {
@@ -103,6 +110,11 @@ const NewRequest: React.FC = () => {
   // Video
   const [videoBase64, setVideoBase64] = useState<string | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  /** URLs públicas (Supabase) subidas en analyze; evita re-subir al publicar. */
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
 
   const [mediaPickerType, setMediaPickerType] = useState<'photo' | 'video' | 'audio' | null>(null);
 
@@ -180,6 +192,9 @@ const NewRequest: React.FC = () => {
     }
     setVideoBase64(null);
     if (videoInputRef.current) videoInputRef.current.value = '';
+    setUploadedPhotoUrl(null);
+    setUploadedAudioUrl(null);
+    setUploadedVideoUrl(null);
     setMediaPickerType(null);
     setTitle('');
     setTechDescription('');
@@ -222,6 +237,9 @@ const NewRequest: React.FC = () => {
       coords,
       extraMedia,
       videoUploadNetworkHint,
+      uploadedPhotoUrl,
+      uploadedAudioUrl,
+      uploadedVideoUrl,
     };
     try {
       sessionStorage.setItem(NEW_REQUEST_DRAFT_KEY, JSON.stringify(snapshot));
@@ -267,6 +285,9 @@ const NewRequest: React.FC = () => {
       setCoords(d.coords);
       setExtraMedia(d.extraMedia);
       setVideoUploadNetworkHint(d.videoUploadNetworkHint);
+      setUploadedPhotoUrl(d.uploadedPhotoUrl ?? null);
+      setUploadedAudioUrl(d.uploadedAudioUrl ?? null);
+      setUploadedVideoUrl(d.uploadedVideoUrl ?? null);
     } catch {
       sessionStorage.removeItem(NEW_REQUEST_DRAFT_KEY);
     }
@@ -280,6 +301,7 @@ const NewRequest: React.FC = () => {
   const clearAudioCaptureState = () => {
     setAudioBase64(null);
     setAudioDuration(0);
+    setUploadedAudioUrl(null);
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -307,12 +329,14 @@ const NewRequest: React.FC = () => {
     }
     if (mode !== 'VIDEO') {
       setVideoBase64(null);
+      setUploadedVideoUrl(null);
       if (videoInputRef.current) videoInputRef.current.value = '';
     }
     if (mode !== 'TEXT') {
       setUserDescription('');
       setClientOriginalDescription('');
       setPhotoBase64(null);
+      setUploadedPhotoUrl(null);
     }
 
     setInputMode(mode);
@@ -329,6 +353,7 @@ const NewRequest: React.FC = () => {
         source: CameraSource.Camera,
       });
       setPhotoBase64(image.dataUrl || null);
+      setUploadedPhotoUrl(null);
     } catch { /* Usuario canceló */ }
   };
 
@@ -351,6 +376,7 @@ const NewRequest: React.FC = () => {
             const dataUrl = buildAudioDataUrlForApi(result.value);
             if (dataUrl) {
               setAudioBase64(dataUrl);
+              setUploadedAudioUrl(null);
               setAudioDuration((result.value.msDuration ?? 0) / 1000);
             }
         }
@@ -406,6 +432,7 @@ const NewRequest: React.FC = () => {
               const reader = new FileReader();
               reader.onloadend = () => {
                   setVideoBase64(reader.result as string);
+                  setUploadedVideoUrl(null);
               };
               reader.readAsDataURL(file);
           }
@@ -415,6 +442,7 @@ const NewRequest: React.FC = () => {
 
   const deleteVideo = () => {
       setVideoBase64(null);
+      setUploadedVideoUrl(null);
       if (videoInputRef.current) videoInputRef.current.value = '';
   };
 
@@ -430,6 +458,7 @@ const NewRequest: React.FC = () => {
       const result = reader.result;
       if (typeof result !== 'string') return;
       setAudioBase64(result);
+      setUploadedAudioUrl(null);
       setAudioDuration(0);
     };
     reader.readAsDataURL(file);
@@ -635,20 +664,18 @@ const NewRequest: React.FC = () => {
     setLoading(true);
     setLoadingMessage(
       inputMode === 'VIDEO'
-        ? 'Subiendo vídeo y consultando a la IA… En 4G puede tardar varios minutos.'
-        : inputMode === 'AUDIO' && audioBase64 && audioBase64.length > 2_500_000
-          ? 'Subiendo audio… Puede tardar si la red es lenta.'
-          : 'Consultando a la IA…',
+        ? 'Preparando vídeo…'
+        : inputMode === 'AUDIO'
+          ? 'Preparando audio…'
+          : 'Preparando solicitud…',
     );
     let predictRequestId = '';
     try {
       const locationForAi = locationLabel || address;
       predictRequestId = `predict-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const predictAudio = inputMode === 'AUDIO' ? audioBase64 : null;
-      const predictImage = inputMode === 'TEXT' ? photoBase64 : null;
-      let predictVideo = inputMode === 'VIDEO' ? videoBase64 : null;
       const predictDescription = inputMode === 'TEXT' ? userDescription : '';
 
+      let videoForUpload = inputMode === 'VIDEO' ? videoBase64 : null;
       let videoCompressMeta: {
         attempted: boolean;
         compressed: boolean;
@@ -656,9 +683,9 @@ const NewRequest: React.FC = () => {
         resultBytes: number;
       } | null = null;
 
-      if (inputMode === 'VIDEO' && predictVideo) {
+      if (inputMode === 'VIDEO' && videoForUpload) {
         const netHint = await getVideoUploadConnectionHint();
-        const videoBytes = predictVideoPayloadDecodedBytes(predictVideo);
+        const videoBytes = predictVideoPayloadDecodedBytes(videoForUpload);
         const videoCompressClientOpts = Capacitor.isNativePlatform()
           ? {
               maxDecodedBytes:
@@ -678,33 +705,44 @@ const NewRequest: React.FC = () => {
         setLoadingMessage(
           willTryCompress
             ? 'Optimizando vídeo para la red… Puede tardar un poco.'
-            : 'Subiendo vídeo y consultando a la IA…',
+            : 'Subiendo vídeo…',
         );
         const compressResult = await maybeCompressVideoDataUrlForPredict(
-          predictVideo,
+          videoForUpload,
           netHint,
           videoCompressClientOpts,
         );
-        predictVideo = compressResult.dataUrl;
+        videoForUpload = compressResult.dataUrl;
         videoCompressMeta = {
           attempted: willTryCompress,
           compressed: compressResult.compressed,
           originalBytes: compressResult.originalBytes,
           resultBytes: compressResult.resultBytes,
         };
-        if (compressResult.compressed) {
-          setLoadingMessage('Consultando a la IA…');
-        }
       }
 
-      const getDataUrlMeta = (value: string | null) => {
-        if (!value) return { mime: null as string | null, length: 0 };
-        const mimeMatch = value.match(/^data:([^;]+);base64,/);
-        return { mime: mimeMatch ? mimeMatch[1] : null, length: value.length };
-      };
-      const audioMeta = getDataUrlMeta(predictAudio);
-      const imageMeta = getDataUrlMeta(predictImage);
-      const videoMeta = getDataUrlMeta(predictVideo);
+      const uploaded = await uploadPrimaryMediaForPredict({
+        inputMode,
+        photoDataUrl: inputMode === 'TEXT' ? photoBase64 : null,
+        audioDataUrl: inputMode === 'AUDIO' ? audioBase64 : null,
+        videoDataUrl: videoForUpload,
+        onProgress: (percent) => {
+          const label =
+            inputMode === 'VIDEO'
+              ? 'vídeo'
+              : inputMode === 'AUDIO'
+                ? 'audio'
+                : 'imagen';
+          setLoadingMessage(`Subiendo ${label}… ${percent}%`);
+        },
+        onPhase: (message) => setLoadingMessage(message),
+      });
+
+      setUploadedPhotoUrl(uploaded.photoUrl);
+      setUploadedAudioUrl(uploaded.audioUrl);
+      setUploadedVideoUrl(uploaded.videoUrl);
+
+      setLoadingMessage('Consultando a la IA…');
 
       Sentry.addBreadcrumb({
         category: 'predict',
@@ -713,41 +751,29 @@ const NewRequest: React.FC = () => {
         data: {
           requestId: predictRequestId,
           inputMode,
-          hasAudio: !!predictAudio,
-          hasImage: !!predictImage,
-          hasVideo: !!predictVideo,
-          audioMime: audioMeta.mime,
-          imageMime: imageMeta.mime,
-          videoMime: videoMeta.mime,
-          audioLength: audioMeta.length,
-          imageLength: imageMeta.length,
-          videoLength: videoMeta.length,
+          hasAudioUrl: !!uploaded.audioUrl,
+          hasImageUrl: !!uploaded.photoUrl,
+          hasVideoUrl: !!uploaded.videoUrl,
           locationLength: locationForAi.length,
-          predictTimeoutMs: PREDICT_REQUEST_TIMEOUT_MS,
           videoCompress: videoCompressMeta,
+          flow: 'hybrid_url',
         },
       });
 
-      const response = await api.post(
-        '/predict',
-        {
-          description: predictDescription,
-          image: predictImage,
-          audio: predictAudio,
-          video: predictVideo,
-          location: locationForAi,
-        },
-        { timeout: PREDICT_REQUEST_TIMEOUT_MS },
-      );
+      const aiData = await requestPredictByUrls({
+        description: predictDescription,
+        location: locationForAi,
+        imageUrl: uploaded.photoUrl,
+        audioUrl: uploaded.audioUrl,
+        videoUrl: uploaded.videoUrl,
+      });
       
-      const aiData = (response.data ?? {}) as Record<string, unknown>;
       Sentry.addBreadcrumb({
         category: 'predict',
         level: 'info',
         message: 'predict:response_received',
         data: {
           requestId: predictRequestId,
-          status: response.status,
           topLevelKeys: Object.keys(aiData).slice(0, 12),
         },
       });
@@ -920,19 +946,23 @@ const NewRequest: React.FC = () => {
     }
 
     setLoading(true);
-    setLoadingMessage('Subiendo archivos...');
+    setLoadingMessage(
+      uploadedPhotoUrl || uploadedAudioUrl || uploadedVideoUrl
+        ? 'Publicando solicitud…'
+        : 'Subiendo archivos…',
+    );
     try {
-      let photoUrl: string | null = null;
-      let audioUrl: string | null = null;
-      let videoUrl: string | null = null;
+      let photoUrl: string | null = uploadedPhotoUrl;
+      let audioUrl: string | null = uploadedAudioUrl;
+      let videoUrl: string | null = uploadedVideoUrl;
 
-      if (inputMode === 'TEXT' && photoBase64) {
+      if (inputMode === 'TEXT' && photoBase64 && !photoUrl) {
         photoUrl = await uploadRequestMediaWithTicket(photoBase64, 'photo');
       }
-      if (inputMode === 'AUDIO' && audioBase64) {
+      if (inputMode === 'AUDIO' && audioBase64 && !audioUrl) {
         audioUrl = await uploadRequestMediaWithTicket(audioBase64, 'audio');
       }
-      if (inputMode === 'VIDEO' && videoBase64) {
+      if (inputMode === 'VIDEO' && videoBase64 && !videoUrl) {
         videoUrl = await uploadRequestMediaWithTicket(videoBase64, 'video');
       }
 
@@ -1124,7 +1154,10 @@ const NewRequest: React.FC = () => {
                             userDescription={userDescription}
                             onOpenPhotoOptions={() => setMediaPickerType('photo')}
                             onDescriptionChange={setUserDescription}
-                            onDeletePhoto={() => setPhotoBase64(null)}
+                            onDeletePhoto={() => {
+                              setPhotoBase64(null);
+                              setUploadedPhotoUrl(null);
+                            }}
                         />
                     )}
 
@@ -1229,6 +1262,7 @@ const NewRequest: React.FC = () => {
                   })
                     .then((image) => {
                       setPhotoBase64(image.dataUrl || null);
+                      setUploadedPhotoUrl(null);
                     })
                     .catch(() => {});
                 } else if (mediaPickerType === 'video') {

@@ -229,3 +229,45 @@ test('FREE user opens bid modal when canBidThisMonth is true', async () => {
     expect(screen.getByText('Propuestas gratuitas: 3 restantes')).toBeInTheDocument();
   });
 });
+
+test('RANGE request opens bid modal with min/max fields (not fixed price)', async () => {
+  const rangeOpportunity = {
+    ...mockOpportunity,
+    pricingType: 'RANGE',
+  };
+  vi.mocked(api.get).mockImplementation((url: string) => {
+    if (typeof url === 'string' && url.includes('/professionals/me/can-bid')) {
+      return Promise.resolve({ data: { canBidThisMonth: true, remainingBidsThisMonth: 3 } });
+    }
+    return Promise.resolve({
+      data: { 'hydra:member': [rangeOpportunity], member: [rangeOpportunity] },
+    });
+  });
+
+  (localStorage as any).setItem?.('user', JSON.stringify({
+    id: 1,
+    roles: ['ROLE_SOLVER'],
+    '@id': '/users/1',
+    professionalProfile: {
+      id: 1,
+      phoneNumber: '+34600000000',
+      verifiedPhone: true,
+      fullName: 'Solver',
+      '@id': '/professionals/1',
+    },
+  }));
+
+  render(<Market />, { wrapper });
+
+  await waitFor(() => {
+    expect(screen.getByText('ME INTERESA')).toBeInTheDocument();
+  });
+  await userEvent.click(screen.getByText('ME INTERESA'));
+
+  await waitFor(() => {
+    expect(screen.getByText('Rango de precio (€)')).toBeInTheDocument();
+    expect(screen.getByText('Precio mínimo')).toBeInTheDocument();
+    expect(screen.getByText('Precio máximo')).toBeInTheDocument();
+    expect(screen.queryByText('Precio fijo')).not.toBeInTheDocument();
+  });
+});

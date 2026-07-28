@@ -37,7 +37,7 @@ export function clearActiveMode(): void {
 
 /** Home según modo. */
 export function homePathForMode(mode: ActiveMode): string {
-  return mode === 'pro' ? '/my-work' : '/request-list';
+  return mode === 'pro' ? '/market' : '/request-list';
 }
 
 /**
