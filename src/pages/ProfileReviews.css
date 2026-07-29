@@ -1,0 +1,124 @@
+.profile-reviews-content {
+  --background: #f8fafc;
+  --padding-top: 8px;
+  --padding-bottom: 28px;
+}
+
+.profile-reviews-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.profile-reviews-avg {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 16px 8px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.profile-reviews-avg-score {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  min-width: 3.2rem;
+}
+
+.profile-reviews-avg-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.profile-reviews-avg-hint {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.profile-reviews-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.profile-reviews-star--on {
+  font-size: 0.85rem;
+  color: #fbbf24;
+}
+
+.profile-reviews-star--off {
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.profile-reviews-list {
+  padding: 8px 16px 24px;
+}
+
+.profile-reviews-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.profile-reviews-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.profile-reviews-card-name {
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.profile-reviews-card-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.profile-reviews-card-job {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.profile-reviews-card-comment {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.profile-reviews-card-comment--empty {
+  font-style: normal;
+  color: #94a3b8;
+}
+
+.profile-reviews-empty,
+.profile-reviews-error {
+  margin: 24px 16px;
+  text-align: center;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.profile-reviews-error {
+  color: #b45309;
+}

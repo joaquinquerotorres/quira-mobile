@@ -9,6 +9,7 @@ import {
 import { 
   personOutline, logOutOutline, closeOutline, chevronBackOutline, 
   notificationsOutline, shieldCheckmarkOutline, briefcaseOutline, documentTextOutline,
+  starOutline,
   hammerOutline, receiptOutline, chevronForwardOutline, calendarOutline, cameraOutline,
   saveOutline, checkmarkCircle, flashOutline, star, callOutline, 
   trendingUpOutline, locationOutline, optionsOutline, navigateOutline,
@@ -918,6 +919,12 @@ const Profile: React.FC = () => {
 
         <div className="profile-section-title">Preferencias</div>
         <div className="profile-menu-card">
+            <IonItem lines="none" detail={false} button routerLink="/profile/reviews" className="menu-item">
+                <div slot="start" className="icon-box icon-orange"><IonIcon icon={starOutline} /></div>
+                <IonLabel className="item-label">Valoraciones</IonLabel>
+                <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
+            </IonItem>
+            <div className="menu-separator"></div>
             <IonItem lines="none" detail={false} button routerLink="/profile/notifications" className="menu-item">
                 <div slot="start" className="icon-box icon-gray"><IonIcon icon={notificationsOutline} /></div>
                 <IonLabel className="item-label">Notificaciones</IonLabel>
