@@ -201,13 +201,25 @@ export interface ApiError {
   error?: string;
 }
 
-// (Opcional) Si vas a listar reviews en el futuro, te vendrá bien esto:
+/** Valoración (GET/POST /reviews). En lectura el API serializa author como nombre. */
 export interface Review {
-  '@id': string;
+  '@id'?: string;
   id: number;
-  score: number;
+  score?: number;
+  /** Alias de score en lectura. */
+  rating?: number;
   comment?: string;
-  createdAt: string;
-  author: User;
-  target: User;
+  text?: string;
+  createdAt?: string;
+  /** Etiqueta relativa (“Hoy”, “Ayer”…) cuando el API la expone. */
+  date?: string;
+  /** En lectura suele ser el nombre visible; en escritura IRI de User. */
+  author?: string | User;
+  /** Nombre del destinatario (si el backend lo expone). */
+  targetName?: string;
+  target?: User | string;
+  request?: Pick<ServiceRequest, 'id' | 'title'> | string;
+  requestTitle?: string;
+  /** Facet: autor profesional (reseña hacia cliente) vs cliente (hacia pro). */
+  authorIsProfessional?: boolean;
 }

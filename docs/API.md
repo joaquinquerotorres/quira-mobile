@@ -203,3 +203,22 @@ La app nativa (Android/iOS) pide permisos de push, obtiene token FCM y lo sincro
 - Solo en nativo (`Capacitor.isNativePlatform()`).
 - Solo si permisos push concedidos.
 - Solo si el token cambia respecto al último guardado localmente.
+
+---
+
+## `GET /reviews` (perfil: recibidas / hechas)
+
+Usado por `ProfileReviews` (`/profile/reviews`).
+
+| Query | Uso en app |
+|--------|------------|
+| `target=/api/users/{id}` | Valoraciones **recibidas** (requiere filtro `target` en API Platform) |
+| `author=/api/users/{id}` | Valoraciones **hechas** (filtro ya existente) |
+| `request=…&author=…` | Comprobar si ya valoré un trabajo (detalle solicitud) |
+
+### Campos útiles en lectura (`review:read`)
+
+La app normaliza: `rating`/`score`, `text`/`comment`, `date`/`createdAt`, `author` (nombre string), y si existen: `targetName`, `requestTitle`, `authorIsProfessional` (para facet cliente vs pro).
+
+Media en UI: `clientProfile.rating` / `professionalProfile.rating` del usuario según el modo activo (fallback: media de la lista recibida).
+

@@ -291,6 +291,7 @@ La IA también ayuda a detectar contenido inseguro o intentos de saltarse la pla
 - El cliente valora al profesional.
 - El profesional puede valorar al cliente.
 - Rating y número de reseñas se ven en ofertas, perfiles y directorio.
+- En **Perfil → Valoraciones** se listan las **recibidas** (con media del modo activo) y las **hechas**.
 
 ---
 
@@ -331,7 +332,7 @@ El usuario puede ajustar preferencias en **Perfil → notificaciones** (activida
 | **Pedir** | Cliente | Crear nueva solicitud con IA |
 | **Mercado** | Profesional | Ver oportunidades y proponer |
 | **Gestión** | Profesional | Mis propuestas y trabajos |
-| **Perfil** | Todos | Datos, verificación, suscripción, privacidad, cerrar sesión |
+| **Perfil** | Todos | Datos, verificación, suscripción, **valoraciones** (recibidas / hechas + media), privacidad, cerrar sesión |
 | **Directorio** | Todos | Explorar profesionales |
 | Login / registro / recuperar contraseña / verificar email | Público | Entrar en la plataforma |
 

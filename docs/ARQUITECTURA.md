@@ -315,8 +315,12 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[estimatedPrice
 
 | Método | Endpoint | Propósito |
 |--------|----------|-----------|
-| GET | `/reviews?request=...&author=...` | Valoraciones de una solicitud |
+| GET | `/reviews?request=...&author=...` | Valoraciones de una solicitud (¿ya valoré?) |
+| GET | `/reviews?target=/api/users/{id}` | Valoraciones **recibidas** (perfil → Mis valoraciones) |
+| GET | `/reviews?author=/api/users/{id}` | Valoraciones **hechas** por el usuario |
 | POST | `/reviews` | Crear valoración |
+
+En perfil (`/profile/reviews`): pestañas Recibidas / Hechas; en recibidas se muestra la media del perfil activo (`clientProfile.rating` o `professionalProfile.rating`). Requiere filtro `target` en el API (ver prompt en PR / quira).
 
 ### Stripe
 
