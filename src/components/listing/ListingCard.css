@@ -201,12 +201,19 @@
   font-size: 0.85rem;
 }
 
-/* Media bajo disponibilidad/fecha (no en pills superiores) */
+/* Media bajo disponibilidad/fecha (alineado con iconos de meta rows) */
 .listing-card-media {
   display: flex;
   align-items: center;
+  align-self: flex-start;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  min-height: 28px;
+}
+
+.listing-meta-row + .listing-card-media,
+.listing-card-title + .listing-card-media {
   margin-top: 4px;
-  margin-bottom: 2px;
 }
 
 .listing-card-footer {

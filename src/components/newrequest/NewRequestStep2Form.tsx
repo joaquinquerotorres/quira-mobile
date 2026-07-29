@@ -244,7 +244,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
             letterSpacing: '1px',
           }}
         >
-          Diagnóstico IA
+          Diagnóstico Quira
         </span>
       </div>
       <div
@@ -264,7 +264,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           style={{ marginRight: '8px', fontSize: '16px', marginTop: '2px' }}
         />
         <span>
-          Revisa los datos. Si la IA se ha equivocado, puedes editar el título,
+          Revisa los datos. Si Quira se ha equivocado, puedes editar el título,
           la descripción técnica o la categoría ahora.
         </span>
       </div>
@@ -284,7 +284,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           }}
         >
           <div style={{ color: '#64748b' }}>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>Dificultad estimada (IA)</div>
+            <div style={{ fontWeight: 700, marginBottom: 2 }}>Dificultad estimada (Quira)</div>
             <div>Usamos este dato para orientar qué tipo de profesional verá tu solicitud.</div>
           </div>
           <span
@@ -344,7 +344,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       </div>
       <div className="price-box-container step2-price-range-readonly">
         <div className="step2-price-range-header">
-          <span className="step2-price-range-label">Rango estimado en tu zona (IA)</span>
+          <span className="step2-price-range-label">Rango estimado en tu zona (Quira)</span>
         </div>
         {aiRange ? (
           <>
@@ -372,7 +372,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       {clarifyingQuestions.length > 0 && (
         <div className="clarifying-block">
           <div className="clarifying-block-header">
-            <IonLabel className="section-label clarifying-title">Preguntas de la IA (obligatorias)</IonLabel>
+            <IonLabel className="section-label clarifying-title">Preguntas de Quira (obligatorias)</IonLabel>
             <span className="clarifying-count">
               {clarifyingAnswers.filter((a) => a.trim() !== '').length}/{clarifyingQuestions.length}
             </span>

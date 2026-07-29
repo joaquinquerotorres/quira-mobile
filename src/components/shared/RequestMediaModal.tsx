@@ -92,8 +92,8 @@ export const RequestMediaChip: React.FC<RequestMediaChipProps> = ({
       onMouseDown={blockCardNavigation}
       onTouchStart={blockCardNavigation}
     >
-      <IonIcon icon={imagesOutline} />
-      Media
+      <IonIcon icon={imagesOutline} aria-hidden="true" />
+      <span className="request-media-chip-label">Media</span>
       <span className="request-media-chip-count">{items.length}</span>
     </button>
   );

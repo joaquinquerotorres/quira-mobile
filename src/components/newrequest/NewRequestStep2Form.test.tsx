@@ -36,7 +36,7 @@ test('NewRequestStep2Form muestra el texto original del cliente cuando viene inf
   expect(screen.getByText('Mi grifo gotea desde ayer')).toBeInTheDocument();
 });
 
-test('NewRequestStep2Form renders Diagnóstico IA section', () => {
+test('NewRequestStep2Form renders Diagnóstico Quira section', () => {
   render(
     <NewRequestStep2Form
       title="Fuga de agua"
@@ -63,10 +63,10 @@ test('NewRequestStep2Form renders Diagnóstico IA section', () => {
     />,
     { wrapper }
   );
-  expect(screen.getByText('Diagnóstico IA')).toBeInTheDocument();
+  expect(screen.getByText('Diagnóstico Quira')).toBeInTheDocument();
   expect(screen.getByText(/Revisa los datos/)).toBeInTheDocument();
   expect(screen.getByText('Categoría')).toBeInTheDocument();
-  expect(screen.getByText('Rango estimado en tu zona (IA)')).toBeInTheDocument();
+  expect(screen.getByText('Rango estimado en tu zona (Quira)')).toBeInTheDocument();
   expect(screen.getByText('40€ - 80€')).toBeInTheDocument();
   expect(screen.getByText(/Dificultad estimada/i)).toBeInTheDocument();
 });
@@ -197,7 +197,7 @@ test('NewRequestStep2Form renders clarifying questions and updates answers', () 
     { wrapper }
   );
 
-  expect(screen.getByText('Preguntas de la IA (obligatorias)')).toBeInTheDocument();
+  expect(screen.getByText('Preguntas de Quira (obligatorias)')).toBeInTheDocument();
   const input = screen.getByPlaceholderText('Escribe tu respuesta...');
   fireEvent(input, new CustomEvent('ionInput', { detail: { value: '20 m²' } }));
   expect(onClarifyingAnswerChange).toHaveBeenCalledWith(0, '20 m²');
