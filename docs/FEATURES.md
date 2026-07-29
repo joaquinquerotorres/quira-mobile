@@ -26,5 +26,5 @@ Ver **[API.md](./API.md)** — sección de diagnóstico.
 ## Otros
 
 - Stripe / suscripción: **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)**.
-- `/predict` y vídeo: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**.
+- `/predict`, upload-ticket y media: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** (límites **10 / 12 / 40 MB** vía `maxBytes`) y contrato en **[API.md](./API.md)**.
 - Solicitudes: rango de precio IA (`estimatedPriceMin` / `estimatedPriceMax`); contrato de **`POST /requests`** en **[API.md](./API.md)** y vistas en **[ARQUITECTURA.md](./ARQUITECTURA.md)** (NewRequest, listados, detalle). En **listados** el chip **Media** va debajo de la disponibilidad/fecha. Sin pro asignado, footer vacío. Análisis: ticket Supabase → `/predict` por URL (ver **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**). Para **publicar** hace falta **teléfono de cliente** verificado.

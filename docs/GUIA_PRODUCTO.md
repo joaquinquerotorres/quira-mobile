@@ -74,6 +74,8 @@ Desde el botón **Pedir**, el cliente elige cómo explicar el problema:
 | Audio | Graba o sube un audio |
 | Vídeo | Graba o sube un vídeo corto |
 
+La app acepta ficheros hasta unos topes claros (imagen ~10 MB, audio ~12 MB, vídeo ~40 MB), iguales con Wi‑Fi o datos móviles. En vídeo, si la red es de datos o lenta, puede optimizar el archivo antes de subirlo.
+
 Antes de publicar hace falta tener **teléfono de cliente verificado** en el perfil. Si no lo tiene, la app le avisa y le lleva a Perfil (puede guardar un borrador para no perder lo que ya había escrito o grabado).
 
 #### Paso 2 — La IA prepara el anuncio

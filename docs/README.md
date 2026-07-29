@@ -13,11 +13,11 @@
   - Suscripción y Stripe
   - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA; **`estimatedPriceMin` / `estimatedPriceMax`**: rango en céntimos de la estimación IA, y el front convierte a euros para mostrar, sin `priceAmount`)
 
-- **[API.md](./API.md)** — `POST /social/login`: cuerpo con **`token`** + **`provider`** (no `firebaseToken`); diagnóstico si falla Google antes o después de la API.
+- **[API.md](./API.md)** — Contratos usados por la app: `POST /social/login` (`token` + `provider`); **`POST /requests`**; **upload tickets** (`maxBytes`); **`/predict`** + poll de tareas; perfiles / verify phone / `fcmToken`.
 - **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)** — Verificación de email tras el registro: flujo web en `landing/verify-email`, API sin JWT y reenvío con JWT.
 - **[FEATURES.md](./FEATURES.md)** — Referencia rápida de auth y enlaces a API / otros docs.
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
-- **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Flujo híbrido (ticket Supabase → `/predict` por URL → `PredictTask` / polling), timeouts (`PREDICT_REQUEST_TIMEOUT_MS`, `PREDICT_POLL_*`) y **compresión opcional** antes del PUT (`videoCompressForPredict.ts`).
+- **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** — Flujo híbrido ticket Supabase → `/predict` por URL → `PredictTask` / polling; **límites 10 / 12 / 40 MB** (`maxBytes` / `PredictMediaLimits`); timeouts; compresión opcional de vídeo.
 - **Feedback en UI:** `src/config/uiTiming.ts` (`TOAST_DURATION_MS`) para toasts legibles; errores en **Login** con `IonAlert` (ver `FEATURES.md`).
 
 ## Privacidad y RGPD
@@ -244,6 +244,7 @@ Si desplegaras la SPA de **`dist/`** en un origen HTTPS y usaras Auth orientado 
 
 - Algunos tests **stubbean componentes de Ionic** (p. ej. `IonAlert`, wrappers sin `IonApp`) para evitar timers internos que pueden producir errores al teardown en `jsdom`.
 - Plugins de **Capacitor** (`@capacitor/network`, micrófono, etc.) suelen **mockearse** en tests de páginas; la lógica de red para avisos en vídeo está cubierta en `src/utils/videoUploadNetworkHint.test.ts`.
+- **Límites de media** (10 / 12 / 40 MB): `src/utils/predictMediaLimits.test.ts`; rechazo por `maxBytes` del ticket en `src/services/uploadService.test.ts`.
 - Criterios de **compresión de vídeo** antes del PUT a Supabase (red + umbral Wi-Fi, límites por plataforma) y `predictVideoPayloadDecodedBytes`: `src/utils/videoCompressForPredict.test.ts`.
 - Flujo híbrido **`/predict` por URL** + polling: `src/services/predictService.test.ts`; timeouts en `src/config/httpTimeouts.ts` / `httpTimeouts.test.ts`.
 - **Duración de toasts:** `TOAST_DURATION_MS` en `src/config/uiTiming.ts`; test en `src/config/uiTiming.test.ts`.
