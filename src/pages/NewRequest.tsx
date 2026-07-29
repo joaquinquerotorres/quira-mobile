@@ -47,6 +47,10 @@ import {
   PREDICT_VIDEO_MAX_BYTES,
 } from '../utils/predictMediaLimits';
 import {
+  isKnownCategoryCode,
+  normalizeCategoryCode,
+} from '../utils/categoryLabels';
+import {
   maybeCompressVideoDataUrlForPredict,
   predictVideoPayloadDecodedBytes,
   shouldCompressVideoForUpload,
@@ -795,7 +799,12 @@ const NewRequest: React.FC = () => {
       });
       const safeTitle = String(aiData.title ?? '').trim();
       const safeDescription = String(aiData.description ?? '').trim();
-      const safeCategory = String(aiData.category ?? '').trim().toUpperCase();
+      const safeCategory = normalizeCategoryCode(
+        String(aiData.category ?? ''),
+      );
+      const resolvedCategory = isKnownCategoryCode(safeCategory)
+        ? safeCategory
+        : 'DIY';
       const safeFlagRaw = aiData.safe ?? aiData.is_safe;
       const isSafe = typeof safeFlagRaw === 'boolean'
         ? safeFlagRaw
@@ -810,7 +819,7 @@ const NewRequest: React.FC = () => {
       // un payload parcial o con nombres distintos.
       setTitle(safeTitle || 'Solicitud pendiente de revisión');
       setTechDescription(safeDescription || 'Revisa y completa los detalles técnicos de tu solicitud.');
-      setCategory(safeCategory || 'DIY');
+      setCategory(resolvedCategory);
       // No sustituir userDescription por summary_text: el texto del cliente se conserva para paso 2 y API.
       if (inputMode === 'TEXT') {
         setClientOriginalDescription(textSnapshot);
@@ -856,7 +865,7 @@ const NewRequest: React.FC = () => {
           safetyReason,
           titleFilled: (safeTitle || '').length > 0,
           descriptionFilled: (safeDescription || '').length > 0,
-          categoryFilled: (safeCategory || '').length > 0,
+          categoryFilled: resolvedCategory.length > 0,
           minCents,
           maxCents,
           clarifyingQuestionsCount: aiClarifyingQuestions.length,

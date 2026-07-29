@@ -13,6 +13,7 @@ import { DirectoryCategoryChip } from '../components/directory/DirectoryCategory
 import { DirectoryEmptyState } from '../components/directory/DirectoryEmptyState';
 
 import { env } from '../config/env';
+import { getCategoryLabel } from '../utils/categoryLabels';
 
 const serverUrl = env.serverUrl;
 const DIRECTORY_ORDER_KEY = 'directory-pro-order-v1';
@@ -35,17 +36,6 @@ const Directory: React.FC = () => {
         if (roles.includes('ROLE_SOLVER')) return 2;
     }
     return 1;
-  };
-
-  const categoryNames: Record<string, string> = {
-      'PLUMBING': 'Fontanería',
-      'ELECTRICITY': 'Electricidad',
-      'MASONRY': 'Reformas',
-      'PAINTING': 'Pintura',
-      'GARDENING': 'Jardinería',
-      'CLEANING': 'Limpieza',
-      'HVAC': 'Climatización',
-      'DIY': 'Manitas',
   };
 
   const fetchPros = async () => {
@@ -110,8 +100,8 @@ const Directory: React.FC = () => {
     fetchPros();
   }, [searchText, categoryFilter]); 
 
-  const pageTitle = categoryFilter && categoryNames[categoryFilter] 
-    ? `Expertos en ${categoryNames[categoryFilter]}` 
+  const pageTitle = categoryFilter
+    ? `Expertos en ${getCategoryLabel(categoryFilter)}`
     : 'Directorio Pro';
 
   return (
@@ -140,7 +130,7 @@ const Directory: React.FC = () => {
         {/* HERO ESTILO 2 */}
         <div className="market-hero-bg animate__animated animate__fadeIn">
           <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'white', margin: '0 0 8px 0' }}>
-            {categoryFilter ? categoryNames[categoryFilter] : 'Directorio'}
+            {categoryFilter ? getCategoryLabel(categoryFilter) : 'Directorio'}
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0, fontWeight: 500 }}>
              {loading ? 'Buscando...' : `Tenemos ${pros.length} profesionales listos`}
@@ -155,7 +145,7 @@ const Directory: React.FC = () => {
 
           {categoryFilter && (
             <DirectoryCategoryChip
-              categoryLabel={categoryNames[categoryFilter] || categoryFilter}
+              categoryLabel={getCategoryLabel(categoryFilter)}
               onClear={() => history.push('/directory')}
             />
           )}

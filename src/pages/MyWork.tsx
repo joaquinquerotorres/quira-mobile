@@ -22,6 +22,7 @@ import { SegmentTab } from '../components/shared/SegmentTab';
 import { MyWorkBidCard, MyWorkJobCard } from '../components/mywork/MyWorkCards';
 
 import { dedupeBidsByRequestForMyWork } from '../utils/bidDisplay';
+import { CATEGORY_OPTIONS } from '../utils/categoryLabels';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 
 const MyWork: React.FC = () => {
@@ -254,14 +255,11 @@ const MyWork: React.FC = () => {
                     className="custom-select-input"
                 >
                     <IonSelectOption value="">Todas</IonSelectOption>
-                    <IonSelectOption value="DIY">Manitas</IonSelectOption>
-                    <IonSelectOption value="PLUMBING">Fontanería</IonSelectOption>
-                    <IonSelectOption value="ELECTRICITY">Electricidad</IonSelectOption>
-                    <IonSelectOption value="MASONRY">Albañilería</IonSelectOption>
-                    <IonSelectOption value="HVAC">Climatización</IonSelectOption>
-                    <IonSelectOption value="CLEANING">Limpieza</IonSelectOption>
-                    <IonSelectOption value="PAINTING">Pintura</IonSelectOption>
-                    <IonSelectOption value="GARDENING">Jardinería</IonSelectOption>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <IonSelectOption key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </IonSelectOption>
+                    ))}
                 </IonSelect>
             </div>
 

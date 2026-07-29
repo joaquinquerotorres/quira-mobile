@@ -1,17 +1,7 @@
 import React from 'react';
 import { IonIcon, IonChip, IonLabel, IonNote } from '@ionic/react';
 import { ribbonOutline } from 'ionicons/icons';
-
-const SKILL_LABELS: Record<string, string> = {
-  MASONRY: 'Albañilería',
-  PLUMBING: 'Fontanería',
-  ELECTRICITY: 'Electricidad',
-  HVAC: 'Climatización',
-  DIY: 'Manitas / Bricolaje',
-  CLEANING: 'Limpieza',
-  PAINTING: 'Pintura',
-  GARDENING: 'Jardinería',
-};
+import { getCategoryLabel } from '../../utils/categoryLabels';
 
 interface DirectoryDetailSkillsProps {
   skills: string[];
@@ -54,7 +44,7 @@ export const DirectoryDetailSkills: React.FC<DirectoryDetailSkillsProps> = ({
               margin: '0',
             }}
           >
-            <IonLabel>{SKILL_LABELS[skill] || skill}</IonLabel>
+            <IonLabel>{getCategoryLabel(skill)}</IonLabel>
           </IonChip>
         ))
       ) : (

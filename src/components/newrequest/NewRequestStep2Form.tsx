@@ -24,7 +24,7 @@ import {
   micOutline,
   trashOutline,
 } from 'ionicons/icons';
-import { CATEGORY_LABELS } from '../../utils/categoryLabels';
+import { CATEGORY_OPTIONS } from '../../utils/categoryLabels';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
 
 type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -61,22 +61,6 @@ interface NewRequestStep2FormProps {
 }
 
 const EXTRA_MEDIA_TYPES: Array<'photo' | 'video' | 'audio'> = ['photo', 'video', 'audio'];
-
-const CATEGORY_SELECT_ORDER = [
-  'PLUMBING',
-  'ELECTRICITY',
-  'MASONRY',
-  'PAINTING',
-  'GARDENING',
-  'CLEANING',
-  'HVAC',
-  'DIY',
-] as const;
-
-const CATEGORY_OPTIONS = CATEGORY_SELECT_ORDER.map((code) => ({
-  value: code,
-  label: CATEGORY_LABELS[code] ?? code,
-}));
 
 export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   title,

@@ -367,7 +367,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### Categorías
 
-`DIY`, `PLUMBING`, `ELECTRICITY`, `MASONRY`, `HVAC`, `CLEANING`, `PAINTING`, `GARDENING`.
+`CLEANING`, `DIY`, `ELECTRICITY`, `GARDENING`, `PAINTING`, `PLUMBING`, `HVAC`, `MASONRY`, `APPLIANCES`, `MOVING`, `LOCKSMITH`, `POOL`, `SEWING`, `BLINDS`, `GLAZING`, `FURNITURE`, `CLEAROUT`, `PEST_CONTROL`, `SMART_HOME`, `BEAUTY`, `PETS`, `CARE` (22; sync con `App\Enum\Category` / quira PR #5). `MASONRY` se muestra como «Reformas».
 
 ---
 
