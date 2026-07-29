@@ -27,4 +27,5 @@ Ver **[API.md](./API.md)** — sección de diagnóstico.
 
 - Stripe / suscripción: **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)**.
 - `/predict`, upload-ticket y media: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** (límites **10 / 12 / 40 MB** vía `maxBytes`) y contrato en **[API.md](./API.md)**.
+- **Categorías (22 códigos):** catálogo sync con API (`CATEGORY_CODES` / labels / discovery). Tabla y reglas en **[ARQUITECTURA.md](./ARQUITECTURA.md)** § Categorías; contrato en **[API.md](./API.md)**; lenguaje de producto en **[GUIA_PRODUCTO.md](./GUIA_PRODUCTO.md)** §12. `MASONRY` = «Reformas»; IA desconocida → `DIY`.
 - Solicitudes: rango de precio IA (`estimatedPriceMin` / `estimatedPriceMax`); contrato de **`POST /requests`** en **[API.md](./API.md)** y vistas en **[ARQUITECTURA.md](./ARQUITECTURA.md)** (NewRequest, listados, detalle). En **listados** el chip **Media** va debajo de la disponibilidad/fecha. Sin pro asignado, footer vacío. Análisis: ticket Supabase → `/predict` por URL (ver **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**). Para **publicar** hace falta **teléfono de cliente** verificado.

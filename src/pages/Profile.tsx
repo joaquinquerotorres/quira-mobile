@@ -41,22 +41,12 @@ import {
 } from '../utils/effectiveTier';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { SESSION_KEY_DOWNGADE_DISMISSED } from '../components/DowngradeBanner';
+import { CATEGORY_OPTIONS } from '../utils/categoryLabels';
 
 const SESSION_KEY_SUBSCRIPTION_CANCEL_REQUESTED = 'quira_subscription_cancel_requested';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey;
-
-const SKILL_OPTIONS = [
-    { value: 'MASONRY', label: 'Albañilería' },
-    { value: 'PLUMBING', label: 'Fontanería' },
-    { value: 'ELECTRICITY', label: 'Electricidad' },
-    { value: 'HVAC', label: 'Climatización' },
-    { value: 'DIY', label: 'Manitas / Bricolaje' },
-    { value: 'CLEANING', label: 'Limpieza' },
-    { value: 'PAINTING', label: 'Pintura' },
-    { value: 'GARDENING', label: 'Jardinería' }
-];
 
 function comparablePhone(raw: string | undefined | null): string {
   const digits = String(raw || '').replace(/\D/g, '');
@@ -1322,7 +1312,7 @@ const Profile: React.FC = () => {
                             <div className="profile-edit-section">
                                 <IonLabel className="profile-edit-label">Especialidades *</IonLabel>
                                 <div className="profile-edit-skills-grid">
-                                    {SKILL_OPTIONS.map((opt) => {
+                                    {CATEGORY_OPTIONS.map((opt) => {
                                       const isSelected = skills.includes(opt.value);
                                       return (
                                         <div

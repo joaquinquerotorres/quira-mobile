@@ -26,6 +26,7 @@ import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { getApiErrorMessage } from '../utils/apiError';
+import { CATEGORY_OPTIONS } from '../utils/categoryLabels';
 import { formatRequestPriceRangeEuros, suggestedBidPriceEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
@@ -534,14 +535,11 @@ const Market: React.FC = () => {
                     className="custom-select-input"
                 >
                     <IonSelectOption value="">Todas</IonSelectOption>
-                    <IonSelectOption value="DIY">Manitas</IonSelectOption>
-                    <IonSelectOption value="PLUMBING">Fontanería</IonSelectOption>
-                    <IonSelectOption value="ELECTRICITY">Electricidad</IonSelectOption>
-                    <IonSelectOption value="MASONRY">Albañilería</IonSelectOption>
-                    <IonSelectOption value="HVAC">Climatización</IonSelectOption>
-                    <IonSelectOption value="CLEANING">Limpieza</IonSelectOption>
-                    <IonSelectOption value="PAINTING">Pintura</IonSelectOption>
-                    <IonSelectOption value="GARDENING">Jardinería</IonSelectOption>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <IonSelectOption key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </IonSelectOption>
+                    ))}
                 </IonSelect>
             </div>
 

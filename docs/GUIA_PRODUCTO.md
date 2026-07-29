@@ -28,7 +28,7 @@ Quira no cobra comisión sobre el importe del trabajo: el profesional cobra al c
 
 ### Clientes (hogares)
 
-Personas que necesitan fontanería, electricidad, pintura, manitas, limpieza, jardinería, climatización, reformas, etc., y quieren:
+Personas que necesitan fontanería, electricidad, pintura, manitas, limpieza, jardinería, climatización, reformas, electrodomésticos, mudanzas, cerrajería, piscinas, y otros servicios del hogar o personales, y quieren:
 
 - Explicar el problema sin tecnicismos.
 - Recibir varias propuestas.
@@ -342,20 +342,42 @@ Login:
 
 ---
 
-## 12. Categorías de servicio (orientativas)
+## 12. Categorías de servicio
 
-Las que la producto comunica hoy:
+La IA clasifica el trabajo en una de estas categorías (el cliente puede corregirla al revisar el anuncio). Misma lista en filtros, skills de profesional y directorio.
+
+**Hogar y reformas**
 
 - Fontanería  
 - Electricidad  
-- Reformas / albañilería  
+- Reformas  
 - Pintura  
 - Jardinería  
 - Limpieza  
 - Climatización  
-- Manitas / DIY  
+- Manitas  
 
-La IA clasifica automáticamente; el usuario puede corregir al revisar el anuncio.
+**Especialistas**
+
+- Electrodomésticos  
+- Mudanzas y Portes  
+- Cerrajería  
+- Mantenimiento de Piscinas  
+- Costura y Arreglos  
+- Persianas y Toldos  
+- Cristalería  
+- Restauración de Muebles  
+- Vaciado de Pisos  
+- Control de Plagas  
+- Domótica y Seguridad  
+
+**Personales**
+
+- Belleza  
+- Mascotas  
+- Cuidados  
+
+Detalle técnico (códigos API): **[ARQUITECTURA.md](./ARQUITECTURA.md)** § Categorías.
 
 ---
 

@@ -21,17 +21,7 @@ import {
 } from 'ionicons/icons';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import './BecomeProForm.css';
-
-const SKILL_OPTIONS = [
-  { value: 'MASONRY', label: 'Albañilería' },
-  { value: 'PLUMBING', label: 'Fontanería' },
-  { value: 'ELECTRICITY', label: 'Electricidad' },
-  { value: 'HVAC', label: 'Climatización' },
-  { value: 'DIY', label: 'Manitas / Bricolaje' },
-  { value: 'CLEANING', label: 'Limpieza' },
-  { value: 'PAINTING', label: 'Pintura' },
-  { value: 'GARDENING', label: 'Jardinería' },
-];
+import { CATEGORY_OPTIONS } from '../../utils/categoryLabels';
 
 export interface BecomeProFormData {
   fullName: string;
@@ -184,7 +174,7 @@ export const BecomeProForm: React.FC<BecomeProFormProps> = ({
     </div>
 
     <div className="become-pro-skills-grid">
-      {SKILL_OPTIONS.map((skill) => {
+      {CATEGORY_OPTIONS.map((skill) => {
         const isSelected = formData.selectedSkills.includes(skill.value);
         return (
           <div

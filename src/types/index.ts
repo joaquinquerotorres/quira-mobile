@@ -31,14 +31,29 @@ export interface CalendarEvent {
   professional?: ProfessionalProfile;
 }
 
-export type Category = 
-  | 'DIY' 
-  | 'PLUMBING' 
-  | 'ELECTRICITY' 
-  | 'MASONRY' 
-  | 'HVAC' 
-  | 'CLEANING' 
-  | 'PAINTING';
+export type Category =
+  | 'CLEANING'
+  | 'DIY'
+  | 'ELECTRICITY'
+  | 'GARDENING'
+  | 'PAINTING'
+  | 'PLUMBING'
+  | 'HVAC'
+  | 'MASONRY'
+  | 'APPLIANCES'
+  | 'MOVING'
+  | 'LOCKSMITH'
+  | 'POOL'
+  | 'SEWING'
+  | 'BLINDS'
+  | 'GLAZING'
+  | 'FURNITURE'
+  | 'CLEAROUT'
+  | 'PEST_CONTROL'
+  | 'SMART_HOME'
+  | 'BEAUTY'
+  | 'PETS'
+  | 'CARE';
 
 export interface ProfessionalProfile {
   '@id': string;

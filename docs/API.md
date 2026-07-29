@@ -41,7 +41,7 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 
 | Campo | Tipo | Notas |
 |--------|------|--------|
-| `title`, `description`, `category`, `address`, `status` | string / enum | `description` = valoración técnica (IA). |
+| `title`, `description`, `category`, `address`, `status` | string / enum | `description` = valoración técnica (IA). `category`: uno de los **22** códigos `Category` del API (ver tabla abajo). |
 | `locationPoint` | GeoJSON Point | `coordinates: [lng, lat]`. |
 | **`estimatedPriceMin`**, **`estimatedPriceMax`** | number (céntimos) | Rango de la estimación IA; obligatorios para el flujo actual. |
 | **`aiDiagnosis`** | `{ min: number, max: number }` | Redundante con min/max; mismo criterio en céntimos. |
@@ -52,6 +52,37 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.
+
+### `category` (enum)
+
+Alineado con `App\Enum\Category` (quira). Cliente: `CATEGORY_CODES` / `CATEGORY_LABELS` en `src/utils/categoryLabels.ts`.
+
+| Código | Etiqueta UI |
+|--------|-------------|
+| `CLEANING` | Limpieza |
+| `DIY` | Manitas |
+| `ELECTRICITY` | Electricidad |
+| `GARDENING` | Jardinería |
+| `PAINTING` | Pintura |
+| `PLUMBING` | Fontanería |
+| `HVAC` | Climatización |
+| `MASONRY` | Reformas |
+| `APPLIANCES` | Electrodomésticos |
+| `MOVING` | Mudanzas y Portes |
+| `LOCKSMITH` | Cerrajería |
+| `POOL` | Mantenimiento de Piscinas |
+| `SEWING` | Costura y Arreglos |
+| `BLINDS` | Persianas y Toldos |
+| `GLAZING` | Cristalería |
+| `FURNITURE` | Restauración de Muebles |
+| `CLEAROUT` | Vaciado de Pisos |
+| `PEST_CONTROL` | Control de Plagas |
+| `SMART_HOME` | Domótica y Seguridad |
+| `BEAUTY` | Belleza |
+| `PETS` | Mascotas |
+| `CARE` | Cuidados |
+
+Alias legacy: `DYC` → `DIY`. Si `/predict` devuelve un código desconocido, la app guarda `DIY`.
 
 ---
 

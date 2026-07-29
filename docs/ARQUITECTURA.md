@@ -367,7 +367,41 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### Categorías
 
-`DIY`, `PLUMBING`, `ELECTRICITY`, `MASONRY`, `HVAC`, `CLEANING`, `PAINTING`, `GARDENING`.
+Catálogo alineado con `App\Enum\Category` del API Quira (**22** códigos; sync [quira PR #5](https://github.com/joaquinquerotorres/quira/pull/5)).
+
+**Fuente en cliente:** `src/utils/categoryLabels.ts` (`CATEGORY_CODES`, `CATEGORY_LABELS`, `CATEGORY_OPTIONS`, `getCategoryLabel`, `isKnownCategoryCode`), estilos en `src/utils/categoryStyles.ts` (`getCategoryStyle`, `getDiscoveryCategories`), tipo `Category` en `src/types/index.ts`.
+
+| Código | Etiqueta UI |
+|--------|-------------|
+| `CLEANING` | Limpieza |
+| `DIY` | Manitas |
+| `ELECTRICITY` | Electricidad |
+| `GARDENING` | Jardinería |
+| `PAINTING` | Pintura |
+| `PLUMBING` | Fontanería |
+| `HVAC` | Climatización |
+| `MASONRY` | **Reformas** (no «Albañilería») |
+| `APPLIANCES` | Electrodomésticos |
+| `MOVING` | Mudanzas y Portes |
+| `LOCKSMITH` | Cerrajería |
+| `POOL` | Mantenimiento de Piscinas |
+| `SEWING` | Costura y Arreglos |
+| `BLINDS` | Persianas y Toldos |
+| `GLAZING` | Cristalería |
+| `FURNITURE` | Restauración de Muebles |
+| `CLEAROUT` | Vaciado de Pisos |
+| `PEST_CONTROL` | Control de Plagas |
+| `SMART_HOME` | Domótica y Seguridad |
+| `BEAUTY` | Belleza |
+| `PETS` | Mascotas |
+| `CARE` | Cuidados |
+
+Reglas de cliente:
+
+- **DYC** (legacy) se normaliza a **DIY**.
+- Si `/predict` devuelve un código desconocido → se fuerza **DIY** en `NewRequest`.
+- Selects / skills / filtros / discovery usan `CATEGORY_OPTIONS` o `getDiscoveryCategories()` (sin listas hardcodeadas).
+- Tests: `categoryLabels.test.ts`, `listingShared.test.ts`, `BecomeProForm.test.tsx` (MASONRY = «Reformas»).
 
 ---
 
@@ -425,6 +459,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Requiere dirección aproximada (Google Places o GPS).
 - Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
 - **Análisis IA (flujo híbrido):** primero se sube el media principal a Supabase (`upload-ticket` + PUT con progreso); luego `POST /predict` solo con URLs (`imageUrl` / `audioUrl` / `videoUrl`) + `description` / `location`. Si el backend responde `202`, la app hace polling a `GET /predict/tasks/{id}`. Al **publicar**, se **reutilizan** esas URLs (no se vuelve a subir el media del paso 1). Detalle: **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- **Categoría tras predict:** se normaliza (`DYC`→`DIY`); si el código no está en los 22 conocidos → **DIY**. Select del paso 2 = `CATEGORY_OPTIONS` (ver § Categorías).
 - **Límites de tamaño** (API `PredictMediaLimits` / `maxBytes` del ticket; mismos en Wi‑Fi y datos): imagen **10 MB**, audio **12 MB**, vídeo **40 MB**. UI en `NewRequest`; enforcement en `uploadService` antes del PUT. Constantes: `src/utils/predictMediaLimits.ts`.
 - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
 - Timeouts: `PREDICT_REQUEST_TIMEOUT_MS` (120 s) y, si aplica, `PREDICT_POLL_*` en `httpTimeouts.ts`; PUT a signed URL hasta 300 s.

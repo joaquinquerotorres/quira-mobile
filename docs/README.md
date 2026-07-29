@@ -12,8 +12,9 @@
   - Mercado y oportunidades
   - Suscripción y Stripe
   - Rutas, endpoints y estructuras de datos (incluye **`clientOriginalDescription`**: texto del cliente en modo texto + imagen, frente a **`description`** = valoración IA; **`estimatedPriceMin` / `estimatedPriceMax`**: rango en céntimos de la estimación IA, y el front convierte a euros para mostrar, sin `priceAmount`)
+  - **Categorías (22 códigos)** sync con `App\Enum\Category` (`categoryLabels` / `categoryStyles` / `getDiscoveryCategories`)
 
-- **[API.md](./API.md)** — Contratos usados por la app: `POST /social/login` (`token` + `provider`); **`POST /requests`**; **upload tickets** (`maxBytes`); **`/predict`** + poll de tareas; perfiles / verify phone / `fcmToken`.
+- **[API.md](./API.md)** — Contratos usados por la app: `POST /social/login` (`token` + `provider`); **`POST /requests`** (+ enum **`category`**); **upload tickets** (`maxBytes`); **`/predict`** + poll de tareas; perfiles / verify phone / `fcmToken`.
 - **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)** — Verificación de email tras el registro: flujo web en `landing/verify-email`, API sin JWT y reenvío con JWT.
 - **[FEATURES.md](./FEATURES.md)** — Referencia rápida de auth y enlaces a API / otros docs.
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).
@@ -245,6 +246,7 @@ Si desplegaras la SPA de **`dist/`** en un origen HTTPS y usaras Auth orientado 
 - Algunos tests **stubbean componentes de Ionic** (p. ej. `IonAlert`, wrappers sin `IonApp`) para evitar timers internos que pueden producir errores al teardown en `jsdom`.
 - Plugins de **Capacitor** (`@capacitor/network`, micrófono, etc.) suelen **mockearse** en tests de páginas; la lógica de red para avisos en vídeo está cubierta en `src/utils/videoUploadNetworkHint.test.ts`.
 - **Límites de media** (10 / 12 / 40 MB): `src/utils/predictMediaLimits.test.ts`; rechazo por `maxBytes` del ticket en `src/services/uploadService.test.ts`.
+- **Categorías (22):** `src/utils/categoryLabels.test.ts`, discovery en `src/utils/listingShared.test.ts`; BecomeProForm muestra «Reformas» (no «Albañilería»).
 - Criterios de **compresión de vídeo** antes del PUT a Supabase (red + umbral Wi-Fi, límites por plataforma) y `predictVideoPayloadDecodedBytes`: `src/utils/videoCompressForPredict.test.ts`.
 - Flujo híbrido **`/predict` por URL** + polling: `src/services/predictService.test.ts`; timeouts en `src/config/httpTimeouts.ts` / `httpTimeouts.test.ts`.
 - **Duración de toasts:** `TOAST_DURATION_MS` en `src/config/uiTiming.ts`; test en `src/config/uiTiming.test.ts`.

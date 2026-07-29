@@ -11,11 +11,7 @@ import {
   arrowForwardOutline, star, checkmarkCircleOutline, filterOutline, 
   swapVerticalOutline, 
   searchOutline,
-  waterOutline, hammerOutline, leafOutline, brushOutline,
   compassOutline, listOutline,
-  snowOutline,
-  sparklesOutline,
-  handLeftOutline,
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import api from '../api/axios';
@@ -29,7 +25,8 @@ import { SegmentTab } from '../components/shared/SegmentTab';
 import { ListingCard, FilterChipRow } from '../components/listing';
 
 import { TOAST_DURATION_MS } from '../config/uiTiming';
-import { getCategoryLabel } from '../utils/categoryLabels';
+import { CATEGORY_OPTIONS, getCategoryLabel } from '../utils/categoryLabels';
+import { getDiscoveryCategories } from '../utils/categoryStyles';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
@@ -60,16 +57,7 @@ const RequestList: React.FC = () => {
   const [toast, setToast] = useState<string | null>(null);
 
   // Categorías (Discovery)
-  const categories = [
-    { code: 'PLUMBING', name: 'Fontanería', icon: waterOutline, color: '#3b82f6', bg: '#dbeafe' },
-    { code: 'ELECTRICITY', name: 'Electricidad', icon: flashOutline, color: '#eab308', bg: '#fef9c3' },
-    { code: 'MASONRY', name: 'Reformas', icon: hammerOutline, color: '#ef4444', bg: '#fee2e2' },
-    { code: 'PAINTING', name: 'Pintura', icon: brushOutline, color: '#a855f7', bg: '#f3e8ff' },
-    { code: 'GARDENING', name: 'Jardinería', icon: leafOutline, color: '#22c55e', bg: '#dcfce7' },
-    { code: 'CLEANING', name: 'Limpieza', icon: sparklesOutline, color: '#06b6d4', bg: '#cffafe' },
-    { code: 'HVAC', name: 'Climatización', icon: snowOutline, color: '#64748b', bg: '#f1f5f9' },
-    { code: 'DIY', name: 'Manitas', icon: handLeftOutline, color: '#63d8ce', bg: '#f1f5f9' },
-  ];
+  const categories = getDiscoveryCategories();
 
   const getTierWeight = (pro: { user?: { roles?: string[] } }) => {
     const roles = pro.user?.roles || [];
@@ -437,14 +425,11 @@ const RequestList: React.FC = () => {
                     className="custom-select-input"
                 >
                     <IonSelectOption value="">Todas</IonSelectOption>
-                    <IonSelectOption value="DIY">Manitas</IonSelectOption>
-                    <IonSelectOption value="PLUMBING">Fontanería</IonSelectOption>
-                    <IonSelectOption value="ELECTRICITY">Electricidad</IonSelectOption>
-                    <IonSelectOption value="MASONRY">Albañilería</IonSelectOption>
-                    <IonSelectOption value="HVAC">Climatización</IonSelectOption>
-                    <IonSelectOption value="CLEANING">Limpieza</IonSelectOption>
-                    <IonSelectOption value="PAINTING">Pintura</IonSelectOption>
-                    <IonSelectOption value="GARDENING">Jardinería</IonSelectOption>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <IonSelectOption key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </IonSelectOption>
+                    ))}
                 </IonSelect>
             </div>
 

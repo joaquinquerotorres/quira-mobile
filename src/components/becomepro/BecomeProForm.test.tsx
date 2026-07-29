@@ -45,7 +45,8 @@ test('BecomeProForm renders all fields', () => {
   expect(screen.getByPlaceholderText('B12345678')).toBeInTheDocument();
   expect(screen.getByPlaceholderText('Cuéntanos tu experiencia...')).toBeInTheDocument();
   expect(screen.getByText('Habilidades')).toBeInTheDocument();
-  expect(screen.getByText('Albañilería')).toBeInTheDocument();
+  expect(screen.getByText('Reformas')).toBeInTheDocument();
+  expect(screen.queryByText('Albañilería')).not.toBeInTheDocument();
 });
 
 test('BecomeProForm shows CIF required error when PRO tier and no taxId', () => {
@@ -80,7 +81,7 @@ test('BecomeProForm calls onToggleSkill when skill chip is clicked', () => {
     />,
     { wrapper }
   );
-  fireEvent.click(screen.getByText('Albañilería'));
+  fireEvent.click(screen.getByText('Reformas'));
   expect(onToggleSkill).toHaveBeenCalledWith('MASONRY');
 });
 
