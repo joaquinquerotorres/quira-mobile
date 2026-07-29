@@ -762,7 +762,7 @@ const NewRequest: React.FC = () => {
       setUploadedAudioUrl(uploaded.audioUrl);
       setUploadedVideoUrl(uploaded.videoUrl);
 
-      setLoadingMessage('Consultando a la IA…');
+      setLoadingMessage('Consultando a Quira…');
 
       Sentry.addBreadcrumb({
         category: 'predict',
@@ -951,7 +951,7 @@ const NewRequest: React.FC = () => {
         return answer.trim() === '';
       });
       if (hasMissingAnswer) {
-        setToast('Responde todas las preguntas de la IA antes de publicar.');
+        setToast('Responde todas las preguntas de Quira antes de publicar.');
         return;
       }
     }

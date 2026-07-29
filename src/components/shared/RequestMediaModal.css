@@ -1,6 +1,7 @@
 .request-media-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   border: 1px solid #e0e7ff;
   background: #eef2ff;
@@ -9,33 +10,55 @@
   font-weight: 800;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  padding: 7px 12px;
+  padding: 6px 11px;
   border-radius: 999px;
   flex-shrink: 0;
   cursor: pointer;
+  line-height: 1;
+  margin: 0;
+  box-sizing: border-box;
+  vertical-align: middle;
+  font-family: inherit;
 }
 
-/* Compacto en la fila de pills de ListingCard */
+/* Compacto bajo meta rows de ListingCard */
 .request-media-chip--inline {
-  gap: 4px;
-  font-size: 0.65rem;
-  padding: 4px 9px;
+  gap: 5px;
+  font-size: 0.68rem;
+  padding: 5px 10px;
   letter-spacing: 0.03em;
+  border-radius: 8px; /* misma familia que category/status pills */
 }
 
 .request-media-chip--inline ion-icon {
   font-size: 13px;
+  width: 13px;
+  height: 13px;
 }
 
 .request-media-chip--inline .request-media-chip-count {
   min-width: 16px;
   height: 16px;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   padding: 0 4px;
 }
 
 .request-media-chip ion-icon {
-  font-size: 16px;
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  display: block;
+  line-height: 1;
+}
+
+.request-media-chip-label {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .request-media-chip-count {
@@ -48,7 +71,11 @@
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
   padding: 0 5px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .request-media-modal {
