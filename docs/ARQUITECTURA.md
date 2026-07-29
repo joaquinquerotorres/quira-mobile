@@ -367,7 +367,41 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 
 ### Categorías
 
-`CLEANING`, `DIY`, `ELECTRICITY`, `GARDENING`, `PAINTING`, `PLUMBING`, `HVAC`, `MASONRY`, `APPLIANCES`, `MOVING`, `LOCKSMITH`, `POOL`, `SEWING`, `BLINDS`, `GLAZING`, `FURNITURE`, `CLEAROUT`, `PEST_CONTROL`, `SMART_HOME`, `BEAUTY`, `PETS`, `CARE` (22; sync con `App\Enum\Category` / quira PR #5). `MASONRY` se muestra como «Reformas».
+Catálogo alineado con `App\Enum\Category` del API Quira (**22** códigos; sync [quira PR #5](https://github.com/joaquinquerotorres/quira/pull/5)).
+
+**Fuente en cliente:** `src/utils/categoryLabels.ts` (`CATEGORY_CODES`, `CATEGORY_LABELS`, `CATEGORY_OPTIONS`, `getCategoryLabel`, `isKnownCategoryCode`), estilos en `src/utils/categoryStyles.ts` (`getCategoryStyle`, `getDiscoveryCategories`), tipo `Category` en `src/types/index.ts`.
+
+| Código | Etiqueta UI |
+|--------|-------------|
+| `CLEANING` | Limpieza |
+| `DIY` | Manitas |
+| `ELECTRICITY` | Electricidad |
+| `GARDENING` | Jardinería |
+| `PAINTING` | Pintura |
+| `PLUMBING` | Fontanería |
+| `HVAC` | Climatización |
+| `MASONRY` | **Reformas** (no «Albañilería») |
+| `APPLIANCES` | Electrodomésticos |
+| `MOVING` | Mudanzas y Portes |
+| `LOCKSMITH` | Cerrajería |
+| `POOL` | Mantenimiento de Piscinas |
+| `SEWING` | Costura y Arreglos |
+| `BLINDS` | Persianas y Toldos |
+| `GLAZING` | Cristalería |
+| `FURNITURE` | Restauración de Muebles |
+| `CLEAROUT` | Vaciado de Pisos |
+| `PEST_CONTROL` | Control de Plagas |
+| `SMART_HOME` | Domótica y Seguridad |
+| `BEAUTY` | Belleza |
+| `PETS` | Mascotas |
+| `CARE` | Cuidados |
+
+Reglas de cliente:
+
+- **DYC** (legacy) se normaliza a **DIY**.
+- Si `/predict` devuelve un código desconocido → se fuerza **DIY** en `NewRequest`.
+- Selects / skills / filtros / discovery usan `CATEGORY_OPTIONS` o `getDiscoveryCategories()` (sin listas hardcodeadas).
+- Tests: `categoryLabels.test.ts`, `listingShared.test.ts`, `BecomeProForm.test.tsx` (MASONRY = «Reformas»).
 
 ---
 
