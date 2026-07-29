@@ -2,6 +2,8 @@
 
 La base URL viene de `VITE_API_URL` (p. ej. `https://api.ejemplo.com/api`). Las rutas siguientes son relativas a esa base (en el backend desplegado suele verse como `POST /api/social/login` según el prefijo del proyecto).
 
+Este documento cubre los contratos que la app consume de forma directa: **login social**, **crear solicitud**, **upload tickets** (`maxBytes`), **predict** (+ poll), perfiles profesionales, verificación de teléfono y `fcmToken`. Listado funcional más amplio: **[ARQUITECTURA.md](./ARQUITECTURA.md)**. Flujo IA / media: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**.
+
 ## `POST /social/login` (Google / Apple)
 
 Alineado con el backend y con `src/pages/Login.tsx`: el cuerpo debe usar **`token`**, no `firebaseToken`.
@@ -50,6 +52,68 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.
+
+---
+
+## Upload tickets
+
+### `POST /upload-ticket/avatar`
+
+Body: `{ "contentType": "image/jpeg" }` (u otro MIME de imagen).  
+Respuesta: `signedUrl`, `publicUrl`, `expiresIn`. El cliente hace **PUT** del fichero a `signedUrl` y luego envía `publicUrl` donde corresponda (p. ej. avatar de usuario).
+
+### `POST /upload-ticket/request-media`
+
+Body:
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `type` | `photo` \| `audio` \| `video` | Obligatorio. |
+| `contentType` | string | MIME del binario a subir. |
+
+Respuesta:
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `signedUrl` | string | PUT del binario. |
+| `publicUrl` | string | URL pública del objeto (bucket requests). |
+| `expiresIn` | number | Segundos de validez del ticket (p. ej. 300). |
+| **`maxBytes`** | number | Tope del análisis IA (`PredictMediaLimits`). |
+
+| `type` | `maxBytes` |
+|--------|------------|
+| `photo` | 10 000 000 (10 MB) |
+| `audio` | 12 000 000 (12 MB) |
+| `video` | 40 000 000 (40 MB) |
+
+Mismo tope en Wi‑Fi y datos móviles. El cliente valida `blob.size` contra `maxBytes` **antes** del PUT (`uploadService`); la UI usa las mismas cifras en `predictMediaLimits.ts` / `NewRequest`. Detalle del flujo: **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)**.
+
+---
+
+## Predict (IA)
+
+### `POST /predict`
+
+Preferido: body JSON pequeño con URLs ya subidas a Supabase.
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `description` | string | Texto libre / modo texto. |
+| `location` | string | Zona normalizada (p. ej. ciudad). |
+| `imageUrl` / `audioUrl` / `videoUrl` | string (HTTPS) | Del bucket de requests; anti-SSRF en backend. |
+
+Respuesta típica:
+
+- **`202`** `{ taskId, status }` → la app hace poll a `GET /predict/tasks/{publicId}` hasta `completed` / `failed` (o timeout de poll).
+- **`200`** con `result` si el entorno procesa en sync.
+
+Legacy (evitar; la app no lo usa): `image` / `audio` / `video` en base64 o Data URL.
+
+Límites de fichero: los de la tabla `maxBytes` arriba. Implementación cliente: `predictService.ts`, timeouts en `httpTimeouts.ts`.
+
+### `GET /predict/tasks/{publicId}`
+
+Estado: `pending` | `processing` | `completed` | `failed`, más `result` / `error`. Solo el dueño de la tarea.
 
 ---
 

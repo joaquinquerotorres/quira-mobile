@@ -265,14 +265,14 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 
 ### Subida de ficheros (tickets + signed URL)
 
-La app usa un flujo de subida por **ticket** (el backend devuelve `signedUrl` + `publicUrl`):
+La app usa un flujo de subida por **ticket** (el backend devuelve `signedUrl` + `publicUrl`; en request-media también **`maxBytes`**):
 
 | Método | Endpoint | Propósito |
 |--------|----------|-----------|
-| POST | `/upload-ticket/avatar` | Obtener ticket para subir avatar (devuelve `signedUrl` + `publicUrl`) |
-| POST | `/upload-ticket/request-media` | Obtener ticket para subir media de solicitud (foto/audio/vídeo; devuelve `signedUrl` + `publicUrl`) |
+| POST | `/upload-ticket/avatar` | Ticket avatar → `signedUrl` + `publicUrl` |
+| POST | `/upload-ticket/request-media` | Ticket media de solicitud (`photo`\|`audio`\|`video`) → `signedUrl` + `publicUrl` + **`maxBytes`** |
 
-Después del ticket, el frontend hace `PUT` a `signedUrl` (con progreso en análisis) y usa `publicUrl`. El **análisis IA** (`NewRequest`) sube el media principal **antes** de `POST /predict` (por URL); al publicar se reutiliza esa `publicUrl`. Ver `BACKEND_PREDICT_UPLOAD.md`.
+Después del ticket, el frontend valida el tamaño contra `maxBytes` (fallback: `predictMediaLimits.ts`: imagen **10 MB**, audio **12 MB**, vídeo **40 MB** — mismo tope en Wi‑Fi y datos), hace `PUT` a `signedUrl` (con progreso en análisis) y usa `publicUrl`. El **análisis IA** (`NewRequest`) sube el media principal **antes** de `POST /predict` (por URL); al publicar se reutiliza esa `publicUrl`. Ver **[BACKEND_PREDICT_UPLOAD.md](./BACKEND_PREDICT_UPLOAD.md)** y **[API.md](./API.md)**.
 
 ### Solicitudes
 
@@ -425,10 +425,11 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 - Requiere dirección aproximada (Google Places o GPS).
 - Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
 - **Análisis IA (flujo híbrido):** primero se sube el media principal a Supabase (`upload-ticket` + PUT con progreso); luego `POST /predict` solo con URLs (`imageUrl` / `audioUrl` / `videoUrl`) + `description` / `location`. Si el backend responde `202`, la app hace polling a `GET /predict/tasks/{id}`. Al **publicar**, se **reutilizan** esas URLs (no se vuelve a subir el media del paso 1). Detalle: **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- **Límites de tamaño** (API `PredictMediaLimits` / `maxBytes` del ticket; mismos en Wi‑Fi y datos): imagen **10 MB**, audio **12 MB**, vídeo **40 MB**. UI en `NewRequest`; enforcement en `uploadService` antes del PUT. Constantes: `src/utils/predictMediaLimits.ts`.
 - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
-- Timeouts: `PREDICT_REQUEST_TIMEOUT_MS` (120 s) y, si aplica, `PREDICT_POLL_*` en `httpTimeouts.ts`.
+- Timeouts: `PREDICT_REQUEST_TIMEOUT_MS` (120 s) y, si aplica, `PREDICT_POLL_*` en `httpTimeouts.ts`; PUT a signed URL hasta 300 s.
 - En la pestaña **vídeo**, si la app detecta **datos móviles** (Capacitor `@capacitor/network` en iOS/Android) o, cuando no hay detalle de red nativo, **conexión lenta** vía heurística (`navigator.connection.effectiveType` 2g/3g, p. ej. en tests), se muestra un aviso para sugerir Wi‑Fi o paciencia en la subida.
-- **Vídeo antes del PUT:** la app intenta **re-codificar** en cliente con **datos móviles** o red **lenta**; con **Wi‑Fi** o red **desconocida** solo si el vídeo es **grande** (≥ **~10 MB** decodificados). Si falla o supera los topes de duración/memoria, se sube el original. La misma URL sirve para predict y para publicar.
+- **Vídeo antes del PUT:** la app intenta **re-codificar** en cliente con **datos móviles** o red **lenta**; con **Wi‑Fi** o red **desconocida** solo si el vídeo es **grande** (≥ **~10 MiB** decodificados). Si falla o supera los topes de duración/memoria de compresión, se sube el original (si cabe en `maxBytes`). La misma URL sirve para predict y para publicar.
 - Para el lanzamiento:
   - Solo se aceptan direcciones dentro de la provincia de **Córdoba (Andalucía, España)**.
   - Si la dirección seleccionada no pertenece a esa provincia, se muestra un toast y se limpia la dirección.
@@ -468,7 +469,7 @@ Sin este campo en API, el frontend sigue enviándolo pero el servidor puede igno
 Para minimizar regresiones antes de publicar:
 
 - **Vitest (unit/integration)**:
-  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `requestMedia`, `getApiErrorMessage`, `streetLineFromGeocode`) y flujos sensibles (subidas por ticket en `uploadService`).
+  - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `requestMedia`, `getApiErrorMessage`, `streetLineFromGeocode`, **`predictMediaLimits`**) y flujos sensibles (subidas por ticket + **`maxBytes`** en `uploadService`).
   - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaChip`/`RequestMediaModal`, `MarketOpportunityCard`, `MyWorkCards`).
   - `NewRequest.test.tsx`: verificación de teléfono (banner paso 1, ausencia de `POST /predict` cuando no se puede publicar con datos mínimos rellenos) y avisos de red en modo vídeo; el mock de `react-google-places-autocomplete` en ese archivo sustituye al stub global de `setupTests.ts` para poder simular dirección en Córdoba.
   - Robustez ante crashes con `ErrorBoundary`.
