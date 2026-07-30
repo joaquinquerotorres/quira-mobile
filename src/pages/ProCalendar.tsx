@@ -30,6 +30,7 @@ import {
   deleteCalendarEvent,
   listCalendarEvents,
   listWonJobs,
+  formatStartsAtTime,
   parseStartsAt,
   toLocalDateString,
 } from '../api/calendarEventsApi';
@@ -56,14 +57,6 @@ function sameDay(a: Date, b: Date): boolean {
 
 function formatMonthTitle(d: Date): string {
   return d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-}
-
-function formatEventTime(value: string): string {
-  return parseStartsAt(value).toLocaleTimeString('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
 }
 
 const ProCalendar: React.FC = () => {
@@ -298,7 +291,7 @@ const ProCalendar: React.FC = () => {
                       }}
                     >
                       <div className="pro-calendar-event-time">
-                        {formatEventTime(ev.startsAt)}
+                        {formatStartsAtTime(ev.startsAt)}
                       </div>
                       <div className="pro-calendar-event-title">
                         {typeof ev.request === 'object' && ev.request?.title

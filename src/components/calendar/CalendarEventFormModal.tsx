@@ -19,8 +19,8 @@ import {
 import { closeOutline } from 'ionicons/icons';
 import type { CalendarEvent, ServiceRequest } from '../../types';
 import {
-  parseStartsAt,
   toLocalDateTimeString,
+  toWallClockDateTimeString,
   upsertCalendarEventForRequest,
 } from '../../api/calendarEventsApi';
 
@@ -65,7 +65,8 @@ const CalendarEventFormModal: React.FC<CalendarEventFormModalProps> = ({
     if (!isOpen) return;
     if (mode === 'edit' && event) {
       setRequestId(event.request.id);
-      setStartsAt(toLocalDateTimeString(parseStartsAt(event.startsAt)));
+      // Wall-clock: IonDatetime ignora Z; no convertir por timezone.
+      setStartsAt(toWallClockDateTimeString(event.startsAt));
       return;
     }
     setRequestId(lockedRequest?.id ?? null);
@@ -83,7 +84,9 @@ const CalendarEventFormModal: React.FC<CalendarEventFormModalProps> = ({
   const handleDateTimeChange = (value: string | string[] | null | undefined) => {
     const v = Array.isArray(value) ? value[0] : value;
     if (!v) return;
-    setStartsAt(toLocalDateTimeString(parseStartsAt(v)));
+    // IonDatetime a veces emite …Z con los dígitos de la rueda; no interpretarlo
+    // como UTC o la hora civil se desplaza al guardar.
+    setStartsAt(toWallClockDateTimeString(v));
   };
 
   const handleSave = async () => {

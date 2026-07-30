@@ -13,7 +13,7 @@ import {
 import { ServiceRequest, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
-import { parseStartsAt } from '../../api/calendarEventsApi';
+import { formatStartsAtDateTime } from '../../api/calendarEventsApi';
 import type { EffectiveTier } from '../../utils/effectiveTier';
 import {
   formatRequestPriceRangeEuros,
@@ -308,14 +308,7 @@ export const ProRequestDetailMainSection: React.FC<
           tone="success"
           icon={calendarOutline}
           label="Fecha del trabajo"
-          value={parseStartsAt(calendarStartsAt).toLocaleString('es-ES', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          })}
+          value={formatStartsAtDateTime(calendarStartsAt)}
         />
       )}
 

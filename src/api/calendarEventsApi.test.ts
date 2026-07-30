@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   calendarEventRequestId,
   dedupeCalendarEventsByRequest,
+  formatStartsAtTime,
   parseStartsAt,
   toLocalDateTimeString,
+  toWallClockDateTimeString,
 } from './calendarEventsApi';
 import type { CalendarEvent } from '../types';
 
@@ -89,7 +91,7 @@ describe('dedupeCalendarEventsByRequest', () => {
   });
 });
 
-describe('parseStartsAt / toLocalDateTimeString round-trip local', () => {
+describe('parseStartsAt / wall-clock timezone', () => {
   it('keeps local wall time without timezone suffix', () => {
     const raw = '2026-08-20T10:30:00';
     const d = parseStartsAt(raw);
@@ -99,5 +101,31 @@ describe('parseStartsAt / toLocalDateTimeString round-trip local', () => {
     expect(d.getHours()).toBe(10);
     expect(d.getMinutes()).toBe(30);
     expect(toLocalDateTimeString(d)).toBe(raw);
+  });
+
+  it('ignores Z / +00:00 so editor and calendar show the same clock', () => {
+    expect(toWallClockDateTimeString('2026-08-20T10:00:00+00:00')).toBe(
+      '2026-08-20T10:00:00',
+    );
+    expect(toWallClockDateTimeString('2026-08-20T10:00:00.000Z')).toBe(
+      '2026-08-20T10:00:00',
+    );
+    expect(toWallClockDateTimeString('2026-08-20T10:00:00+02:00')).toBe(
+      '2026-08-20T10:00:00',
+    );
+
+    const d = parseStartsAt('2026-08-20T10:00:00+00:00');
+    expect(d.getHours()).toBe(10);
+    expect(d.getMinutes()).toBe(0);
+    expect(formatStartsAtTime('2026-08-20T10:00:00+00:00')).toBe(
+      formatStartsAtTime('2026-08-20T10:00:00'),
+    );
+  });
+
+  it('strips IonDatetime Z emissions without shifting the hour', () => {
+    // IonDatetime may emit wall-clock digits with a trailing Z.
+    expect(toWallClockDateTimeString('2026-08-20T09:15:00.000Z')).toBe(
+      '2026-08-20T09:15:00',
+    );
   });
 });
