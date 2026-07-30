@@ -29,6 +29,7 @@ import { CATEGORY_OPTIONS, getCategoryLabel } from '../utils/categoryLabels';
 import { getDiscoveryCategories } from '../utils/categoryStyles';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
+import { formatQuiraMemberSince } from '../utils/formatQuiraMemberSince';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 import type { ListingStatusKey } from '../utils/listingStatus';
 
@@ -42,7 +43,7 @@ const RequestList: React.FC = () => {
 
   // --- ESTADOS DE DATOS ---
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [topPros, setTopPros] = useState<Array<{ user?: { roles?: string[] }; id?: number; avatar?: string; fullName?: string; skills?: string[]; rating?: string | number; reviewCount?: number; category?: { name?: string } }>>([]);
+  const [topPros, setTopPros] = useState<Array<{ user?: { roles?: string[] }; id?: number; avatar?: string; fullName?: string; skills?: string[]; rating?: string | number; reviewCount?: number; category?: { name?: string }; createdAt?: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [loadingPros, setLoadingPros] = useState(true);
 
@@ -249,6 +250,7 @@ const RequestList: React.FC = () => {
                                   : { icon: calendarOutline, text: preference!, tone: 'primary' },
                               ]}
                               onClick={() => history.push(`/request/${req.id}`)}
+                              bidsCount={req.bidCount ?? req.bids?.length ?? 0}
                               media={{
                                 photoUrl: req.photoUrl,
                                 videoUrl: req.videoUrl,
@@ -322,6 +324,7 @@ const RequestList: React.FC = () => {
                                 const isSolver = tierWeight === 2;
                                 const tierLabel = isPro ? 'PRO' : isSolver ? 'SOLVER' : 'FREE';
                                 const tierBg = isPro ? 'var(--ion-color-primary)' : isSolver ? '#10b981' : '#94a3b8';
+                                const memberSince = formatQuiraMemberSince(pro.createdAt);
 
                                 return (
                                     <div 
@@ -365,6 +368,20 @@ const RequestList: React.FC = () => {
                                                   ? pro.skills.map((s) => getCategoryLabel(s)).join(', ')
                                                   : (getCategoryLabel(pro.category) || 'Profesional')}
                                             </div>
+
+                                            {memberSince && (
+                                              <div
+                                                className="pro-row-member-since"
+                                                style={{
+                                                  color: '#94a3b8',
+                                                  fontSize: '0.72rem',
+                                                  fontWeight: 500,
+                                                  marginTop: '2px',
+                                                }}
+                                              >
+                                                {memberSince}
+                                              </div>
+                                            )}
 
                                             <div className="pro-row-rating">
                                               {(() => {

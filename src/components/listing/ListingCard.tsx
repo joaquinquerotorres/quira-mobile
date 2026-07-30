@@ -12,6 +12,7 @@ import {
   type ListingCardFooterProps,
 } from './ListingCardFooter';
 import { RequestMediaChip } from '../shared/RequestMediaModal';
+import { RequestBidsChip } from './RequestBidsChip';
 import {
   getListingStatusTokens,
   type ListingStatusKey,
@@ -34,6 +35,10 @@ export interface ListingCardProps {
    * Patrón tipo Airbnb/Marketplace: adjuntos junto al contexto temporal, no en la fila de badges.
    */
   media?: ListingCardFooterMedia | null;
+  /**
+   * Nº de propuestas. Si se pasa (incl. 0), se muestra el chip a la izquierda de Media.
+   */
+  bidsCount?: number | null;
   title: string;
   price: {
     variant: EstimatePriceVariant;
@@ -57,6 +62,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   statusLabel,
   extraBadges,
   media,
+  bidsCount,
   title,
   price,
   metaRows = [],
@@ -69,6 +75,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   className,
 }) => {
   const { borderClass } = getListingStatusTokens(status);
+  const showBidsChip = bidsCount != null;
+  const showChipsRow = showBidsChip || Boolean(media);
 
   return (
     <IonCard
@@ -105,17 +113,20 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <span>{row.text}</span>
             </div>
           ))}
-          {media && (
+          {showChipsRow && (
             <div className="listing-card-media">
-              <RequestMediaChip
-                photoUrl={media.photoUrl}
-                videoUrl={media.videoUrl}
-                audioUrl={media.audioUrl}
-                extraPhotoUrls={media.extraPhotoUrls}
-                extraVideoUrls={media.extraVideoUrls}
-                extraAudioUrls={media.extraAudioUrls}
-                className="request-media-chip--inline"
-              />
+              {showBidsChip && <RequestBidsChip count={bidsCount} />}
+              {media && (
+                <RequestMediaChip
+                  photoUrl={media.photoUrl}
+                  videoUrl={media.videoUrl}
+                  audioUrl={media.audioUrl}
+                  extraPhotoUrls={media.extraPhotoUrls}
+                  extraVideoUrls={media.extraVideoUrls}
+                  extraAudioUrls={media.extraAudioUrls}
+                  className="request-media-chip--inline"
+                />
+              )}
             </div>
           )}
         </div>

@@ -17,4 +17,5 @@ export { StatusBadge } from './StatusBadge';
 export { EstimatePriceBlock } from './EstimatePriceBlock';
 export { ListingCardFooter } from './ListingCardFooter';
 export { ListingCard } from './ListingCard';
+export { RequestBidsChip } from './RequestBidsChip';
 export { FilterChipRow } from './FilterChipRow';

@@ -74,6 +74,8 @@ export interface ProfessionalProfile {
   notifyReviews?: boolean;
   /** Fin de suscripción vigente (ISO 8601); el backend puede exponerlo aquí o en User. */
   paidThroughAt?: string | null;
+  /** Alta del perfil profesional (`pro:read`). */
+  createdAt?: string;
 }
 
 export interface ClientProfile {
@@ -176,6 +178,8 @@ export interface ServiceRequest {
   /** Solicitudes de visita de valoración (solo para PRO) */
   visitRequests?: VisitRequest[];
   bids: Bid[];
+  /** Nº de propuestas (`request:read`); preferir sobre bids.length en listados. */
+  bidCount?: number;
   questions?: RequestQuestion[];
 }
 
