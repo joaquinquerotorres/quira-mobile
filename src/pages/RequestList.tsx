@@ -43,7 +43,7 @@ const RequestList: React.FC = () => {
 
   // --- ESTADOS DE DATOS ---
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [topPros, setTopPros] = useState<Array<{ user?: { roles?: string[] }; id?: number; avatar?: string; fullName?: string; skills?: string[]; rating?: string | number; reviewCount?: number; category?: { name?: string } }>>([]);
+  const [topPros, setTopPros] = useState<Array<{ user?: { roles?: string[] }; id?: number; avatar?: string; fullName?: string; skills?: string[]; rating?: string | number; reviewCount?: number; category?: { name?: string }; createdAt?: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [loadingPros, setLoadingPros] = useState(true);
 
