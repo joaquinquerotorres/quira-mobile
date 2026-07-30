@@ -292,6 +292,11 @@
     color: #cbd5e1;
 }
 .empty-history ion-icon { font-size: 48px; margin-bottom: 10px; }
+.profile-history-loading {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+}
 
 /* --- INPUTS LIMPIOS --- */
 .section-label {

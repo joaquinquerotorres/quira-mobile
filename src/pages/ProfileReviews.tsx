@@ -1,17 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  IonPage,
-  IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonSpinner,
-  useIonRouter,
-} from '@ionic/react';
-import { chevronBackOutline, star } from 'ionicons/icons';
+import { IonIcon, IonSpinner } from '@ionic/react';
+import { star } from 'ionicons/icons';
 import { SegmentTab } from '../components/shared/SegmentTab';
 import { getEffectiveActiveMode } from '../utils/activeMode';
 import {
@@ -22,7 +11,6 @@ import {
   filterReceivedByMode,
   type ProfileReviewItem,
 } from '../utils/reviewsApi';
-import './Profile.css';
 import './ProfileReviews.css';
 
 type Tab = 'received' | 'given';
@@ -72,8 +60,15 @@ function ReviewCard({
   );
 }
 
-const ProfileReviews: React.FC = () => {
-  const router = useIonRouter();
+interface ProfileReviewsPanelProps {
+  /** When false, skip loading (modal closed). */
+  active?: boolean;
+}
+
+/** Body of Valoraciones — used inside ProfileSubpageShell. */
+export const ProfileReviewsPanel: React.FC<ProfileReviewsPanelProps> = ({
+  active = true,
+}) => {
   const [tab, setTab] = useState<Tab>('received');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +82,8 @@ const ProfileReviews: React.FC = () => {
   const load = useCallback(async () => {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-      router.push('/login');
+      setError('Sesión no encontrada.');
+      setLoading(false);
       return;
     }
 
@@ -133,7 +129,6 @@ const ProfileReviews: React.FC = () => {
       try {
         receivedItems = await fetchReviewsByTarget(user.id);
       } catch {
-        // Backend may not expose target filter yet — pro fallback via profile embed.
         if (mode === 'pro' && user.professionalProfile?.id != null) {
           try {
             receivedItems = await fetchProProfileEmbeddedReviews(
@@ -141,8 +136,7 @@ const ProfileReviews: React.FC = () => {
             );
           } catch (embedErr) {
             console.error(embedErr);
-            receivedError =
-              'No se pudieron cargar las valoraciones recibidas.';
+            receivedError = 'No se pudieron cargar las valoraciones recibidas.';
           }
         } else {
           receivedError =
@@ -167,87 +161,76 @@ const ProfileReviews: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
+    if (!active) return;
     void load();
-  }, [load]);
+  }, [active, load]);
 
   const list = tab === 'received' ? received : given;
   const computedAverage = useMemo(() => averageRating(received), [received]);
   const displayAverage = profileAverage ?? computedAverage;
 
   return (
-    <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => router.goBack()}>
-              <IonIcon icon={chevronBackOutline} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Valoraciones</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="profile-reviews-content">
-        <SegmentTab
-          value={tab}
-          onValueChange={(v: string) => setTab(v as Tab)}
-          options={[
-            { value: 'received', label: 'Recibidas' },
-            { value: 'given', label: 'Hechas' },
-          ]}
-        />
+    <div className="profile-reviews-panel">
+      <SegmentTab
+        value={tab}
+        onValueChange={(v: string) => setTab(v as Tab)}
+        options={[
+          { value: 'received', label: 'Recibidas' },
+          { value: 'given', label: 'Hechas' },
+        ]}
+      />
 
-        {loading ? (
-          <div className="profile-reviews-loading">
-            <IonSpinner name="crescent" />
-          </div>
-        ) : (
-          <>
-            {tab === 'received' && (
-              <div className="profile-reviews-avg" data-testid="reviews-average">
-                <div className="profile-reviews-avg-score">
-                  {displayAverage != null ? displayAverage.toFixed(1) : '—'}
-                </div>
-                <div className="profile-reviews-avg-meta">
-                  <StarsRow rating={Math.round(displayAverage ?? 0)} />
-                  <span>
-                    {received.length > 0
-                      ? `${received.length} valoración${received.length === 1 ? '' : 'es'}`
-                      : profileCount > 0
-                        ? `${profileCount} valoración${profileCount === 1 ? '' : 'es'}`
-                        : 'Sin valoraciones aún'}
-                  </span>
-                  <span className="profile-reviews-avg-hint">
-                    {activeMode === 'pro'
-                      ? 'Media como profesional'
-                      : 'Media como cliente'}
-                  </span>
-                </div>
+      {loading ? (
+        <div className="profile-reviews-loading">
+          <IonSpinner name="crescent" />
+        </div>
+      ) : (
+        <>
+          {tab === 'received' && (
+            <div className="profile-reviews-avg" data-testid="reviews-average">
+              <div className="profile-reviews-avg-score">
+                {displayAverage != null ? displayAverage.toFixed(1) : '—'}
               </div>
-            )}
-
-            {error ? <p className="profile-reviews-error">{error}</p> : null}
-
-            {!error && list.length === 0 ? (
-              <p className="profile-reviews-empty">
-                {tab === 'received'
-                  ? 'Todavía no has recibido valoraciones.'
-                  : 'Todavía no has escrito valoraciones.'}
-              </p>
-            ) : (
-              <div className="profile-reviews-list">
-                {list.map((review) => (
-                  <ReviewCard key={review.id} review={review} mode={tab} />
-                ))}
+              <div className="profile-reviews-avg-meta">
+                <StarsRow rating={Math.round(displayAverage ?? 0)} />
+                <span>
+                  {received.length > 0
+                    ? `${received.length} valoración${received.length === 1 ? '' : 'es'}`
+                    : profileCount > 0
+                      ? `${profileCount} valoración${profileCount === 1 ? '' : 'es'}`
+                      : 'Sin valoraciones aún'}
+                </span>
+                <span className="profile-reviews-avg-hint">
+                  {activeMode === 'pro'
+                    ? 'Media como profesional'
+                    : 'Media como cliente'}
+                </span>
               </div>
-            )}
-          </>
-        )}
-      </IonContent>
-    </IonPage>
+            </div>
+          )}
+
+          {error ? <p className="profile-reviews-error">{error}</p> : null}
+
+          {!error && list.length === 0 ? (
+            <p className="profile-reviews-empty">
+              {tab === 'received'
+                ? 'Todavía no has recibido valoraciones.'
+                : 'Todavía no has escrito valoraciones.'}
+            </p>
+          ) : (
+            <div className="profile-reviews-list">
+              {list.map((review) => (
+                <ReviewCard key={review.id} review={review} mode={tab} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 };
 
-export default ProfileReviews;
+export default ProfileReviewsPanel;

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { IonApp } from '@ionic/react';
 import { MemoryRouter } from 'react-router-dom';
-import ProfileReviews from './ProfileReviews';
+import { ProfileReviewsPanel } from './ProfileReviews';
 import * as reviewsApi from '../utils/reviewsApi';
 
 vi.mock('../utils/reviewsApi', async (importOriginal) => {
@@ -25,11 +25,6 @@ vi.mock('@ionic/react', async (importOriginal) => {
     ...actual,
     IonApp: ({ children }: { children?: React.ReactNode }) =>
       React.createElement(React.Fragment, null, children),
-    useIonRouter: () => ({
-      push: vi.fn(),
-      goBack: vi.fn(),
-      routeInfo: {},
-    }),
   };
 });
 
@@ -82,7 +77,7 @@ beforeEach(() => {
 });
 
 test('shows average and received reviews', async () => {
-  render(<ProfileReviews />, { wrapper });
+  render(<ProfileReviewsPanel />, { wrapper });
   await waitFor(() => {
     expect(screen.getByTestId('reviews-average')).toHaveTextContent('4.5');
   });
@@ -91,7 +86,7 @@ test('shows average and received reviews', async () => {
 });
 
 test('switches to given reviews', async () => {
-  render(<ProfileReviews />, { wrapper });
+  render(<ProfileReviewsPanel />, { wrapper });
   await waitFor(() => expect(screen.getByText('Pro Ana')).toBeInTheDocument());
   fireEvent.click(screen.getByText('Hechas'));
   await waitFor(() => {
