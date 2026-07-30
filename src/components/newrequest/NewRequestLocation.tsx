@@ -1,6 +1,10 @@
 import React from 'react';
 import { IonLabel } from '@ionic/react';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import {
+  CORDOBA_APPROX_PLACEHOLDER,
+  cordobaAutocompletionRequest,
+} from '../../utils/cordobaPlaces';
 
 interface NewRequestLocationProps {
   address: string;
@@ -26,7 +30,7 @@ export const NewRequestLocation: React.FC<NewRequestLocationProps> = ({
             value: address ? { label: address, value: address } : null,
             onChange: onAddressSelect,
             isClearable: true,
-            placeholder: 'Zona aproximada...',
+            placeholder: CORDOBA_APPROX_PLACEHOLDER,
             styles: {
               container: (provided: any) => ({ ...provided, width: '100%' }),
               control: (provided: any) => ({
@@ -68,7 +72,7 @@ export const NewRequestLocation: React.FC<NewRequestLocationProps> = ({
               }),
             },
           }}
-          autocompletionRequest={{ componentRestrictions: { country: ['es'] } }}
+          autocompletionRequest={cordobaAutocompletionRequest()}
         />
       </div>
     </div>

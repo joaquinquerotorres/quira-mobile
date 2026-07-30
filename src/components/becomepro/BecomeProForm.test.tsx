@@ -2,6 +2,26 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { IonApp } from '@ionic/react';
 import { BecomeProForm, type BecomeProFormData } from './BecomeProForm';
+import {
+  CORDOBA_EXACT_PLACEHOLDER,
+  cordobaProvinceBoundsTuple,
+} from '../../utils/cordobaPlaces';
+
+const mockPlacesProps = vi.fn();
+
+vi.mock('react-google-places-autocomplete', () => ({
+  default: (props: any) => {
+    mockPlacesProps(props);
+    return (
+      <div data-testid="google-places-autocomplete">
+        <input
+          data-testid="places-input"
+          placeholder={props.selectProps?.placeholder}
+        />
+      </div>
+    );
+  },
+}));
 
 const defaultFormData: BecomeProFormData = {
   fullName: '',
@@ -24,6 +44,10 @@ const baseProps = {
   googleApiKey: '',
 };
 
+beforeEach(() => {
+  mockPlacesProps.mockClear();
+});
+
 test('BecomeProForm renders all fields', () => {
   render(
     <BecomeProForm
@@ -42,11 +66,32 @@ test('BecomeProForm renders all fields', () => {
   expect(screen.getByPlaceholderText('600 000 000')).toBeInTheDocument();
   expect(screen.getByText('Dirección base *')).toBeInTheDocument();
   expect(screen.getByTestId('google-places-autocomplete')).toBeInTheDocument();
+  expect(screen.getByPlaceholderText(CORDOBA_EXACT_PLACEHOLDER)).toBeInTheDocument();
   expect(screen.getByPlaceholderText('B12345678')).toBeInTheDocument();
   expect(screen.getByPlaceholderText('Cuéntanos tu experiencia...')).toBeInTheDocument();
   expect(screen.getByText('Habilidades')).toBeInTheDocument();
   expect(screen.getByText('Reformas')).toBeInTheDocument();
   expect(screen.queryByText('Albañilería')).not.toBeInTheDocument();
+});
+
+test('BecomeProForm passes Córdoba bounds to Places autocomplete', () => {
+  render(
+    <BecomeProForm
+      selectedTier="SOLVER"
+      formData={defaultFormData}
+      onFormChange={vi.fn()}
+      onToggleSkill={vi.fn()}
+      onSubmit={vi.fn()}
+      {...baseProps}
+      loading={false}
+      isUpgrading={false}
+    />,
+    { wrapper }
+  );
+  const req = mockPlacesProps.mock.calls[0][0].autocompletionRequest;
+  expect(req.componentRestrictions).toEqual({ country: ['es'] });
+  expect(req.strictBounds).toBe(true);
+  expect(req.bounds).toEqual(cordobaProvinceBoundsTuple());
 });
 
 test('BecomeProForm shows CIF required error when PRO tier and no taxId', () => {

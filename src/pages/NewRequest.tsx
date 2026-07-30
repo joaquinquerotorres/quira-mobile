@@ -64,6 +64,10 @@ import {
   parsePredictSafetyFields,
   unsafeUserMessage,
 } from '../utils/parsePredictSafety';
+import {
+  CORDOBA_AREA_TOAST,
+  isCordobaAreaFromComponents,
+} from '../utils/cordobaPlaces';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -498,21 +502,6 @@ const NewRequest: React.FC = () => {
 
   // --- UBICACIÓN ---
 
-  const isCordobaArea = (components: any[]): boolean => {
-    if (!components) return false;
-    const get = (type: string) =>
-      components.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-    const province =
-      get('administrative_area_level_2') ||
-      get('administrative_area_level_1');
-    const country = get('country');
-    const isSpain = country === 'España' || country === 'Spain';
-    const isCordoba =
-      province === 'Córdoba' ||
-      province === 'Cordoba';
-    return Boolean(isSpain && isCordoba);
-  };
-
   const extractLocationLabelFromComponents = (components: any[]): string | null => {
     if (!components) return null;
     const get = (type: string) =>
@@ -563,8 +552,8 @@ const NewRequest: React.FC = () => {
             if (data.results?.[0]) {
                const result = data.results[0];
                const comps = result.address_components;
-               if (!isCordobaArea(comps)) {
-                 setToast("Por ahora solo aceptamos direcciones en Córdoba (Andalucía).");
+               if (!isCordobaAreaFromComponents(comps)) {
+                 setToast(CORDOBA_AREA_TOAST);
                  setAddress('');
                  setLocationLabel('');
                  setCoords(null);
@@ -604,8 +593,8 @@ const NewRequest: React.FC = () => {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
       const comps = (result as any).address_components;
-      if (!isCordobaArea(comps)) {
-        setToast("Por ahora solo aceptamos direcciones en Córdoba (Andalucía).");
+      if (!isCordobaAreaFromComponents(comps)) {
+        setToast(CORDOBA_AREA_TOAST);
         setAddress('');
         setLocationLabel('');
         setCoords(null);

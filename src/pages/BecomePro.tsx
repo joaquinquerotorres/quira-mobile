@@ -21,6 +21,12 @@ import { env } from '../config/env';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
+import {
+  CORDOBA_AREA_TOAST,
+  CORDOBA_EXACT_PLACEHOLDER,
+  cordobaAutocompletionRequest,
+  isCordobaAreaFromComponents,
+} from '../utils/cordobaPlaces';
 import { createCheckoutSession, syncSubscriptionFromStripe } from '../services/stripeService';
 import { setActiveMode } from '../utils/activeMode';
 import { BecomeProHero, BecomeProTierSelector, BecomeProForm, type BecomeProFormData } from '../components/becomepro';
@@ -198,14 +204,8 @@ const BecomePro: React.FC = () => {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
       const comps = (result as any).address_components;
-      const get = (type: string) =>
-        comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-      const province = get('administrative_area_level_2') || get('administrative_area_level_1');
-      const country = get('country');
-      const isSpain = country === 'España' || country === 'Spain';
-      const isCordoba = province === 'Córdoba' || province === 'Cordoba';
-      if (!(isSpain && isCordoba)) {
-        setToast('Por ahora solo aceptamos direcciones en Córdoba (Andalucía).');
+      if (!isCordobaAreaFromComponents(comps)) {
+        setToast(CORDOBA_AREA_TOAST);
         setFormData((prev) => ({ ...prev, address: '' }));
         setCoords(null);
         return;
@@ -237,14 +237,8 @@ const BecomePro: React.FC = () => {
         if (data.results?.[0]) {
           const result = data.results[0];
           const comps = result.address_components;
-          const get = (type: string) =>
-            comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-          const province = get('administrative_area_level_2') || get('administrative_area_level_1');
-          const country = get('country');
-          const isSpain = country === 'España' || country === 'Spain';
-          const isCordoba = province === 'Córdoba' || province === 'Cordoba';
-          if (!(isSpain && isCordoba)) {
-            setToast('Por ahora solo aceptamos direcciones en Córdoba (Andalucía).');
+          if (!isCordobaAreaFromComponents(comps)) {
+            setToast(CORDOBA_AREA_TOAST);
             setFormData((prev) => ({ ...prev, address: '' }));
             setCoords(null);
             return;

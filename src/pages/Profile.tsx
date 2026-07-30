@@ -28,6 +28,12 @@ import { uploadAvatarWithTicket } from '../services/uploadService';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
+import {
+  CORDOBA_AREA_TOAST,
+  CORDOBA_EXACT_PLACEHOLDER,
+  cordobaAutocompletionRequest,
+  isCordobaAreaFromComponents,
+} from '../utils/cordobaPlaces';
 import { getEffectiveActiveMode, hasProfessionalProfile } from '../utils/activeMode';
 import './Profile.css';
 import { LogoHeader } from '../components/layout/LogoHeader';
@@ -539,18 +545,8 @@ const Profile: React.FC = () => {
             if (data.results?.[0]) {
                const result = data.results[0];
                const comps = result.address_components;
-               const get = (type: string) =>
-                 comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-               const province =
-                 get('administrative_area_level_2') ||
-                 get('administrative_area_level_1');
-               const country = get('country');
-               const isSpain = country === 'España' || country === 'Spain';
-               const isCordoba =
-                 province === 'Córdoba' ||
-                 province === 'Cordoba';
-               if (!(isSpain && isCordoba)) {
-                 setToast("Por ahora solo aceptamos direcciones en Córdoba (Andalucía).");
+               if (!isCordobaAreaFromComponents(comps)) {
+                 setToast(CORDOBA_AREA_TOAST);
                  setAddress('');
                  setCoords(null);
                  return;
@@ -577,18 +573,8 @@ const Profile: React.FC = () => {
       const results = await geocodeByAddress(value.label);
       const result = results[0];
       const comps = (result as any).address_components;
-      const get = (type: string) =>
-        comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-      const province =
-        get('administrative_area_level_2') ||
-        get('administrative_area_level_1');
-      const country = get('country');
-      const isSpain = country === 'España' || country === 'Spain';
-      const isCordoba =
-        province === 'Córdoba' ||
-        province === 'Cordoba';
-      if (!(isSpain && isCordoba)) {
-        setToast("Por ahora solo aceptamos direcciones en Córdoba (Andalucía).");
+      if (!isCordobaAreaFromComponents(comps)) {
+        setToast(CORDOBA_AREA_TOAST);
         setAddress('');
         setCoords(null);
         return;
@@ -1287,10 +1273,10 @@ const Profile: React.FC = () => {
                                         selectProps={{
                                             value: address ? { label: address, value: address } : null,
                                             onChange: handleAddressSelect,
-                                            placeholder: 'Buscar dirección...',
+                                            placeholder: CORDOBA_EXACT_PLACEHOLDER,
                                             styles: googleAutocompleteStyles
                                         }}
-                                        autocompletionRequest={{ componentRestrictions: { country: ['es'] } }}
+                                        autocompletionRequest={cordobaAutocompletionRequest()}
                                     />
                                     </div>
                                     <IonButton className="gps-btn-profile" onClick={getCurrentLocation} aria-label="Usar mi ubicación actual">
