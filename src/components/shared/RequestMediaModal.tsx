@@ -30,6 +30,7 @@ import { resolveMediaUrl } from '../../utils/mediaUrl';
 import {
   collectRequestMedia,
   type RequestMediaItem,
+  type RequestMediaSources,
 } from '../../utils/requestMedia';
 import './RequestMediaModal.css';
 
@@ -49,12 +50,6 @@ export function openRequestMedia(items: RequestMediaItem[]): void {
   openMediaHandler?.([...items]);
 }
 
-interface RequestMediaSources {
-  photoUrl?: string | null;
-  videoUrl?: string | null;
-  audioUrl?: string | null;
-}
-
 interface RequestMediaChipProps extends RequestMediaSources {
   className?: string;
 }
@@ -63,11 +58,29 @@ export const RequestMediaChip: React.FC<RequestMediaChipProps> = ({
   photoUrl,
   videoUrl,
   audioUrl,
+  extraPhotoUrls,
+  extraVideoUrls,
+  extraAudioUrls,
   className,
 }) => {
   const items = useMemo(
-    () => collectRequestMedia({ photoUrl, videoUrl, audioUrl }),
-    [photoUrl, videoUrl, audioUrl],
+    () =>
+      collectRequestMedia({
+        photoUrl,
+        videoUrl,
+        audioUrl,
+        extraPhotoUrls,
+        extraVideoUrls,
+        extraAudioUrls,
+      }),
+    [
+      photoUrl,
+      videoUrl,
+      audioUrl,
+      extraPhotoUrls,
+      extraVideoUrls,
+      extraAudioUrls,
+    ],
   );
 
   /** Evita que IonCard (routerLink/button) navegue al detalle al abrir media. */

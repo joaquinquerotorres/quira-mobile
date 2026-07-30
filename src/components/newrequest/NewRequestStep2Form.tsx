@@ -529,7 +529,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       {isRecordingExtraAudio && (
         <div
           className="record-btn-container large recording-pulse"
-          style={{ marginTop: 12, height: '120px' }}
+          style={{ marginTop: 22, height: '120px' }}
           onClick={stopExtraAudioRecording}
         >
           <div className="media-icon-circle active-rec">
@@ -542,7 +542,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
       {extraMedia.length > 0 && (
         <div
           style={{
-            marginTop: 12,
+            marginTop: 22,
             display: 'flex',
             flexDirection: 'column',
             gap: 8,

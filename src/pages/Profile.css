@@ -511,10 +511,18 @@
     z-index: 20005 !important;
 }
 
+.profile-subpage-header {
+  background: var(--ion-color-primary);
+  box-shadow: none;
+}
+
 .profile-subpage-toolbar {
   --padding-top: 4px;
   --padding-bottom: 2px;
   --min-height: 44px;
+  --border-width: 0;
+  --background: var(--ion-color-primary);
+  box-shadow: none;
 }
 
 .profile-subpage-toolbar ion-title {
@@ -530,8 +538,9 @@
     margin-bottom: 0;
     box-shadow: 0 6px 14px rgba(79, 70, 229, 0.12);
 }
-/* Solo subtítulo bajo el toolbar (Mis Datos / Seguridad / SMS) */
+/* Subtítulo continuo bajo el toolbar (mismo IonHeader / fondo primary) */
 .profile-edit-hero--slim {
+    margin: 0;
     padding: 0 20px 12px;
 }
 .profile-edit-hero--slim p {

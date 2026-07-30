@@ -15,15 +15,45 @@ describe('requestMedia', () => {
     ]);
   });
 
+  test('collectRequestMedia includes extra media after principal', () => {
+    expect(
+      collectRequestMedia({
+        photoUrl: '/p.jpg',
+        extraPhotoUrls: ['/p2.jpg', '  ', null],
+        extraVideoUrls: ['/v2.mp4'],
+        extraAudioUrls: ['/a2.mp3'],
+      }),
+    ).toEqual([
+      { kind: 'photo', url: '/p.jpg' },
+      { kind: 'photo', url: '/p2.jpg' },
+      { kind: 'video', url: '/v2.mp4' },
+      { kind: 'audio', url: '/a2.mp3' },
+    ]);
+  });
+
+  test('collectRequestMedia works with extras only', () => {
+    expect(
+      collectRequestMedia({
+        extraPhotoUrls: ['/extra.jpg'],
+        extraAudioUrls: ['/extra.mp3'],
+      }),
+    ).toEqual([
+      { kind: 'photo', url: '/extra.jpg' },
+      { kind: 'audio', url: '/extra.mp3' },
+    ]);
+  });
+
   test('hasRequestMedia is false when empty', () => {
     expect(hasRequestMedia({})).toBe(false);
     expect(hasRequestMedia({ photoUrl: null, videoUrl: '', audioUrl: undefined })).toBe(
       false,
     );
     expect(hasRequestMedia({ photoUrl: '  null  ' })).toBe(false);
+    expect(hasRequestMedia({ extraPhotoUrls: [null, ''] })).toBe(false);
   });
 
   test('hasRequestMedia is true when any media exists', () => {
     expect(hasRequestMedia({ audioUrl: '/a.mp3' })).toBe(true);
+    expect(hasRequestMedia({ extraVideoUrls: ['/v.mp4'] })).toBe(true);
   });
 });

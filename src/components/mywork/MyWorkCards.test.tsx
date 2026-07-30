@@ -5,8 +5,20 @@ import { MyWorkBidCard, MyWorkJobCard } from './MyWorkCards';
 import { Bid, ServiceRequest } from '../../types';
 
 vi.mock('../shared/RequestMediaModal', () => ({
-  RequestMediaChip: ({ photoUrl, videoUrl, audioUrl }: any) =>
-    photoUrl || videoUrl || audioUrl ? (
+  RequestMediaChip: ({
+    photoUrl,
+    videoUrl,
+    audioUrl,
+    extraPhotoUrls,
+    extraVideoUrls,
+    extraAudioUrls,
+  }: any) =>
+    photoUrl ||
+    videoUrl ||
+    audioUrl ||
+    (extraPhotoUrls && extraPhotoUrls.length) ||
+    (extraVideoUrls && extraVideoUrls.length) ||
+    (extraAudioUrls && extraAudioUrls.length) ? (
       <button type="button">Media</button>
     ) : null,
 }));

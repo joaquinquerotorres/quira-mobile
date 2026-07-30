@@ -85,6 +85,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               photoUrl: request.photoUrl,
               videoUrl: request.videoUrl,
               audioUrl: request.audioUrl,
+              extraPhotoUrls: request.extraPhotoUrls,
+              extraVideoUrls: request.extraVideoUrls,
+              extraAudioUrls: request.extraAudioUrls,
             }
       }
       footer={{

@@ -63,6 +63,28 @@ test('RequestMediaChip stops card navigation when opening media', async () => {
   expect(screen.getByText(/Vídeo/)).toBeInTheDocument();
 });
 
+test('RequestMediaChip counts primary and extra media', async () => {
+  renderWithHost(
+    <RequestMediaChip
+      photoUrl="/p.jpg"
+      extraPhotoUrls={['/p2.jpg']}
+      extraVideoUrls={['/v2.mp4']}
+    />,
+  );
+  expect(screen.getByText('Media')).toBeInTheDocument();
+  expect(screen.getByText('3')).toBeInTheDocument();
+  fireEvent.click(screen.getByText('Media'));
+  await waitFor(() => {
+    expect(screen.getByText(/Foto \(1\/3\)/)).toBeInTheDocument();
+  });
+  const photoDots = screen.getAllByLabelText('Ir a Foto');
+  expect(photoDots).toHaveLength(2);
+  fireEvent.click(photoDots[1]);
+  expect(screen.getByText(/Foto \(2\/3\)/)).toBeInTheDocument();
+  fireEvent.click(screen.getByLabelText('Ir a Vídeo'));
+  expect(screen.getByText(/Vídeo \(3\/3\)/)).toBeInTheDocument();
+});
+
 test('RequestMediaChip can move between slides', async () => {
   renderWithHost(
     <RequestMediaChip photoUrl="/p.jpg" videoUrl="/v.mp4" audioUrl="/a.mp3" />,
