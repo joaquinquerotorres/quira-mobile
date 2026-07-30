@@ -38,8 +38,6 @@ import ProCalendar from './pages/ProCalendar';
 import ChooseMode from './pages/ChooseMode';
 import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
-import NotificationSettings from './pages/NotificationSettings';
-import ProfileReviews from './pages/ProfileReviews';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { RequestMediaModalHost } from './components/shared/RequestMediaModal';
 import { initAnalytics, logEvent } from './services/analytics';
@@ -88,8 +86,6 @@ const MainTabs: React.FC = () => {
     '/register', 
     '/become-pro', 
     '/choose-mode',
-    '/profile/notifications',
-    '/profile/reviews',
     '/' // En la raíz para evitar flash antes del redirect
   ];
 
@@ -162,12 +158,6 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/profile">
           <Profile />
-        </Route>
-        <Route exact path="/profile/notifications">
-          <NotificationSettings />
-        </Route>
-        <Route exact path="/profile/reviews">
-          <ProfileReviews />
         </Route>
         <Route exact path="/my-work">
           <MyWork />

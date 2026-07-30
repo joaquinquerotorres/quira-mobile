@@ -1,21 +1,20 @@
 /* Misma jerarquía visual que Perfil: profile-menu-card + menu-separator (ver Profile.css). */
 
-.notification-settings-content {
-  --padding-top: 8px;
-  --padding-bottom: 28px;
+.notification-settings-panel .profile-section-title {
+  margin-top: 0;
 }
 
 .notification-settings-block {
-  margin-bottom: 0;
+  margin-bottom: 8px;
 }
 
 .notification-save-btn {
-  margin: 12px 16px 0;
+  margin: 16px 0 0;
 }
 
 .notification-loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 160px;
 }

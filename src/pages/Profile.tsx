@@ -7,7 +7,7 @@ import {
   IonBadge, IonRange
 } from '@ionic/react';
 import { 
-  personOutline, logOutOutline, closeOutline, chevronBackOutline, 
+  personOutline, logOutOutline, chevronBackOutline, 
   notificationsOutline, shieldCheckmarkOutline, briefcaseOutline, documentTextOutline,
   starOutline,
   hammerOutline, receiptOutline, chevronForwardOutline, calendarOutline, cameraOutline,
@@ -43,6 +43,9 @@ import {
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import { SESSION_KEY_DOWNGADE_DISMISSED } from '../components/DowngradeBanner';
 import { CATEGORY_OPTIONS } from '../utils/categoryLabels';
+import { ProfileSubpageShell } from '../components/profile/ProfileSubpageShell';
+import { ProfileReviewsPanel } from './ProfileReviews';
+import { NotificationSettingsPanel } from './NotificationSettings';
 
 const SESSION_KEY_SUBSCRIPTION_CANCEL_REQUESTED = 'quira_subscription_cancel_requested';
 
@@ -97,6 +100,9 @@ const Profile: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);           // Trabajos que he completado (como pro)
   const [historyAsClient, setHistoryAsClient] = useState<any[]>([]); // Trabajos que me han hecho (como cliente)
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   // Cambio de contraseña
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -919,13 +925,13 @@ const Profile: React.FC = () => {
 
         <div className="profile-section-title">Preferencias</div>
         <div className="profile-menu-card">
-            <IonItem lines="none" detail={false} button routerLink="/profile/reviews" className="menu-item">
+            <IonItem lines="none" detail={false} button onClick={() => setShowReviewsModal(true)} className="menu-item">
                 <div slot="start" className="icon-box icon-orange"><IonIcon icon={starOutline} /></div>
                 <IonLabel className="item-label">Valoraciones</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
             </IonItem>
             <div className="menu-separator"></div>
-            <IonItem lines="none" detail={false} button routerLink="/profile/notifications" className="menu-item">
+            <IonItem lines="none" detail={false} button onClick={() => setShowNotificationsModal(true)} className="menu-item">
                 <div slot="start" className="icon-box icon-gray"><IonIcon icon={notificationsOutline} /></div>
                 <IonLabel className="item-label">Notificaciones</IonLabel>
                 <IonIcon slot="end" icon={chevronForwardOutline} color="medium" style={{fontSize: '18px'}} />
@@ -961,37 +967,34 @@ const Profile: React.FC = () => {
         </IonButton>
 
         {/* MODAL HISTORIAL: Trabajos que he completado (como pro) */}
-        <IonModal isOpen={showHistoryProModal} onDidDismiss={() => setShowHistoryProModal(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]}>
-            <IonHeader className="ion-no-border">
-                <IonToolbar>
-                    <IonTitle style={{fontWeight: 900}}>Trabajos que he completado</IonTitle>
-                    <IonButtons slot="end"><IonButton onClick={() => setShowHistoryProModal(false)} color="medium"><IonIcon icon={closeOutline} /></IonButton></IonButtons>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding" style={{'--background': '#f8fafc'}}>
-                {loadingHistory ? (
-                    <div style={{textAlign:'center', marginTop:'40px'}}><IonSpinner name="crescent"/></div>
-                ) : history.length > 0 ? (
-                    history.map(item => (
-                        <div key={item.id} className="history-card" onClick={() => navigateToDetail(item.id, true)}>
-                            <div style={{flex: 1}}>
-                                <h3 className="history-title">{item.title}</h3>
-                                <div className="history-date">
-                                    <IonIcon icon={calendarOutline} />
-                                    {new Date(item.createdAt).toLocaleDateString()}
-                                </div>
-                            </div>
-                            <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="empty-history">
-                        <IonIcon icon={receiptOutline} />
-                        <p>Aún no has completado trabajos.</p>
-                    </div>
-                )}
-            </IonContent>
-        </IonModal>
+        <ProfileSubpageShell
+          isOpen={showHistoryProModal}
+          onClose={() => setShowHistoryProModal(false)}
+          title="Trabajos que he completado"
+          subtitle="Tu historial como profesional"
+        >
+          {loadingHistory ? (
+            <div className="profile-history-loading"><IonSpinner name="crescent"/></div>
+          ) : history.length > 0 ? (
+            history.map(item => (
+              <div key={item.id} className="history-card" onClick={() => navigateToDetail(item.id, true)}>
+                <div style={{flex: 1}}>
+                  <h3 className="history-title">{item.title}</h3>
+                  <div className="history-date">
+                    <IonIcon icon={calendarOutline} />
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
+              </div>
+            ))
+          ) : (
+            <div className="empty-history">
+              <IonIcon icon={receiptOutline} />
+              <p>Aún no has completado trabajos.</p>
+            </div>
+          )}
+        </ProfileSubpageShell>
 
         {/* MODAL VERIFICACIÓN TELÉFONO */}
         <IonModal isOpen={showPhoneVerifyModal} onDidDismiss={() => setShowPhoneVerifyModal(false)}>
@@ -1057,37 +1060,60 @@ const Profile: React.FC = () => {
         </IonModal>
 
         {/* MODAL HISTORIAL: Trabajos que me han hecho (como cliente) */}
-        <IonModal isOpen={showHistoryClientModal} onDidDismiss={() => setShowHistoryClientModal(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]}>
-            <IonHeader className="ion-no-border">
-                <IonToolbar>
-                    <IonTitle style={{fontWeight: 900}}>{isPro ? 'Trabajos que me han hecho' : 'Mis trabajos finalizados'}</IonTitle>
-                    <IonButtons slot="end"><IonButton onClick={() => setShowHistoryClientModal(false)} color="medium"><IonIcon icon={closeOutline} /></IonButton></IonButtons>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding" style={{'--background': '#f8fafc'}}>
-                {loadingHistory ? (
-                    <div style={{textAlign:'center', marginTop:'40px'}}><IonSpinner name="crescent"/></div>
-                ) : historyAsClient.length > 0 ? (
-                    historyAsClient.map(item => (
-                        <div key={item.id} className="history-card" onClick={() => navigateToDetail(item.id, false)}>
-                            <div style={{flex: 1}}>
-                                <h3 className="history-title">{item.title}</h3>
-                                <div className="history-date">
-                                    <IonIcon icon={calendarOutline} />
-                                    {new Date(item.createdAt).toLocaleDateString()}
-                                </div>
-                            </div>
-                            <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="empty-history">
-                        <IonIcon icon={receiptOutline} />
-                        <p>{isPro ? 'Aún no tienes trabajos donde hayas sido cliente.' : 'No tienes trabajos finalizados.'}</p>
-                    </div>
-                )}
-            </IonContent>
-        </IonModal>
+        <ProfileSubpageShell
+          isOpen={showHistoryClientModal}
+          onClose={() => setShowHistoryClientModal(false)}
+          title={isPro ? 'Trabajos que me han hecho' : 'Mis trabajos finalizados'}
+          subtitle={isPro ? 'Tu historial como cliente' : 'Solicitudes que ya cerraste'}
+        >
+          {loadingHistory ? (
+            <div className="profile-history-loading"><IonSpinner name="crescent"/></div>
+          ) : historyAsClient.length > 0 ? (
+            historyAsClient.map(item => (
+              <div key={item.id} className="history-card" onClick={() => navigateToDetail(item.id, false)}>
+                <div style={{flex: 1}}>
+                  <h3 className="history-title">{item.title}</h3>
+                  <div className="history-date">
+                    <IonIcon icon={calendarOutline} />
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="history-price">{formatRequestPriceRangeEuros(item)}</div>
+              </div>
+            ))
+          ) : (
+            <div className="empty-history">
+              <IonIcon icon={receiptOutline} />
+              <p>{isPro ? 'Aún no tienes trabajos donde hayas sido cliente.' : 'No tienes trabajos finalizados.'}</p>
+            </div>
+          )}
+        </ProfileSubpageShell>
+
+        <ProfileSubpageShell
+          isOpen={showReviewsModal}
+          onClose={() => setShowReviewsModal(false)}
+          title="Valoraciones"
+          subtitle={
+            getEffectiveActiveMode() === 'pro'
+              ? 'Recibidas y hechas como profesional'
+              : 'Recibidas y hechas como cliente'
+          }
+        >
+          <ProfileReviewsPanel active={showReviewsModal} />
+        </ProfileSubpageShell>
+
+        <ProfileSubpageShell
+          isOpen={showNotificationsModal}
+          onClose={() => setShowNotificationsModal(false)}
+          title="Notificaciones"
+          subtitle={
+            getEffectiveActiveMode() === 'pro'
+              ? 'Avisos de tu actividad profesional'
+              : 'Avisos de tus solicitudes'
+          }
+        >
+          <NotificationSettingsPanel active={showNotificationsModal} />
+        </ProfileSubpageShell>
 
         {/* MODAL EDICIÓN PERFIL */}
         <IonModal

@@ -221,8 +221,7 @@ Ver `docs/STRIPE_BACKEND.md` para requisitos de backend.
 | `/pro/request/:id` | Detalle (profesional) | Autenticado + pro |
 | `/market` | Mercado de oportunidades | Autenticado + pro |
 | `/my-work` | Mis propuestas y trabajos | Autenticado + pro |
-| `/profile` | Perfil | Autenticado |
-| `/profile/notifications` | Configuración de notificaciones | Autenticado |
+| `/profile` | Perfil (datos, valoraciones, notificaciones y actividad abren como subpáginas/modal estilo Datos Personales) | Autenticado |
 | `/new-request` | Nueva solicitud | Autenticado |
 | `/become-pro` | Registro / mejora de plan | Autenticado |
 | `/directory` | Directorio de profesionales | Autenticado |
@@ -320,7 +319,7 @@ Params: `status`, `category`, `title`, `order[createdAt]`, `order[estimatedPrice
 | GET | `/reviews?author=/api/users/{id}` | Valoraciones **hechas** por el usuario |
 | POST | `/reviews` | Crear valoración |
 
-En perfil (`/profile/reviews`): pestañas Recibidas / Hechas; en recibidas se muestra la media del perfil activo (`clientProfile.rating` o `professionalProfile.rating`). Requiere filtro `target` en el API (ver prompt en PR / quira).
+En perfil (modal Valoraciones): pestañas Recibidas / Hechas; en recibidas se muestra la media del perfil activo (`clientProfile.rating` o `professionalProfile.rating`). Requiere filtro `target` en el API (ver prompt en PR / quira).
 
 ### Stripe
 
@@ -499,7 +498,7 @@ Reglas de cliente:
   - Muestra el plan actual (SOLVER/PRO), la fecha `paidThroughAt` y el estado de cancelación (`subscriptionCancelAtPeriodEnd`). El bloque "Plan actual" tiene padding superior e inferior reducido (7px) para mejor lectura.
   - Botón "Cancelar suscripción" → llama a `/stripe/cancel-subscription` y pasa a mostrar "Reactivar suscripción" mientras la cancelación es efectiva a fin de periodo.
 - Sección **Preferencias**:
-  - Enlace a **Configuración de notificaciones** (`/profile/notifications`), donde se pueden activar/desactivar notificaciones por tipo (solicitudes, ofertas, reseñas) tanto para cliente como para profesional.
+  - Enlace a **Notificaciones** (modal desde Perfil, mismo estilo que Datos Personales), donde se pueden activar/desactivar notificaciones por tipo (solicitudes, ofertas, reseñas) tanto para cliente como para profesional.
   - En app nativa, al arrancar con sesión activa, se solicita permiso de push y se sincroniza `fcmToken` en `PATCH /users/{id}` cuando hay token nuevo/cambiado.
 
 ---

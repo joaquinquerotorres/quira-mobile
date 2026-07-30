@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  IonPage,
-  IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
   IonItem,
   IonLabel,
   IonToggle,
   IonSpinner,
   IonToast,
-  useIonRouter,
+  IonButton,
 } from '@ionic/react';
-import { chevronBackOutline } from 'ionicons/icons';
 import api from '../api/axios';
 import { ClientProfile, ProfessionalProfile } from '../types';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
@@ -153,15 +144,11 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
       </div>
       <IonButton
         expand="block"
-        className="notification-save-btn"
+        className="quira-main-btn profile-edit-save notification-save-btn"
         onClick={handleSave}
         disabled={saving || !hasChanges}
       >
-        {saving ? (
-          <IonSpinner name="crescent" />
-        ) : (
-          'Guardar cambios'
-        )}
+        {saving ? <IonSpinner name="crescent" /> : 'Guardar cambios'}
       </IonButton>
       <IonToast
         isOpen={!!toast}
@@ -174,18 +161,25 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
   );
 };
 
-const NotificationSettings: React.FC = () => {
-  const router = useIonRouter();
+interface NotificationSettingsPanelProps {
+  active?: boolean;
+}
+
+/** Body of Notificaciones — used inside ProfileSubpageShell. */
+export const NotificationSettingsPanel: React.FC<NotificationSettingsPanelProps> = ({
+  active = true,
+}) => {
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
+    if (!active) return;
     let cancelled = false;
 
     const load = async () => {
       const userStr = localStorage.getItem('user');
       if (!userStr) {
-        router.push('/login');
+        setLoadingUser(false);
         return;
       }
 
@@ -208,17 +202,13 @@ const NotificationSettings: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [active]);
 
   if (!user || loadingUser) {
     return (
-      <IonPage>
-        <IonContent>
-          <div className="notification-loading">
-            <IonSpinner name="crescent" />
-          </div>
-        </IonContent>
-      </IonPage>
+      <div className="notification-loading">
+        <IonSpinner name="crescent" />
+      </div>
     );
   }
 
@@ -229,41 +219,25 @@ const NotificationSettings: React.FC = () => {
   const showProPrefs = hasPro && (activeMode === 'pro' || !hasClient);
 
   return (
-    <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => router.goBack()}>
-              <IonIcon icon={chevronBackOutline} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Configuración de notificaciones</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent
-        fullscreen
-        className="notification-settings-content"
-        style={{ '--background': '#f8fafc' }}
-      >
-        {showClientPrefs && (
-          <NotificationSection
-            profile={user.clientProfile}
-            labels={CLIENT_LABELS}
-            endpoint="client_profiles"
-            sectionTitle="Notificaciones"
-          />
-        )}
-        {showProPrefs && (
-          <NotificationSection
-            profile={user.professionalProfile}
-            labels={PRO_LABELS}
-            endpoint="professional_profiles"
-            sectionTitle="Notificaciones"
-          />
-        )}
-      </IonContent>
-    </IonPage>
+    <div className="notification-settings-panel">
+      {showClientPrefs && (
+        <NotificationSection
+          profile={user.clientProfile}
+          labels={CLIENT_LABELS}
+          endpoint="client_profiles"
+          sectionTitle="Como cliente"
+        />
+      )}
+      {showProPrefs && (
+        <NotificationSection
+          profile={user.professionalProfile}
+          labels={PRO_LABELS}
+          endpoint="professional_profiles"
+          sectionTitle="Como profesional"
+        />
+      )}
+    </div>
   );
 };
 
-export default NotificationSettings;
+export default NotificationSettingsPanel;

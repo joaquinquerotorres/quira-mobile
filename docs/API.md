@@ -218,7 +218,7 @@ La app nativa (Android/iOS) pide permisos de push, obtiene token FCM y lo sincro
 
 ## `GET /reviews` (perfil: recibidas / hechas)
 
-Usado por `ProfileReviews` (`/profile/reviews`).
+Usado por el modal Valoraciones del perfil.
 
 | Query | Uso en app |
 |--------|------------|

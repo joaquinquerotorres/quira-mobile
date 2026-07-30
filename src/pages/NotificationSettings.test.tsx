@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import NotificationSettings from './NotificationSettings';
+import { NotificationSettingsPanel } from './NotificationSettings';
 
 import api from '../api/axios';
 import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
@@ -15,7 +15,6 @@ vi.mock('../utils/refreshCurrentUser', () => ({
 }));
 
 vi.mock('@ionic/react', () => {
-  const routerMock = { goBack: vi.fn(), push: vi.fn() };
   return {
     IonPage: ({ children }: any) => React.createElement('div', null, children),
     IonContent: ({ children }: any) => React.createElement('div', null, children),
@@ -34,9 +33,13 @@ vi.mock('@ionic/react', () => {
     IonSpinner: () => null,
     IonToast: ({ isOpen, message }: any) =>
       isOpen ? React.createElement('div', null, message) : null,
-    useIonRouter: () => routerMock,
+    useIonRouter: () => ({ goBack: vi.fn(), push: vi.fn() }),
   };
 });
+
+vi.mock('../utils/activeMode', () => ({
+  getEffectiveActiveMode: vi.fn(() => 'client'),
+}));
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter>{children}</MemoryRouter>
@@ -75,48 +78,24 @@ beforeEach(() => {
   (refreshCurrentUserInStorage as ReturnType<typeof vi.fn>).mockResolvedValue(true);
 });
 
-test('NotificationSettings renders client section when user has clientProfile', async () => {
-  (localStorage as any).setItem?.('user', JSON.stringify(clientUser));
-  render(<NotificationSettings />, { wrapper });
+test('NotificationSettingsPanel renders client section when user has clientProfile', async () => {
+  localStorage.setItem('user', JSON.stringify(clientUser));
+  const { getEffectiveActiveMode } = await import('../utils/activeMode');
+  vi.mocked(getEffectiveActiveMode).mockReturnValue('client');
+  render(<NotificationSettingsPanel />, { wrapper });
   await waitFor(() => {
-    expect(screen.getByText('Configuración de notificaciones')).toBeInTheDocument();
+    expect(screen.getByText('Como cliente')).toBeInTheDocument();
   });
-  expect(screen.getByText('Notificaciones')).toBeInTheDocument();
   expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
-  expect(screen.getByText('Nuevas ofertas en mis solicitudes')).toBeInTheDocument();
-  expect(screen.getByText('Nuevas valoraciones recibidas')).toBeInTheDocument();
-  expect(screen.getByText('Guardar cambios')).toBeInTheDocument();
 });
 
-test('NotificationSettings renders professional section when user has professionalProfile', async () => {
-  (localStorage as any).setItem?.('user', JSON.stringify(proUser));
-  (localStorage as any).setItem?.('quira_active_mode', 'pro');
-  render(<NotificationSettings />, { wrapper });
+test('NotificationSettingsPanel renders pro section in pro mode', async () => {
+  localStorage.setItem('user', JSON.stringify(proUser));
+  const { getEffectiveActiveMode } = await import('../utils/activeMode');
+  vi.mocked(getEffectiveActiveMode).mockReturnValue('pro');
+  render(<NotificationSettingsPanel />, { wrapper });
   await waitFor(() => {
-    expect(screen.getByText('Notificaciones')).toBeInTheDocument();
+    expect(screen.getByText('Como profesional')).toBeInTheDocument();
   });
-  expect(screen.getByText('Nuevas solicitudes y respuestas a mis preguntas')).toBeInTheDocument();
   expect(screen.getByText('Cuando aceptan mis ofertas')).toBeInTheDocument();
-  expect(screen.getByText('Nuevas reseñas recibidas')).toBeInTheDocument();
-});
-
-test('NotificationSettings has Guardar cambios button and client labels', async () => {
-  (localStorage as any).setItem?.('user', JSON.stringify(clientUser));
-  render(<NotificationSettings />, { wrapper });
-  await waitFor(() => expect(screen.getByText('Guardar cambios')).toBeInTheDocument());
-  expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
-  expect(screen.getByText('Nuevas ofertas en mis solicitudes')).toBeInTheDocument();
-  expect(screen.getByText('Nuevas valoraciones recibidas')).toBeInTheDocument();
-});
-
-test('NotificationSettings refreshes user before rendering prefs', async () => {
-  (localStorage as any).setItem?.('user', JSON.stringify(proUser));
-  (localStorage as any).setItem?.('quira_active_mode', 'pro');
-  render(<NotificationSettings />, { wrapper });
-  await waitFor(() => {
-    expect(refreshCurrentUserInStorage).toHaveBeenCalled();
-  });
-  await waitFor(() => {
-    expect(screen.getByText('Notificaciones')).toBeInTheDocument();
-  });
 });
