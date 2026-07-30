@@ -984,7 +984,7 @@ const Profile: React.FC = () => {
 
         {/* MODAL VERIFICACIÓN TELÉFONO */}
         <IonModal isOpen={showPhoneVerifyModal} onDidDismiss={() => setShowPhoneVerifyModal(false)}>
-          <IonHeader className="ion-no-border">
+          <IonHeader className="ion-no-border profile-subpage-header">
             <IonToolbar color="primary" className="profile-subpage-toolbar">
               <IonButtons slot="start">
                 <IonButton onClick={() => setShowPhoneVerifyModal(false)} style={{ color: 'white' }}>
@@ -994,9 +994,7 @@ const Profile: React.FC = () => {
               <IonTitle className="ion-text-center">Verificar teléfono</IonTitle>
               <IonButtons slot="end" style={{ width: '48px' }} />
             </IonToolbar>
-          </IonHeader>
-          <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-            <div className="profile-edit-hero profile-edit-hero--slim animate__animated animate__fadeIn">
+            <div className="profile-edit-hero profile-edit-hero--slim">
               <p>
                 Introduce el código SMS.
                 {user?.clientProfile && user?.professionalProfile && (
@@ -1004,6 +1002,8 @@ const Profile: React.FC = () => {
                 )}
               </p>
             </div>
+          </IonHeader>
+          <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
             <div className="profile-edit-content profile-password-content">
               <div className="profile-edit-form animate__animated animate__fadeInUp">
                 <div className="profile-edit-section">
@@ -1107,7 +1107,7 @@ const Profile: React.FC = () => {
             onDidDismiss={() => { setShowEditModal(false); setModalReady(false); googleMap.current = null; }}
             onDidPresent={() => setModalReady(true)}
         >
-            <IonHeader className="ion-no-border">
+            <IonHeader className="ion-no-border profile-subpage-header">
                 <IonToolbar color="primary" className="profile-subpage-toolbar">
                     <IonButtons slot="start">
                         <IonButton onClick={() => setShowEditModal(false)} style={{ color: 'white' }}>
@@ -1117,12 +1117,11 @@ const Profile: React.FC = () => {
                     <IonTitle className="ion-text-center">Mis datos</IonTitle>
                     <IonButtons slot="end" style={{ width: '48px' }} />
                 </IonToolbar>
-            </IonHeader>
-            <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-                <div className="profile-edit-hero profile-edit-hero--slim animate__animated animate__fadeIn">
+                <div className="profile-edit-hero profile-edit-hero--slim">
                     <p>Actualiza tu perfil y datos de contacto</p>
                 </div>
-
+            </IonHeader>
+            <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
                 <div className="profile-edit-content profile-edit-content-main">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" style={{ display: 'none' }} />
 
@@ -1345,7 +1344,7 @@ const Profile: React.FC = () => {
 
         {/* MODAL CAMBIO DE CONTRASEÑA */}
         <IonModal isOpen={showPasswordModal} onDidDismiss={() => setShowPasswordModal(false)}>
-          <IonHeader className="ion-no-border">
+          <IonHeader className="ion-no-border profile-subpage-header">
             <IonToolbar color="primary" className="profile-subpage-toolbar">
               <IonButtons slot="start">
                 <IonButton onClick={() => setShowPasswordModal(false)} style={{ color: 'white' }}>
@@ -1355,11 +1354,11 @@ const Profile: React.FC = () => {
               <IonTitle className="ion-text-center">Seguridad</IonTitle>
               <IonButtons slot="end" style={{ width: '48px' }} />
             </IonToolbar>
-          </IonHeader>
-          <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-            <div className="profile-edit-hero profile-edit-hero--slim animate__animated animate__fadeIn">
+            <div className="profile-edit-hero profile-edit-hero--slim">
               <p>Contraseña actual y la nueva</p>
             </div>
+          </IonHeader>
+          <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
             <div className="profile-edit-content profile-password-content">
             <div className="profile-edit-form animate__animated animate__fadeInUp">
               <div className="profile-edit-section">

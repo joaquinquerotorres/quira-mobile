@@ -6,6 +6,9 @@ export interface ListingCardFooterMedia {
   photoUrl?: string | null;
   videoUrl?: string | null;
   audioUrl?: string | null;
+  extraPhotoUrls?: string[] | null;
+  extraVideoUrls?: string[] | null;
+  extraAudioUrls?: string[] | null;
 }
 
 export interface ListingCardFooterProps {

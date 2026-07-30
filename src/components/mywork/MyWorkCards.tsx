@@ -51,6 +51,9 @@ export const MyWorkBidCard: React.FC<MyWorkBidCardProps> = ({
         photoUrl: request.photoUrl,
         videoUrl: request.videoUrl,
         audioUrl: request.audioUrl,
+        extraPhotoUrls: request.extraPhotoUrls,
+        extraVideoUrls: request.extraVideoUrls,
+        extraAudioUrls: request.extraAudioUrls,
       }}
       footer={{
         personPrefix: 'Cliente:',
@@ -110,6 +113,9 @@ export const MyWorkJobCard: React.FC<MyWorkJobCardProps> = ({
       photoUrl: job.photoUrl,
       videoUrl: job.videoUrl,
       audioUrl: job.audioUrl,
+      extraPhotoUrls: job.extraPhotoUrls,
+      extraVideoUrls: job.extraVideoUrls,
+      extraAudioUrls: job.extraAudioUrls,
     }}
     footer={{
       personPrefix: 'Cliente:',

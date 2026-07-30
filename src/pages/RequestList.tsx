@@ -253,6 +253,9 @@ const RequestList: React.FC = () => {
                                 photoUrl: req.photoUrl,
                                 videoUrl: req.videoUrl,
                                 audioUrl: req.audioUrl,
+                                extraPhotoUrls: req.extraPhotoUrls,
+                                extraVideoUrls: req.extraVideoUrls,
+                                extraAudioUrls: req.extraAudioUrls,
                               }}
                               footer={{
                                 personPrefix: req.assignedProfessional

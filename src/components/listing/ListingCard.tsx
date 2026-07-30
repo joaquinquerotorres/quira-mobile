@@ -111,6 +111,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 photoUrl={media.photoUrl}
                 videoUrl={media.videoUrl}
                 audioUrl={media.audioUrl}
+                extraPhotoUrls={media.extraPhotoUrls}
+                extraVideoUrls={media.extraVideoUrls}
+                extraAudioUrls={media.extraAudioUrls}
                 className="request-media-chip--inline"
               />
             </div>
