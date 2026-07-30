@@ -20,6 +20,10 @@ import {
   informationCircleOutline,
 } from 'ionicons/icons';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import {
+  CORDOBA_EXACT_PLACEHOLDER,
+  cordobaAutocompletionRequest,
+} from '../../utils/cordobaPlaces';
 import './BecomeProForm.css';
 import { CATEGORY_OPTIONS } from '../../utils/categoryLabels';
 
@@ -128,10 +132,10 @@ export const BecomeProForm: React.FC<BecomeProFormProps> = ({
             selectProps={{
               value: formData.address ? { label: formData.address, value: formData.address } : null,
               onChange: onAddressSelect,
-              placeholder: 'Buscar dirección...',
+              placeholder: CORDOBA_EXACT_PLACEHOLDER,
               styles: googleAutocompleteStyles,
             }}
-            autocompletionRequest={{ componentRestrictions: { country: ['es'] } }}
+            autocompletionRequest={cordobaAutocompletionRequest()}
           />
         </div>
         <IonButton className="become-pro-gps-btn" onClick={onUseCurrentLocation} aria-label="Usar mi ubicación actual">

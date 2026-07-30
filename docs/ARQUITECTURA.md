@@ -431,7 +431,7 @@ Reglas de cliente:
 - **Visita de valoración**: si hay una visita PENDING, el cliente ve "Aceptar visita" y "Rechazar"; si está ACCEPTED, ve el teléfono del profesional y botón "LLAMAR AL PROFESIONAL".
 - Al hacer clic en el profesional → ficha en `/directory/:id`.
 - Botón **"ACEPTAR PRESUPUESTO"** (aceptar la **oferta de un profesional**, no el rango IA) → modal de dirección y confirmación.
-- En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección.
+- En lanzamiento, las direcciones exactas solo se aceptan si están en provincia de **Córdoba (Andalucía, España)**; de lo contrario, se muestra un aviso y no se guarda la dirección. El autocomplete de Places usa `bounds` + `strictBounds` de la provincia (`utils/cordobaPlaces.ts`) además de `country: es`; la validación post-geocode (`isCordobaAreaFromComponents`) sigue como red de seguridad.
 - En el modal **Dirección exacta**, la calle guardada incluye **número** cuando la geocodificación lo aporta (`streetLineFromGeocode`); el desplegable de sugerencias de Places se renderiza en `document.body` (`menuPortalTarget`) para no quedar tapado por el campo de detalles (piso/puerta).
 
 ### ProRequestDetail (profesional)

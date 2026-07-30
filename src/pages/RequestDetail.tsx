@@ -30,6 +30,12 @@ import { uploadRequestMediaWithTicket } from '../services/uploadService';
 import { getApiErrorMessage } from '../utils/apiError';
 import { notifyRequestsInvalidated } from '../utils/requestEvents';
 import { streetLineFromGeocode } from '../utils/streetLineFromGeocode';
+import {
+  CORDOBA_AREA_TOAST,
+  CORDOBA_EXACT_PLACEHOLDER,
+  cordobaAutocompletionRequest,
+  isCordobaAreaFromComponents,
+} from '../utils/cordobaPlaces';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -314,18 +320,8 @@ const RequestDetail: React.FC = () => {
         .then(results => {
           const result = results[0];
           const comps = (result as any).address_components;
-          const get = (type: string) =>
-            comps.find((c: any) => c.types?.includes(type))?.long_name as string | undefined;
-          const province =
-            get('administrative_area_level_2') ||
-            get('administrative_area_level_1');
-          const country = get('country');
-          const isSpain = country === 'España' || country === 'Spain';
-          const isCordoba =
-            province === 'Córdoba' ||
-            province === 'Cordoba';
-          if (!(isSpain && isCordoba)) {
-            setToast("Por ahora solo aceptamos direcciones en Córdoba (Andalucía).");
+          if (!isCordobaAreaFromComponents(comps)) {
+            setToast(CORDOBA_AREA_TOAST);
             setGoogleAddress('');
             setNewCoords(null);
             setResetKey(prev => prev + 1);
@@ -547,7 +543,7 @@ const RequestDetail: React.FC = () => {
                                 inputValue: googleAddress,
                                 onInputChange: (v, m) => m.action === 'input-change' && setGoogleAddress(v),
                                 onChange: handleGoogleSelect,
-                                placeholder: 'Buscar calle...',
+                                placeholder: CORDOBA_EXACT_PLACEHOLDER,
                                 menuPortalTarget: typeof document !== 'undefined' ? document.body : undefined,
                                 menuPosition: 'fixed',
                                 styles: {
@@ -565,6 +561,7 @@ const RequestDetail: React.FC = () => {
                                     menuPortal: (base: any) => ({ ...base, zIndex: 200000 }),
                                 },
                             }}
+                            autocompletionRequest={cordobaAutocompletionRequest()}
                         />
                     </div>
                     <IonLabel className="section-label">Detalles (Piso, Puerta)</IonLabel>
