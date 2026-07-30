@@ -245,6 +245,43 @@
     .feature-title { font-weight:800; font-size:1.1rem; margin-bottom:10px; }
     .feature-desc { font-size:0.92rem; color:var(--mid); line-height:1.65; }
 
+    /* CATEGORIES */
+    .categories-section { background: #fff; }
+    .categories-inner { max-width: 1100px; margin: 0 auto; }
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px 20px;
+      margin-top: 28px;
+    }
+    .category-item {
+      padding: 14px 4px 14px 0;
+      border-bottom: 1px solid rgba(79,70,229,0.08);
+    }
+    .category-item-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .category-emoji {
+      width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+      background: var(--indigo-light);
+    }
+    .category-item:nth-child(3n+2) .category-emoji { background: var(--orange-light); }
+    .category-item:nth-child(3n) .category-emoji { background: rgba(30,27,75,0.07); }
+    .category-name {
+      font-weight: 800; font-size: 0.98rem; color: var(--dark); line-height: 1.25;
+    }
+    .category-blurb {
+      margin: 0; font-size: 0.85rem; color: var(--mid); line-height: 1.5; font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      .categories-grid { grid-template-columns: 1fr; gap: 0; }
+    }
+
     /* SOLICITUD FIELDS */
     .solicitud-section { background: var(--warm-white); }
     .solicitud-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1100px; margin: 0 auto; }
@@ -647,6 +684,105 @@
   </div>
 </section>
 
+<!-- CATEGORÍAS -->
+<section id="categorias" class="categories-section">
+  <div class="categories-inner">
+    <div class="section-label">Qué cubrimos</div>
+    <h2 class="section-title">22 categorías.<br>Del hogar al cuidado.</h2>
+    <p class="section-desc">Desde una fuga o una mudanza hasta plancha a domicilio o pasear al perro. Describe lo que necesitas; Quira lo encaja.</p>
+    <div class="categories-grid">
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">✨</span><h3 class="category-name">Limpieza</h3></div>
+        <p class="category-blurb">Estancias, cristales y persianas, plancha a domicilio, sofás, colchones, fin de obra u oficinas.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🛠️</span><h3 class="category-name">Manitas</h3></div>
+        <p class="category-blurb">Montaje de muebles, colgar TV o cortinas, persianas, sellados, manivelas y chapuzas del día a día.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">⚡</span><h3 class="category-name">Electricidad</h3></div>
+        <p class="category-blurb">Enchufes, luces, cuadro eléctrico, antenas, videoportero o punto de recarga para el coche.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🌱</span><h3 class="category-name">Jardinería</h3></div>
+        <p class="category-blurb">Siega, riego automático, poda, césped artificial, desbroce y plantación de setos.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🎨</span><h3 class="category-name">Pintura</h3></div>
+        <p class="category-blurb">Interior y color, quitar gotelé, lacado de puertas, fachadas, papel pintado o suelos epoxi.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🚿</span><h3 class="category-name">Fontanería</h3></div>
+        <p class="category-blurb">Grifos, fugas, desatascos, cisternas, termos, ósmosis y descalcificadores.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">❄️</span><h3 class="category-name">Climatización</h3></div>
+        <p class="category-blurb">Splits, conductos, calderas, aerotermia, radiadores y mantenimiento de filtros.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧱</span><h3 class="category-name">Reformas</h3></div>
+        <p class="category-blurb">Alicatado, pladur, baños y cocinas, humedades, impermeabilización y tabiquería.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🔌</span><h3 class="category-name">Electrodomésticos</h3></div>
+        <p class="category-blurb">Diagnóstico y reparación de lavadora, nevera, lavavajillas, horno o instalación empotrada.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">📦</span><h3 class="category-name">Mudanzas y Portes</h3></div>
+        <p class="category-blurb">Mudanzas de cualquier tamaño, porte de un mueble y montaje o desmontaje.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🔑</span><h3 class="category-name">Cerrajería</h3></div>
+        <p class="category-blurb">Apertura de puertas, cerraduras de seguridad, duplicados de llaves y cajas fuertes.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🏊</span><h3 class="category-name">Mantenimiento de Piscinas</h3></div>
+        <p class="category-blurb">Limpieza puntual o mensual, apertura y cierre de temporada, bomba, filtro y agua verde.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧵</span><h3 class="category-name">Costura y Arreglos</h3></div>
+        <p class="category-blurb">Dobladillos, ajustes, cambio de cremallera, forros y confección a medida.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪟</span><h3 class="category-name">Persianas y Toldos</h3></div>
+        <p class="category-blurb">Persianas eléctricas y motores, instalación de toldos y mosquiteras.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪞</span><h3 class="category-name">Cristalería</h3></div>
+        <p class="category-blurb">Cristales de ventana, doble acristalamiento, mamparas de ducha y corte a medida.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪑</span><h3 class="category-name">Restauración de Muebles</h3></div>
+        <p class="category-blurb">Restauración de madera, retapizado de sillas o sofás, barnizado y lacado.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧹</span><h3 class="category-name">Vaciado de Pisos</h3></div>
+        <p class="category-blurb">Vaciado de viviendas, trasteros o garajes, y organización de armarios o despensa.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🐛</span><h3 class="category-name">Control de Plagas</h3></div>
+        <p class="category-blurb">Desinsectación, desratización, fumigación preventiva y tratamiento de carcoma o termitas.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🏠</span><h3 class="category-name">Domótica y Seguridad</h3></div>
+        <p class="category-blurb">Cerraduras inteligentes, cámaras, alarmas básicas y configuración de asistentes.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">💇</span><h3 class="category-name">Belleza</h3></div>
+        <p class="category-blurb">Peluquería a domicilio, manicura y pedicura, maquillaje para eventos y tratamientos faciales.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🐾</span><h3 class="category-name">Mascotas</h3></div>
+        <p class="category-blurb">Paseo de perros, cuidado a domicilio y peluquería canina.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">❤️</span><h3 class="category-name">Cuidados</h3></div>
+        <p class="category-blurb">Canguro para niños y acompañamiento o cuidado de personas mayores.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- SOLICITUD FIELDS + DIFFICULTY -->
 <section class="solicitud-section">
   <div class="solicitud-inner">
@@ -876,7 +1012,7 @@
     </div>
       <p>Describe lo que necesitas. Gana con lo que sabes hacer. Ahora en Córdoba.</p>
     </div>
-    <div class="footer-links"><h4>Producto</h4><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#features">Por qué Quira</a></li><li><a href="#manitas">Sin CIF</a></li><li><a href="#planes">Planes</a></li><li><a href="#descarga">Descargar</a></li></ul></div>
+    <div class="footer-links"><h4>Producto</h4><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#features">Por qué Quira</a></li><li><a href="#categorias">Categorías</a></li><li><a href="#manitas">Sin CIF</a></li><li><a href="#planes">Planes</a></li><li><a href="#descarga">Descargar</a></li></ul></div>
     <div class="footer-links"><h4>Empresa</h4><ul><li><a href="#">Sobre Quira</a></li></ul></div>
     <div class="footer-links" style="min-width:0;width:100%;max-width:320px;">
       <h4>Contacto</h4>
