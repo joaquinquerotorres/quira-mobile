@@ -20,7 +20,7 @@ export type VisitStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 export interface CalendarEvent {
   '@id'?: string;
   id: number;
-  /** Fecha y hora de comienzo (ISO datetime). Sin hora de fin. */
+  /** Fecha y hora en que se realizará el trabajo (única; sin hora de fin). */
   startsAt: string;
   notes?: string | null;
   createdAt?: string;

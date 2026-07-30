@@ -26,6 +26,7 @@ import MainHeader from '../components/shared/MainHeader';
 import CalendarEventFormModal from '../components/calendar/CalendarEventFormModal';
 import type { CalendarEvent, ServiceRequest } from '../types';
 import {
+  calendarEventRequestId,
   deleteCalendarEvent,
   listCalendarEvents,
   listWonJobs,
@@ -95,7 +96,13 @@ const ProCalendar: React.FC = () => {
         listWonJobs(),
       ]);
       setEvents(monthEvents);
-      setScheduledRequestIds(new Set(allEvents.map((e) => e.request.id)));
+      setScheduledRequestIds(
+        new Set(
+          allEvents
+            .map((e) => calendarEventRequestId(e.request))
+            .filter((id): id is number => id != null),
+        ),
+      );
       setJobs(wonJobs);
     } catch {
       setToast('No se pudo cargar el calendario.');
@@ -283,15 +290,20 @@ const ProCalendar: React.FC = () => {
                     <button
                       type="button"
                       className="pro-calendar-event-main"
-                      onClick={() =>
-                        router.push(`/pro/request/${ev.request.id}`, 'forward')
-                      }
+                      onClick={() => {
+                        const reqId = calendarEventRequestId(ev.request);
+                        if (reqId != null) {
+                          router.push(`/pro/request/${reqId}`, 'forward');
+                        }
+                      }}
                     >
                       <div className="pro-calendar-event-time">
                         {formatEventTime(ev.startsAt)}
                       </div>
                       <div className="pro-calendar-event-title">
-                        {ev.request.title}
+                        {typeof ev.request === 'object' && ev.request?.title
+                          ? ev.request.title
+                          : 'Trabajo'}
                       </div>
                     </button>
                     <div className="pro-calendar-event-actions">
@@ -333,7 +345,9 @@ const ProCalendar: React.FC = () => {
           event={editingEvent}
           onSaved={() => {
             setToast(
-              formMode === 'edit' ? 'Evento actualizado.' : 'Trabajo agendado.',
+              formMode === 'edit'
+                ? 'Fecha del trabajo actualizada.'
+                : 'Trabajo agendado.',
             );
             load();
           }}
