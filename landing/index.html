@@ -26,6 +26,11 @@
       --soft: #a5b4fc;
       --card-bg: #ffffff;
       --radius: 20px;
+      /* Same vertical rhythm between all content sections */
+      --section-y: 48px;
+    }
+    @media (max-width: 600px) {
+      :root { --section-y: 40px; }
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -69,7 +74,7 @@
     .hero {
       /* Height follows copy + phone (phone in flow on desktop) — no empty band before next section */
       min-height: auto;
-      padding: 112px 5% 40px;
+      padding: 112px 5% var(--section-y);
       display: flex; align-items: flex-start; position: relative; overflow: hidden;
     }
     @media (min-width: 901px) {
@@ -78,7 +83,7 @@
         grid-template-columns: minmax(0, 1fr) min(340px, 34vw);
         column-gap: clamp(32px, 5vw, 64px);
         align-items: start;
-        padding: 120px 5% 36px;
+        padding: 120px 5% var(--section-y);
       }
       .hero-content {
         max-width: 560px;
@@ -175,9 +180,8 @@
     .chip-2 { bottom: 18%; left: -115px; animation-delay: -1.5s; }
     @keyframes chipFloat { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
 
-    /* SECTIONS */
-    section { padding: 100px 5%; }
-    @media(max-width:600px){ section { padding: 60px 5%; } }
+    /* SECTIONS — shared vertical rhythm */
+    section { padding: var(--section-y) 5%; }
     .section-label {
       display: inline-flex; align-items: center; gap: 8px;
       font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
@@ -190,8 +194,9 @@
     .section-desc { font-size: 1.05rem; color: var(--mid); line-height: 1.7; font-weight: 600; max-width: 560px; }
 
     /* HOW IT WORKS */
-    .how { background: var(--dark); border-radius: 32px; margin: 0 3%; color: #fff; padding: 80px 6%; }
-    @media(max-width:600px){ .how{ padding: 60px 5%; } }
+    .how-wrap { padding: var(--section-y) 3%; }
+    .how { background: var(--dark); border-radius: 32px; color: #fff; padding: 40px 6%; }
+    @media(max-width:600px){ .how{ padding: 36px 5%; border-radius: 0; } }
     .how .section-label { color: var(--orange); }
     .how .section-title { color: #fff; }
     .how .section-desc { color: rgba(255,255,255,0.6); }
@@ -221,7 +226,7 @@
     .step-desc { font-size:0.9rem; color:rgba(255,255,255,0.55); line-height:1.6; }
 
     /* FEATURES */
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 56px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 28px; }
     .feature-card {
       background: var(--card-bg); border-radius: var(--radius); padding: 32px;
       border: 1.5px solid rgba(79,70,229,0.1); transition: all 0.3s; position: relative; overflow: hidden;
@@ -240,9 +245,45 @@
     .feature-title { font-weight:800; font-size:1.1rem; margin-bottom:10px; }
     .feature-desc { font-size:0.92rem; color:var(--mid); line-height:1.65; }
 
+    /* CATEGORIES */
+    .categories-section { background: #fff; }
+    .categories-inner { max-width: 1100px; margin: 0 auto; }
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px 20px;
+      margin-top: 28px;
+    }
+    .category-item {
+      padding: 14px 4px 14px 0;
+      border-bottom: 1px solid rgba(79,70,229,0.08);
+    }
+    .category-item-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .category-emoji {
+      width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+      background: var(--indigo-light);
+    }
+    .category-item:nth-child(3n+2) .category-emoji { background: var(--orange-light); }
+    .category-item:nth-child(3n) .category-emoji { background: rgba(30,27,75,0.07); }
+    .category-name {
+      font-weight: 800; font-size: 0.98rem; color: var(--dark); line-height: 1.25;
+    }
+    .category-blurb {
+      margin: 0; font-size: 0.85rem; color: var(--mid); line-height: 1.5; font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      .categories-grid { grid-template-columns: 1fr; gap: 0; }
+    }
+
     /* SOLICITUD FIELDS */
-    .solicitud-section { background: var(--warm-white); padding: 80px 5%; }
-    @media(max-width:600px){ .solicitud-section{ padding: 60px 5%; } }
+    .solicitud-section { background: var(--warm-white); }
     .solicitud-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1100px; margin: 0 auto; }
     .fields-card {
       background: #fff; border-radius: 24px; padding: 36px;
@@ -283,9 +324,7 @@
     .diff-info { flex:1; }
 
     /* PRICING */
-    .pricing-section { padding: 100px 5%; }
-    @media(max-width:600px){ section { padding: 60px 5%; } }
-    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:56px; }
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:28px; }
     .pricing-card {
       background:#fff; border-radius:28px; padding:36px 32px;
       border:1.5px solid rgba(79,70,229,0.12); position:relative; transition:all 0.3s;
@@ -331,8 +370,8 @@
     .pricing-card.featured .pricing-cta { background:#fff; color:var(--indigo); }
     .pricing-card.featured .pricing-cta:hover { background:var(--orange); color:#fff; }
 
-    /* PRIVACY section */
-    .privacy-section { padding: 20px 5% 60px; }
+    /* PRIVACY — not a <section>, same rhythm */
+    .privacy-section { padding: var(--section-y) 5%; }
     .privacy-note {
       background:#fff; border:1.5px solid rgba(79,70,229,0.12); border-radius:20px;
       padding:32px 36px; max-width:780px;
@@ -341,8 +380,7 @@
     .privacy-note p { font-size:0.9rem; color:var(--mid); line-height:1.7; }
     .privacy-note a { color:var(--indigo); font-weight:700; text-decoration:underline; cursor:pointer; }
 
-    /* DUAL CTA */
-    .dual-cta { padding: 40px 5% 80px; }
+    /* DUAL CTA — uses shared section padding */
     .dual-cta-inner { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
     .cta-card { border-radius:28px; padding:48px 40px; position:relative; overflow:hidden; }
     .cta-client { background:linear-gradient(135deg, var(--indigo-grad-start), var(--indigo)); color:#fff; }
@@ -400,14 +438,14 @@
       .footer-links{width:100%;}
       .tabs{border-radius:16px; width:100%; justify-content:center;}
       .tab{flex:1; text-align:center; padding:10px 12px;}
-      .how{margin:0; border-radius:0; padding:60px 5%;}
+      .how{border-radius:0;}
       .solicitud-inner{grid-template-columns:1fr; gap:32px;}
       .dual-cta-inner{grid-template-columns:1fr;}
       .data-table{display:block;overflow-x:auto;}
     }
     @media(max-width:600px){
-      .hero{padding:104px 5% 48px;}
-      .how{margin:0;border-radius:0;}
+      .hero{padding:104px 5% var(--section-y);}
+      .how{border-radius:0;}
       .hero-stats{gap:24px;}
       .steps-grid{grid-template-columns:1fr;}
       .features-grid{grid-template-columns:1fr;}
@@ -423,7 +461,7 @@
       .rights-grid{grid-template-columns:1fr;}
       .hero-actions{flex-direction:column; align-items:flex-start;}
       .btn-primary, .btn-secondary{width:100%; justify-content:center;}
-      .how{margin:0;border-radius:0;}
+      .how{border-radius:0;}
     }
 
     /* Hero kicker (brand context, not a pill badge) */
@@ -433,8 +471,7 @@
       margin: 0 0 22px; animation: slideUp 0.8s 0.1s ease both;
     }
 
-    /* Dual pitch after hero */
-    .pitch-section { padding: clamp(40px, 5vh, 64px) 5% clamp(72px, 9vh, 112px); }
+    /* Dual pitch after hero — uses shared section padding */
     .pitch-grid {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
@@ -485,9 +522,8 @@
     .pitch-skills .pitch-link { color: var(--orange-dark); }
     .pitch-link:hover { text-decoration: underline; }
 
-    /* Manitas section */
+    /* Manitas section — shared section padding + atmosphere only */
     .manitas-section {
-      padding: clamp(88px, 12vh, 140px) 5%;
       background:
         radial-gradient(ellipse 55% 60% at 10% 20%, rgba(249,115,22,0.14) 0%, transparent 60%),
         radial-gradient(ellipse 40% 50% at 90% 80%, rgba(99,102,241,0.1) 0%, transparent 55%),
@@ -542,23 +578,10 @@
     .manitas-card > p { margin: 0; font-size: 0.92rem; color: var(--mid); line-height: 1.6; font-weight: 600; }
 
 
-    /* Vertical rhythm (desktop) */
-    @media (min-width: 901px) {
-      section { padding-top: clamp(72px, 9vh, 104px); padding-bottom: clamp(72px, 9vh, 104px); }
-      .solicitud-section { padding-top: clamp(72px, 9vh, 104px); padding-bottom: clamp(72px, 9vh, 104px); }
-      .pricing-section { padding-top: clamp(72px, 9vh, 104px); padding-bottom: clamp(72px, 9vh, 104px); }
-      .dual-cta { padding-top: clamp(48px, 6vh, 72px); padding-bottom: clamp(72px, 9vh, 104px); }
-      .how { padding: clamp(64px, 8vh, 88px) 6%; }
-      #features .section-title { margin-bottom: 12px; }
-      .features-grid { margin-top: 40px; }
-      .pitch-section { padding-top: 40px; }
-    }
     @media (max-width: 900px) {
-      .hero { padding: 104px 5% 48px; align-items: flex-start; min-height: auto; }
-      .pitch-section { padding: 56px 5% 72px; }
-      .manitas-section { padding: 64px 5%; }
+      .hero { padding: 104px 5% var(--section-y); align-items: flex-start; min-height: auto; }
+      .how-wrap { padding-left: 0; padding-right: 0; }
     }
-    /* Observe new pitch cards */
   </style>
 </head>
 <body>
@@ -622,7 +645,7 @@
 </section>
 
 <!-- HOW IT WORKS -->
-<div id="como-funciona" style="padding:0 3%;margin:0 0 clamp(56px, 8vh, 96px);">
+<div id="como-funciona" class="how-wrap">
   <div class="how">
     <div class="section-label">Proceso</div>
     <h2 class="section-title">Tres pasos. Sin buscar. Sin CIF.</h2>
@@ -658,6 +681,105 @@
     <div class="feature-card"><div class="feature-icon icon-indigo">📍</div><div class="feature-title">Trabajos de tu zona</div><div class="feature-desc">Los manitas ven solicitudes cerca. Los hogares reciben ayuda local. Menos desplazamiento, más encaje.</div></div>
     <div class="feature-card"><div class="feature-icon icon-orange">🔒</div><div class="feature-title">Dirección solo al aceptar</div><div class="feature-desc">Publicas con zona aproximada. La dirección exacta se comparte únicamente cuando eliges a un profesional.</div></div>
     <div class="feature-card"><div class="feature-icon icon-dark">⭐</div><div class="feature-title">Reputación en ambas direcciones</div><div class="feature-desc">Al cerrar el trabajo, cliente y profesional se valoran. Confianza que se acumula con cada servicio.</div></div>
+  </div>
+</section>
+
+<!-- CATEGORÍAS -->
+<section id="categorias" class="categories-section">
+  <div class="categories-inner">
+    <div class="section-label">Qué cubrimos</div>
+    <h2 class="section-title">22 categorías.<br>Del hogar al cuidado.</h2>
+    <p class="section-desc">Desde una fuga o una mudanza hasta plancha a domicilio o pasear al perro. Describe lo que necesitas; Quira lo encaja.</p>
+    <div class="categories-grid">
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">✨</span><h3 class="category-name">Limpieza</h3></div>
+        <p class="category-blurb">Estancias, cristales y persianas, plancha a domicilio, sofás, colchones, fin de obra u oficinas.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🛠️</span><h3 class="category-name">Manitas</h3></div>
+        <p class="category-blurb">Montaje de muebles, colgar TV o cortinas, persianas, sellados, manivelas y chapuzas del día a día.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">⚡</span><h3 class="category-name">Electricidad</h3></div>
+        <p class="category-blurb">Enchufes, luces, cuadro eléctrico, antenas, videoportero o punto de recarga para el coche.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🌱</span><h3 class="category-name">Jardinería</h3></div>
+        <p class="category-blurb">Siega, riego automático, poda, césped artificial, desbroce y plantación de setos.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🎨</span><h3 class="category-name">Pintura</h3></div>
+        <p class="category-blurb">Interior y color, quitar gotelé, lacado de puertas, fachadas, papel pintado o suelos epoxi.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🚿</span><h3 class="category-name">Fontanería</h3></div>
+        <p class="category-blurb">Grifos, fugas, desatascos, cisternas, termos, ósmosis y descalcificadores.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">❄️</span><h3 class="category-name">Climatización</h3></div>
+        <p class="category-blurb">Splits, conductos, calderas, aerotermia, radiadores y mantenimiento de filtros.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧱</span><h3 class="category-name">Reformas</h3></div>
+        <p class="category-blurb">Alicatado, pladur, baños y cocinas, humedades, impermeabilización y tabiquería.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🔌</span><h3 class="category-name">Electrodomésticos</h3></div>
+        <p class="category-blurb">Diagnóstico y reparación de lavadora, nevera, lavavajillas, horno o instalación empotrada.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">📦</span><h3 class="category-name">Mudanzas y Portes</h3></div>
+        <p class="category-blurb">Mudanzas de cualquier tamaño, porte de un mueble y montaje o desmontaje.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🔑</span><h3 class="category-name">Cerrajería</h3></div>
+        <p class="category-blurb">Apertura de puertas, cerraduras de seguridad, duplicados de llaves y cajas fuertes.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🏊</span><h3 class="category-name">Mantenimiento de Piscinas</h3></div>
+        <p class="category-blurb">Limpieza puntual o mensual, apertura y cierre de temporada, bomba, filtro y agua verde.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧵</span><h3 class="category-name">Costura y Arreglos</h3></div>
+        <p class="category-blurb">Dobladillos, ajustes, cambio de cremallera, forros y confección a medida.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪟</span><h3 class="category-name">Persianas y Toldos</h3></div>
+        <p class="category-blurb">Persianas eléctricas y motores, instalación de toldos y mosquiteras.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪞</span><h3 class="category-name">Cristalería</h3></div>
+        <p class="category-blurb">Cristales de ventana, doble acristalamiento, mamparas de ducha y corte a medida.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🪑</span><h3 class="category-name">Restauración de Muebles</h3></div>
+        <p class="category-blurb">Restauración de madera, retapizado de sillas o sofás, barnizado y lacado.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🧹</span><h3 class="category-name">Vaciado de Pisos</h3></div>
+        <p class="category-blurb">Vaciado de viviendas, trasteros o garajes, y organización de armarios o despensa.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🐛</span><h3 class="category-name">Control de Plagas</h3></div>
+        <p class="category-blurb">Desinsectación, desratización, fumigación preventiva y tratamiento de carcoma o termitas.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🏠</span><h3 class="category-name">Domótica y Seguridad</h3></div>
+        <p class="category-blurb">Cerraduras inteligentes, cámaras, alarmas básicas y configuración de asistentes.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">💇</span><h3 class="category-name">Belleza</h3></div>
+        <p class="category-blurb">Peluquería a domicilio, manicura y pedicura, maquillaje para eventos y tratamientos faciales.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">🐾</span><h3 class="category-name">Mascotas</h3></div>
+        <p class="category-blurb">Paseo de perros, cuidado a domicilio y peluquería canina.</p>
+      </article>
+      <article class="category-item">
+        <div class="category-item-head"><span class="category-emoji" aria-hidden="true">❤️</span><h3 class="category-name">Cuidados</h3></div>
+        <p class="category-blurb">Canguro para niños y acompañamiento o cuidado de personas mayores.</p>
+      </article>
+    </div>
   </div>
 </section>
 
@@ -855,7 +977,7 @@
 </section>
 
 <!-- DUAL CTA -->
-<section id="descarga" class="dual-cta" style="padding-top:20px;">
+<section id="descarga" class="dual-cta">
   <div class="dual-cta-inner">
     <div class="cta-card cta-client">
       <h3>¿Algo que arreglar en casa?</h3>
@@ -890,7 +1012,7 @@
     </div>
       <p>Describe lo que necesitas. Gana con lo que sabes hacer. Ahora en Córdoba.</p>
     </div>
-    <div class="footer-links"><h4>Producto</h4><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#features">Por qué Quira</a></li><li><a href="#manitas">Sin CIF</a></li><li><a href="#planes">Planes</a></li><li><a href="#descarga">Descargar</a></li></ul></div>
+    <div class="footer-links"><h4>Producto</h4><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#features">Por qué Quira</a></li><li><a href="#categorias">Categorías</a></li><li><a href="#manitas">Sin CIF</a></li><li><a href="#planes">Planes</a></li><li><a href="#descarga">Descargar</a></li></ul></div>
     <div class="footer-links"><h4>Empresa</h4><ul><li><a href="#">Sobre Quira</a></li></ul></div>
     <div class="footer-links" style="min-width:0;width:100%;max-width:320px;">
       <h4>Contacto</h4>
