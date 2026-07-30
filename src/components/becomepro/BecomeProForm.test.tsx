@@ -4,7 +4,7 @@ import { IonApp } from '@ionic/react';
 import { BecomeProForm, type BecomeProFormData } from './BecomeProForm';
 import {
   CORDOBA_EXACT_PLACEHOLDER,
-  CORDOBA_PROVINCE_BOUNDS,
+  cordobaProvinceBoundsTuple,
 } from '../../utils/cordobaPlaces';
 
 const mockPlacesProps = vi.fn();
@@ -91,7 +91,7 @@ test('BecomeProForm passes Córdoba bounds to Places autocomplete', () => {
   const req = mockPlacesProps.mock.calls[0][0].autocompletionRequest;
   expect(req.componentRestrictions).toEqual({ country: ['es'] });
   expect(req.strictBounds).toBe(true);
-  expect(req.bounds).toEqual(CORDOBA_PROVINCE_BOUNDS);
+  expect(req.bounds).toEqual(cordobaProvinceBoundsTuple());
 });
 
 test('BecomeProForm shows CIF required error when PRO tier and no taxId', () => {

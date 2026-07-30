@@ -1,6 +1,9 @@
 /**
  * Restricción geográfica de Quira al lanzamiento: provincia de Córdoba (Andalucía).
  * Places `componentRestrictions` solo admite país; usamos bounds + strictBounds.
+ *
+ * `react-google-places-autocomplete` tipa `bounds` como `[LatLng, LatLng]` (SW, NE)
+ * y reenvía el resto (p. ej. `strictBounds`) a la API de Google.
  */
 
 export type CordobaProvinceBounds = {
@@ -9,6 +12,8 @@ export type CordobaProvinceBounds = {
   east: number;
   west: number;
 };
+
+export type CordobaPlacesLatLng = { lat: number; lng: number };
 
 /** Bbox holgado de la provincia de Córdoba (no es el polígono exacto). */
 export const CORDOBA_PROVINCE_BOUNDS: CordobaProvinceBounds = {
@@ -24,9 +29,20 @@ export const CORDOBA_AREA_TOAST =
 export const CORDOBA_APPROX_PLACEHOLDER = 'Zona en Córdoba (provincia)...';
 export const CORDOBA_EXACT_PLACEHOLDER = 'Dirección en Córdoba (provincia)...';
 
+/** Bounds en el formato que espera `react-google-places-autocomplete`: [SW, NE]. */
+export function cordobaProvinceBoundsTuple(
+  bounds: CordobaProvinceBounds = CORDOBA_PROVINCE_BOUNDS,
+): [CordobaPlacesLatLng, CordobaPlacesLatLng] {
+  return [
+    { lat: bounds.south, lng: bounds.west },
+    { lat: bounds.north, lng: bounds.east },
+  ];
+}
+
 export type CordobaAutocompletionRequest = {
   componentRestrictions: { country: string[] };
-  bounds: CordobaProvinceBounds;
+  bounds: [CordobaPlacesLatLng, CordobaPlacesLatLng];
+  /** Lo reenvía el builder de la lib a `google.maps.places.AutocompletionRequest`. */
   strictBounds: true;
 };
 
@@ -34,7 +50,7 @@ export type CordobaAutocompletionRequest = {
 export function cordobaAutocompletionRequest(): CordobaAutocompletionRequest {
   return {
     componentRestrictions: { country: ['es'] },
-    bounds: { ...CORDOBA_PROVINCE_BOUNDS },
+    bounds: cordobaProvinceBoundsTuple(),
     strictBounds: true,
   };
 }

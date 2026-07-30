@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { NewRequestLocation } from './NewRequestLocation';
 import {
   CORDOBA_APPROX_PLACEHOLDER,
-  CORDOBA_PROVINCE_BOUNDS,
+  cordobaProvinceBoundsTuple,
 } from '../../utils/cordobaPlaces';
 
 const mockPlacesProps = vi.fn();
@@ -62,7 +62,7 @@ test('NewRequestLocation passes Córdoba bounds + strictBounds to Places', () =>
   const req = mockPlacesProps.mock.calls[0][0].autocompletionRequest;
   expect(req.componentRestrictions).toEqual({ country: ['es'] });
   expect(req.strictBounds).toBe(true);
-  expect(req.bounds).toEqual(CORDOBA_PROVINCE_BOUNDS);
+  expect(req.bounds).toEqual(cordobaProvinceBoundsTuple());
 });
 
 test('NewRequestLocation calls onAddressSelect when typing', () => {

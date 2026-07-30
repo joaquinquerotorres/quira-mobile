@@ -5,6 +5,7 @@ import {
   CORDOBA_EXACT_PLACEHOLDER,
   CORDOBA_PROVINCE_BOUNDS,
   cordobaAutocompletionRequest,
+  cordobaProvinceBoundsTuple,
   isCordobaAreaFromComponents,
 } from './cordobaPlaces';
 
@@ -24,14 +25,21 @@ describe('cordobaPlaces', () => {
     });
   });
 
-  it('cordobaAutocompletionRequest sets country es, bounds and strictBounds', () => {
+  it('cordobaProvinceBoundsTuple is [SW, NE] for the library', () => {
+    expect(cordobaProvinceBoundsTuple()).toEqual([
+      { lat: 37.15, lng: -5.55 },
+      { lat: 38.55, lng: -4.05 },
+    ]);
+  });
+
+  it('cordobaAutocompletionRequest sets country es, SW/NE bounds and strictBounds', () => {
     const req = cordobaAutocompletionRequest();
     expect(req.componentRestrictions).toEqual({ country: ['es'] });
     expect(req.strictBounds).toBe(true);
-    expect(req.bounds).toEqual(CORDOBA_PROVINCE_BOUNDS);
+    expect(req.bounds).toEqual(cordobaProvinceBoundsTuple());
     // Copia defensiva: mutar el resultado no altera la constante exportada.
-    req.bounds.north = 99;
-    expect(CORDOBA_PROVINCE_BOUNDS.north).toBe(38.55);
+    req.bounds[0].lat = 99;
+    expect(CORDOBA_PROVINCE_BOUNDS.south).toBe(37.15);
   });
 
   it('isCordobaAreaFromComponents accepts Córdoba + España', () => {
