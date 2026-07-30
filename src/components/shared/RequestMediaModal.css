@@ -21,7 +21,7 @@
   font-family: inherit;
 }
 
-/* Misma geometría que Media, tono slate neutro (no clicable). */
+/* Misma geometría que Media; tono según nº de propuestas (umbrales). */
 .request-bids-chip {
   display: inline-flex;
   align-items: center;
@@ -84,6 +84,50 @@
   height: 16px;
   font-size: 0.62rem;
   padding: 0 4px;
+}
+
+/* 0 propuestas — slate neutro (default) */
+.request-bids-chip--none {
+  border-color: #e2e8f0;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.request-bids-chip--none .request-bids-chip-count {
+  background: #64748b;
+}
+
+/* 1–2 — ámbar suave */
+.request-bids-chip--soft {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.request-bids-chip--soft .request-bids-chip-count {
+  background: #d97706;
+}
+
+/* 3–4 — ámbar más marcado */
+.request-bids-chip--mid {
+  border-color: #fdba74;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.request-bids-chip--mid .request-bids-chip-count {
+  background: #ea580c;
+}
+
+/* 5+ — naranja intenso (demanda alta) */
+.request-bids-chip--hot {
+  border-color: #fb923c;
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.request-bids-chip--hot .request-bids-chip-count {
+  background: #c2410c;
 }
 
 /* Compacto bajo meta rows de ListingCard */
