@@ -138,6 +138,16 @@ Respuesta típica:
 - **`202`** `{ taskId, status }` → la app hace poll a `GET /predict/tasks/{publicId}` hasta `completed` / `failed` (o timeout de poll).
 - **`200`** con `result` si el entorno procesa en sync.
 
+Campos relevantes en `result` (una sola llamada a Gemini):
+
+| Campo | Tipo | Notas |
+|--------|------|--------|
+| `safe` / `safety_reason` | boolean / string\|null | Moderación (abuso, ilegal, injection, contacto). Legacy: `is_safe` / `reason`. Si `safe=false`, al crear Request el backend puede poner `PENDING_APPROVAL`. |
+| `in_scope` / `out_of_scope_reason` | boolean / string\|null | Cobertura Quira (servicio del marketplace). Si falta `in_scope`, la app lo trata como `true`. `in_scope=false` **no** implica moderación; la UI bloquea publicar. |
+| `estimated_price_min` / `estimated_price_max` | number (céntimos) | Pueden ser `0` si `safe=false` o `in_scope=false`. |
+
+`aiDiagnosis` al crear la Request preserva `safe`, `safety_reason`, `in_scope`, `out_of_scope_reason` (spread del resultado de predict). Parseo: `src/utils/parsePredictSafety.ts`.
+
 Legacy (evitar; la app no lo usa): `image` / `audio` / `video` en base64 o Data URL.
 
 Límites de fichero: los de la tabla `maxBytes` arriba. Implementación cliente: `predictService.ts`, timeouts en `httpTimeouts.ts`.

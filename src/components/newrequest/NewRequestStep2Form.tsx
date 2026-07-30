@@ -58,6 +58,8 @@ interface NewRequestStep2FormProps {
   clarifyingAnswers: string[];
   onClarifyingAnswerChange: (index: number, value: string) => void;
   onSubmit: () => void;
+  /** Aviso de moderación cuando predict marca safe=false (sigue permitiendo editar/publicar). */
+  unsafeNotice?: string | null;
 }
 
 const EXTRA_MEDIA_TYPES: Array<'photo' | 'video' | 'audio'> = ['photo', 'video', 'audio'];
@@ -86,6 +88,7 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
   clarifyingAnswers,
   onClarifyingAnswerChange,
   onSubmit,
+  unsafeNotice = null,
 }) => {
   const [pickerType, setPickerType] = useState<'photo' | 'video' | 'audio' | null>(null);
   const [isRecordingExtraAudio, setIsRecordingExtraAudio] = useState(false);
@@ -268,6 +271,29 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
           la descripción técnica o la categoría ahora.
         </span>
       </div>
+      {unsafeNotice && (
+        <div
+          role="status"
+          aria-label="Aviso de moderación"
+          style={{
+            background: '#fef2f2',
+            color: '#991b1b',
+            padding: '10px',
+            borderRadius: '12px',
+            fontSize: '0.8rem',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'start',
+            border: '1px solid #fecaca',
+          }}
+        >
+          <IonIcon
+            icon={alertCircleOutline}
+            style={{ marginRight: '8px', fontSize: '16px', marginTop: '2px' }}
+          />
+          <span>{unsafeNotice}</span>
+        </div>
+      )}
       {riskLevel && (
         <div
           style={{

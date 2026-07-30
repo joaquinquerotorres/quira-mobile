@@ -19,6 +19,8 @@ El flujo actual: **ticket → PUT binario a Supabase → `/predict` solo con URL
             → suele responder 202 { taskId, status }
             → (si sync en algún entorno) 200 con result
 7) Cliente: si 202 → poll GET /api/predict/tasks/{publicId}
+
+El `result` de predict (sync o tras poll) incluye, entre otros, `safe` / `safety_reason` e `in_scope` / `out_of_scope_reason`. La app los parsea en `parsePredictSafety.ts` y los reenvía en `aiDiagnosis` al crear la Request. `in_scope=false` es solo UX (no publica); `safe=false` avisa de moderación.
 8) Worker: PredictMediaFetcher (anti-SSRF) → Gemini → guarda result
 9) Publicar solicitud: reutiliza las mismas publicUrl (sin re-subir el media principal)
 ```

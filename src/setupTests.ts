@@ -92,6 +92,7 @@ afterEach(() => {
 
 vi.mock('@sentry/capacitor', () => ({
   captureException: vi.fn(),
+  addBreadcrumb: vi.fn(),
   init: vi.fn(),
 }));
 
