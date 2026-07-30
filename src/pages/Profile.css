@@ -513,7 +513,12 @@
 
 .profile-subpage-header {
   background: var(--ion-color-primary);
-  box-shadow: none;
+  /* Misma curva inferior que .profile-hero / NewRequest (el radio del hero hijo
+     no se veía: mismo color que el IonHeader y el bloque del header es rectangular). */
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.12);
 }
 
 .profile-subpage-toolbar {
@@ -542,6 +547,9 @@
 .profile-edit-hero--slim {
     margin: 0;
     padding: 0 20px 12px;
+    /* El radio lo aporta .profile-subpage-header; evita sombra doble */
+    box-shadow: none;
+    border-radius: 0;
 }
 .profile-edit-hero--slim p {
     margin: 0;

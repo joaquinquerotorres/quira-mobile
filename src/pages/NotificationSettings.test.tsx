@@ -78,24 +78,26 @@ beforeEach(() => {
   (refreshCurrentUserInStorage as ReturnType<typeof vi.fn>).mockResolvedValue(true);
 });
 
-test('NotificationSettingsPanel renders client section when user has clientProfile', async () => {
+test('NotificationSettingsPanel renders client prefs without role label', async () => {
   localStorage.setItem('user', JSON.stringify(clientUser));
   const { getEffectiveActiveMode } = await import('../utils/activeMode');
   vi.mocked(getEffectiveActiveMode).mockReturnValue('client');
   render(<NotificationSettingsPanel />, { wrapper });
   await waitFor(() => {
-    expect(screen.getByText('Como cliente')).toBeInTheDocument();
+    expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
   });
-  expect(screen.getByText('Dudas sobre mis solicitudes')).toBeInTheDocument();
+  expect(screen.queryByText('Como cliente')).not.toBeInTheDocument();
+  expect(screen.queryByText('Como profesional')).not.toBeInTheDocument();
 });
 
-test('NotificationSettingsPanel renders pro section in pro mode', async () => {
+test('NotificationSettingsPanel renders pro prefs without role label', async () => {
   localStorage.setItem('user', JSON.stringify(proUser));
   const { getEffectiveActiveMode } = await import('../utils/activeMode');
   vi.mocked(getEffectiveActiveMode).mockReturnValue('pro');
   render(<NotificationSettingsPanel />, { wrapper });
   await waitFor(() => {
-    expect(screen.getByText('Como profesional')).toBeInTheDocument();
+    expect(screen.getByText('Cuando aceptan mis ofertas')).toBeInTheDocument();
   });
-  expect(screen.getByText('Cuando aceptan mis ofertas')).toBeInTheDocument();
+  expect(screen.queryByText('Como profesional')).not.toBeInTheDocument();
+  expect(screen.queryByText('Como cliente')).not.toBeInTheDocument();
 });
