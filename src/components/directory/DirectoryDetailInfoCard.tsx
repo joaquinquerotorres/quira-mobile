@@ -1,12 +1,15 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { star, checkmarkCircle } from 'ionicons/icons';
+import { formatQuiraMemberSince } from '../../utils/formatQuiraMemberSince';
 
 interface DirectoryDetailInfoCardProps {
   fullName: string;
   subtitle: string;
   rating: string | number;
   completedJobs: string | number;
+  /** Alta del perfil (`pro:read`); si falta, no se muestra la línea. */
+  createdAt?: string | null;
 }
 
 export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = ({
@@ -14,7 +17,11 @@ export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = (
   subtitle,
   rating,
   completedJobs,
-}) => (
+  createdAt,
+}) => {
+  const memberSince = formatQuiraMemberSince(createdAt);
+
+  return (
   <div
     className="info-card-detail-white animate__animated animate__fadeInUp"
     style={{
@@ -37,13 +44,25 @@ export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = (
     </h1>
     <p
       style={{
-        margin: '5px 0 20px 0',
+        margin: memberSince ? '5px 0 4px 0' : '5px 0 20px 0',
         color: '#64748b',
         fontWeight: 600,
       }}
     >
       {subtitle}
     </p>
+    {memberSince && (
+      <p
+        style={{
+          margin: '0 0 20px 0',
+          color: '#94a3b8',
+          fontSize: '0.8rem',
+          fontWeight: 500,
+        }}
+      >
+        {memberSince}
+      </p>
+    )}
 
     <div
       style={{
@@ -89,4 +108,5 @@ export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = (
       </div>
     </div>
   </div>
-);
+  );
+};

@@ -50,6 +50,10 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 | `clientOriginalDescription` | string | Opcional; modo texto + imagen. |
 | `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, … | URLs | Tras subida a bucket. |
 
+En **`request:read`**, el listado cliente usa **`bidCount`** (nº de propuestas; fallback `bids.length`) para el chip «Propuestas».
+
+En **`pro:read`**, **`ProfessionalProfile.createdAt`** alimenta el texto «En Quira desde …» en directorio / discovery.
+
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.
 

@@ -132,6 +132,7 @@ const DirectoryDetail: React.FC = () => {
             subtitle={getCategoryLabel(pro.skills?.[0] || pro.category?.name) || 'Profesional'}
             rating={averageRating != null ? averageRating.toFixed(1) : '—'}
             completedJobs={reviewCount}
+            createdAt={pro.createdAt}
           />
 
           <div className="detail-body-sections animate__animated animate__fadeInUp" style={{ padding: '0 5px' }}>

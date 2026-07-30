@@ -2,6 +2,7 @@ import React from 'react';
 import { IonAvatar, IonIcon } from '@ionic/react';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { getCategoryLabel } from '../../utils/categoryLabels';
+import { formatQuiraMemberSince } from '../../utils/formatQuiraMemberSince';
 import { star } from 'ionicons/icons';
 
 interface DirectoryProCardProps {
@@ -15,6 +16,7 @@ interface DirectoryProCardProps {
     category?: { name?: string };
     user?: { roles?: string[] };
     reviews?: Array<{ score?: number }>;
+    createdAt?: string;
   };
   serverUrl: string;
   isPro: boolean;
@@ -47,6 +49,7 @@ export const DirectoryProCard: React.FC<DirectoryProCardProps> = ({
     FREE: { bg: '#94a3b8', color: 'white' },
   };
   const tierStyle = tierStyles[tier];
+  const memberSince = formatQuiraMemberSince(pro.createdAt);
 
   return (
   <div
@@ -147,6 +150,19 @@ export const DirectoryProCard: React.FC<DirectoryProCardProps> = ({
           : getCategoryLabel(pro.category) || 'Especialista'}
       </div>
 
+      {memberSince && (
+        <div
+          style={{
+            color: '#94a3b8',
+            fontSize: '0.72rem',
+            fontWeight: 500,
+            margin: '-2px 0 6px 0',
+          }}
+        >
+          {memberSince}
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <IonIcon icon={star} style={{ color: '#fbbf24', fontSize: '0.9rem' }} />
         <span style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.85rem' }}>
@@ -159,4 +175,4 @@ export const DirectoryProCard: React.FC<DirectoryProCardProps> = ({
     </div>
   </div>
   );
-}
+};

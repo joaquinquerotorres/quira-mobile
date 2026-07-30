@@ -201,11 +201,13 @@
   font-size: 0.85rem;
 }
 
-/* Media bajo disponibilidad/fecha — alineado a la derecha del bloque de meta */
+/* Chips bajo disponibilidad/fecha — alineados a la derecha (Propuestas | Media) */
 .listing-card-media {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
   width: 100%;
   align-self: stretch;
   margin-top: 6px;
