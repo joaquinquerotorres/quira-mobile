@@ -51,26 +51,26 @@
 /* --- PERFIL HERO --- */
 .profile-hero {
     background: var(--ion-color-primary);
-    padding: 20px 24px 45px 24px;
+    padding: 12px 20px 22px;
     text-align: center;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.12);
     margin-top: -1px;
 }
 
 .profile-avatar {
-    width: 100px;
-    height: 100px;
+    width: 72px;
+    height: 72px;
     background: white;
-    border-radius: 30px;
-    margin: 0 auto 15px;
+    border-radius: 22px;
+    margin: 0 auto 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-    font-size: 3rem;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+    font-size: 2rem;
     font-weight: 900;
     color: var(--ion-color-primary);
 }
@@ -79,14 +79,15 @@
     color: white;
     margin: 0;
     font-weight: 900;
-    font-size: 1.5rem;
-    letter-spacing: -0.5px;
+    font-size: 1.25rem;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
 }
 
 .profile-email {
     color: rgba(255, 255, 255, 0.8);
-    margin: 4px 0 0;
-    font-size: 0.9rem;
+    margin: 2px 0 0;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
@@ -292,6 +293,11 @@
     color: #cbd5e1;
 }
 .empty-history ion-icon { font-size: 48px; margin-bottom: 10px; }
+.profile-history-loading {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+}
 
 /* --- INPUTS LIMPIOS --- */
 .section-label {
@@ -505,36 +511,59 @@
     z-index: 20005 !important;
 }
 
-/* --- EDIT PROFILE MODAL (diseño Quira) --- */
+.profile-subpage-toolbar {
+  --padding-top: 4px;
+  --padding-bottom: 2px;
+  --min-height: 44px;
+}
+
+.profile-subpage-toolbar ion-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+}
 .profile-edit-hero {
     background: var(--ion-color-primary);
-    padding: 12px 24px 35px;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    padding: 2px 20px 14px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
     margin-bottom: 0;
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 6px 14px rgba(79, 70, 229, 0.12);
+}
+/* Solo subtítulo bajo el toolbar (Mis Datos / Seguridad / SMS) */
+.profile-edit-hero--slim {
+    padding: 0 20px 12px;
+}
+.profile-edit-hero--slim p {
+    margin: 0;
+}
+.profile-edit-hero--empty {
+    padding-bottom: 10px;
+    min-height: 10px;
 }
 .profile-edit-hero h2 {
     font-weight: 900;
     color: white;
     margin: 0;
-    font-size: 1.6rem;
-    letter-spacing: -1px;
+    font-size: 1.2rem;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
 }
 .profile-edit-hero p {
     color: rgba(255, 255, 255, 0.85);
-    margin: 4px 0 0;
-    font-size: 0.9rem;
+    margin: 2px 0 0;
+    font-size: 0.78rem;
     font-weight: 500;
+    line-height: 1.3;
 }
 .profile-verify-hint {
     color: rgba(255, 255, 255, 0.75);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .profile-edit-content {
     padding: 0 16px 80px;
-    margin-top: 30px;
+    margin-top: 14px;
     position: relative;
     z-index: 10;
     display: flex;
@@ -549,21 +578,21 @@
 
 .profile-edit-avatar-wrap {
     position: relative;
-    width: 90px;
-    height: 90px;
-    margin: 0 auto 8px;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 6px;
     cursor: pointer;
 }
 .profile-edit-avatar {
     width: 100%;
     height: 100%;
     background: white;
-    border-radius: 24px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    font-size: 2.5rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    font-size: 1.8rem;
     font-weight: 900;
     color: var(--ion-color-primary);
 }

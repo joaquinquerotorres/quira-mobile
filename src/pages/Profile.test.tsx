@@ -159,7 +159,7 @@ test('Profile opens password change modal when Seguridad y Contraseña is clicke
   render(<Profile />, { wrapper });
   fireEvent.click(screen.getByText('Seguridad y Contraseña'));
   await waitFor(() => {
-    expect(screen.getByText('Cambiar contraseña')).toBeInTheDocument();
+    expect(screen.getByText('Seguridad')).toBeInTheDocument();
     expect(screen.getByText('CAMBIAR CONTRASEÑA')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Tu contraseña actual')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Mínimo 6 caracteres')).toBeInTheDocument();
