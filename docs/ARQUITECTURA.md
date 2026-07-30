@@ -463,6 +463,7 @@ Reglas de cliente:
 - Requiere dirección aproximada (Google Places o GPS).
 - Las pestañas audio / vídeo / texto son **excluyentes**: solo se envía el contenido del modo activo al analizar y al publicar.
 - **Análisis IA (flujo híbrido):** primero se sube el media principal a Supabase (`upload-ticket` + PUT con progreso); luego `POST /predict` solo con URLs (`imageUrl` / `audioUrl` / `videoUrl`) + `description` / `location`. Si el backend responde `202`, la app hace polling a `GET /predict/tasks/{id}`. Al **publicar**, se **reutilizan** esas URLs (no se vuelve a subir el media del paso 1). Detalle: **`docs/BACKEND_PREDICT_UPLOAD.md`**.
+- **`safe` vs `in_scope`:** una sola respuesta de predict. `safe=false` → aviso de moderación en el paso 2 (se puede seguir editando; el backend puede dejar la Request en `PENDING_APPROVAL`). `safe=true` && `in_scope=false` → alerta «Fuera de cobertura Quira» y **no** se avanza a publicar. Si `in_scope` no viene → se asume `true`. Parseo: `parsePredictSafety.ts`.
 - **Categoría tras predict:** se normaliza (`DYC`→`DIY`); si el código no está en los 22 conocidos → **DIY**. Select del paso 2 = `CATEGORY_OPTIONS` (ver § Categorías).
 - **Límites de tamaño** (API `PredictMediaLimits` / `maxBytes` del ticket; mismos en Wi‑Fi y datos): imagen **10 MB**, audio **12 MB**, vídeo **40 MB**. UI en `NewRequest`; enforcement en `uploadService` antes del PUT. Constantes: `src/utils/predictMediaLimits.ts`.
 - `location`: ciudad/pueblo normalizado (ej. `Posadas, Córdoba (España)` o `Córdoba (España)`), no la dirección completa.
@@ -510,7 +511,7 @@ Para minimizar regresiones antes de publicar:
 - **Vitest (unit/integration)**:
   - Se cubren utilidades críticas (p. ej. `resolveMediaUrl`, `requestMedia`, `getApiErrorMessage`, `streetLineFromGeocode`, **`predictMediaLimits`**) y flujos sensibles (subidas por ticket + **`maxBytes`** en `uploadService`).
   - Componentes con lógica de render según estado/media (p. ej. `RequestDetailMedia`, `ProRequestDetailMedia`, `RequestMediaChip`/`RequestMediaModal`, `MarketOpportunityCard`, `MyWorkCards`).
-  - `NewRequest.test.tsx`: verificación de teléfono (banner paso 1, ausencia de `POST /predict` cuando no se puede publicar con datos mínimos rellenos) y avisos de red en modo vídeo; el mock de `react-google-places-autocomplete` en ese archivo sustituye al stub global de `setupTests.ts` para poder simular dirección en Córdoba.
+  - `NewRequest.test.tsx`: verificación de teléfono (banner paso 1, ausencia de `POST /predict` cuando no se puede publicar con datos mínimos rellenos) y avisos de red en modo vídeo; el mock de `react-google-places-autocomplete` en ese archivo sustituye al stub global de `setupTests.ts` para poder simular dirección en Córdoba. También cubre **`safe` / `in_scope`** tras predict (compat sin `in_scope`, bloqueo fuera de cobertura, aviso de moderación + `aiDiagnosis.safe=false` en `POST /requests`). Unitarios de parseo: `parsePredictSafety.test.ts`.
   - Robustez ante crashes con `ErrorBoundary`.
 - **Ionic en tests**:
   - En ciertos tests se stubbean componentes (p. ej. `IonAlert`) o se evita envolver con `IonApp` cuando no es necesario para reducir flakiness y evitar timers internos que pueden causar errores al teardown en `jsdom`.

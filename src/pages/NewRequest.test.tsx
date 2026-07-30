@@ -57,6 +57,21 @@ vi.mock('../api/axios', () => ({
   default: { post: vi.fn() },
 }));
 
+const mockRequestPredictByUrls = vi.fn();
+const mockUploadPrimaryMediaForPredict = vi.fn(() =>
+  Promise.resolve({
+    photoUrl: null,
+    audioUrl: null,
+    videoUrl: null,
+  }),
+);
+
+vi.mock('../services/predictService', () => ({
+  requestPredictByUrls: (...args: unknown[]) => mockRequestPredictByUrls(...args),
+  uploadPrimaryMediaForPredict: (...args: unknown[]) =>
+    mockUploadPrimaryMediaForPredict(...args),
+}));
+
 vi.mock('../utils/videoUploadNetworkHint', () => ({
   getVideoUploadConnectionHint: () => mockGetVideoUploadConnectionHint(),
 }));
@@ -86,6 +101,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 beforeEach(() => {
   sessionStorage.clear();
   vi.mocked(api.post).mockClear();
+  mockRequestPredictByUrls.mockReset();
+  mockUploadPrimaryMediaForPredict.mockClear();
   mockGetVerificationStatus.mockReturnValue({
     hasClientPhone: true,
     verifiedClientPhone: true,
@@ -98,6 +115,38 @@ beforeEach(() => {
     Promise.resolve('unknown'),
   );
 });
+
+async function fillStep1TextAndAnalyze(description: string) {
+  const { container } = render(<NewRequest />, { wrapper });
+
+  const segment = container.querySelector('ion-segment.mode-segment');
+  expect(segment).toBeTruthy();
+  fireEvent(
+    segment as HTMLElement,
+    new CustomEvent('ionChange', { detail: { value: 'TEXT' } }),
+  );
+
+  await waitFor(() => {
+    expect(container.querySelector('ion-textarea')).toBeTruthy();
+  });
+
+  const ionTextarea = container.querySelector('ion-textarea');
+  fireEvent(
+    ionTextarea as HTMLElement,
+    new CustomEvent('ionInput', { detail: { value: description } }),
+  );
+
+  fireEvent.click(screen.getByTestId('mock-place-select'));
+
+  // Flush del geocode async (mock) antes de analizar.
+  await waitFor(() => {
+    expect(screen.getByText('ANALIZAR Y COTIZAR')).toBeInTheDocument();
+  });
+  await Promise.resolve();
+
+  fireEvent.click(screen.getByText('ANALIZAR Y COTIZAR'));
+  return container;
+}
 
 test('NewRequest renders step 1 header and mode selector when user can create requests', () => {
   render(<NewRequest />, { wrapper });
@@ -225,5 +274,91 @@ test('NewRequest muestra aviso en pestaña vídeo cuando la red parece datos mó
   await waitFor(() => {
     expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.getByText(/datos móviles/i)).toBeInTheDocument();
+  });
+});
+
+test('predict sin in_scope avanza a step 2 (compat API antigua → in_scope true)', async () => {
+  mockRequestPredictByUrls.mockResolvedValue({
+    title: 'Arreglar grifo',
+    description: 'Fuga en cocina',
+    category: 'PLUMBING',
+    safe: true,
+    estimated_price_min: 5000,
+    estimated_price_max: 9000,
+  });
+
+  await fillStep1TextAndAnalyze('Se me ha roto el grifo');
+
+  await waitFor(() => {
+    expect(mockRequestPredictByUrls).toHaveBeenCalled();
+    expect(screen.getByText('PUBLICAR SOLICITUD')).toBeInTheDocument();
+  });
+});
+
+test('predict con in_scope=false muestra mensaje y no deja publicar', async () => {
+  mockRequestPredictByUrls.mockResolvedValue({
+    title: 'Dolor de rodilla',
+    description: 'Consulta médica',
+    category: 'DIY',
+    safe: true,
+    in_scope: false,
+    out_of_scope_reason: 'Parece una consulta médica.',
+    estimated_price_min: 0,
+    estimated_price_max: 0,
+  });
+
+  await fillStep1TextAndAnalyze('Me duele la rodilla');
+
+  await waitFor(() => {
+    expect(mockRequestPredictByUrls).toHaveBeenCalled();
+    expect(screen.getByText(/Parece una consulta médica/i)).toBeInTheDocument();
+    expect(screen.getByText(/Fuera de cobertura Quira/i)).toBeInTheDocument();
+  });
+
+  // No debe avanzar al paso 2 (publicar).
+  expect(screen.queryByText('PUBLICAR SOLICITUD')).not.toBeInTheDocument();
+  expect(api.post).not.toHaveBeenCalledWith(
+    '/requests',
+    expect.anything(),
+  );
+});
+
+test('predict con safe=false muestra aviso de moderación y envía aiDiagnosis.safe=false al publicar', async () => {
+  mockRequestPredictByUrls.mockResolvedValue({
+    title: 'Contacto en descripción',
+    description: 'Arreglo con teléfono',
+    category: 'DIY',
+    safe: false,
+    safety_reason: 'Teléfono detectado en el texto',
+    in_scope: true,
+    estimated_price_min: 0,
+    estimated_price_max: 0,
+  });
+  vi.mocked(api.post).mockResolvedValue({ data: { id: 'req-1' } });
+
+  await fillStep1TextAndAnalyze('Llama al 600111222 para el grifo');
+
+  await waitFor(() => {
+    expect(screen.getByText('PUBLICAR SOLICITUD')).toBeInTheDocument();
+  });
+
+  expect(
+    screen.getByRole('status', { name: /aviso de moderación/i }),
+  ).toBeInTheDocument();
+  expect(screen.getByText(/Teléfono detectado/i)).toBeInTheDocument();
+
+  fireEvent.click(screen.getByText('PUBLICAR SOLICITUD'));
+
+  await waitFor(() => {
+    expect(api.post).toHaveBeenCalledWith(
+      '/requests',
+      expect.objectContaining({
+        aiDiagnosis: expect.objectContaining({
+          safe: false,
+          safety_reason: 'Teléfono detectado en el texto',
+          in_scope: true,
+        }),
+      }),
+    );
   });
 });

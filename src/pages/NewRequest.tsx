@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonButton, IonIcon, IonLoading, IonToast, useIonRouter, IonActionSheet, useIonViewWillLeave,
+  IonButton, IonIcon, IonLoading, IonToast, IonAlert, useIonRouter, IonActionSheet, useIonViewWillLeave,
   useIonViewWillEnter,
 } from '@ionic/react';
 import { colorWandOutline, imagesOutline, micOutline, videocamOutline } from 'ionicons/icons';
@@ -59,6 +59,11 @@ import {
   PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC,
   PREDICT_VIDEO_MAX_DURATION_COMPRESS_SEC_NATIVE,
 } from '../utils/videoCompressForPredict';
+import {
+  outOfScopeUserMessage,
+  parsePredictSafetyFields,
+  unsafeUserMessage,
+} from '../utils/parsePredictSafety';
 
 const GOOGLE_API_KEY = env.googleMapsKey;
 
@@ -100,6 +105,10 @@ const NewRequest: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [toast, setToast] = useState<string | null>(null);
+  const [outOfScopeAlert, setOutOfScopeAlert] = useState<{
+    open: boolean;
+    message: string;
+  }>({ open: false, message: '' });
 
   // --- SELECCIÓN DE MODO ---
   const [inputMode, setInputMode] = useState<'AUDIO' | 'VIDEO' | 'TEXT'>('AUDIO');
@@ -805,14 +814,12 @@ const NewRequest: React.FC = () => {
       const resolvedCategory = isKnownCategoryCode(safeCategory)
         ? safeCategory
         : 'DIY';
-      const safeFlagRaw = aiData.safe ?? aiData.is_safe;
-      const isSafe = typeof safeFlagRaw === 'boolean'
-        ? safeFlagRaw
-        : String(safeFlagRaw ?? '').toLowerCase() === 'true';
-      const safetyReasonRaw = aiData.safety_reason ?? aiData.reason ?? null;
-      const safetyReason = typeof safetyReasonRaw === 'string' && safetyReasonRaw.trim() !== ''
-        ? safetyReasonRaw.trim()
-        : null;
+      const {
+        safe: isSafe,
+        safetyReason,
+        inScope,
+        outOfScopeReason,
+      } = parsePredictSafetyFields(aiData);
       const textSnapshot = inputMode === 'TEXT' ? userDescription.trim() : '';
 
       // Normalizamos para que el formulario siempre quede relleno aunque Gemini devuelva
@@ -849,6 +856,8 @@ const NewRequest: React.FC = () => {
         ...aiData,
         safe: isSafe,
         safety_reason: safetyReason,
+        in_scope: inScope,
+        out_of_scope_reason: outOfScopeReason,
         estimated_price_min: minCents,
         estimated_price_max: maxCents,
         clarifying_questions: aiClarifyingQuestions,
@@ -863,6 +872,8 @@ const NewRequest: React.FC = () => {
           requestId: predictRequestId,
           safe: isSafe,
           safetyReason,
+          inScope,
+          outOfScopeReason,
           titleFilled: (safeTitle || '').length > 0,
           descriptionFilled: (safeDescription || '').length > 0,
           categoryFilled: resolvedCategory.length > 0,
@@ -871,9 +882,20 @@ const NewRequest: React.FC = () => {
           clarifyingQuestionsCount: aiClarifyingQuestions.length,
         },
       });
+
+      // Contenido limpio pero fuera de servicios Quira: no avanzar al marketplace.
+      if (isSafe && !inScope) {
+        setOutOfScopeAlert({
+          open: true,
+          message: outOfScopeUserMessage(outOfScopeReason),
+        });
+        return;
+      }
       
       if (aiData.urgency === 'SCHEDULED' && aiData.schedule_intent) {
         setToast(`📅 Fecha aproximada detectada: "${aiData.schedule_intent}". Podrás ajustar tu disponibilidad preferida en el siguiente paso.`);
+      } else if (!isSafe) {
+        setToast(unsafeUserMessage(safetyReason));
       }
       setStep(2);
     } catch (error: unknown) {
@@ -935,6 +957,18 @@ const NewRequest: React.FC = () => {
       }
       persistDraftSnapshot();
       router.push('/profile');
+      return;
+    }
+    if (aiDiagnosis && aiDiagnosis.in_scope === false) {
+      setOutOfScopeAlert({
+        open: true,
+        message: outOfScopeUserMessage(
+          typeof aiDiagnosis.out_of_scope_reason === 'string'
+            ? aiDiagnosis.out_of_scope_reason
+            : null,
+        ),
+      });
+      setStep(1);
       return;
     }
     if (!title || !address) {
@@ -1030,6 +1064,8 @@ const NewRequest: React.FC = () => {
         aiDiagnosis: aiDiagnosis ?? {
           safe: true,
           safety_reason: null,
+          in_scope: true,
+          out_of_scope_reason: null,
           estimated_price_min: aiRange.min,
           estimated_price_max: aiRange.max,
           clarifying_questions: clarifyingQuestions,
@@ -1230,6 +1266,15 @@ const NewRequest: React.FC = () => {
                       });
                     }}
                     onSubmit={handleSubmit}
+                    unsafeNotice={
+                      aiDiagnosis && aiDiagnosis.safe === false
+                        ? unsafeUserMessage(
+                            typeof aiDiagnosis.safety_reason === 'string'
+                              ? aiDiagnosis.safety_reason
+                              : null,
+                          )
+                        : null
+                    }
                 />
             )}
         </div>
@@ -1306,6 +1351,21 @@ const NewRequest: React.FC = () => {
 
         <IonLoading isOpen={loading} message={loadingMessage} spinner="crescent" />
         <IonToast isOpen={!!toast} message={toast || ''} duration={TOAST_DURATION_MS} onDidDismiss={() => setToast(null)} position="top" color="dark" style={{'--border-radius': '12px'}} />
+        <IonAlert
+          isOpen={outOfScopeAlert.open}
+          header="Fuera de cobertura Quira"
+          message={outOfScopeAlert.message}
+          buttons={[
+            {
+              text: 'Entendido',
+              handler: () => {
+                setOutOfScopeAlert({ open: false, message: '' });
+                setStep(1);
+              },
+            },
+          ]}
+          onDidDismiss={() => setOutOfScopeAlert({ open: false, message: '' })}
+        />
       </IonContent>
     </IonPage>
   );
