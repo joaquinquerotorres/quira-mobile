@@ -7,7 +7,7 @@ import {
   IonBadge, IonRange
 } from '@ionic/react';
 import { 
-  personOutline, logOutOutline, closeOutline, chevronBackOutline, 
+  personOutline, logOutOutline, chevronBackOutline, 
   notificationsOutline, shieldCheckmarkOutline, briefcaseOutline, documentTextOutline,
   starOutline,
   hammerOutline, receiptOutline, chevronForwardOutline, calendarOutline, cameraOutline,
