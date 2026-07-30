@@ -38,10 +38,10 @@
 /* --- FONDO CURVO HERO --- */
 .pro-detail-bg-curve {
     background: var(--ion-color-primary);
-    height: 140px;
+    height: 96px;
     width: 100%;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
     position: absolute;
     top: 0;
     left: 0;
