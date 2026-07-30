@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter,
   IonCard, IonCardContent, IonRefresher, IonRefresherContent,
@@ -23,6 +23,13 @@ import { FilterModal } from '../components/shared/FilterModal';
 import { MarketOpportunityCard } from '../components/market/MarketOpportunityCard';
 
 import { TOAST_DURATION_MS } from '../config/uiTiming';
+import {
+  LIST_FETCH_STALE_MS,
+  LIST_PAGE_SIZE,
+  SEARCH_DEBOUNCE_MS,
+  createFetchFreshness,
+} from '../utils/fetchFreshness';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { getVerificationStatus } from '../hooks/useUserVerification';
 import { getEffectiveTier, type EffectiveTier } from '../utils/effectiveTier';
 import { getApiErrorMessage } from '../utils/apiError';
@@ -85,9 +92,14 @@ const Market: React.FC = () => {
 
   // --- FILTROS ---
   const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebouncedValue(searchText, SEARCH_DEBOUNCE_MS);
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [sortPrice, setSortPrice] = useState<string>(''); 
   const [showFilterModal, setShowFilterModal] = useState(false);
+
+  const listFreshness = useRef(createFetchFreshness(LIST_FETCH_STALE_MS)).current;
+  const skipFilterEffectOnce = useRef(true);
+  const filterKey = `${debouncedSearch}|${filterCategory}|${sortPrice}`;
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -124,14 +136,20 @@ const Market: React.FC = () => {
     }
   };
 
-  const fetchOpportunities = async (event?: CustomEvent) => {
+  const fetchOpportunities = useCallback(async (event?: CustomEvent, opts?: { force?: boolean }) => {
+    const key = `${debouncedSearch}|${filterCategory}|${sortPrice}`;
+    if (!event && listFreshness.shouldSkip(key, opts)) {
+      setLoading(false);
+      return;
+    }
     if (!event) setLoading(true);
     try {
       const params = new URLSearchParams();
       params.append('is_market', 'true');
       params.append('status', 'PENDING');
+      params.append('itemsPerPage', String(LIST_PAGE_SIZE));
 
-      if (searchText) params.append('title', searchText);
+      if (debouncedSearch) params.append('title', debouncedSearch);
       if (filterCategory) params.append('category', filterCategory);
       
       if (sortPrice) {
@@ -146,7 +164,7 @@ const Market: React.FC = () => {
       if (list) {
           setOpportunities(list);
       }
-
+      listFreshness.mark(key);
     } catch (error) {
       console.error(error);
       setToast('Error al cargar oportunidades. Arrastra para reintentar.');
@@ -154,7 +172,7 @@ const Market: React.FC = () => {
       setLoading(false);
       event?.detail.complete();
     }
-  };
+  }, [debouncedSearch, filterCategory, sortPrice, listFreshness]);
 
   useIonViewWillEnter(() => {
     void (async () => {
@@ -173,29 +191,30 @@ const Market: React.FC = () => {
         void refreshCanBidStatus();
       }
 
-      fetchOpportunities();
+      // Listado: TTL evita doble golpe con el effect de filtros y revisitas rápidas.
+      // Pull-to-refresh / invalidación usan force.
+      void fetchOpportunities(undefined, { force: false });
     })();
   });
 
+  // Filtros/búsqueda: siempre recargar (debounce en search). Skip 1ª vez: willEnter ya carga.
   useEffect(() => {
-      fetchOpportunities();
-  }, [searchText, filterCategory, sortPrice]);
+    if (skipFilterEffectOnce.current) {
+      skipFilterEffectOnce.current = false;
+      return;
+    }
+    void fetchOpportunities(undefined, { force: true });
+  }, [filterKey, fetchOpportunities]);
 
   useEffect(() => {
-    void refreshCanBidStatus();
-  }, [userTier]);
-  useEffect(() => {
     const onInvalidated = () => {
-      fetchOpportunities();
+      listFreshness.invalidate();
+      void fetchOpportunities(undefined, { force: true });
       void refreshCanBidStatus();
     };
     window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
     return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
-  }, [searchText, filterCategory, sortPrice, userTier]);
-
-  const handleSearch = (e: CustomEvent) => {
-      setSearchText(e.detail.value!);
-  };
+  }, [fetchOpportunities, listFreshness]);
 
   const resetFilters = () => {
       setFilterCategory('');
@@ -330,7 +349,8 @@ const Market: React.FC = () => {
       setToast('¡Propuesta enviada con éxito!');
       setShowModal(false);
       void refreshCanBidStatus();
-      fetchOpportunities();
+      listFreshness.invalidate();
+      void fetchOpportunities(undefined, { force: true });
     } catch (error: unknown) {
       setToast(getApiErrorMessage(error) || 'Error al enviar la propuesta.');
     } finally {
@@ -363,7 +383,7 @@ const Market: React.FC = () => {
                 value={searchText} 
                 onChange={setSearchText} 
                 onFilterClick={() => setShowFilterModal(true)} 
-                onSearch={fetchOpportunities}
+                onSearch={() => void fetchOpportunities(undefined, { force: true })}
                 placeholder="Buscar trabajos..."/>
 
 

@@ -14,6 +14,8 @@ import { DirectoryEmptyState } from '../components/directory/DirectoryEmptyState
 
 import { env } from '../config/env';
 import { getCategoryLabel } from '../utils/categoryLabels';
+import { LIST_PAGE_SIZE, SEARCH_DEBOUNCE_MS } from '../utils/fetchFreshness';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 
 const serverUrl = env.serverUrl;
 const DIRECTORY_ORDER_KEY = 'directory-pro-order-v1';
@@ -28,6 +30,7 @@ const Directory: React.FC = () => {
   const [pros, setPros] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebouncedValue(searchText, SEARCH_DEBOUNCE_MS);
 
   const getTierWeight = (pro: any) => {
     const roles = pro.user?.roles || [];
@@ -38,11 +41,11 @@ const Directory: React.FC = () => {
     return 1;
   };
 
-  const fetchPros = async () => {
+  const fetchPros = async (nameQuery: string) => {
     setLoading(true);
     try {
-      let url = `/professional_profiles?itemsPerPage=50`;
-      if (searchText) url += `&fullName=${searchText}`;
+      let url = `/professional_profiles?itemsPerPage=${LIST_PAGE_SIZE}`;
+      if (nameQuery) url += `&fullName=${encodeURIComponent(nameQuery)}`;
       
       const response = await api.get(url);
       let data = response.data['hydra:member'] || response.data['member'];
@@ -97,8 +100,8 @@ const Directory: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchPros();
-  }, [searchText, categoryFilter]); 
+    void fetchPros(debouncedSearch);
+  }, [debouncedSearch, categoryFilter]);
 
   const pageTitle = categoryFilter
     ? `Expertos en ${getCategoryLabel(categoryFilter)}`

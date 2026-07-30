@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IonAlert,
   IonButton,
@@ -35,6 +35,10 @@ import {
   toLocalDateString,
 } from '../api/calendarEventsApi';
 import { TOAST_DURATION_MS } from '../config/uiTiming';
+import {
+  LIST_FETCH_STALE_MS,
+  createFetchFreshness,
+} from '../utils/fetchFreshness';
 import './ProCalendar.css';
 
 const WEEKDAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -75,42 +79,89 @@ const ProCalendar: React.FC = () => {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CalendarEvent | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const from = startOfMonth(cursor);
-      const to = endOfMonth(cursor);
-      const [monthEvents, allEvents, wonJobs] = await Promise.all([
-        listCalendarEvents({
+  const monthFreshness = useRef(createFetchFreshness(LIST_FETCH_STALE_MS)).current;
+  const createDataFreshness = useRef(createFetchFreshness(LIST_FETCH_STALE_MS)).current;
+  const createDataCache = useRef<{
+    jobs: ServiceRequest[];
+    scheduledIds: Set<number>;
+  } | null>(null);
+  const skipCursorEffectOnce = useRef(true);
+
+  const monthKey = `${cursor.getFullYear()}-${cursor.getMonth()}`;
+
+  /** Solo eventos del mes visible (vista calendario). */
+  const loadMonth = useCallback(
+    async (opts?: { force?: boolean }) => {
+      if (monthFreshness.shouldSkip(monthKey, opts)) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const from = startOfMonth(cursor);
+        const to = endOfMonth(cursor);
+        const monthEvents = await listCalendarEvents({
           startsAtAfter: toLocalDateString(from),
           startsAtBefore: `${toLocalDateString(to)}T23:59:59`,
-        }),
-        listCalendarEvents(),
-        listWonJobs(),
-      ]);
-      setEvents(monthEvents);
-      setScheduledRequestIds(
-        new Set(
-          allEvents
-            .map((e) => calendarEventRequestId(e.request))
-            .filter((id): id is number => id != null),
-        ),
-      );
-      setJobs(wonJobs);
-    } catch {
-      setToast('No se pudo cargar el calendario.');
-    } finally {
-      setLoading(false);
+        });
+        setEvents(monthEvents);
+        monthFreshness.mark(monthKey);
+      } catch {
+        setToast('No se pudo cargar el calendario.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [cursor, monthKey, monthFreshness],
+  );
+
+  /**
+   * Jobs ganados + ids ya agendados: solo al abrir “crear” o en pull-to-refresh.
+   * Evita GET unbounded de calendar_events + my_jobs en cada entrada al mes.
+   */
+  const loadCreateData = useCallback(async (opts?: { force?: boolean }) => {
+    if (
+      createDataCache.current &&
+      createDataFreshness.shouldSkip('create', opts)
+    ) {
+      return createDataCache.current;
     }
-  }, [cursor]);
+    const [allEvents, wonJobs] = await Promise.all([
+      listCalendarEvents(),
+      listWonJobs(),
+    ]);
+    const scheduledIds = new Set(
+      allEvents
+        .map((e) => calendarEventRequestId(e.request))
+        .filter((id): id is number => id != null),
+    );
+    const payload = { jobs: wonJobs, scheduledIds };
+    createDataCache.current = payload;
+    setJobs(wonJobs);
+    setScheduledRequestIds(scheduledIds);
+    createDataFreshness.mark('create');
+    return payload;
+  }, [createDataFreshness]);
+
+  const loadAll = useCallback(
+    async (opts?: { force?: boolean }) => {
+      await Promise.all([loadMonth(opts), loadCreateData(opts)]);
+    },
+    [loadMonth, loadCreateData],
+  );
 
   useIonViewWillEnter(() => {
-    load();
+    void loadMonth({ force: false });
   });
 
-  React.useEffect(() => {
-    load();
-  }, [load]);
+  // Cambio de mes: siempre. Skip 1ª vez (willEnter ya carga el mes actual).
+  useEffect(() => {
+    if (skipCursorEffectOnce.current) {
+      skipCursorEffectOnce.current = false;
+      return;
+    }
+    void loadMonth({ force: true });
+  }, [monthKey, loadMonth]);
 
   const availableJobs = useMemo(
     () => jobs.filter((j) => !scheduledRequestIds.has(j.id)),
@@ -160,14 +211,22 @@ const ProCalendar: React.FC = () => {
 
   const selectedEvents = eventsByDay.get(dayKey(selectedDay)) || [];
 
-  const openCreate = () => {
-    if (availableJobs.length === 0) {
-      setToast('No tienes trabajos ganados pendientes de agendar.');
-      return;
+  const openCreate = async () => {
+    try {
+      const { jobs: wonJobs, scheduledIds } = await loadCreateData({
+        force: false,
+      });
+      const available = wonJobs.filter((j) => !scheduledIds.has(j.id));
+      if (available.length === 0) {
+        setToast('No tienes trabajos ganados pendientes de agendar.');
+        return;
+      }
+      setFormMode('create');
+      setEditingEvent(null);
+      setShowForm(true);
+    } catch {
+      setToast('No se pudo cargar trabajos para agendar.');
     }
-    setFormMode('create');
-    setEditingEvent(null);
-    setShowForm(true);
   };
 
   const openEdit = (ev: CalendarEvent) => {
@@ -184,7 +243,10 @@ const ProCalendar: React.FC = () => {
         <IonRefresher
           slot="fixed"
           onIonRefresh={async (e) => {
-            await load();
+            monthFreshness.invalidate();
+            createDataFreshness.invalidate();
+            createDataCache.current = null;
+            await loadAll({ force: true });
             e.detail.complete();
           }}
         >
@@ -342,7 +404,10 @@ const ProCalendar: React.FC = () => {
                 ? 'Fecha del trabajo actualizada.'
                 : 'Trabajo agendado.',
             );
-            load();
+            monthFreshness.invalidate();
+            createDataFreshness.invalidate();
+            createDataCache.current = null;
+            void loadAll({ force: true });
           }}
           onError={(msg) => setToast(msg)}
         />
@@ -362,7 +427,10 @@ const ProCalendar: React.FC = () => {
                   await deleteCalendarEvent(deleteTarget.id);
                   setToast('Evento eliminado.');
                   setDeleteTarget(null);
-                  load();
+                  monthFreshness.invalidate();
+                  createDataFreshness.invalidate();
+                  createDataCache.current = null;
+                  void loadAll({ force: true });
                 } catch {
                   setToast('No se pudo eliminar el evento.');
                 }
