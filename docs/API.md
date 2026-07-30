@@ -66,6 +66,8 @@ Un trabajo ganado tiene **como máximo un** `CalendarEvent` con **`startsAt`**: 
 
 La app deduplica por `request` en cliente; el backend debería imponer **unicidad (professional, request)**.
 
+`startsAt` es **hora civil** (día y hora del trabajo en local), no un instante UTC a convertir. La app envía `YYYY-MM-DDTHH:mm:ss` sin zona y, al leer, **ignora** sufijos `Z` / `+00:00` para que el editor (IonDatetime) y el listado del calendario muestren la misma hora. El backend no debe reinterpretar esa cadena aplicando timezone del servidor.
+
 ### `category` (enum)
 
 Alineado con `App\Enum\Category` (quira). Cliente: `CATEGORY_CODES` / `CATEGORY_LABELS` en `src/utils/categoryLabels.ts`.

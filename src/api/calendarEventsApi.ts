@@ -41,40 +41,73 @@ export function calendarEventRequestId(
   return null;
 }
 
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
 /** YYYY-MM-DD en zona local. */
 export function toLocalDateString(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
-/** YYYY-MM-DDTHH:mm:ss en zona local (sin zona), para API Platform. */
+/** YYYY-MM-DDTHH:mm:ss en zona local (sin zona), para API / IonDatetime. */
 export function toLocalDateTimeString(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${toLocalDateString(date)}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  return `${toLocalDateString(date)}T${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
-/** Parsea ISO o local datetime a Date en zona local. */
-export function parseStartsAt(value: string): Date {
-  // "2026-08-01T09:30:00+00:00" / "...Z" → Date nativo
-  if (/[zZ]|[+-]\d{2}:\d{2}$/.test(value)) {
-    return new Date(value);
-  }
-  // "2026-08-01T09:30:00" o "2026-08-01 09:30:00" → local
-  const m = value.match(
-    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/,
+/**
+ * Extrae la hora civil (wall-clock) de un ISO, ignorando Z / offset.
+ *
+ * La fecha del trabajo es un día+hora locales (p. ej. "el martes a las 10:00"),
+ * no un instante UTC. API Platform suele devolver lo guardado como
+ * `…T10:00:00+00:00`; si se parsea con `new Date` en España se muestra 12:00
+ * en el calendario mientras IonDatetime (que ignora la zona) sigue mostrando
+ * 10:00. Por eso nunca convertimos por timezone al leer/escribir startsAt.
+ */
+export function toWallClockDateTimeString(value: string): string {
+  const m = value.trim().match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/,
   );
   if (m) {
-    return new Date(
-      Number(m[1]),
-      Number(m[2]) - 1,
-      Number(m[3]),
-      Number(m[4]),
-      Number(m[5]),
-      Number(m[6] ?? 0),
-    );
+    return `${m[1]}-${m[2]}-${m[3]}T${m[4] ?? '00'}:${m[5] ?? '00'}:${pad2(Number(m[6] ?? 0))}`;
   }
-  const [y, mo, d] = value.slice(0, 10).split('-').map(Number);
-  return new Date(y, mo - 1, d);
+  return toLocalDateTimeString(new Date());
+}
+
+/** Parsea startsAt como hora civil local (ignora sufijo de zona). */
+export function parseStartsAt(value: string): Date {
+  const wall = toWallClockDateTimeString(value);
+  const m = wall.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/,
+  );
+  if (!m) return new Date(NaN);
+  return new Date(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6]),
+  );
+}
+
+/** Hora HH:mm para listados del calendario (misma base que el editor). */
+export function formatStartsAtTime(value: string): string {
+  return parseStartsAt(value).toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+/** Fecha+hora corta para detalle del trabajo. */
+export function formatStartsAtDateTime(value: string): string {
+  return parseStartsAt(value).toLocaleString('es-ES', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
 }
 
 function eventRecencyMs(ev: CalendarEvent): number {
