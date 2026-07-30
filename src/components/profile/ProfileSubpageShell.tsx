@@ -12,15 +12,6 @@ import {
 import { chevronBackOutline } from 'ionicons/icons';
 import '../../pages/Profile.css';
 
-export const QuiraBrandTitle: React.FC = () => (
-  <div className="brand-container">
-    <span className="brand-text-main">Qu</span>
-    <span className="brand-text-secondary">i</span>
-    <span className="brand-text-main">r</span>
-    <span className="brand-text-secondary">a</span>
-  </div>
-);
-
 interface ProfileSubpageShellProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,8 +24,8 @@ interface ProfileSubpageShellProps {
 }
 
 /**
- * Full-screen profile subpage chrome matching «Datos Personales»:
- * Quira brand toolbar + purple hero + content sheet.
+ * Full-screen profile subpage chrome matching «Mis datos»:
+ * compact toolbar title + slim purple subtitle strip + content.
  */
 export const ProfileSubpageShell: React.FC<ProfileSubpageShellProps> = ({
   isOpen,
@@ -51,23 +42,24 @@ export const ProfileSubpageShell: React.FC<ProfileSubpageShellProps> = ({
     onDidPresent={onDidPresent}
   >
     <IonHeader className="ion-no-border">
-      <IonToolbar color="primary" style={{ '--padding-top': '10px' }}>
+      <IonToolbar color="primary" className="profile-subpage-toolbar">
         <IonButtons slot="start">
           <IonButton onClick={onClose} style={{ color: 'white' }}>
             <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
           </IonButton>
         </IonButtons>
-        <IonTitle className="ion-text-center">
-          <QuiraBrandTitle />
-        </IonTitle>
+        <IonTitle className="ion-text-center">{title}</IonTitle>
         <IonButtons slot="end" style={{ width: '48px' }} />
       </IonToolbar>
     </IonHeader>
     <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-      <div className="profile-edit-hero animate__animated animate__fadeIn">
-        <h2>{title}</h2>
-        {subtitle ? <p>{subtitle}</p> : null}
-      </div>
+      {subtitle ? (
+        <div className="profile-edit-hero profile-edit-hero--slim animate__animated animate__fadeIn">
+          <p>{subtitle}</p>
+        </div>
+      ) : (
+        <div className="profile-edit-hero profile-edit-hero--slim profile-edit-hero--empty" />
+      )}
       <div
         className={[
           'profile-edit-content',

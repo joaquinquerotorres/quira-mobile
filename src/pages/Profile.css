@@ -537,6 +537,10 @@
 .profile-edit-hero--slim p {
     margin: 0;
 }
+.profile-edit-hero--empty {
+    padding-bottom: 10px;
+    min-height: 10px;
+}
 .profile-edit-hero h2 {
     font-weight: 900;
     color: white;
