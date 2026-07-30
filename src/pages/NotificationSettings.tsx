@@ -31,7 +31,8 @@ interface NotificationSectionProps {
   profile: ClientProfile | ProfessionalProfile;
   labels: typeof CLIENT_LABELS | typeof PRO_LABELS;
   endpoint: 'client_profiles' | 'professional_profiles';
-  sectionTitle: string;
+  /** Opcional: en el panel de Perfil no hace falta distinguir «como cliente/pro». */
+  sectionTitle?: string;
 }
 
 const NotificationSection: React.FC<NotificationSectionProps> = ({
@@ -104,7 +105,9 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
 
   return (
     <div className="notification-settings-block">
-      <div className="profile-section-title">{sectionTitle}</div>
+      {sectionTitle ? (
+        <div className="profile-section-title">{sectionTitle}</div>
+      ) : null}
       <div className="profile-menu-card">
         <IonItem lines="none" className="menu-item">
           <IonLabel className="ion-text-wrap item-label">
@@ -225,7 +228,6 @@ export const NotificationSettingsPanel: React.FC<NotificationSettingsPanelProps>
           profile={user.clientProfile}
           labels={CLIENT_LABELS}
           endpoint="client_profiles"
-          sectionTitle="Como cliente"
         />
       )}
       {showProPrefs && (
@@ -233,7 +235,6 @@ export const NotificationSettingsPanel: React.FC<NotificationSettingsPanelProps>
           profile={user.professionalProfile}
           labels={PRO_LABELS}
           endpoint="professional_profiles"
-          sectionTitle="Como profesional"
         />
       )}
     </div>

@@ -1092,11 +1092,7 @@ const Profile: React.FC = () => {
           isOpen={showNotificationsModal}
           onClose={() => setShowNotificationsModal(false)}
           title="Notificaciones"
-          subtitle={
-            getEffectiveActiveMode() === 'pro'
-              ? 'Avisos de tu actividad profesional'
-              : 'Avisos de tus solicitudes'
-          }
+          subtitle="Elige qué avisos quieres recibir"
         >
           <NotificationSettingsPanel active={showNotificationsModal} />
         </ProfileSubpageShell>
