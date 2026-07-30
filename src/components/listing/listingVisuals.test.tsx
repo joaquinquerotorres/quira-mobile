@@ -83,6 +83,21 @@ describe('RequestBidsChip / ListingCard bids', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
+  test('RequestBidsChip heat intensifies with more bids', () => {
+    const { rerender, container } = render(<RequestBidsChip count={0} />);
+    expect(container.querySelector('.request-bids-chip--none')).toBeTruthy();
+    expect(container.querySelector('[data-intensity="none"]')).toBeTruthy();
+
+    rerender(<RequestBidsChip count={2} />);
+    expect(container.querySelector('.request-bids-chip--soft')).toBeTruthy();
+
+    rerender(<RequestBidsChip count={4} />);
+    expect(container.querySelector('.request-bids-chip--mid')).toBeTruthy();
+
+    rerender(<RequestBidsChip count={5} />);
+    expect(container.querySelector('.request-bids-chip--hot')).toBeTruthy();
+  });
+
   test('ListingCard shows Propuestas left of Media and even without media', () => {
     const { rerender } = render(
       <ListingCard
