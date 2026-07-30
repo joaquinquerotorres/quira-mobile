@@ -53,6 +53,19 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.
 
+### Fecha del trabajo (calendario del profesional)
+
+Un trabajo ganado tiene **como máximo un** `CalendarEvent` con **`startsAt`**: la fecha/hora en que se realizará el trabajo (no hay `endsAt` / rango).
+
+| Método | Ruta | Notas |
+|--------|------|--------|
+| `GET` | `/calendar_events` | Filtros opcionales `startsAt[after]`, `startsAt[before]`, `request`. |
+| `POST` | `/calendar_events` | `{ request: "/api/requests/{id}", startsAt, notes? }`. |
+| `PATCH` | `/calendar_events/{id}` | `{ startsAt, notes? }`. |
+| `DELETE` | `/calendar_events/{id}` | Quita del calendario; no cancela el trabajo. |
+
+La app deduplica por `request` en cliente; el backend debería imponer **unicidad (professional, request)**.
+
 ### `category` (enum)
 
 Alineado con `App\Enum\Category` (quira). Cliente: `CATEGORY_CODES` / `CATEGORY_LABELS` en `src/utils/categoryLabels.ts`.

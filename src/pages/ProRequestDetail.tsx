@@ -518,6 +518,7 @@ const ProRequestDetail: React.FC = () => {
               onChangeQuestion={(value) => setNewQuestion(value)}
               onRequestVisit={handleRequestVisit}
               calendarEventId={calendarEvent?.id ?? null}
+              calendarStartsAt={calendarEvent?.startsAt ?? null}
               calendarLoading={calendarLoading}
               onAddToCalendar={() => {
                 setCalendarFormMode('create');
@@ -540,8 +541,8 @@ const ProRequestDetail: React.FC = () => {
             setCalendarEvent(ev);
             setToast(
               calendarFormMode === 'edit'
-                ? 'Calendario actualizado.'
-                : 'Trabajo añadido al calendario.',
+                ? 'Fecha del trabajo actualizada.'
+                : 'Fecha del trabajo agendada.',
             );
           }}
           onError={(msg) => setToast(msg)}

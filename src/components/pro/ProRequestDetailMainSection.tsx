@@ -13,6 +13,7 @@ import {
 import { ServiceRequest, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { parseStartsAt } from '../../api/calendarEventsApi';
 import type { EffectiveTier } from '../../utils/effectiveTier';
 import {
   formatRequestPriceRangeEuros,
@@ -63,6 +64,8 @@ interface ProRequestDetailMainSectionProps {
   canRequestVisitByPricing?: boolean;
   /** Evento de calendario existente para este trabajo (si lo hay). */
   calendarEventId?: number | null;
+  /** Fecha/hora del trabajo agendada (`startsAt`), para mostrarla en detalle. */
+  calendarStartsAt?: string | null;
   calendarLoading?: boolean;
   onAddToCalendar?: () => void;
   onEditCalendar?: () => void;
@@ -101,6 +104,7 @@ export const ProRequestDetailMainSection: React.FC<
   isRequestingVisit,
   canRequestVisitByPricing = false,
   calendarEventId = null,
+  calendarStartsAt = null,
   calendarLoading = false,
   onAddToCalendar,
   onEditCalendar,
@@ -136,7 +140,7 @@ export const ProRequestDetailMainSection: React.FC<
           }}
         >
           <IonIcon slot="start" icon={calendarOutline} />
-          {calendarEventId ? 'EDITAR EN CALENDARIO' : 'AÑADIR AL CALENDARIO'}
+          {calendarEventId ? 'EDITAR FECHA DEL TRABAJO' : 'AGENDAR FECHA DEL TRABAJO'}
         </IonButton>
       )}
 
@@ -298,6 +302,22 @@ export const ProRequestDetailMainSection: React.FC<
         label="Disponibilidad preferida"
         value={request.desiredExecutionTime || 'Lo antes posible'}
       />
+
+      {isWinner && calendarStartsAt && (
+        <InfoBox
+          tone="success"
+          icon={calendarOutline}
+          label="Fecha del trabajo"
+          value={parseStartsAt(calendarStartsAt).toLocaleString('es-ES', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}
+        />
+      )}
 
       <InfoBox
         tone={isWinner ? 'success' : 'neutral'}

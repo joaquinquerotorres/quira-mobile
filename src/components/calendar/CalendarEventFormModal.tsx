@@ -19,10 +19,9 @@ import {
 import { closeOutline } from 'ionicons/icons';
 import type { CalendarEvent, ServiceRequest } from '../../types';
 import {
-  createCalendarEvent,
   parseStartsAt,
   toLocalDateTimeString,
-  updateCalendarEvent,
+  upsertCalendarEventForRequest,
 } from '../../api/calendarEventsApi';
 
 export type CalendarEventFormMode = 'create' | 'edit';
@@ -73,7 +72,8 @@ const CalendarEventFormModal: React.FC<CalendarEventFormModalProps> = ({
     setStartsAt(defaultStartsAt());
   }, [isOpen, mode, event, lockedRequest]);
 
-  const title = mode === 'edit' ? 'Editar en calendario' : 'Añadir al calendario';
+  const title =
+    mode === 'edit' ? 'Editar fecha del trabajo' : 'Agendar fecha del trabajo';
 
   const canSave = useMemo(
     () => !!requestId && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(startsAt),
@@ -90,13 +90,14 @@ const CalendarEventFormModal: React.FC<CalendarEventFormModalProps> = ({
     if (!canSave || requestId == null) return;
     setSaving(true);
     try {
-      if (mode === 'edit' && event) {
-        const updated = await updateCalendarEvent(event.id, { startsAt });
-        onSaved(updated);
-      } else {
-        const created = await createCalendarEvent({ requestId, startsAt });
-        onSaved(created);
-      }
+      // Siempre upsert: un solo CalendarEvent por request (evita fecha distinta
+      // en detalle vs calendario si hubo duplicados).
+      const saved = await upsertCalendarEventForRequest({
+        requestId,
+        startsAt,
+        existingEventId: mode === 'edit' ? event?.id ?? null : null,
+      });
+      onSaved(saved);
       onDidDismiss();
     } catch (e: any) {
       const msg =
@@ -153,12 +154,12 @@ const CalendarEventFormModal: React.FC<CalendarEventFormModalProps> = ({
             </div>
           )}
 
-          <div className="calendar-form-label">Comienzo</div>
+          <div className="calendar-form-label">Fecha del trabajo</div>
           <div className="calendar-form-date-row">
             <IonDatetimeButton datetime={DATETIME_PICKER_ID} />
           </div>
           <p className="calendar-form-hint">
-            Fecha y hora de inicio. No hace falta indicar cuándo termina.
+            Día y hora en que se realizará el trabajo.
           </p>
 
           <IonButton
