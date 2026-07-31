@@ -44,7 +44,9 @@ export const DirectoryDetailReviews: React.FC<DirectoryDetailReviewsProps> = ({
       </h3>
     </div>
 
-    {reviews.map((review) => (
+    {reviews.map((review) => {
+      const comment = (review.text || review.comment || '').trim();
+      return (
       <div
         key={review.id}
         style={{
@@ -86,17 +88,20 @@ export const DirectoryDetailReviews: React.FC<DirectoryDetailReviewsProps> = ({
             />
           ))}
         </div>
-        <p
-          style={{
-            margin: '0',
-            color: '#475569',
-            fontSize: '0.9rem',
-            fontStyle: 'italic',
-          }}
-        >
-          &quot;{review.text || review.comment || ''}&quot;
-        </p>
+        {comment ? (
+          <p
+            style={{
+              margin: '0',
+              color: '#475569',
+              fontSize: '0.9rem',
+              fontStyle: 'italic',
+            }}
+          >
+            &quot;{comment}&quot;
+          </p>
+        ) : null}
       </div>
-    ))}
+      );
+    })}
   </div>
 );
