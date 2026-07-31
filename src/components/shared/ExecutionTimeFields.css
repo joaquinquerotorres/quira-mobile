@@ -1,0 +1,41 @@
+.execution-time-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.execution-time-date-block {
+  margin-top: 12px;
+}
+
+.execution-time-date-hint {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.execution-time-date-row {
+  display: flex;
+  align-items: center;
+}
+
+.execution-time-date-row ion-datetime-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+/* En formularios de puja, el label del bloque lleva margen tipico */
+.bid-input-group .execution-time-label {
+  margin-bottom: 8px;
+}
+
+.bid-input-group .execution-time-date-block {
+  margin-top: 10px;
+}
+
+.execution-time-fields--spaced {
+  margin-top: 15px;
+  margin-bottom: 4px;
+}

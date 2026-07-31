@@ -26,6 +26,8 @@ import {
 } from 'ionicons/icons';
 import { CATEGORY_OPTIONS } from '../../utils/categoryLabels';
 import { formatRequestPriceRangeEuros } from '../../utils/requestPriceRange';
+import { ExecutionTimeFields } from '../shared/ExecutionTimeFields';
+import { CLIENT_EXECUTION_TIME_OPTIONS } from '../../utils/executionTime';
 
 type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -40,7 +42,7 @@ interface NewRequestStep2FormProps {
   aiDiagnosis?: Record<string, unknown> | null;
   /** Nivel de riesgo estimado por la IA (no modificable por el usuario) */
   riskLevel?: RiskLevel;
-  /** Disponibilidad preferida para realizar el trabajo (sin fecha exacta) */
+  /** Disponibilidad preferida para realizar el trabajo (preset o fecha concreta). */
   desiredExecutionTime: string;
   photoBase64: string | null;
   audioBase64: string | null;
@@ -436,21 +438,13 @@ export const NewRequestStep2Form: React.FC<NewRequestStep2FormProps> = ({
         </IonLabel>
       </div>
       <div style={{ marginTop: 12 }}>
-        <div className="input-wrapper">
-          <IonSelect
-            interface="action-sheet"
-            value={desiredExecutionTime}
-            placeholder="Selecciona una opción"
-            onIonChange={(e) => onDesiredExecutionTimeChange(e.detail.value as string)}
-          >
-            <IonSelectOption value="Lo antes posible">Lo antes posible</IonSelectOption>
-            <IonSelectOption value="Esta semana">Esta semana</IonSelectOption>
-            <IonSelectOption value="La próxima semana">La próxima semana</IonSelectOption>
-            <IonSelectOption value="A convenir al aceptar la oferta">
-              A convenir al aceptar la oferta
-            </IonSelectOption>
-          </IonSelect>
-        </div>
+        <ExecutionTimeFields
+          label=""
+          options={CLIENT_EXECUTION_TIME_OPTIONS}
+          value={desiredExecutionTime}
+          onChange={onDesiredExecutionTimeChange}
+          selectWrapClassName="input-wrapper"
+        />
       </div>
     </div>
 
