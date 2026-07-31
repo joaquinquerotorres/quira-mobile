@@ -24,6 +24,23 @@ Roadmap de módulos (1 PR cada uno):
 - Todas las rutas `/api/admin/*` requieren `is_granted('ROLE_ADMIN')`.
 - Respuestas: `403` si no admin; `401` si sin JWT.
 
+### Usuario admin (NO fixtures / NO migrations)
+
+El operador **no** debe crearse con Doctrine fixtures ni con migraciones SQL (ni contraseñas en el repo).
+
+Provisionamiento recomendado en Railway:
+
+1. Variables de entorno (solo en el servicio API, secretas):
+   - `ADMIN_EMAIL` — p. ej. tu email
+   - `ADMIN_PASSWORD` — contraseña fuerte generada fuera del repo
+2. Comando Symfony idempotente, p. ej. `app:admin:ensure`:
+   - Si no existe user con ese email → lo crea con password hasheado + `ROLE_ADMIN` (y `ROLE_CLIENT` si hace falta para usar la app).
+   - Si existe → asegura `ROLE_ADMIN` y **opcionalmente** actualiza el password solo si pasas un flag (`--reset-password`) o si `ADMIN_PASSWORD` cambió y el comando lo contempla de forma explícita.
+3. Ejecutar **una vez** (o tras rotar credenciales) con `railway run` / one-off en el servicio web — **no** en cada request HTTP.
+4. Tras crear el user, puedes quitar `ADMIN_PASSWORD` del entorno si quieres (dejar solo el hash en BD); o rotarla y volver a correr el comando.
+
+Prohibido: emails/passwords en fixtures, migrations, `.env` del repo, seeds commiteados.
+
 ### `GET /api/admin/stats/overview`
 
 Query:
@@ -125,8 +142,14 @@ Exponer métricas de dashboard solo para ROLE_ADMIN, consumidas por la app móvi
 
 ## Auth
 1. Añade el rol `ROLE_ADMIN` (constante / hierarchy si aplica).
-2. Crea (o documenta cómo crear) un usuario operador con email/password y `ROLE_ADMIN` (puede conservar ROLE_CLIENT).
-3. Todas las rutas bajo `/api/admin` deben exigir `is_granted('ROLE_ADMIN')`. Sin ese rol → 403.
+2. **NO** uses fixtures ni migrations para crear el admin ni para meter passwords.
+3. Implementa un comando Symfony idempotente `app:admin:ensure` que lea `ADMIN_EMAIL` y `ADMIN_PASSWORD` del entorno:
+   - Si faltan esas env → error claro y exit ≠ 0.
+   - Si el user no existe → créalo con password hasheado (mismo hasher que el login email/password de la app) + roles `ROLE_ADMIN` y `ROLE_CLIENT` (para poder entrar a la app).
+   - Si el user existe → asegúrate de que tenga `ROLE_ADMIN`; con opción `--reset-password` actualiza el hash desde `ADMIN_PASSWORD`.
+   - Marca email/teléfono verificados si tu login lo exige para operar, o documenta qué hace falta.
+4. Todas las rutas bajo `/api/admin` deben exigir `is_granted('ROLE_ADMIN')`. Sin ese rol → 403.
+5. Documenta en README del API: `railway variables` + `railway run php bin/console app:admin:ensure` (one-off).
 
 ## Endpoint
 `GET /api/admin/stats/overview?from=YYYY-MM-DD&to=YYYY-MM-DD`
