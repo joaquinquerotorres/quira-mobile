@@ -38,7 +38,6 @@ import ProCalendar from './pages/ProCalendar';
 import ChooseMode from './pages/ChooseMode';
 import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
-import AdminDashboard from './pages/admin/AdminDashboard';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { RequestMediaModalHost } from './components/shared/RequestMediaModal';
 import { initAnalytics, logEvent } from './services/analytics';
@@ -94,8 +93,7 @@ const MainTabs: React.FC = () => {
   // Ocultamos si estamos dentro de un detalle (/directory/123)
   const shouldHideTabBar = 
     hideTabBarPaths.includes(location.pathname) || 
-    location.pathname.startsWith('/directory/') ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/directory/');
 
   const user = readStoredUser();
   const activeMode = getEffectiveActiveMode();
@@ -166,12 +164,6 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/pro/calendar">
           <ProCalendar />
-        </Route>
-        <Route exact path="/admin">
-          <AdminDashboard />
-        </Route>
-        <Route exact path="/admin/dashboard">
-          <Redirect to="/admin" />
         </Route>
         <Route exact path="/">
           <Redirect to="/login" />
