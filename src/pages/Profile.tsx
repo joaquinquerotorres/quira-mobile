@@ -19,7 +19,9 @@ import {
   eyeOffOutline,
   mailOutline,
   refreshOutline,
+  statsChartOutline,
 } from 'ionicons/icons';
+import { hasAdminRole } from '../utils/adminAccess';
 import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import { Geolocation } from '@capacitor/geolocation';
 import api from '../api/axios';
@@ -907,6 +909,32 @@ const Profile: React.FC = () => {
               </IonItem>
             </div>
           </div>
+        )}
+
+        {hasAdminRole(user) && (
+          <>
+            <div className="profile-section-title">Administración</div>
+            <div className="profile-menu-card">
+              <IonItem
+                lines="none"
+                detail={false}
+                button
+                routerLink="/admin"
+                className="menu-item"
+              >
+                <div slot="start" className="icon-box icon-blue">
+                  <IonIcon icon={statsChartOutline} />
+                </div>
+                <IonLabel className="item-label">Admin · Dashboard</IonLabel>
+                <IonIcon
+                  slot="end"
+                  icon={chevronForwardOutline}
+                  color="medium"
+                  style={{ fontSize: '18px' }}
+                />
+              </IonItem>
+            </div>
+          </>
         )}
 
         <div className="profile-section-title">Preferencias</div>
