@@ -15,6 +15,7 @@
   - **Categorías (22 códigos)** sync con `App\Enum\Category` (`categoryLabels` / `categoryStyles` / `getDiscoveryCategories`)
 
 - **[API.md](./API.md)** — Contratos usados por la app: `POST /social/login` (`token` + `provider`); **`POST /requests`** (+ enum **`category`**); **upload tickets** (`maxBytes`); **`/predict`** + poll de tareas; perfiles / verify phone / `fcmToken`.
+- **[ADMIN.md](./ADMIN.md)** — Panel admin en la app (`ROLE_ADMIN`): roadmap por fases, contrato `GET /admin/stats/overview` y prompt backend.
 - **[VERIFY_EMAIL.md](./VERIFY_EMAIL.md)** — Verificación de email tras el registro: flujo web en `landing/verify-email`, API sin JWT y reenvío con JWT.
 - **[FEATURES.md](./FEATURES.md)** — Referencia rápida de auth y enlaces a API / otros docs.
 - **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)** — Requisitos de backend para la integración con Stripe (checkout, webhooks, `paidThroughAt`).

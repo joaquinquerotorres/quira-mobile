@@ -23,6 +23,11 @@ Ver **[API.md](./API.md)** — sección de diagnóstico.
 - **Login:** errores de email/contraseña o Google/Apple con **`IonAlert`** (un solo aviso; el usuario pulsa «Entendido» para cerrar).
 - **Resto de la app:** avisos breves con **`IonToast`**, duración **`TOAST_DURATION_MS`** (`src/config/uiTiming.ts`, p. ej. 6 segundos) para no ocultar el texto de inmediato.
 
+## Admin (interno)
+
+- Entrada en **Perfil → Admin · Dashboard** si el usuario tiene **`ROLE_ADMIN`**.
+- Fase 1 (dashboard KPIs / embudo / colas / tendencias): contrato y prompt backend en **[ADMIN.md](./ADMIN.md)**.
+
 ## Otros
 
 - Stripe / suscripción: **[STRIPE_BACKEND.md](./STRIPE_BACKEND.md)**.

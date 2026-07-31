@@ -1,0 +1,245 @@
+.admin-page {
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  background: var(--admin-bg);
+}
+
+.admin-content {
+  padding: 12px 14px 28px;
+}
+
+.admin-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--admin-text);
+  letter-spacing: -0.02em;
+}
+
+.admin-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--admin-muted);
+}
+
+.admin-range {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.admin-range button {
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.admin-range button.active {
+  background: #312e81;
+  border-color: #312e81;
+  color: #fff;
+}
+
+.admin-section {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.admin-section h2 {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-muted);
+}
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.admin-kpi {
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fafafa;
+}
+
+.admin-kpi-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--admin-muted);
+  margin-bottom: 4px;
+}
+
+.admin-kpi-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--admin-text);
+  line-height: 1.1;
+}
+
+.admin-kpi-delta {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.admin-kpi-delta.up {
+  color: #059669;
+}
+
+.admin-kpi-delta.down {
+  color: #dc2626;
+}
+
+.admin-kpi-delta.flat {
+  color: var(--admin-muted);
+}
+
+.admin-queues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.admin-queue {
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.admin-queue strong {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #c2410c;
+}
+
+.admin-queue span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9a3412;
+}
+
+.admin-funnel-row {
+  margin-bottom: 8px;
+}
+
+.admin-funnel-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  margin-bottom: 3px;
+  color: var(--admin-text);
+}
+
+.admin-funnel-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.admin-funnel-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #818cf8);
+  border-radius: 999px;
+}
+
+.admin-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.admin-chart-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+
+.admin-chart-axis {
+  font-size: 9px;
+  fill: #94a3b8;
+}
+
+.admin-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--admin-muted);
+}
+
+.admin-chart-legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.admin-muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--admin-muted);
+}
+
+.admin-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.admin-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.admin-denied {
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.admin-denied h1 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.admin-period-hint {
+  font-size: 0.72rem;
+  color: var(--admin-muted);
+  margin: -4px 0 12px;
+}
