@@ -33,6 +33,9 @@ import { refreshCurrentUserInStorage } from '../utils/refreshCurrentUser';
 import {
   defaultBidPricingType,
   getAllowedBidPricingTypes,
+  bidCommentLabel,
+  bidCommentPlaceholder,
+  isBidCommentRequired,
   type BidPricingType,
 } from '../utils/bidPricing';
 import { BidPricingFields } from '../components/pro/BidPricingFields';
@@ -305,6 +308,10 @@ const Market: React.FC = () => {
         return;
       }
     }
+    if (isBidCommentRequired(bidPricingType) && !bidComment.trim()) {
+      setToast('En un rango de precio debes explicar por qué puede variar.');
+      return;
+    }
     if (!bidEstimatedExecutionTime) {
       setToast('Debes indicar cuándo estimas poder realizar el trabajo.');
       return;
@@ -487,10 +494,10 @@ const Market: React.FC = () => {
                         </div>
 
                         <div className="bid-input-group textarea-group">
-                            <IonLabel>Detalle de la propuesta</IonLabel>
+                            <IonLabel>{bidCommentLabel(bidPricingType)}</IonLabel>
                             <IonTextarea 
                                 rows={4} 
-                                placeholder="Cuéntale al cliente por qué eres el profesional ideal..."
+                                placeholder={bidCommentPlaceholder(bidPricingType)}
                                 value={bidComment}
                                 onIonInput={e => setBidComment(e.detail.value!)}
                             />

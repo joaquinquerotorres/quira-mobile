@@ -230,7 +230,7 @@ test('FREE user opens bid modal when canBidThisMonth is true', async () => {
   });
 });
 
-test('RANGE request opens bid modal with min/max fields (not fixed price)', async () => {
+test('RANGE request opens bid modal defaulting to min/max with type choice', async () => {
   const rangeOpportunity = {
     ...mockOpportunity,
     pricingType: 'RANGE',
@@ -265,9 +265,13 @@ test('RANGE request opens bid modal with min/max fields (not fixed price)', asyn
   await userEvent.click(screen.getByText('ME INTERESA'));
 
   await waitFor(() => {
+    // Estimación IA RANGE → se abre en modo rango, pero el pro puede cambiar a fijo.
+    expect(screen.getByText('Tipo de propuesta')).toBeInTheDocument();
     expect(screen.getByText('Rango de precio (€)')).toBeInTheDocument();
     expect(screen.getByText('Precio mínimo')).toBeInTheDocument();
     expect(screen.getByText('Precio máximo')).toBeInTheDocument();
-    expect(screen.queryByText('Precio fijo')).not.toBeInTheDocument();
+    expect(screen.getByText('Motivo del rango (obligatorio)')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Precio fijo' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Rango de precio' })).toBeInTheDocument();
   });
 });

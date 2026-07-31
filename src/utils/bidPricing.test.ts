@@ -1,26 +1,35 @@
 import { describe, expect, test } from 'vitest';
 import {
+  bidCommentLabel,
   defaultBidPricingType,
   getAllowedBidPricingTypes,
   getRequestPricingType,
+  isBidCommentRequired,
 } from './bidPricing';
 
 describe('bidPricing', () => {
-  test('FIXED request only allows FIXED bids', () => {
-    expect(getAllowedBidPricingTypes({ pricingType: 'FIXED' })).toEqual(['FIXED']);
-    expect(defaultBidPricingType({ pricingType: 'FIXED' })).toBe('FIXED');
-  });
-
-  test('RANGE request only allows RANGE bids', () => {
-    expect(getAllowedBidPricingTypes({ pricingType: 'RANGE' })).toEqual(['RANGE']);
-    expect(defaultBidPricingType({ pricingType: 'RANGE' })).toBe('RANGE');
-  });
-
-  test('VISIT_REQUIRED allows FIXED or RANGE', () => {
+  test('pro can always choose FIXED or RANGE', () => {
+    expect(getAllowedBidPricingTypes({ pricingType: 'FIXED' })).toEqual([
+      'FIXED',
+      'RANGE',
+    ]);
+    expect(getAllowedBidPricingTypes({ pricingType: 'RANGE' })).toEqual([
+      'FIXED',
+      'RANGE',
+    ]);
     expect(getAllowedBidPricingTypes({ pricingType: 'VISIT_REQUIRED' })).toEqual([
       'FIXED',
       'RANGE',
     ]);
+    expect(getAllowedBidPricingTypes({})).toEqual(['FIXED', 'RANGE']);
+  });
+
+  test('default selection follows IA estimate when FIXED/RANGE', () => {
+    expect(defaultBidPricingType({ pricingType: 'FIXED' })).toBe('FIXED');
+    expect(defaultBidPricingType({ pricingType: 'RANGE' })).toBe('RANGE');
+    expect(defaultBidPricingType({ pricingType: 'VISIT_REQUIRED' })).toBe(
+      'FIXED',
+    );
   });
 
   test('reads pricing_type from aiDiagnosis fallback', () => {
@@ -31,13 +40,17 @@ describe('bidPricing', () => {
       }),
     ).toBe('RANGE');
     expect(
-      getAllowedBidPricingTypes({
-        aiDiagnosis: { pricingType: 'FIXED' },
+      defaultBidPricingType({
+        aiDiagnosis: { pricingType: 'RANGE' },
       }),
-    ).toEqual(['FIXED']);
+    ).toBe('RANGE');
   });
 
-  test('unknown/empty defaults to FIXED or RANGE', () => {
-    expect(getAllowedBidPricingTypes({})).toEqual(['FIXED', 'RANGE']);
+  test('comment required only for RANGE bids', () => {
+    expect(isBidCommentRequired('RANGE')).toBe(true);
+    expect(isBidCommentRequired('FIXED')).toBe(false);
+    expect(bidCommentLabel('RANGE')).toMatch(/motivo del rango/i);
+    expect(bidCommentLabel('RANGE')).toMatch(/obligatorio/i);
+    expect(bidCommentLabel('FIXED')).toMatch(/opcional/i);
   });
 });
