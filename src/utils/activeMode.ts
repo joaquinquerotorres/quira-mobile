@@ -1,5 +1,7 @@
 /** Modo activo de la app: cliente vs profesional. */
 
+import { hasAdminRole } from './adminAccess';
+
 export type ActiveMode = 'client' | 'pro';
 
 export const ACTIVE_MODE_KEY = 'quira_active_mode';
@@ -7,6 +9,7 @@ export const ACTIVE_MODE_KEY = 'quira_active_mode';
 export type ModeUser = {
   clientProfile?: unknown | null;
   professionalProfile?: unknown | null;
+  roles?: string[] | null;
 };
 
 export function hasClientProfile(user: ModeUser | null | undefined): boolean {
@@ -41,10 +44,15 @@ export function homePathForMode(mode: ActiveMode): string {
 }
 
 /**
- * Tras login: si tiene ambos perfiles → elegir modo;
+ * Tras login: ROLE_ADMIN → panel admin;
+ * si tiene ambos perfiles → elegir modo;
  * si solo pro → modo pro; si solo cliente (o sin pro) → cliente.
  */
 export function resolvePostLoginPath(user: ModeUser): string {
+  if (hasAdminRole(user)) {
+    clearActiveMode();
+    return '/admin';
+  }
   if (hasDualProfiles(user)) {
     clearActiveMode();
     return '/choose-mode';

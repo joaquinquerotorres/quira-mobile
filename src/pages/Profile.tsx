@@ -19,7 +19,6 @@ import {
   eyeOffOutline,
   mailOutline,
   refreshOutline,
-  statsChartOutline,
 } from 'ionicons/icons';
 import { hasAdminRole } from '../utils/adminAccess';
 import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
@@ -771,6 +770,7 @@ const Profile: React.FC = () => {
       ((subscriptionEndIso != null && new Date(subscriptionEndIso) < new Date()) ||
         isDowngradedDueToExpiredPayment(user)),
   );
+  const isAdmin = hasAdminRole(user);
 
   return (
     <IonPage>
@@ -780,16 +780,58 @@ const Profile: React.FC = () => {
         
         <div className="profile-hero animate__animated animate__fadeIn">
             <div className="profile-avatar" style={{overflow: 'hidden'}}>
-                {getMainAvatar()}
+                {isAdmin ? (user?.email || 'A').charAt(0).toUpperCase() : getMainAvatar()}
             </div>
             
-            <h2 className="profile-name">{getDisplayName()}</h2>
-            <p className="profile-email">{user?.email}</p>
+            <h2 className="profile-name">
+              {isAdmin ? (user?.email || 'Administrador') : getDisplayName()}
+            </h2>
+            {!isAdmin && <p className="profile-email">{user?.email}</p>}
             <div style={{marginTop: '8px'}}>
-                {renderTierBadge()}
+                {isAdmin ? (
+                  <div className="tier-pill pro">
+                    <IonIcon icon={shieldCheckmarkOutline} /> ADMIN
+                  </div>
+                ) : (
+                  renderTierBadge()
+                )}
             </div>
         </div>
 
+        {isAdmin ? (
+          <>
+            <div className="profile-section-title">Cuenta</div>
+            <div className="profile-menu-card">
+              <IonItem
+                lines="none"
+                detail={false}
+                button
+                onClick={openPasswordModal}
+                className="menu-item"
+              >
+                <div slot="start" className="icon-box icon-gray">
+                  <IonIcon icon={lockClosedOutline} />
+                </div>
+                <IonLabel className="item-label">Cambiar contraseña</IonLabel>
+                <IonIcon
+                  slot="end"
+                  icon={chevronForwardOutline}
+                  color="medium"
+                  style={{ fontSize: '18px' }}
+                />
+              </IonItem>
+            </div>
+            <IonButton
+              expand="block"
+              fill="clear"
+              className="logout-button"
+              onClick={handleLogout}
+            >
+              <IonIcon slot="start" icon={logOutOutline} /> CERRAR SESIÓN
+            </IonButton>
+          </>
+        ) : (
+          <>
         {showTrialExpiredBanner && (
             <div className="profile-trial-expired-banner" onClick={() => router.push('/become-pro')}>
                 <div className="profile-trial-expired-content">
@@ -911,32 +953,6 @@ const Profile: React.FC = () => {
           </div>
         )}
 
-        {hasAdminRole(user) && (
-          <>
-            <div className="profile-section-title">Administración</div>
-            <div className="profile-menu-card">
-              <IonItem
-                lines="none"
-                detail={false}
-                button
-                routerLink="/admin"
-                className="menu-item"
-              >
-                <div slot="start" className="icon-box icon-blue">
-                  <IonIcon icon={statsChartOutline} />
-                </div>
-                <IonLabel className="item-label">Admin · Dashboard</IonLabel>
-                <IonIcon
-                  slot="end"
-                  icon={chevronForwardOutline}
-                  color="medium"
-                  style={{ fontSize: '18px' }}
-                />
-              </IonItem>
-            </div>
-          </>
-        )}
-
         <div className="profile-section-title">Preferencias</div>
         <div className="profile-menu-card">
             <IonItem lines="none" detail={false} button onClick={() => setShowReviewsModal(true)} className="menu-item">
@@ -979,6 +995,8 @@ const Profile: React.FC = () => {
         <IonButton expand="block" fill="clear" className="logout-button" onClick={handleLogout}>
             <IonIcon slot="start" icon={logOutOutline} /> CERRAR SESIÓN
         </IonButton>
+          </>
+        )}
 
         {/* MODAL HISTORIAL: Trabajos que he completado (como pro) */}
         <ProfileSubpageShell

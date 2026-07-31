@@ -73,6 +73,26 @@ test('Profile renders menu sections', () => {
   expect(screen.getByText('CERRAR SESIÓN')).toBeInTheDocument();
 });
 
+test('Profile for ROLE_ADMIN only shows password and logout', () => {
+  (localStorage as any).setItem?.(
+    'user',
+    JSON.stringify({
+      id: 99,
+      email: 'admin@quira.app',
+      roles: ['ROLE_ADMIN', 'ROLE_CLIENT'],
+      clientProfile: { id: 1, fullName: 'Admin', '@id': '/clients/1' },
+    }),
+  );
+  render(<Profile />, { wrapper });
+  expect(screen.getByText('Cambiar contraseña')).toBeInTheDocument();
+  expect(screen.getByText('CERRAR SESIÓN')).toBeInTheDocument();
+  expect(screen.getByText('ADMIN')).toBeInTheDocument();
+  expect(screen.queryByText('Datos Personales')).not.toBeInTheDocument();
+  expect(screen.queryByText('Valoraciones')).not.toBeInTheDocument();
+  expect(screen.queryByText('Notificaciones')).not.toBeInTheDocument();
+  expect(screen.queryByText('¡Quiero trabajar!')).not.toBeInTheDocument();
+});
+
 test('Profile does not show paid-through-expired banner when paidThroughAt is null for CLIENT', () => {
   render(<Profile />, { wrapper });
   expect(screen.queryByText('Tu plan ha caducado')).not.toBeInTheDocument();

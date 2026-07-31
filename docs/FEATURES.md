@@ -25,7 +25,7 @@ Ver **[API.md](./API.md)** — sección de diagnóstico.
 
 ## Admin (interno)
 
-- Entrada en **Perfil → Admin · Dashboard** si el usuario tiene **`ROLE_ADMIN`**.
+- Con **`ROLE_ADMIN`**: shell propio (tabs Resumen / Solicitudes / Ofertas / Más / Perfil), login → `/admin`, perfil solo contraseña.
 - Fase 1 (dashboard KPIs / embudo / colas / tendencias): contrato y prompt backend en **[ADMIN.md](./ADMIN.md)**.
 
 ## Otros

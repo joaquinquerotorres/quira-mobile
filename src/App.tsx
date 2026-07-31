@@ -18,6 +18,10 @@ import {
   briefcaseOutline, 
   add,
   calendarOutline,
+  statsChartOutline,
+  documentTextOutline,
+  cashOutline,
+  appsOutline,
 } from 'ionicons/icons';
 
 import RequestList from './pages/RequestList';
@@ -39,6 +43,17 @@ import ChooseMode from './pages/ChooseMode';
 import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminMore from './pages/admin/AdminMore';
+import {
+  AdminBidsPage,
+  AdminOpsPage,
+  AdminPlatformPage,
+  AdminQualityPage,
+  AdminRequestsPage,
+  AdminSubscriptionsPage,
+  AdminToolsPage,
+  AdminUsersPage,
+} from './pages/admin/AdminComingSoon';
 import { DowngradeBanner } from './components/DowngradeBanner';
 import { RequestMediaModalHost } from './components/shared/RequestMediaModal';
 import { initAnalytics, logEvent } from './services/analytics';
@@ -48,6 +63,7 @@ import {
   hasProfessionalProfile,
   readStoredUser,
 } from './utils/activeMode';
+import { hasAdminRole } from './utils/adminAccess';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -90,25 +106,29 @@ const MainTabs: React.FC = () => {
     '/' // En la raíz para evitar flash antes del redirect
   ];
 
-  // Verificamos si la ruta actual debe ocultar la barra
-  // Ocultamos si estamos dentro de un detalle (/directory/123)
-  const shouldHideTabBar = 
-    hideTabBarPaths.includes(location.pathname) || 
-    location.pathname.startsWith('/directory/') ||
-    location.pathname.startsWith('/admin');
-
   const user = readStoredUser();
+  const isAdmin = hasAdminRole(user);
   const activeMode = getEffectiveActiveMode();
+
+  // Verificamos si la ruta actual debe ocultar la barra
+  const shouldHideTabBar =
+    hideTabBarPaths.includes(location.pathname) ||
+    (!isAdmin && location.pathname.startsWith('/directory/'));
+
   // Tabs pro si el modo es pro, o si la ruta actual es del shell profesional
   // (evita tab bar vacía cuando la URL no coincide con ningún botón visible).
   const showProTabs =
+    !isAdmin &&
     hasProfessionalProfile(user) &&
     (activeMode === 'pro' || isProShellPath(location.pathname));
+
+  const showClientTabs = !isAdmin && !showProTabs;
+  const showAdminTabs = isAdmin;
 
   return (
     <>
       <IonTabs>
-      <DowngradeBanner />
+      {!isAdmin && <DowngradeBanner />}
       <IonRouterOutlet>
         <Route exact path="/login">
           <Login />
@@ -129,49 +149,73 @@ const MainTabs: React.FC = () => {
           <Register />
         </Route>
         <Route exact path="/choose-mode">
-          <ChooseMode />
+          {isAdmin ? <Redirect to="/admin" /> : <ChooseMode />}
         </Route>
         <Route exact path="/new-request">
-          <NewRequest />
+          {isAdmin ? <Redirect to="/admin" /> : <NewRequest />}
         </Route>
         <Route exact path="/become-pro">
-          <BecomePro />
+          {isAdmin ? <Redirect to="/admin" /> : <BecomePro />}
         </Route>
         <Route exact path="/request/:id">
-            <RequestDetail />
+          {isAdmin ? <Redirect to="/admin" /> : <RequestDetail />}
         </Route>
         <Route exact path="/pro/request/:id">
-            <ProRequestDetail />
+          {isAdmin ? <Redirect to="/admin" /> : <ProRequestDetail />}
         </Route>
         <Route exact path="/request-list">
-          <RequestList />
+          {isAdmin ? <Redirect to="/admin" /> : <RequestList />}
         </Route>
         <Route exact path="/directory">
-          <Directory />
+          {isAdmin ? <Redirect to="/admin" /> : <Directory />}
         </Route>
-        
-        {/* --- 2. NUEVA RUTA DE DETALLE --- */}
         <Route exact path="/directory/:id">
-          <DirectoryDetail />
+          {isAdmin ? <Redirect to="/admin" /> : <DirectoryDetail />}
         </Route>
-
         <Route exact path="/market">
-          <Market />
+          {isAdmin ? <Redirect to="/admin" /> : <Market />}
         </Route>
         <Route exact path="/profile">
           <Profile />
         </Route>
         <Route exact path="/my-work">
-          <MyWork />
+          {isAdmin ? <Redirect to="/admin" /> : <MyWork />}
         </Route>
         <Route exact path="/pro/calendar">
-          <ProCalendar />
+          {isAdmin ? <Redirect to="/admin" /> : <ProCalendar />}
         </Route>
         <Route exact path="/admin">
           <AdminDashboard />
         </Route>
         <Route exact path="/admin/dashboard">
           <Redirect to="/admin" />
+        </Route>
+        <Route exact path="/admin/requests">
+          <AdminRequestsPage />
+        </Route>
+        <Route exact path="/admin/bids">
+          <AdminBidsPage />
+        </Route>
+        <Route exact path="/admin/more">
+          <AdminMore />
+        </Route>
+        <Route exact path="/admin/users">
+          <AdminUsersPage />
+        </Route>
+        <Route exact path="/admin/subscriptions">
+          <AdminSubscriptionsPage />
+        </Route>
+        <Route exact path="/admin/quality">
+          <AdminQualityPage />
+        </Route>
+        <Route exact path="/admin/ops">
+          <AdminOpsPage />
+        </Route>
+        <Route exact path="/admin/platform">
+          <AdminPlatformPage />
+        </Route>
+        <Route exact path="/admin/tools">
+          <AdminToolsPage />
         </Route>
         <Route exact path="/">
           <Redirect to="/login" />
@@ -187,7 +231,7 @@ const MainTabs: React.FC = () => {
         <IonTabButton
           tab="requestList"
           href="/request-list"
-          className={showProTabs ? 'quira-tab-hidden' : undefined}
+          className={showClientTabs ? undefined : 'quira-tab-hidden'}
         >
           <IonIcon aria-hidden="true" icon={homeOutline} />
           <IonLabel>Inicio</IonLabel>
@@ -195,7 +239,9 @@ const MainTabs: React.FC = () => {
         <IonTabButton
           tab="new-request"
           href="/new-request"
-          className={showProTabs ? 'quira-tab-hidden quira-tab-pedir' : 'quira-tab-pedir'}
+          className={
+            showClientTabs ? 'quira-tab-pedir' : 'quira-tab-hidden quira-tab-pedir'
+          }
         >
           <IonIcon aria-hidden="true" icon={add} />
           <IonLabel>Pedir</IonLabel>
@@ -224,6 +270,39 @@ const MainTabs: React.FC = () => {
         >
           <IonIcon aria-hidden="true" icon={calendarOutline} />
           <IonLabel>Calendario</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton
+          tab="admin-home"
+          href="/admin"
+          className={showAdminTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={statsChartOutline} />
+          <IonLabel>Resumen</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="admin-requests"
+          href="/admin/requests"
+          className={showAdminTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={documentTextOutline} />
+          <IonLabel>Solicitudes</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="admin-bids"
+          href="/admin/bids"
+          className={showAdminTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={cashOutline} />
+          <IonLabel>Ofertas</IonLabel>
+        </IonTabButton>
+        <IonTabButton
+          tab="admin-more"
+          href="/admin/more"
+          className={showAdminTabs ? undefined : 'quira-tab-hidden'}
+        >
+          <IonIcon aria-hidden="true" icon={appsOutline} />
+          <IonLabel>Más</IonLabel>
         </IonTabButton>
 
         <IonTabButton tab="profile" href="/profile">

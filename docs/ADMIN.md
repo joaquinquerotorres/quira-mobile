@@ -1,13 +1,18 @@
 # Admin Quira (app móvil)
 
-Panel interno dentro de la misma app Ionic. Entrada: **Perfil → Admin · Dashboard** si el JWT/user tiene `ROLE_ADMIN`.
+Panel interno dentro de la misma app Ionic. Con `ROLE_ADMIN`:
 
-Roadmap de módulos (1 PR cada uno):
+- Tras login → `/admin` (no shell cliente/pro).
+- **Tab bar admin**: Resumen · Solicitudes · Ofertas · Más · Perfil.
+- Rutas cliente/pro (`/request-list`, `/new-request`, mercado, etc.) redirigen a `/admin`.
+- **Perfil** reducido: solo cambiar contraseña + cerrar sesión.
 
-1. **Dashboard** (esta fase) — KPIs, embudo, colas, tendencias  
-2. Solicitudes  
-3. Ofertas  
-4. Usuarios / pros  
+Roadmap de módulos (1 PR de contenido cada uno; el shell ya reserva rutas):
+
+1. **Dashboard / Resumen** — KPIs, embudo, colas, tendencias  
+2. Solicitudes (`/admin/requests`)  
+3. Ofertas (`/admin/bids`)  
+4. Usuarios / pros (`/admin/users`, vía Más)  
 5. Suscripciones / Stripe  
 6. Calidad y confianza  
 7. Ops / producto  

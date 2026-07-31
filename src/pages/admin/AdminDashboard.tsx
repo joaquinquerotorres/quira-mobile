@@ -9,9 +9,8 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
-  useIonRouter,
 } from '@ionic/react';
-import { chevronBackOutline, refreshOutline } from 'ionicons/icons';
+import { refreshOutline } from 'ionicons/icons';
 import {
   fetchAdminStatsOverview,
   kpiDeltaPercent,
@@ -52,7 +51,6 @@ function KpiCard({ label, kpi }: { label: string; kpi: AdminKpiDelta }) {
 }
 
 const AdminDashboard: React.FC = () => {
-  const router = useIonRouter();
   const [allowed, setAllowed] = useState(() => isStoredUserAdmin());
   const [range, setRange] = useState<AdminStatsRange>('30d');
   const [data, setData] = useState<AdminStatsOverview | null>(null);
@@ -96,11 +94,6 @@ const AdminDashboard: React.FC = () => {
       <IonPage className="admin-page">
         <IonHeader>
           <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton onClick={() => router.push('/profile', 'back')}>
-                <IonIcon slot="icon-only" icon={chevronBackOutline} />
-              </IonButton>
-            </IonButtons>
             <IonTitle>Admin</IonTitle>
           </IonToolbar>
         </IonHeader>
@@ -110,9 +103,6 @@ const AdminDashboard: React.FC = () => {
             <p className="admin-muted">
               Esta sección solo está disponible para usuarios con ROLE_ADMIN.
             </p>
-            <IonButton fill="outline" onClick={() => router.push('/profile', 'back')}>
-              Volver al perfil
-            </IonButton>
           </div>
         </IonContent>
       </IonPage>
@@ -123,12 +113,7 @@ const AdminDashboard: React.FC = () => {
     <IonPage className="admin-page">
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => router.push('/profile', 'back')}>
-              <IonIcon slot="icon-only" icon={chevronBackOutline} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Admin · Dashboard</IonTitle>
+          <IonTitle>Admin · Resumen</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => void load(range)} aria-label="Actualizar">
               <IonIcon slot="icon-only" icon={refreshOutline} />

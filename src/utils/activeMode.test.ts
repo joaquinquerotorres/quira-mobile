@@ -53,6 +53,17 @@ describe('activeMode', () => {
     expect(getActiveMode()).toBe('pro');
   });
 
+  it('resolvePostLoginPath sends ROLE_ADMIN to /admin', () => {
+    expect(
+      resolvePostLoginPath({
+        roles: ['ROLE_ADMIN', 'ROLE_CLIENT'],
+        clientProfile: {},
+        professionalProfile: {},
+      }),
+    ).toBe('/admin');
+    expect(getActiveMode()).toBeNull();
+  });
+
   it('homePathForMode', () => {
     expect(homePathForMode('client')).toBe('/request-list');
     expect(homePathForMode('pro')).toBe('/market');

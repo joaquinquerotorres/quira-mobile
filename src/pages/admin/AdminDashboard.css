@@ -238,6 +238,33 @@
   margin: 0 0 8px;
 }
 
+.admin-more-list {
+  background: transparent;
+  margin: 0 -6px;
+  padding: 0;
+}
+
+.admin-more-list ion-item {
+  --background: var(--admin-card);
+  --border-radius: 12px;
+  --padding-start: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+}
+
+.admin-more-list h2 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.admin-more-list p {
+  font-size: 0.75rem;
+  color: var(--admin-muted);
+  margin: 2px 0 0;
+}
+
 .admin-period-hint {
   font-size: 0.72rem;
   color: var(--admin-muted);
