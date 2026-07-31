@@ -270,7 +270,7 @@ test('RANGE request opens bid modal defaulting to min/max with type choice', asy
     expect(screen.getByText('Rango de precio (€)')).toBeInTheDocument();
     expect(screen.getByText('Precio mínimo')).toBeInTheDocument();
     expect(screen.getByText('Precio máximo')).toBeInTheDocument();
-    expect(screen.getByText('Por qué este rango de precio')).toBeInTheDocument();
+    expect(screen.getByText('Motivo del rango (obligatorio)')).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Precio fijo' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Rango de precio' })).toBeInTheDocument();
   });

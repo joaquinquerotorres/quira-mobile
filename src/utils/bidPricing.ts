@@ -58,12 +58,12 @@ export function isBidCommentRequired(pricingType: BidPricingType): boolean {
 
 export function bidCommentLabel(pricingType: BidPricingType): string {
   return isBidCommentRequired(pricingType)
-    ? 'Por qué este rango de precio'
+    ? 'Motivo del rango (obligatorio)'
     : 'Detalle de la propuesta (opcional)';
 }
 
 export function bidCommentPlaceholder(pricingType: BidPricingType): string {
   return isBidCommentRequired(pricingType)
-    ? 'Explica al cliente por qué el precio puede variar (materiales, acceso, estado desconocido…)'
+    ? 'Indica por qué el precio no es fijo: materiales, acceso, estado desconocido, imprevistos…'
     : 'Cuéntale al cliente por qué eres el profesional ideal…';
 }

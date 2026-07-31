@@ -49,7 +49,8 @@ describe('bidPricing', () => {
   test('comment required only for RANGE bids', () => {
     expect(isBidCommentRequired('RANGE')).toBe(true);
     expect(isBidCommentRequired('FIXED')).toBe(false);
-    expect(bidCommentLabel('RANGE')).toMatch(/rango/i);
+    expect(bidCommentLabel('RANGE')).toMatch(/motivo del rango/i);
+    expect(bidCommentLabel('RANGE')).toMatch(/obligatorio/i);
     expect(bidCommentLabel('FIXED')).toMatch(/opcional/i);
   });
 });
