@@ -78,25 +78,10 @@ test('DirectoryProCard shows skill labels in Spanish (not raw codes)', () => {
   expect(screen.getByText('Fontanería • Climatización')).toBeInTheDocument();
 });
 
-test('DirectoryProCard shows En Quira desde when createdAt is present', () => {
+test('DirectoryProCard does not show En Quira desde in listing', () => {
   render(
     <DirectoryProCard
       pro={{ ...basePro, createdAt: '2026-05-12T12:00:00Z', rating: 4, reviewCount: 1 } as any}
-      serverUrl="https://example.test"
-      isPro={true}
-      isSolver={false}
-      onClick={() => {}}
-    />,
-    { wrapper }
-  );
-
-  expect(screen.getByText('En Quira desde mayo de 2026')).toBeInTheDocument();
-});
-
-test('DirectoryProCard omits member-since line without createdAt', () => {
-  render(
-    <DirectoryProCard
-      pro={{ ...basePro, rating: 4, reviewCount: 1 } as any}
       serverUrl="https://example.test"
       isPro={true}
       isSolver={false}
