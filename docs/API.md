@@ -45,7 +45,7 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 | `locationPoint` | GeoJSON Point | `coordinates: [lng, lat]`. |
 | **`estimatedPriceMin`**, **`estimatedPriceMax`** | number (céntimos) | Rango de la estimación IA; obligatorios para el flujo actual. |
 | **`aiDiagnosis`** | `{ min: number, max: number }` | Redundante con min/max; mismo criterio en céntimos. |
-| `desiredExecutionTime` | string | Disponibilidad preferida (texto libre predefinido en UI). |
+| `desiredExecutionTime` | string | Disponibilidad preferida: presets de UI o `Fecha concreta: DD/MM/YYYY`. |
 | `riskLevel` | `LOW` \| `MEDIUM` \| `HIGH` | Opcional; desde `/predict`. |
 | `clientOriginalDescription` | string | Opcional; modo texto + imagen. |
 | `photoUrl`, `audioUrl`, `videoUrl`, `extraPhotoUrls`, … | URLs | Tras subida a bucket. |

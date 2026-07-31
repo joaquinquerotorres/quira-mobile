@@ -64,6 +64,7 @@ import {
   parsePredictSafetyFields,
   unsafeUserMessage,
 } from '../utils/parsePredictSafety';
+import { isExecutionTimeComplete } from '../utils/executionTime';
 import {
   CORDOBA_AREA_TOAST,
   isCordobaAreaFromComponents,
@@ -962,6 +963,10 @@ const NewRequest: React.FC = () => {
     }
     if (!title || !address) {
       setToast('Faltan datos obligatorios.');
+      return;
+    }
+    if (!isExecutionTimeComplete(desiredExecutionTime)) {
+      setToast('Si eliges fecha concreta, debes seleccionar el día.');
       return;
     }
     if (!aiRange || typeof aiRange.min !== 'number' || typeof aiRange.max !== 'number') {

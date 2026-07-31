@@ -39,6 +39,11 @@ import {
   type BidPricingType,
 } from '../utils/bidPricing';
 import { BidPricingFields } from '../components/pro/BidPricingFields';
+import { ExecutionTimeFields } from '../components/shared/ExecutionTimeFields';
+import {
+  PRO_EXECUTION_TIME_OPTIONS,
+  isExecutionTimeComplete,
+} from '../utils/executionTime';
 
 // LÍMITE DE PROPUESTAS PARA USUARIOS FREE
 const FREE_BID_LIMIT = 3;
@@ -312,8 +317,13 @@ const Market: React.FC = () => {
       setToast('En un rango de precio debes explicar por qué puede variar.');
       return;
     }
-    if (!bidEstimatedExecutionTime) {
-      setToast('Debes indicar cuándo estimas poder realizar el trabajo.');
+    if (!isExecutionTimeComplete(bidEstimatedExecutionTime)) {
+      setToast(
+        bidEstimatedExecutionTime === 'Fecha concreta' ||
+          bidEstimatedExecutionTime.startsWith('Fecha concreta')
+          ? 'Si eliges fecha concreta, debes seleccionar el día.'
+          : 'Debes indicar cuándo estimas poder realizar el trabajo.',
+      );
       return;
     }
     setSubmitting(true);
@@ -476,22 +486,14 @@ const Market: React.FC = () => {
                           onBidPriceMaxChange={setBidPriceMax}
                         />
 
-                        <div className="bid-input-group">
-                            <IonLabel>Cuándo podrías realizar el trabajo</IonLabel>
-                            <IonSelect
-                                interface="action-sheet"
-                                placeholder="Selecciona una opción"
-                                value={bidEstimatedExecutionTime}
-                                onIonChange={e => setBidEstimatedExecutionTime(e.detail.value as string)}
-                            >
-                                <IonSelectOption value="Hoy mismo">Hoy mismo</IonSelectOption>
-                                <IonSelectOption value="Mañana">Mañana</IonSelectOption>
-                                <IonSelectOption value="Esta semana">Esta semana</IonSelectOption>
-                                <IonSelectOption value="La próxima semana">La próxima semana</IonSelectOption>
-                                <IonSelectOption value="En dos semanas o más">En dos semanas o más</IonSelectOption>
-                                <IonSelectOption value="A convenir al aceptar la oferta">A convenir al aceptar la oferta</IonSelectOption>
-                            </IonSelect>
-                        </div>
+                        <ExecutionTimeFields
+                          label="Cuándo podrías realizar el trabajo"
+                          options={PRO_EXECUTION_TIME_OPTIONS}
+                          value={bidEstimatedExecutionTime}
+                          onChange={setBidEstimatedExecutionTime}
+                          className="bid-input-group"
+                          selectWrapClassName=""
+                        />
 
                         <div className="bid-input-group textarea-group">
                             <IonLabel>{bidCommentLabel(bidPricingType)}</IonLabel>

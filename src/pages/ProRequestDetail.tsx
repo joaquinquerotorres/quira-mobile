@@ -3,7 +3,7 @@ import {
   IonPage, IonHeader, IonToolbar, IonButtons, IonContent, IonFooter,
   IonLoading, IonToast, IonBadge, IonIcon, IonButton, 
   useIonRouter, IonAvatar, IonTitle, IonModal, IonTextarea, IonSpinner,
-  IonLabel, IonAlert, IonSelect, IonSelectOption
+  IonLabel, IonAlert
 } from '@ionic/react';
 import { useParams } from 'react-router';
 import { 
@@ -45,6 +45,11 @@ import {
   type BidPricingType,
 } from '../utils/bidPricing';
 import { BidPricingFields } from '../components/pro/BidPricingFields';
+import { ExecutionTimeFields } from '../components/shared/ExecutionTimeFields';
+import {
+  PRO_EXECUTION_TIME_OPTIONS,
+  isExecutionTimeComplete,
+} from '../utils/executionTime';
 
 const serverUrl = env.serverUrl;
 const GOOGLE_API_KEY = env.googleMapsKey; 
@@ -311,8 +316,13 @@ const ProRequestDetail: React.FC = () => {
           setToast('En un rango de precio debes explicar por qué puede variar.');
           return;
       }
-      if (!bidEstimatedExecutionTime) {
-          setToast("Debes indicar cuándo estimas poder realizar el trabajo.");
+      if (!isExecutionTimeComplete(bidEstimatedExecutionTime)) {
+          setToast(
+            bidEstimatedExecutionTime === 'Fecha concreta' ||
+              bidEstimatedExecutionTime.startsWith('Fecha concreta')
+              ? 'Si eliges fecha concreta, debes seleccionar el día.'
+              : 'Debes indicar cuándo estimas poder realizar el trabajo.',
+          );
           return;
       }
       setSubmittingBid(true);
@@ -589,22 +599,14 @@ const ProRequestDetail: React.FC = () => {
                       onBidPriceMaxChange={setBidPriceMax}
                     />
 
-                    <IonLabel className="section-label" style={{marginTop:'15px'}}>Cuándo podrías realizar el trabajo</IonLabel>
-                    <div className="input-wrapper">
-                      <IonSelect
-                        interface="action-sheet"
-                        placeholder="Selecciona una opción"
-                        value={bidEstimatedExecutionTime}
-                        onIonChange={e => setBidEstimatedExecutionTime(e.detail.value as string)}
-                      >
-                        <IonSelectOption value="Hoy mismo">Hoy mismo</IonSelectOption>
-                        <IonSelectOption value="Mañana">Mañana</IonSelectOption>
-                        <IonSelectOption value="Esta semana">Esta semana</IonSelectOption>
-                        <IonSelectOption value="La próxima semana">La próxima semana</IonSelectOption>
-                        <IonSelectOption value="En dos semanas o más">En dos semanas o más</IonSelectOption>
-                        <IonSelectOption value="A convenir al aceptar la oferta">A convenir al aceptar la oferta</IonSelectOption>
-                      </IonSelect>
-                    </div>
+                    <ExecutionTimeFields
+                      label="Cuándo podrías realizar el trabajo"
+                      options={PRO_EXECUTION_TIME_OPTIONS}
+                      value={bidEstimatedExecutionTime}
+                      onChange={setBidEstimatedExecutionTime}
+                      selectWrapClassName="input-wrapper"
+                      className="execution-time-fields--spaced"
+                    />
 
                     <IonLabel className="section-label" style={{marginTop:'15px'}}>{bidCommentLabel(bidPricingType)}</IonLabel>
                     <div className="input-wrapper textarea-wrapper">
