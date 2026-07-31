@@ -29,6 +29,7 @@ import {
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import {
   collectRequestMedia,
+  normalizeMediaUrl,
   type RequestMediaItem,
   type RequestMediaSources,
 } from '../../utils/requestMedia';
@@ -40,14 +41,37 @@ const KIND_LABEL: Record<RequestMediaItem['kind'], string> = {
   audio: 'Audio',
 };
 
-type OpenHandler = (items: RequestMediaItem[]) => void;
+type OpenHandler = (items: RequestMediaItem[], initialIndex: number) => void;
 
 /** Un solo modal para toda la app (evita IonModal por card → pantalla negra intermitente). */
 let openMediaHandler: OpenHandler | null = null;
 
-export function openRequestMedia(items: RequestMediaItem[]): void {
+export function openRequestMedia(
+  items: RequestMediaItem[],
+  initialIndex = 0,
+): void {
   if (!items.length) return;
-  openMediaHandler?.([...items]);
+  const idx = Math.max(0, Math.min(Math.floor(initialIndex), items.length - 1));
+  openMediaHandler?.([...items], idx);
+}
+
+/** Abre la galería a partir de las fuentes de una solicitud, opcionalmente en un ítem concreto. */
+export function openRequestMediaFromSources(
+  sources: RequestMediaSources,
+  start?: { url?: string | null; kind?: RequestMediaItem['kind'] },
+): void {
+  const items = collectRequestMedia(sources);
+  if (!items.length) return;
+  let index = 0;
+  const startUrl = normalizeMediaUrl(start?.url);
+  if (startUrl) {
+    const found = items.findIndex(
+      (item) =>
+        item.url === startUrl && (!start?.kind || item.kind === start.kind),
+    );
+    if (found >= 0) index = found;
+  }
+  openRequestMedia(items, index);
 }
 
 interface RequestMediaChipProps extends RequestMediaSources {
@@ -115,12 +139,14 @@ export const RequestMediaChip: React.FC<RequestMediaChipProps> = ({
 interface RequestMediaModalProps {
   isOpen: boolean;
   items: RequestMediaItem[];
+  initialIndex?: number;
   onDidDismiss: () => void;
 }
 
 export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
   isOpen,
   items,
+  initialIndex = 0,
   onDidDismiss,
 }) => {
   const [index, setIndex] = useState(0);
@@ -149,9 +175,13 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
       stopAudio();
       return;
     }
-    setIndex(0);
-    setMediaStatus(items[0]?.kind === 'audio' ? 'ready' : 'loading');
-  }, [isOpen, items, stopAudio]);
+    const start =
+      items.length === 0
+        ? 0
+        : Math.max(0, Math.min(Math.floor(initialIndex), items.length - 1));
+    setIndex(start);
+    setMediaStatus(items[start]?.kind === 'audio' ? 'ready' : 'loading');
+  }, [isOpen, items, initialIndex, stopAudio]);
 
   useEffect(() => {
     stopAudio();
@@ -323,10 +353,12 @@ export const RequestMediaModal: React.FC<RequestMediaModalProps> = ({
 export const RequestMediaModalHost: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<RequestMediaItem[]>([]);
+  const [initialIndex, setInitialIndex] = useState(0);
 
   useEffect(() => {
-    openMediaHandler = (next) => {
+    openMediaHandler = (next, startIndex) => {
       setItems(next);
+      setInitialIndex(startIndex);
       setIsOpen(true);
     };
     return () => {
@@ -338,9 +370,11 @@ export const RequestMediaModalHost: React.FC = () => {
     <RequestMediaModal
       isOpen={isOpen}
       items={items}
+      initialIndex={initialIndex}
       onDidDismiss={() => {
         setIsOpen(false);
         setItems([]);
+        setInitialIndex(0);
       }}
     />
   );

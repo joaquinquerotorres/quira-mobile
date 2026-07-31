@@ -13,6 +13,7 @@ import {
 import { ServiceRequest, VisitRequest } from '../../types';
 import { env } from '../../config/env';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { openRequestMediaFromSources } from '../shared/RequestMediaModal';
 import { formatStartsAtDateTime } from '../../api/calendarEventsApi';
 import type { EffectiveTier } from '../../utils/effectiveTier';
 import {
@@ -366,7 +367,24 @@ export const ProRequestDetailMainSection: React.FC<
                   <img
                     src={resolveMediaUrl(url)}
                     alt="Foto adicional"
-                    className="detail-extra-media-img-inside"
+                    className="detail-extra-media-img-inside detail-media-openable"
+                    onClick={() =>
+                      openRequestMediaFromSources(request, {
+                        url,
+                        kind: 'photo',
+                      })
+                    }
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openRequestMediaFromSources(request, {
+                          url,
+                          kind: 'photo',
+                        });
+                      }
+                    }}
                   />
                 </div>
               ))}
@@ -374,8 +392,17 @@ export const ProRequestDetailMainSection: React.FC<
                 <div key={`inside-video-${url}`} className="detail-extra-media-item-inside">
                   <video
                     src={resolveMediaUrl(url)}
-                    controls
-                    className="detail-extra-media-video-inside"
+                    className="detail-extra-media-video-inside detail-media-openable"
+                    muted
+                    playsInline
+                    preload="metadata"
+                    onClick={() =>
+                      openRequestMediaFromSources(request, {
+                        url,
+                        kind: 'video',
+                      })
+                    }
+                    aria-label="Ver vídeo en galería"
                   />
                 </div>
               ))}

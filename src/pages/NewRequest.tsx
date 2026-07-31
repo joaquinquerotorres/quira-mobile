@@ -64,7 +64,11 @@ import {
   parsePredictSafetyFields,
   unsafeUserMessage,
 } from '../utils/parsePredictSafety';
-import { isExecutionTimeComplete } from '../utils/executionTime';
+import {
+  formatSpecificExecutionTime,
+  isExecutionTimeComplete,
+  parseScheduleIntentToIso,
+} from '../utils/executionTime';
 import {
   CORDOBA_AREA_TOAST,
   isCordobaAreaFromComponents,
@@ -883,7 +887,12 @@ const NewRequest: React.FC = () => {
       }
       
       if (aiData.urgency === 'SCHEDULED' && aiData.schedule_intent) {
-        setToast(`📅 Fecha aproximada detectada: "${aiData.schedule_intent}". Podrás ajustar tu disponibilidad preferida en el siguiente paso.`);
+        const scheduleIso = parseScheduleIntentToIso(
+          String(aiData.schedule_intent),
+        );
+        if (scheduleIso) {
+          setDesiredExecutionTime(formatSpecificExecutionTime(scheduleIso));
+        }
       } else if (!isSafe) {
         setToast(unsafeUserMessage(safetyReason));
       }
