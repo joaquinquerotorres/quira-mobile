@@ -477,8 +477,8 @@ Reglas de cliente:
 
 ### Directorio y detalle de profesional
 
-- **Listado (Directorio y Profesionales top en RequestList)**: cada tarjeta muestra avatar redondeado, badge PRO/SOLVER/FREE **encima del avatar**, nombre, **habilidades o categoría en español** (p. ej. Fontanería, Climatización) mediante `getCategoryLabel` / `utils/categoryLabels`, y rating + reviewCount.
-- **Ficha de profesional (`/directory/:id`)**: hero con avatar y tier; **InfoCard** con nombre, subtítulo (primera skill o categoría traducida), rating y trabajos; secciones **Sobre el profesional**, **Especialidades** y **Opiniones** dentro de **cajas** (`.directory-detail-card`: fondo blanco, bordes redondeados, sombra suave).
+- **Listado (Directorio y Profesionales top en RequestList)**: cada tarjeta muestra avatar redondeado, badge PRO/SOLVER/FREE **encima del avatar**, nombre, **habilidades o categoría en español** (p. ej. Fontanería, Climatización) mediante `getCategoryLabel` / `utils/categoryLabels`, y rating + reviewCount. La antigüedad «En Quira desde …» solo se muestra en el **detalle**.
+- **Ficha de profesional (`/directory/:id`)**: hero con avatar y tier; **InfoCard** con nombre, «En Quira desde …» (si hay `createdAt`), rating y trabajos (sin skill bajo el nombre; las skills van en **Especialidades**); secciones **Sobre el profesional**, **Especialidades** y **Opiniones** dentro de **cajas** (`.directory-detail-card`: fondo blanco, bordes redondeados, sombra suave).
 
 ### Profile
 

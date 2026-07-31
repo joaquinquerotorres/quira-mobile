@@ -5,7 +5,6 @@ import { formatQuiraMemberSince } from '../../utils/formatQuiraMemberSince';
 
 interface DirectoryDetailInfoCardProps {
   fullName: string;
-  subtitle: string;
   rating: string | number;
   completedJobs: string | number;
   /** Alta del perfil (`pro:read`); si falta, no se muestra la línea. */
@@ -14,7 +13,6 @@ interface DirectoryDetailInfoCardProps {
 
 export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = ({
   fullName,
-  subtitle,
   rating,
   completedJobs,
   createdAt,
@@ -42,19 +40,10 @@ export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = (
     >
       {fullName}
     </h1>
-    <p
-      style={{
-        margin: memberSince ? '5px 0 4px 0' : '5px 0 20px 0',
-        color: '#64748b',
-        fontWeight: 600,
-      }}
-    >
-      {subtitle}
-    </p>
     {memberSince && (
       <p
         style={{
-          margin: '0 0 20px 0',
+          margin: '8px 0 20px 0',
           color: '#94a3b8',
           fontSize: '0.8rem',
           fontWeight: 500,
@@ -63,6 +52,7 @@ export const DirectoryDetailInfoCard: React.FC<DirectoryDetailInfoCardProps> = (
         {memberSince}
       </p>
     )}
+    {!memberSince && <div style={{ height: 20 }} />}
 
     <div
       style={{

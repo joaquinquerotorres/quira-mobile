@@ -52,7 +52,7 @@ Cuerpo JSON alineado con `src/pages/NewRequest.tsx` (no exhaustivo):
 
 En **`request:read`**, el listado cliente usa **`bidCount`** (nº de propuestas; fallback `bids.length`) para el chip «Propuestas».
 
-En **`pro:read`**, **`ProfessionalProfile.createdAt`** alimenta el texto «En Quira desde …» en directorio / discovery.
+En **`pro:read`**, **`ProfessionalProfile.createdAt`** alimenta el texto «En Quira desde …» en el **detalle** del profesional (no en listados).
 
 **No** se envía `priceAmount` (sustituido por el rango anterior).
 En respuestas de requests, el frontend usa `desiredExecutionTime` para disponibilidad en cards/listados; `scheduledAt` ya no forma parte del contrato consumido por la app.

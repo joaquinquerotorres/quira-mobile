@@ -40,7 +40,7 @@ test('DirectoryDetail muestra perfil cuando el API responde', async () => {
   expect(screen.getByText('Instalaciones certificadas.')).toBeInTheDocument();
 });
 
-test('DirectoryDetail muestra En Quira desde con createdAt', async () => {
+test('DirectoryDetail muestra En Quira desde con createdAt y no skill bajo el nombre', async () => {
   vi.mocked(api.get).mockResolvedValue({
     data: {
       id: 3,
@@ -64,7 +64,16 @@ test('DirectoryDetail muestra En Quira desde con createdAt', async () => {
   await waitFor(() => {
     expect(screen.getByText('En Quira desde mayo de 2026')).toBeInTheDocument();
   });
+  // La skill solo en la sección Especialidades (chip), no como subtítulo bajo el nombre
+  const name = screen.getByText('Carlos Electricista');
+  expect(name.tagName.toLowerCase()).toBe('h1');
+  const infoCard = name.closest('.info-card-detail-white');
+  expect(infoCard).toBeTruthy();
+  expect(infoCard!.textContent).not.toMatch(/Electricidad/);
+  expect(screen.getByText('Electricidad')).toBeInTheDocument();
 });
+
+
 
 test('DirectoryDetail muestra No encontrado si el API no devuelve datos', async () => {
   vi.mocked(api.get).mockResolvedValue({ data: null });

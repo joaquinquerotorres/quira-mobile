@@ -13,7 +13,6 @@ import { DirectoryDetailInfoCard } from '../components/directory/DirectoryDetail
 import { DirectoryDetailBio } from '../components/directory/DirectoryDetailBio';
 import { DirectoryDetailSkills } from '../components/directory/DirectoryDetailSkills';
 import { DirectoryDetailReviews } from '../components/directory/DirectoryDetailReviews';
-import { getCategoryLabel } from '../utils/categoryLabels';
 
 import { env } from '../config/env';
 
@@ -129,7 +128,6 @@ const DirectoryDetail: React.FC = () => {
         <div className="market-content-container" style={{ marginTop: '-45px' }}>
           <DirectoryDetailInfoCard
             fullName={pro.fullName}
-            subtitle={getCategoryLabel(pro.skills?.[0] || pro.category?.name) || 'Profesional'}
             rating={averageRating != null ? averageRating.toFixed(1) : '—'}
             completedJobs={reviewCount}
             createdAt={pro.createdAt}

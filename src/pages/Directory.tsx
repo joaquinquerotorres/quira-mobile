@@ -7,6 +7,7 @@ import { chevronBackOutline } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import './RequestList.css';
+import './DirectoryDetail.css';
 import { DirectoryProCard } from '../components/directory/DirectoryProCard';
 import { DirectorySearchBar } from '../components/directory/DirectorySearchBar';
 import { DirectoryCategoryChip } from '../components/directory/DirectoryCategoryChip';
@@ -127,17 +128,17 @@ const Directory: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen style={{ '--background': '#f8fafc' }}>
-        {/* HERO ESTILO 2 */}
-        <div className="market-hero-bg animate__animated animate__fadeIn">
+        {/* HERO ESTILO 2 — padding inferior deja hueco para el buscador sin tapar el subtítulo */}
+        <div className="market-hero-bg directory-list-hero animate__animated animate__fadeIn">
           <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'white', margin: '0 0 8px 0' }}>
             {categoryFilter ? getCategoryLabel(categoryFilter) : 'Directorio'}
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0, fontWeight: 500 }}>
+          <p className="directory-list-hero-subtitle">
              {loading ? 'Buscando...' : `Tenemos ${pros.length} profesionales listos`}
           </p>
         </div>
 
-        <div className="market-content-container" style={{ marginTop: '-40px' }}>
+        <div className="market-content-container directory-list-content">
           <DirectorySearchBar
             value={searchText}
             onChange={setSearchText}
