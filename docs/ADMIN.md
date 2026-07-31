@@ -184,3 +184,108 @@ Devolver exactamente la forma documentada en quira-mobile `docs/ADMIN.md` (perio
 ## Fuera de alcance de esta fase
 Listados de solicitudes/ofertas/users, acciones de moderación, plataforma iOS/Android, exports. Eso serán fases 2–9.
 ```
+
+---
+
+## Fase 2 — Solicitudes (contrato API)
+
+Frontend: `/admin/requests` + `/admin/requests/:id` (`AdminRequests.tsx`, `AdminRequestDetail.tsx`).
+
+### `GET /api/admin/requests`
+
+Query:
+
+| Param | Tipo | Notas |
+|-------|------|--------|
+| `status` | omitido \| `PENDING_APPROVAL` \| `PENDING` \| `ACCEPTED` \| `COMPLETED` | Sin param = todas |
+| `q` | string | Busca en id (si numérico), title, email cliente, nombre cliente |
+| `page` | int ≥ 1 | Default 1 |
+| `itemsPerPage` | int | Default 20, máx. 50 |
+
+Respuesta JSON:
+
+```json
+{
+  "items": [
+    {
+      "id": 12,
+      "title": "Fuga en cocina",
+      "status": "PENDING_APPROVAL",
+      "category": "PLUMBING",
+      "riskLevel": "LOW",
+      "bidCount": 0,
+      "estimatedPriceMin": 4500,
+      "estimatedPriceMax": 7500,
+      "createdAt": "2026-07-31T10:00:00+00:00",
+      "clientName": "Ana",
+      "clientEmail": "ana@example.com",
+      "aiSafe": false,
+      "aiInScope": true
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "itemsPerPage": 20
+}
+```
+
+Orden recomendado: `PENDING_APPROVAL` primero, luego `createdAt` DESC.
+
+### `GET /api/admin/requests/{id}`
+
+Detalle con los campos del list item **más**:
+
+`description`, `clientOriginalDescription`, `address`, `desiredExecutionTime`, `photoUrl`, `videoUrl`, `audioUrl`, `extraPhotoUrls[]`, `extraVideoUrls[]`, `extraAudioUrls[]`, `aiSafetyReason`, `aiOutOfScopeReason`, `aiDiagnosis` (objeto o null), `assignedProfessionalName`, `bids[]` con `{ id, status, pricingType, priceQuote, priceQuoteMin, priceQuoteMax, professionalName, createdAt }`.
+
+404 si no existe.
+
+### Acciones
+
+| Método | Ruta | Efecto |
+|--------|------|--------|
+| `POST` | `/api/admin/requests/{id}/approve` | Solo si `PENDING_APPROVAL` → `PENDING`. Body `{}`. Respuesta = detalle actualizado. |
+| `POST` | `/api/admin/requests/{id}/reject` | Solo si `PENDING_APPROVAL`. Body opcional `{ "reason": "…" }`. Cancela/elimina (mismo criterio que cancel cliente o soft-delete documentado). 204 o 200. |
+| `POST` | `/api/admin/requests/{id}/cancel` | Admin cancela `PENDING` (y opcionalmente otros estados no COMPLETED). 204 o 200. |
+
+Errores: `403` sin ROLE_ADMIN; `409` si el estado no permite la acción.
+
+Registrar en audit log interno (quién, cuándo, acción, request id) si ya tienes infraestructura; si no, al menos logs estructurados.
+
+---
+
+## Prompt Quira (backend) — Fase 2 Solicitudes
+
+```text
+Implementa la Fase 2 del Admin Quira (solicitudes) según docs/ADMIN.md del repo quira-mobile (sección «Fase 2 — Solicitudes»).
+
+## Auth
+Todas las rutas `/api/admin/*` exigen ROLE_ADMIN (403 si no).
+
+## Endpoints
+1) GET /api/admin/requests?status=&q=&page=&itemsPerPage=
+   - JSON plano (no Hydra) con { items, total, page, itemsPerPage }.
+   - Filtro status opcional; q busca id/título/email/nombre cliente.
+   - Orden: PENDING_APPROVAL primero, luego createdAt DESC.
+   - Campos del item: id, title, status, category, riskLevel, bidCount, estimatedPriceMin/Max (céntimos), createdAt, clientName, clientEmail, aiSafe, aiInScope (desde aiDiagnosis o columnas equivalentes).
+
+2) GET /api/admin/requests/{id}
+   - Detalle con media, descriptions, aiDiagnosis, bids resumidas, assignedProfessionalName.
+   - 404 si no existe.
+
+3) POST /api/admin/requests/{id}/approve
+   - Solo PENDING_APPROVAL → PENDING. Devuelve detalle. 409 si estado incorrecto.
+
+4) POST /api/admin/requests/{id}/reject
+   - Solo PENDING_APPROVAL. Body opcional { reason }. Elimina o cancela de forma consistente con el dominio. 409 si estado incorrecto.
+
+5) POST /api/admin/requests/{id}/cancel
+   - Cancelación admin (mínimo status PENDING). 409 si no aplica.
+
+## Calidad
+- Tests: admin OK, no-admin 403, approve/reject/cancel con estados válidos/inválidos.
+- No filtrar por dueño: el admin ve TODAS las requests.
+- Documentar en README del API.
+
+## Fuera de alcance
+Ofertas admin, users, stats (ya fase 1), plataforma iOS/Android.
+```

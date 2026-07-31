@@ -44,12 +44,13 @@ import Directory from './pages/Directory';
 import DirectoryDetail from './pages/DirectoryDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminMore from './pages/admin/AdminMore';
+import AdminRequests from './pages/admin/AdminRequests';
+import AdminRequestDetail from './pages/admin/AdminRequestDetail';
 import {
   AdminBidsPage,
   AdminOpsPage,
   AdminPlatformPage,
   AdminQualityPage,
-  AdminRequestsPage,
   AdminSubscriptionsPage,
   AdminToolsPage,
   AdminUsersPage,
@@ -113,7 +114,8 @@ const MainTabs: React.FC = () => {
   // Verificamos si la ruta actual debe ocultar la barra
   const shouldHideTabBar =
     hideTabBarPaths.includes(location.pathname) ||
-    (!isAdmin && location.pathname.startsWith('/directory/'));
+    (!isAdmin && location.pathname.startsWith('/directory/')) ||
+    /^\/admin\/requests\/\d+/.test(location.pathname);
 
   // Tabs pro si el modo es pro, o si la ruta actual es del shell profesional
   // (evita tab bar vacía cuando la URL no coincide con ningún botón visible).
@@ -191,7 +193,10 @@ const MainTabs: React.FC = () => {
           <Redirect to="/admin" />
         </Route>
         <Route exact path="/admin/requests">
-          <AdminRequestsPage />
+          <AdminRequests />
+        </Route>
+        <Route exact path="/admin/requests/:id">
+          <AdminRequestDetail />
         </Route>
         <Route exact path="/admin/bids">
           <AdminBidsPage />

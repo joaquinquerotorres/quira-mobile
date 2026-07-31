@@ -1,13 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   adminRangeToFromTo,
+  approveAdminRequest,
+  fetchAdminRequestDetail,
+  fetchAdminRequests,
   fetchAdminStatsOverview,
   kpiDeltaPercent,
+  rejectAdminRequest,
 } from './adminApi';
 
 vi.mock('./axios', () => ({
   default: {
     get: vi.fn(),
+    post: vi.fn(),
   },
 }));
 
@@ -16,6 +21,7 @@ import api from './axios';
 describe('adminApi', () => {
   beforeEach(() => {
     vi.mocked(api.get).mockReset();
+    vi.mocked(api.post).mockReset();
   });
 
   it('builds inclusive local date ranges', () => {
@@ -46,5 +52,62 @@ describe('adminApi', () => {
       headers: { Accept: 'application/json' },
     });
     vi.useRealTimers();
+  });
+
+  it('fetches admin requests list with filters', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: { items: [], total: 0, page: 1, itemsPerPage: 20 },
+    });
+    await fetchAdminRequests({
+      status: 'PENDING_APPROVAL',
+      q: 'fuga',
+      page: 2,
+    });
+    expect(api.get).toHaveBeenCalledWith('/admin/requests', {
+      params: {
+        status: 'PENDING_APPROVAL',
+        q: 'fuga',
+        page: 2,
+        itemsPerPage: 20,
+      },
+      headers: { Accept: 'application/json' },
+    });
+  });
+
+  it('omits status when ALL', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: { items: [], total: 0, page: 1, itemsPerPage: 20 },
+    });
+    await fetchAdminRequests({ status: 'ALL' });
+    expect(api.get).toHaveBeenCalledWith('/admin/requests', {
+      params: {
+        status: undefined,
+        q: undefined,
+        page: 1,
+        itemsPerPage: 20,
+      },
+      headers: { Accept: 'application/json' },
+    });
+  });
+
+  it('fetches request detail and posts approve/reject', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { id: 9 } });
+    vi.mocked(api.post).mockResolvedValue({ data: { id: 9, status: 'PENDING' } });
+    await fetchAdminRequestDetail(9);
+    expect(api.get).toHaveBeenCalledWith('/admin/requests/9', {
+      headers: { Accept: 'application/json' },
+    });
+    await approveAdminRequest(9);
+    expect(api.post).toHaveBeenCalledWith(
+      '/admin/requests/9/approve',
+      {},
+      { headers: { Accept: 'application/json' } },
+    );
+    await rejectAdminRequest(9, 'spam');
+    expect(api.post).toHaveBeenCalledWith(
+      '/admin/requests/9/reject',
+      { reason: 'spam' },
+      { headers: { Accept: 'application/json' } },
+    );
   });
 });

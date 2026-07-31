@@ -60,13 +60,6 @@ export const AdminComingSoon: React.FC<AdminComingSoonProps> = ({
   );
 };
 
-export const AdminRequestsPage: React.FC = () => (
-  <AdminComingSoon
-    title="Solicitudes"
-    blurb="Listado global, moderación y ficha de cada request."
-  />
-);
-
 export const AdminBidsPage: React.FC = () => (
   <AdminComingSoon
     title="Ofertas"

@@ -1,0 +1,190 @@
+.admin-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.admin-search ion-icon {
+  color: var(--ion-color-primary);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.admin-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.9rem;
+  min-width: 0;
+}
+
+.admin-search button {
+  border: none;
+  background: #312e81;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.admin-status-filters {
+  flex-wrap: wrap;
+}
+
+.admin-req-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-req-card {
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-req-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.admin-req-id {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--admin-muted);
+}
+
+.admin-req-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--admin-text);
+  margin-bottom: 4px;
+}
+
+.admin-req-meta {
+  font-size: 0.75rem;
+  color: var(--admin-muted);
+  font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.admin-req-flag {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #c2410c;
+}
+
+.admin-status-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.admin-status-pill.warn {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.admin-status-pill.info {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.admin-status-pill.ok {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.admin-status-pill.done {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.admin-status-pill.flat {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.admin-actions .admin-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-detail-line {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--admin-text);
+  font-weight: 600;
+}
+
+.admin-detail-line.warn-text {
+  color: #b45309;
+}
+
+.admin-detail-body {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.admin-bid-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: var(--admin-text);
+}
+
+.admin-media-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-media-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  background: #0f172a;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
