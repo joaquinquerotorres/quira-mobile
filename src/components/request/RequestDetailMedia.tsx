@@ -4,6 +4,7 @@ import { playCircleOutline, pauseCircleOutline } from 'ionicons/icons';
 import { ServiceRequest } from '../../types';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { getCategoryStyle } from '../../utils/categoryStyles';
+import { openRequestMediaFromSources } from '../shared/RequestMediaModal';
 
 interface RequestDetailMediaProps {
   request: ServiceRequest;
@@ -19,6 +20,10 @@ export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
   const hasPrimaryMedia = Boolean(request.videoUrl || request.photoUrl || request.audioUrl);
   const categoryVisual = getCategoryStyle(request.category);
 
+  const openGallery = (url: string, kind: 'photo' | 'video') => {
+    openRequestMediaFromSources(request, { url, kind });
+  };
+
   return (
     <div
       className={`image-container-rounded${!hasPrimaryMedia ? ' image-container-rounded--placeholder' : ''}`}
@@ -27,14 +32,27 @@ export const RequestDetailMedia: React.FC<RequestDetailMediaProps> = ({
         {request.videoUrl ? (
           <video
             src={resolveMediaUrl(request.videoUrl)}
-            controls
-            className="detail-media-video"
+            className="detail-media-video detail-media-openable"
+            muted
+            playsInline
+            preload="metadata"
+            onClick={() => openGallery(request.videoUrl!, 'video')}
+            aria-label="Ver vídeo en galería"
           />
         ) : request.photoUrl ? (
           <img
             src={resolveMediaUrl(request.photoUrl)}
-            className="detail-image-img"
+            className="detail-image-img detail-media-openable"
             alt="Detalle"
+            onClick={() => openGallery(request.photoUrl!, 'photo')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openGallery(request.photoUrl!, 'photo');
+              }
+            }}
           />
         ) : request.audioUrl ? (
           <div

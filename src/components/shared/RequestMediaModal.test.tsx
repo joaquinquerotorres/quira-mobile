@@ -1,6 +1,10 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { RequestMediaChip, RequestMediaModalHost } from './RequestMediaModal';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  openRequestMedia,
+  RequestMediaChip,
+  RequestMediaModalHost,
+} from './RequestMediaModal';
 
 vi.mock('@ionic/react', () => {
   const PassThrough = ({ children, ...props }: any) =>
@@ -95,4 +99,20 @@ test('RequestMediaChip can move between slides', async () => {
   });
   fireEvent.click(screen.getByLabelText('Ir a Vídeo'));
   expect(screen.getByText(/Vídeo \(2\/3\)/)).toBeInTheDocument();
+});
+
+test('openRequestMedia can start on a given index', async () => {
+  renderWithHost(<div />);
+  act(() => {
+    openRequestMedia(
+      [
+        { kind: 'photo', url: '/p.jpg' },
+        { kind: 'video', url: '/v.mp4' },
+      ],
+      1,
+    );
+  });
+  await waitFor(() => {
+    expect(screen.getByText(/Vídeo \(2\/2\)/)).toBeInTheDocument();
+  });
 });

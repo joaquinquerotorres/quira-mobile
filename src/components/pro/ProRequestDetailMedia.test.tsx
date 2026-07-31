@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import { ProRequestDetailMedia } from './ProRequestDetailMedia';
 
+const openRequestMediaFromSources = vi.fn();
+
+vi.mock('../shared/RequestMediaModal', () => ({
+  openRequestMediaFromSources: (...args: unknown[]) =>
+    openRequestMediaFromSources(...args),
+}));
+
 vi.mock('@ionic/react', () => ({
   IonIcon: ({ icon }: any) => <span data-testid="ion-icon">{String(icon?.name ?? icon ?? '')}</span>,
 }));
@@ -18,6 +25,7 @@ describe('ProRequestDetailMedia', () => {
   };
 
   test('renders video when videoUrl exists', () => {
+    openRequestMediaFromSources.mockClear();
     render(
       <ProRequestDetailMedia
         request={{ ...baseRequest, videoUrl: '/v.mp4' }}
@@ -26,10 +34,17 @@ describe('ProRequestDetailMedia', () => {
         onToggleAudio={vi.fn()}
       />,
     );
-    expect(document.querySelector('video')).toBeInTheDocument();
+    const video = document.querySelector('video');
+    expect(video).toBeInTheDocument();
+    fireEvent.click(video!);
+    expect(openRequestMediaFromSources).toHaveBeenCalledWith(
+      expect.objectContaining({ videoUrl: '/v.mp4' }),
+      { url: '/v.mp4', kind: 'video' },
+    );
   });
 
   test('renders photo when photoUrl exists (and no video)', () => {
+    openRequestMediaFromSources.mockClear();
     render(
       <ProRequestDetailMedia
         request={{ ...baseRequest, photoUrl: '/p.jpg' }}
@@ -40,6 +55,11 @@ describe('ProRequestDetailMedia', () => {
     );
     const img = document.querySelector('img[alt="Problema"]');
     expect(img).toBeInTheDocument();
+    fireEvent.click(img!);
+    expect(openRequestMediaFromSources).toHaveBeenCalledWith(
+      expect.objectContaining({ photoUrl: '/p.jpg' }),
+      { url: '/p.jpg', kind: 'photo' },
+    );
   });
 
   test('renders audio UI and calls onToggleAudio on click', () => {

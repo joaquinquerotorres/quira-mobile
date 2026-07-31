@@ -4,6 +4,7 @@ import {
   formatSpecificExecutionTime,
   isExecutionTimeComplete,
   isSpecificExecutionTime,
+  parseScheduleIntentToIso,
   parseSpecificExecutionIso,
   executionTimeSelectValue,
 } from './executionTime';
@@ -33,5 +34,18 @@ describe('executionTime', () => {
     expect(isExecutionTimeComplete(EXECUTION_TIME_SPECIFIC_OPTION)).toBe(false);
     expect(isExecutionTimeComplete('Fecha concreta: 15/08/2026')).toBe(true);
     expect(isExecutionTimeComplete('')).toBe(false);
+  });
+
+  it('parses schedule_intent into ISO when concrete', () => {
+    const today = new Date(2026, 6, 28); // 28 jul 2026
+    expect(parseScheduleIntentToIso('2026-08-15', today)).toBe('2026-08-15');
+    expect(parseScheduleIntentToIso('15/08/2026', today)).toBe('2026-08-15');
+    expect(parseScheduleIntentToIso('el 15 de agosto de 2026', today)).toBe(
+      '2026-08-15',
+    );
+    expect(parseScheduleIntentToIso('15 de agosto', today)).toBe('2026-08-15');
+    expect(parseScheduleIntentToIso('3 de enero', today)).toBe('2027-01-03');
+    expect(parseScheduleIntentToIso('próxima semana', today)).toBeNull();
+    expect(parseScheduleIntentToIso('', today)).toBeNull();
   });
 });
