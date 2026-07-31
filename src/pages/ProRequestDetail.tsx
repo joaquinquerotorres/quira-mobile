@@ -39,6 +39,9 @@ import {
   defaultBidPricingType,
   getAllowedBidPricingTypes,
   getRequestPricingType,
+  bidCommentLabel,
+  bidCommentPlaceholder,
+  isBidCommentRequired,
   type BidPricingType,
 } from '../utils/bidPricing';
 import { BidPricingFields } from '../components/pro/BidPricingFields';
@@ -303,6 +306,10 @@ const ProRequestDetail: React.FC = () => {
             setToast('El máximo debe ser mayor o igual que el mínimo.');
             return;
         }
+      }
+      if (isBidCommentRequired(bidPricingType) && !bidComment.trim()) {
+          setToast('En un rango de precio debes explicar por qué puede variar.');
+          return;
       }
       if (!bidEstimatedExecutionTime) {
           setToast("Debes indicar cuándo estimas poder realizar el trabajo.");
@@ -599,11 +606,11 @@ const ProRequestDetail: React.FC = () => {
                       </IonSelect>
                     </div>
 
-                    <IonLabel className="section-label" style={{marginTop:'15px'}}>Mensaje de presentación</IonLabel>
+                    <IonLabel className="section-label" style={{marginTop:'15px'}}>{bidCommentLabel(bidPricingType)}</IonLabel>
                     <div className="input-wrapper textarea-wrapper">
                         <IonTextarea 
                             rows={4} 
-                            placeholder="Hola, soy experto en..."
+                            placeholder={bidCommentPlaceholder(bidPricingType)}
                             value={bidComment}
                             onIonInput={e => setBidComment(e.detail.value!)}
                         />

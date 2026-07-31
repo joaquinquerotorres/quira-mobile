@@ -22,8 +22,8 @@ function parseOptionalInt(raw: string | null | undefined): number | undefined {
 }
 
 /**
- * Campos de precio de propuesta según el pricingType de la solicitud
- * (FIXED → fijo, RANGE → rango, VISIT_REQUIRED → selector).
+ * Campos de precio de la propuesta del profesional.
+ * Siempre puede elegir FIXED o RANGE (la estimación IA de la request no lo limita).
  */
 export const BidPricingFields: React.FC<BidPricingFieldsProps> = ({
   allowedTypes,
@@ -93,7 +93,7 @@ export const BidPricingFields: React.FC<BidPricingFieldsProps> = ({
           <IonLabel className="section-label">Rango de precio (€)</IonLabel>
           <div className="price-range-card">
             <div className="price-range-hint">
-              Define una horquilla realista para el cliente.
+              Define una horquilla realista. Deberás explicar por qué el precio puede variar.
             </div>
             <div className="price-range-grid">
               <div className="price-range-field">

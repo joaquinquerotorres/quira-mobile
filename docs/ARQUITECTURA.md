@@ -84,7 +84,8 @@ Documento que describe la arquitectura funcional de la app: tipos de usuario, ci
 
 ### Flujo de propuestas
 
-- **Crear**: `POST /bids` con `request` (IRI), `priceQuote`, `comment`, `status: 'PENDING'`.
+- **Crear**: `POST /bids` con `request` (IRI), `pricingType` (`FIXED` \| `RANGE`), precios, `comment`, `estimatedExecutionTime`, `status: 'PENDING'`.
+- El profesional **elige siempre** `FIXED` o `RANGE` (la estimación IA de la request no lo limita). Con `RANGE`, `comment` es obligatorio (explica la horquilla).
 - **Retirar**: `DELETE /bids/{id}/withdraw` sin body (solo si la request está PENDING y la propuesta PENDING).
 - **Aceptar**: `PATCH /bids/{id}/accept` cuando el cliente confirma la contratación.
 

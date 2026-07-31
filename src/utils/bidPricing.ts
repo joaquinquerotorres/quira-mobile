@@ -4,10 +4,7 @@ export type BidPricingType = 'FIXED' | 'RANGE';
 export type RequestPricingType = 'FIXED' | 'RANGE' | 'VISIT_REQUIRED';
 
 /**
- * Reglas alineadas con `BidProfessionalProcessor` (backend):
- * - FIXED → solo puja FIXED
- * - RANGE → solo puja RANGE
- * - VISIT_REQUIRED / null → FIXED o RANGE
+ * Tipo de precio estimado por la IA / request (no limita ya la puja del pro).
  */
 export function getRequestPricingType(
   request:
@@ -31,29 +28,42 @@ export function getRequestPricingType(
   return '';
 }
 
+/**
+ * El profesional puede elegir siempre FIXED o RANGE al pujar,
+ * con independencia del pricingType de la solicitud (estimación IA).
+ */
 export function getAllowedBidPricingTypes(
-  request:
+  _request?:
     | Pick<ServiceRequest, 'pricingType' | 'aiDiagnosis'>
     | null
     | undefined,
 ): BidPricingType[] {
-  const requestPricingType = getRequestPricingType(request);
-  switch (requestPricingType) {
-    case 'FIXED':
-      return ['FIXED'];
-    case 'RANGE':
-      return ['RANGE'];
-    case 'VISIT_REQUIRED':
-    default:
-      return ['FIXED', 'RANGE'];
-  }
+  return ['FIXED', 'RANGE'];
 }
 
+/** Prefiere el tipo de la estimación IA como valor inicial del selector. */
 export function defaultBidPricingType(
   request:
     | Pick<ServiceRequest, 'pricingType' | 'aiDiagnosis'>
     | null
     | undefined,
 ): BidPricingType {
-  return getAllowedBidPricingTypes(request)[0] ?? 'FIXED';
+  return getRequestPricingType(request) === 'RANGE' ? 'RANGE' : 'FIXED';
+}
+
+/** Comentario obligatorio si la puja es por rango (explicar la horquilla). */
+export function isBidCommentRequired(pricingType: BidPricingType): boolean {
+  return pricingType === 'RANGE';
+}
+
+export function bidCommentLabel(pricingType: BidPricingType): string {
+  return isBidCommentRequired(pricingType)
+    ? 'Por qué este rango de precio'
+    : 'Detalle de la propuesta (opcional)';
+}
+
+export function bidCommentPlaceholder(pricingType: BidPricingType): string {
+  return isBidCommentRequired(pricingType)
+    ? 'Explica al cliente por qué el precio puede variar (materiales, acceso, estado desconocido…)'
+    : 'Cuéntale al cliente por qué eres el profesional ideal…';
 }
