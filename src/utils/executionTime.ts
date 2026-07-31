@@ -138,7 +138,7 @@ export function parseScheduleIntentToIso(
   }
 
   const dmy = raw.match(
-    /(?:^|\D)(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})(?:\D|$)/,
+    /(?:^|\D)(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})(?:\D|$)/,
   );
   if (dmy) {
     return toIsoIfValid(Number(dmy[3]), Number(dmy[2]), Number(dmy[1]));
