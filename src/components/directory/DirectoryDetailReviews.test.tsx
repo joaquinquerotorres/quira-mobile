@@ -28,3 +28,15 @@ test('DirectoryDetailReviews renders empty state when no reviews', () => {
   expect(screen.getByText('Opiniones')).toBeInTheDocument();
   expect(screen.getByText('(0)')).toBeInTheDocument();
 });
+
+test('DirectoryDetailReviews omits quote when review has no comment', () => {
+  render(
+    <DirectoryDetailReviews
+      reviews={[{ id: 3, author: 'Ana L.', rating: 5, date: '2024-02-01' }]}
+    />,
+    { wrapper },
+  );
+  expect(screen.getByText('Ana L.')).toBeInTheDocument();
+  expect(screen.queryByText(/"/)).not.toBeInTheDocument();
+  expect(screen.queryByText('""')).not.toBeInTheDocument();
+});
