@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   IonContent, IonPage,
   IonCard, IonCardContent, IonIcon, IonRefresher, IonRefresherContent,
@@ -32,8 +32,14 @@ import { formatRequestPriceRangeEuros } from '../utils/requestPriceRange';
 import { formatQuiraMemberSince } from '../utils/formatQuiraMemberSince';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
 import type { ListingStatusKey } from '../utils/listingStatus';
+import {
+  LIST_FETCH_STALE_MS,
+  LIST_PAGE_SIZE,
+  createFetchFreshness,
+} from '../utils/fetchFreshness';
 
 const TOP_PROS_ORDER_KEY = 'request-list-top-pros-order-v1';
+
 
 const RequestList: React.FC = () => {
   const history = useHistory();
@@ -56,6 +62,9 @@ const RequestList: React.FC = () => {
 
   // --- TOAST ---
   const [toast, setToast] = useState<string | null>(null);
+
+  const listFreshness = useRef(createFetchFreshness(LIST_FETCH_STALE_MS)).current;
+  const skipFilterEffectOnce = useRef(true);
 
   // Categorías (Discovery)
   const categories = getDiscoveryCategories();
@@ -110,10 +119,16 @@ const RequestList: React.FC = () => {
       }
   };
 
-  const fetchRequests = async (event?: CustomEvent) => {
+  const fetchRequests = useCallback(async (event?: CustomEvent, opts?: { force?: boolean }) => {
+    const key = `${searchText}|${filterStatus}|${filterCategory}|${sortPrice}`;
+    if (!event && listFreshness.shouldSkip(key, opts)) {
+      setLoading(false);
+      return;
+    }
     if (!event) setLoading(true);
     try {
       const params = new URLSearchParams();
+      params.append('itemsPerPage', String(LIST_PAGE_SIZE));
       if (searchText) params.append('title', searchText);
       if (filterStatus !== 'ALL') params.append('status', filterStatus);
       if (filterCategory) params.append('category', filterCategory);
@@ -127,6 +142,7 @@ const RequestList: React.FC = () => {
       const data = response.data;
       const memberList = data['hydra:member'] || data['member'];
       if (memberList) setRequests(memberList);
+      listFreshness.mark(key);
     } catch (error) {
       console.error("Error cargando requests:", error);
       setToast('Error al cargar. Arrastra para reintentar.');
@@ -134,21 +150,32 @@ const RequestList: React.FC = () => {
       setLoading(false);
       event?.detail.complete();
     }
-  };
+  }, [searchText, filterStatus, filterCategory, sortPrice, listFreshness]);
 
   useIonViewWillEnter(() => { 
-      fetchRequests();
+      void fetchRequests(undefined, { force: false });
+      // Top pros: solo si aún no hay (ya era el comportamiento).
       if (topPros.length === 0) fetchTopPros(); 
   });
 
-  useEffect(() => { fetchRequests(); }, [filterStatus, filterCategory, sortPrice]);
+  // Filtros (status/categoría/precio): siempre. Skip 1ª vez — willEnter carga.
+  // searchText no dispara aquí: se aplica con Enter (onSearch) o al reentrar.
+  useEffect(() => {
+    if (skipFilterEffectOnce.current) {
+      skipFilterEffectOnce.current = false;
+      return;
+    }
+    void fetchRequests(undefined, { force: true });
+  }, [filterStatus, filterCategory, sortPrice, fetchRequests]);
+
   useEffect(() => {
     const onInvalidated = () => {
-      fetchRequests();
+      listFreshness.invalidate();
+      void fetchRequests(undefined, { force: true });
     };
     window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
     return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
-  }, [searchText, filterStatus, filterCategory, sortPrice]);
+  }, [fetchRequests, listFreshness]);
 
   // --- HANDLERS ---
   const resetModalFilters = () => { setFilterCategory(''); setSortPrice(''); };
@@ -209,7 +236,7 @@ const RequestList: React.FC = () => {
                         value={searchText} 
                         onChange={setSearchText} 
                         onFilterClick={() => setShowFilterModal(true)} 
-                        onSearch={fetchRequests}
+                        onSearch={() => void fetchRequests(undefined, { force: true })}
                         placeholder="Buscar solicitud..." />
 
                     <FilterChipRow

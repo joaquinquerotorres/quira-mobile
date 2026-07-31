@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   IonContent, IonPage,
   IonLabel, IonIcon, IonRefresher, IonRefresherContent, 
@@ -24,6 +24,13 @@ import { MyWorkBidCard, MyWorkJobCard } from '../components/mywork/MyWorkCards';
 import { dedupeBidsByRequestForMyWork } from '../utils/bidDisplay';
 import { CATEGORY_OPTIONS } from '../utils/categoryLabels';
 import { REQUESTS_INVALIDATED_EVENT } from '../utils/requestEvents';
+import {
+  LIST_FETCH_STALE_MS,
+  LIST_PAGE_SIZE,
+  SEARCH_DEBOUNCE_MS,
+  createFetchFreshness,
+} from '../utils/fetchFreshness';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 
 const MyWork: React.FC = () => {
   const router = useIonRouter();
@@ -35,35 +42,84 @@ const MyWork: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   // --- ESTADOS DE FILTROS ---
-  const [searchText, setSearchText] = useState(''); 
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebouncedValue(searchText, SEARCH_DEBOUNCE_MS);
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [sortPrice, setSortPrice] = useState<string>(''); 
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  // Carga inicial: precargamos ambos segmentos para que los contadores sean correctos
+  const listFreshness = useRef(createFetchFreshness(LIST_FETCH_STALE_MS)).current;
+  const skipFilterEffectOnce = useRef(true);
+  const filterKey = `${debouncedSearch}|${filterCategory}|${sortPrice}`;
+
+  const fetchSegment = useCallback(async (targetSegment: 'bids' | 'jobs') => {
+    const params = new URLSearchParams();
+    params.append('itemsPerPage', String(LIST_PAGE_SIZE));
+
+    if (targetSegment === 'bids') {
+      params.append('my_bids', 'true');
+      if (debouncedSearch) params.append('request.title', debouncedSearch);
+      if (filterCategory) params.append('request.category', filterCategory);
+      if (sortPrice) params.append('order[priceQuote]', sortPrice);
+      else params.append('order[createdAt]', 'desc');
+
+      const response = await api.get(`/bids?${params.toString()}`);
+      const data = response.data['hydra:member'] || response.data['member'] || [];
+      setBids(data);
+      return;
+    }
+
+    params.append('my_jobs', 'true');
+    if (debouncedSearch) params.append('title', debouncedSearch);
+    if (filterCategory) params.append('category', filterCategory);
+    if (sortPrice) params.append('order[estimatedPriceMin]', sortPrice);
+    else params.append('order[createdAt]', 'desc');
+
+    const response = await api.get(`/requests?${params.toString()}`);
+    const data = response.data['hydra:member'] || response.data['member'] || [];
+    setJobs(data);
+  }, [debouncedSearch, filterCategory, sortPrice]);
+
+  /** Precarga ambos segmentos (contadores del SegmentTab). */
+  const fetchBoth = useCallback(async (opts?: { force?: boolean }) => {
+    if (listFreshness.shouldSkip(filterKey, opts)) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      await Promise.all([fetchSegment('bids'), fetchSegment('jobs')]);
+      listFreshness.mark(filterKey);
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSegment, filterKey, listFreshness]);
+
+  // Carga al entrar al tab (TTL evita doble golpe con filtros / revisitas rápidas)
   useIonViewWillEnter(() => {
-    fetchData('bids');
-    fetchData('jobs');
+    void fetchBoth({ force: false });
   });
 
-  // Cuando cambian filtros, recargamos ambos segmentos para mantener los contadores al día
+  // Filtros/búsqueda: siempre. Skip 1ª vez (willEnter ya carga).
   useEffect(() => {
-    fetchData('bids');
-    fetchData('jobs');
-  }, [searchText, filterCategory, sortPrice]);
+    if (skipFilterEffectOnce.current) {
+      skipFilterEffectOnce.current = false;
+      return;
+    }
+    void fetchBoth({ force: true });
+  }, [filterKey, fetchBoth]);
 
-  // Cuando cambia el segmento activo, recargamos ese segmento concreto por si acaso
-  useEffect(() => {
-    fetchData(segment);
-  }, [segment]);
+  // Cambio de segmento: NO refetch — ambos ya están en estado (contadores correctos).
   useEffect(() => {
     const onInvalidated = () => {
-      fetchData('bids');
-      fetchData('jobs');
+      listFreshness.invalidate();
+      void fetchBoth({ force: true });
     };
     window.addEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
     return () => window.removeEventListener(REQUESTS_INVALIDATED_EVENT, onInvalidated);
-  }, [searchText, filterCategory, sortPrice, segment]);
+  }, [fetchBoth, listFreshness]);
 
   const getIdFromIri = (resource: any): number => {
     if (!resource) return 0;
@@ -87,47 +143,6 @@ const MyWork: React.FC = () => {
   };
 
   const displayBids = useMemo(() => dedupeBidsByRequestForMyWork(bids), [bids]);
-
-  // --- LÓGICA DE FETCH (CON FILTROS AL BACKEND) ---
-  const fetchData = async (targetSegment = segment) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-
-      if (targetSegment === 'bids') {
-        // --- BIDS (MIS PROPUESTAS) ---
-        params.append('my_bids', 'true');
-        
-        // Filtros para Bids
-        if (searchText) params.append('request.title', searchText); // Busca en el título de la request
-        if (filterCategory) params.append('request.category', filterCategory);
-        if (sortPrice) params.append('order[priceQuote]', sortPrice); // Ordena por precio de TU propuesta
-        else params.append('order[createdAt]', 'desc');
-        
-        const response = await api.get(`/bids?${params.toString()}`); 
-        const data = response.data['hydra:member'] || response.data['member'] || [];
-        setBids(data);
-
-      } else {
-
-        params.append('my_jobs', 'true');
-        
-        // Filtros para Requests
-        if (searchText) params.append('title', searchText);
-        if (filterCategory) params.append('category', filterCategory);
-        if (sortPrice) params.append('order[estimatedPriceMin]', sortPrice); 
-        else params.append('order[createdAt]', 'desc');
-
-        const response = await api.get(`/requests?${params.toString()}`);
-        const data = response.data['hydra:member'] || response.data['member'] || [];
-        setJobs(data);
-      }
-    } catch (error) {
-      console.error("Error cargando datos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // --- RENDER DE TARJETA DE PROPUESTA (BID) ---
   const renderBid = (bid: Bid) => {
@@ -184,9 +199,7 @@ const MyWork: React.FC = () => {
         <IonRefresher
           slot="fixed"
           onIonRefresh={(e) =>
-            Promise.all([fetchData('bids'), fetchData('jobs')]).then(() =>
-              e.detail.complete()
-            )
+            fetchBoth({ force: true }).then(() => e.detail.complete())
           }
         >
             <IonRefresherContent />
@@ -210,7 +223,7 @@ const MyWork: React.FC = () => {
                 value={searchText} 
                 onChange={setSearchText} 
                 onFilterClick={() => setShowFilterModal(true)} 
-                onSearch={fetchData}
+                onSearch={() => void fetchBoth({ force: true })}
                 placeholder={segment === 'bids' ? "Buscar en mis propuestas..." : "Buscar en mis trabajos..."} />
 
             {loading ? (
